@@ -12,7 +12,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 
 import { colors, spacing } from '@/theme';
 import type { TowerState, TowerId, Disk as DiskType } from '../types';
-import { DraggableDisk } from './DraggableDisk';
+import { DraggableDiskEnhanced } from './DraggableDiskEnhanced';
 
 interface DraggableTowerProps {
   towerId: TowerId;
@@ -102,12 +102,13 @@ export function DraggableTower({
         <View style={styles.disksContainer}>
           {tower.disks.map((disk, index) => (
             <View key={disk.id} style={styles.diskWrapper}>
-              <DraggableDisk
+              <DraggableDiskEnhanced
                 disk={disk}
                 maxWidth={maxDiskWidth}
                 minWidth={minDiskWidth}
                 height={diskHeight}
                 isTopDisk={index === topDiskIndex}
+                isSelectable={index === topDiskIndex}
                 totalDisks={totalDisks}
                 towerCenters={towerCenters}
                 towerWidth={towerWidth}
@@ -144,7 +145,7 @@ const styles = StyleSheet.create({
   },
   poleContainer: {
     position: 'absolute',
-    bottom: 0,
+    bottom: -15,
     alignItems: 'center',
   },
   pole: {
@@ -175,12 +176,12 @@ const styles = StyleSheet.create({
   },
   disksContainer: {
     position: 'absolute',
-    bottom: 4,
+    bottom: -10,
     alignItems: 'center',
     flexDirection: 'column-reverse',
-    gap: 3,
   },
   diskWrapper: {
     alignItems: 'center',
+    marginTop: -2,
   },
 });

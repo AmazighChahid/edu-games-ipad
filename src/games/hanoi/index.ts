@@ -2,7 +2,7 @@
  * Tower of Hanoi game module exports
  */
 
-export { HanoiIntroScreen, HanoiPlayScreen, HanoiVictoryScreen } from './screens';
+export { HanoiIntroScreen, HanoiVictoryScreen } from './screens';
 export { GameBoard, Tower, Disk } from './components';
 export { useHanoiGame } from './hooks/useHanoiGame';
 export * from './types';

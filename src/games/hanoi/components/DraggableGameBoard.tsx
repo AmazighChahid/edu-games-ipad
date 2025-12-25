@@ -6,11 +6,11 @@
 import { useState, useCallback, useRef } from 'react';
 import { View, StyleSheet, useWindowDimensions, LayoutChangeEvent, Platform } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { LinearGradient } from 'expo-linear-gradient';
 
 import { spacing, borderRadius } from '@/theme';
 import type { HanoiGameState, TowerId, Disk } from '../types';
 import { DraggableTower } from './DraggableTower';
+import { WoodenBase } from './WoodenBase';
 
 interface DraggableGameBoardProps {
   gameState: HanoiGameState;
@@ -19,14 +19,6 @@ interface DraggableGameBoardProps {
   onTowerPress: (towerId: TowerId) => void;
   canMoveTo: (towerId: TowerId) => boolean;
 }
-
-// Warm wood colors for platform
-const WOOD_COLORS = {
-  light: '#DEB887',
-  main: '#C4A574',
-  dark: '#A08060',
-  darker: '#8B7355',
-};
 
 export function DraggableGameBoard({
   gameState,
@@ -150,27 +142,12 @@ export function DraggableGameBoard({
           </View>
         </View>
 
-        {/* Wooden Platform Base */}
-        <View style={[styles.platformContainer, { width: availableWidth }]}>
-          {/* Top surface */}
-          <LinearGradient
-            colors={[WOOD_COLORS.light, WOOD_COLORS.main]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 0, y: 1 }}
-            style={styles.platformTop}
-          >
-            {/* Wood grain effect */}
-            <View style={styles.woodGrain} />
-          </LinearGradient>
-
-          {/* Front face (depth) */}
-          <LinearGradient
-            colors={[WOOD_COLORS.dark, WOOD_COLORS.darker]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 0, y: 1 }}
-            style={styles.platformFront}
-          />
-        </View>
+        {/* Enhanced Wooden Platform Base */}
+        <WoodenBase
+          width={availableWidth}
+          pegCount={0}
+          platformHeight={60}
+        />
       </View>
     </GestureHandlerRootView>
   );
@@ -197,31 +174,5 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
     flex: 1,
     gap: spacing[2],
-  },
-  platformContainer: {
-    alignItems: 'center',
-    marginTop: -10,
-  },
-  platformTop: {
-    width: '100%',
-    height: 24,
-    borderTopLeftRadius: 8,
-    borderTopRightRadius: 8,
-    overflow: 'hidden',
-  },
-  woodGrain: {
-    position: 'absolute',
-    top: 4,
-    left: 30,
-    right: 30,
-    height: 6,
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
-    borderRadius: 3,
-  },
-  platformFront: {
-    width: '100%',
-    height: 16,
-    borderBottomLeftRadius: 8,
-    borderBottomRightRadius: 8,
   },
 });

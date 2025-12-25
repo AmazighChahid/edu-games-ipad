@@ -85,10 +85,11 @@ export function GameContainer({
                 {onHelp && (
                   <Pressable
                     onPress={onHelp}
-                    style={styles.iconButton}
-                    accessibilityLabel="Aide"
+                    style={styles.parentButton}
+                    accessibilityLabel="Espace Parent"
                   >
-                    <Text style={styles.iconButtonText}>?</Text>
+                    <Text style={styles.parentButtonIcon}>?</Text>
+                    <Text style={styles.parentButtonLabel}>Parent</Text>
                   </Pressable>
                 )}
 
@@ -215,6 +216,38 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 20,
     fontWeight: '600',
+  },
+  parentButton: {
+    height: 40,
+    paddingHorizontal: spacing[3],
+    borderRadius: 20,
+    backgroundColor: '#FFA94D',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
+    gap: spacing[1],
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 3,
+    elevation: 3,
+  },
+  parentButtonIcon: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    backgroundColor: '#E8943D',
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    textAlign: 'center',
+    lineHeight: 22,
+    overflow: 'hidden',
+  },
+  parentButtonLabel: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#FFFFFF',
   },
   statsRow: {
     paddingHorizontal: spacing[4],

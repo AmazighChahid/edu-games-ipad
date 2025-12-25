@@ -1,7 +1,14 @@
 /**
  * Hanoi unified screen - Intro + Game with seamless transition
  * The game board is always visible and updates based on selected level
- * When user taps "Play", the level selector slides up and game UI appears
+ * When user moves a disk OR taps play, transition to game mode
+ *
+ * Features:
+ * - Level selection with disk count preview
+ * - Micro-objectives display during gameplay
+ * - Blocage detection with strategy pause
+ * - Animated hints system
+ * - Parent zone with method explanation
  */
 
 import { useState, useCallback, useRef, useEffect } from 'react';
@@ -10,6 +17,7 @@ import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, {
   FadeIn,
+  FadeOut,
   useSharedValue,
   useAnimatedStyle,
   withTiming,
@@ -20,10 +28,22 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import { colors, spacing, textStyles, borderRadius, shadows, touchTargets } from '@/theme';
-import { DraggableGameBoard } from '../components';
+import { DraggableGameBoard, VictoryCelebration } from '../components';
 import { useHanoiGame } from '../hooks/useHanoiGame';
 import { hanoiLevels } from '../data/levels';
+import { ParentZone, type GameMode } from '@/components/parent/ParentZone';
 import type { HanoiLevelConfig, TowerId } from '../types';
+
+// Micro-objectifs selon la progression
+const getMicroObjective = (progress: number): string => {
+  if (progress < 0.3) {
+    return 'Libérer le grand disque';
+  } else if (progress < 0.6) {
+    return 'Construire une pile provisoire';
+  } else {
+    return 'Recomposer la pile finale';
+  }
+};
 
 export function HanoiIntroScreen() {
   const router = useRouter();
@@ -38,6 +58,24 @@ export function HanoiIntroScreen() {
   const [showDemo, setShowDemo] = useState(false);
   const [demoStep, setDemoStep] = useState(0);
   const demoTimeoutsRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+
+  // Parent zone state
+  const [showParentZone, setShowParentZone] = useState(false);
+  const [gameMode, setGameMode] = useState<GameMode>('discovery');
+  const [hintsUsed, setHintsUsed] = useState(0);
+
+  // Gameplay UI state
+  const [showRulesOverlay, setShowRulesOverlay] = useState(false);
+  const [showStrategyPause, setShowStrategyPause] = useState(false);
+  const [hintMessage, setHintMessage] = useState<string | null>(null);
+
+  // Blocage detection
+  const lastMoveTimeRef = useRef<number>(Date.now());
+  const blockageCheckRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Hints based on mode
+  const maxHints = gameMode === 'discovery' ? 99 : gameMode === 'challenge' ? 3 : 0;
+  const hintsRemaining = Math.max(0, maxHints - hintsUsed);
 
   // Animation values
   const selectorY = useSharedValue(0);
@@ -66,15 +104,101 @@ export function HanoiIntroScreen() {
     gameState,
     level,
     moveCount,
+    consecutiveInvalid,
     isVictory,
     selectTower,
     canMoveTo,
     performMove,
     reset,
+    getHint,
+    playHint,
   } = useHanoiGame({
     levelId: currentLevelId,
     onVictory: handleVictory,
   });
+
+  // Hint animation
+  const hintPulse = useSharedValue(1);
+
+  // Calculate progress for micro-objective
+  const targetDisks = level.diskCount;
+  const disksOnTarget = gameState.towers[2].disks.length;
+  const progress = disksOnTarget / targetDisks;
+  const microObjective = getMicroObjective(progress);
+
+  // Update last move time on each move
+  useEffect(() => {
+    lastMoveTimeRef.current = Date.now();
+  }, [moveCount]);
+
+  // Blocage detection
+  useEffect(() => {
+    if (!isPlaying || isVictory) return;
+
+    blockageCheckRef.current = setInterval(() => {
+      const idleTime = (Date.now() - lastMoveTimeRef.current) / 1000;
+
+      // Trigger pause stratégie if:
+      // - 3+ invalid moves quickly OR
+      // - 25+ seconds idle
+      if ((consecutiveInvalid >= 3 || idleTime >= 25) && !showStrategyPause) {
+        setShowStrategyPause(true);
+      }
+    }, 5000);
+
+    return () => {
+      if (blockageCheckRef.current) {
+        clearInterval(blockageCheckRef.current);
+      }
+    };
+  }, [isPlaying, consecutiveInvalid, isVictory, showStrategyPause]);
+
+  // Animated hint handler
+  const handleHint = useCallback(() => {
+    if (hintsRemaining > 0 && !isVictory) {
+      setHintsUsed((prev) => prev + 1);
+
+      hintPulse.value = withSequence(
+        withTiming(1.2, { duration: 150 }),
+        withTiming(1, { duration: 150 })
+      );
+
+      const hint = getHint();
+      if (hint) {
+        const towerNames = ['A', 'B', 'C'];
+        setHintMessage(`Déplace vers ${towerNames[hint.to]}`);
+
+        setTimeout(() => {
+          playHint();
+          setHintMessage(null);
+        }, 1500);
+      }
+    }
+  }, [hintsRemaining, isVictory, getHint, playHint, hintPulse]);
+
+  // Strategy pause handlers
+  const handleStrategyHint = () => {
+    setShowStrategyPause(false);
+    handleHint();
+  };
+
+  const handleStrategyDemo = () => {
+    setShowStrategyPause(false);
+    playHint();
+    setTimeout(() => {
+      if (!isVictory) playHint();
+    }, 1000);
+  };
+
+  const handleStrategyContinue = () => {
+    setShowStrategyPause(false);
+  };
+
+  const handleModeChange = (mode: GameMode) => {
+    setGameMode(mode);
+    setHintsUsed(0);
+    reset();
+  };
 
   // Update game when level selection changes (only in selection mode)
   useEffect(() => {
@@ -87,6 +211,23 @@ export function HanoiIntroScreen() {
   useEffect(() => {
     reset();
   }, [currentLevelId]);
+
+  // Function to transition to play mode
+  const transitionToPlayMode = useCallback(() => {
+    if (isPlaying) return;
+
+    // Slide selector down and fade out
+    selectorY.value = withTiming(150, { duration: 400, easing: Easing.out(Easing.quad) });
+    selectorOpacity.value = withTiming(0, { duration: 300 });
+
+    // Fade in game HUD
+    hudOpacity.value = withDelay(200, withTiming(1, { duration: 300 }));
+
+    // Start playing after animation
+    setTimeout(() => {
+      setIsPlaying(true);
+    }, 300);
+  }, [isPlaying, selectorY, selectorOpacity, hudOpacity]);
 
   const handleBack = () => {
     if (isPlaying) {
@@ -108,17 +249,7 @@ export function HanoiIntroScreen() {
       withTiming(1, { duration: 100 })
     );
 
-    // Slide selector up and fade out
-    selectorY.value = withTiming(-250, { duration: 400, easing: Easing.out(Easing.quad) });
-    selectorOpacity.value = withTiming(0, { duration: 300 });
-
-    // Fade in game HUD
-    hudOpacity.value = withDelay(200, withTiming(1, { duration: 300 }));
-
-    // Start playing after animation
-    setTimeout(() => {
-      setIsPlaying(true);
-    }, 300);
+    transitionToPlayMode();
   };
 
   const handleReset = () => {
@@ -126,12 +257,18 @@ export function HanoiIntroScreen() {
   };
 
   const handleTowerPress = (towerId: TowerId) => {
-    if (!isPlaying || isVictory) return;
+    if (isVictory) return;
     selectTower(towerId);
   };
 
   const handleMove = (from: TowerId, to: TowerId) => {
-    if (!isPlaying || isVictory) return;
+    if (isVictory) return;
+
+    // If not playing yet, transition to play mode on first move
+    if (!isPlaying) {
+      transitionToPlayMode();
+    }
+
     performMove(from, to);
   };
 
@@ -266,8 +403,8 @@ export function HanoiIntroScreen() {
       style={[
         styles.container,
         {
-          paddingTop: insets.top + spacing[3],
-          paddingBottom: insets.bottom + spacing[3],
+          paddingTop: insets.top + spacing[2],
+          paddingBottom: insets.bottom + spacing[2],
         },
       ]}
     >
@@ -279,39 +416,19 @@ export function HanoiIntroScreen() {
 
         <Text style={styles.headerTitle}>Tour de Hanoï</Text>
 
-        <Pressable onPress={() => setShowDemo(true)} style={styles.helpButton}>
-          <Text style={styles.helpButtonText}>?</Text>
-        </Pressable>
+        <View style={styles.headerRightButtons}>
+          <Pressable onPress={() => setShowParentZone(!showParentZone)} style={styles.parentButton}>
+            <Text style={styles.parentButtonIcon}>?</Text>
+            <Text style={styles.parentButtonLabel}>Parent</Text>
+          </Pressable>
+
+          <Pressable onPress={() => setShowDemo(true)} style={styles.helpButton}>
+            <Text style={styles.helpButtonText}>▶</Text>
+          </Pressable>
+        </View>
       </View>
 
-      {/* Game HUD - Appears when playing */}
-      <Animated.View style={[styles.gameHud, hudStyle]} pointerEvents={isPlaying ? 'auto' : 'none'}>
-        <View style={styles.hudItem}>
-          <Text style={styles.hudLabel}>Coups</Text>
-          <Text style={styles.hudValue}>{moveCount}</Text>
-        </View>
-        <View style={styles.hudDivider} />
-        <View style={styles.hudItem}>
-          <Text style={styles.hudLabel}>Optimal</Text>
-          <Text style={styles.hudValueOptimal}>{level.optimalMoves}</Text>
-        </View>
-        <Pressable onPress={handleReset} style={styles.resetButton}>
-          <Text style={styles.resetButtonText}>↻</Text>
-        </Pressable>
-      </Animated.View>
-
-      {/* Game Board - Always visible, uses the real DraggableGameBoard component */}
-      <View style={styles.boardContainer}>
-        <DraggableGameBoard
-          gameState={gameState}
-          totalDisks={level.diskCount}
-          onMove={handleMove}
-          onTowerPress={handleTowerPress}
-          canMoveTo={canMoveTo}
-        />
-      </View>
-
-      {/* Level Selector - Slides up when playing */}
+      {/* Level Selector - At top, slides down when playing */}
       <Animated.View style={[styles.selectorContainer, selectorStyle]} pointerEvents={isPlaying ? 'none' : 'auto'}>
         <Text style={styles.selectorTitle}>Choisis le nombre de disques</Text>
 
@@ -365,13 +482,186 @@ export function HanoiIntroScreen() {
         </Animated.View>
       </Animated.View>
 
-      {/* Victory overlay */}
-      {isVictory && (
-        <Animated.View entering={FadeIn} style={styles.victoryOverlay}>
-          <Text style={styles.victoryEmoji}>🎉</Text>
-          <Text style={styles.victoryText}>Bravo !</Text>
+      {/* Game HUD - Appears when playing */}
+      <Animated.View style={[styles.gameHud, hudStyle]} pointerEvents={isPlaying ? 'auto' : 'none'}>
+        <View style={styles.hudItem}>
+          <Text style={styles.hudLabel}>Coups</Text>
+          <Text style={styles.hudValue}>{moveCount}</Text>
+        </View>
+        <View style={styles.hudDivider} />
+        <View style={styles.hudItem}>
+          <Text style={styles.hudLabel}>Optimal</Text>
+          <Text style={styles.hudValueOptimal}>{level.optimalMoves}</Text>
+        </View>
+        <Pressable onPress={handleReset} style={styles.resetButton}>
+          <Text style={styles.resetButtonText}>↻</Text>
+        </Pressable>
+      </Animated.View>
+
+      {/* Micro-objective - Appears when playing */}
+      {isPlaying && !isVictory && (
+        <Animated.View entering={FadeIn} style={styles.microObjective}>
+          <Text style={styles.microObjectiveLabel}>Mini-but :</Text>
+          <Text style={styles.microObjectiveText}>{microObjective}</Text>
         </Animated.View>
       )}
+
+      {/* Game Board - Always visible, takes most of the space */}
+      <View style={styles.boardContainer}>
+        <DraggableGameBoard
+          gameState={gameState}
+          totalDisks={level.diskCount}
+          onMove={handleMove}
+          onTowerPress={handleTowerPress}
+          canMoveTo={canMoveTo}
+        />
+      </View>
+
+      {/* Bottom HUD - Hint and Rules buttons */}
+      {isPlaying && !isVictory && (
+        <Animated.View entering={FadeIn} style={styles.bottomHud}>
+          <Pressable
+            onPress={handleHint}
+            style={[styles.hudButton, styles.hintButton]}
+            disabled={hintsRemaining <= 0}
+          >
+            <Text style={styles.hudButtonIcon}>💡</Text>
+            <Text style={styles.hudButtonText}>
+              Indice {gameMode !== 'expert' && `(${hintsRemaining})`}
+            </Text>
+          </Pressable>
+
+          <Pressable
+            onPress={() => setShowRulesOverlay(true)}
+            style={styles.hudButton}
+          >
+            <Text style={styles.hudButtonIcon}>📜</Text>
+            <Text style={styles.hudButtonText}>Règles</Text>
+          </Pressable>
+        </Animated.View>
+      )}
+
+      {/* Hint Toast */}
+      {hintMessage && (
+        <Animated.View entering={FadeIn} exiting={FadeOut} style={styles.hintToast}>
+          <Text style={styles.hintToastText}>{hintMessage}</Text>
+        </Animated.View>
+      )}
+
+      {/* Victory Celebration */}
+      <VictoryCelebration
+        visible={isVictory}
+        moves={moveCount}
+        optimalMoves={level.optimalMoves ?? 7}
+        hintsUsed={3 - hintsRemaining}
+        onReplay={() => {
+          reset();
+          setIsPlaying(false);
+          selectorY.value = withSpring(0, { damping: 15 });
+          selectorOpacity.value = withTiming(1, { duration: 300 });
+          hudOpacity.value = withTiming(0, { duration: 200 });
+        }}
+        onNextLevel={() => {
+          // Find next level
+          const currentIndex = hanoiLevels.findIndex(l => l.id === selectedLevel.id);
+          if (currentIndex < hanoiLevels.length - 1) {
+            const nextLevel = hanoiLevels[currentIndex + 1];
+            setSelectedLevel(nextLevel);
+            setCurrentLevelId(nextLevel.id);
+            reset();
+          }
+        }}
+      />
+
+      {/* Parent Zone */}
+      <ParentZone
+        progression={moveCount}
+        maxProgression={level.optimalMoves ?? 7}
+        hintsRemaining={hintsRemaining}
+        maxHints={maxHints}
+        currentMode={gameMode}
+        onModeChange={handleModeChange}
+        onHintPress={handleHint}
+        isVisible={showParentZone}
+      />
+
+      {/* Rules Overlay Modal */}
+      <Modal
+        visible={showRulesOverlay}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowRulesOverlay(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <Animated.View entering={FadeIn} style={styles.rulesCard}>
+            <Text style={styles.rulesTitle}>Les règles</Text>
+
+            <View style={styles.ruleItem}>
+              <View style={[styles.ruleIcon, { backgroundColor: colors.primary.main }]}>
+                <Text style={styles.ruleIconText}>1</Text>
+              </View>
+              <Text style={styles.ruleText}>Déplace un seul disque à la fois</Text>
+            </View>
+
+            <View style={styles.ruleItem}>
+              <View style={[styles.ruleIcon, { backgroundColor: colors.secondary.main }]}>
+                <Text style={styles.ruleIconText}>2</Text>
+              </View>
+              <Text style={styles.ruleText}>Un grand disque ne peut pas aller sur un petit</Text>
+            </View>
+
+            <View style={styles.ruleItem}>
+              <View style={[styles.ruleIcon, { backgroundColor: colors.feedback.success }]}>
+                <Text style={styles.ruleIconText}>3</Text>
+              </View>
+              <Text style={styles.ruleText}>Empile tous les disques sur la tour C</Text>
+            </View>
+
+            <Pressable
+              onPress={() => setShowRulesOverlay(false)}
+              style={styles.closeButton}
+            >
+              <Text style={styles.closeButtonText}>Compris !</Text>
+            </Pressable>
+          </Animated.View>
+        </View>
+      </Modal>
+
+      {/* Strategy Pause Modal */}
+      <Modal
+        visible={showStrategyPause}
+        transparent
+        animationType="fade"
+        onRequestClose={handleStrategyContinue}
+      >
+        <View style={styles.modalOverlay}>
+          <Animated.View entering={FadeIn} style={styles.strategyCard}>
+            <Text style={styles.strategyTitle}>Besoin d'aide ?</Text>
+            <Text style={styles.strategySubtitle}>
+              Pas de souci ! Choisis une option :
+            </Text>
+
+            <View style={styles.strategyButtons}>
+              <Pressable onPress={handleStrategyHint} style={styles.strategyButton}>
+                <Text style={styles.strategyButtonIcon}>💡</Text>
+                <Text style={styles.strategyButtonText}>Un indice</Text>
+              </Pressable>
+
+              <Pressable onPress={handleStrategyDemo} style={styles.strategyButton}>
+                <Text style={styles.strategyButtonIcon}>▶️</Text>
+                <Text style={styles.strategyButtonText}>Voir 2 coups</Text>
+              </Pressable>
+
+              <Pressable
+                onPress={handleStrategyContinue}
+                style={[styles.strategyButton, styles.strategyButtonOutline]}
+              >
+                <Text style={styles.strategyButtonTextOutline}>Je continue seul</Text>
+              </Pressable>
+            </View>
+          </Animated.View>
+        </View>
+      </Modal>
 
       {/* Demo Modal */}
       <Modal
@@ -463,6 +753,39 @@ const styles = StyleSheet.create({
     ...textStyles.h2,
     color: colors.text.primary,
   },
+  headerRightButtons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing[2],
+  },
+  parentButton: {
+    height: 40,
+    paddingHorizontal: spacing[3],
+    borderRadius: 20,
+    backgroundColor: '#FFA94D',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
+    gap: spacing[1],
+    ...shadows.sm,
+  },
+  parentButtonIcon: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    backgroundColor: '#E8943D',
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    textAlign: 'center',
+    lineHeight: 22,
+    overflow: 'hidden',
+  },
+  parentButtonLabel: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#FFFFFF',
+  },
   helpButton: {
     width: touchTargets.medium,
     height: touchTargets.medium,
@@ -473,16 +796,76 @@ const styles = StyleSheet.create({
     ...shadows.sm,
   },
   helpButtonText: {
-    fontSize: 20,
+    fontSize: 16,
     color: colors.text.inverse,
     fontWeight: 'bold',
+  },
+  selectorContainer: {
+    alignItems: 'center',
+    paddingHorizontal: spacing[4],
+    paddingVertical: spacing[3],
+  },
+  selectorTitle: {
+    ...textStyles.body,
+    color: colors.text.secondary,
+    marginBottom: spacing[3],
+  },
+  levelButtons: {
+    flexDirection: 'row',
+    gap: spacing[3],
+    marginBottom: spacing[4],
+  },
+  levelButton: {
+    backgroundColor: colors.background.card,
+    borderRadius: borderRadius.xl,
+    paddingVertical: spacing[3],
+    paddingHorizontal: spacing[3],
+    alignItems: 'center',
+    minWidth: 56,
+    borderWidth: 3,
+    borderColor: 'transparent',
+    ...shadows.sm,
+  },
+  levelButtonSelected: {
+    borderColor: colors.primary.main,
+    backgroundColor: colors.primary.main,
+  },
+  levelButtonNumber: {
+    ...textStyles.h2,
+    color: colors.text.primary,
+    marginBottom: spacing[1],
+  },
+  levelButtonNumberSelected: {
+    color: colors.primary.contrast,
+  },
+  miniDisks: {
+    alignItems: 'center',
+    gap: 2,
+  },
+  miniDisk: {
+    height: 5,
+    borderRadius: 2.5,
+  },
+  playButton: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: colors.primary.main,
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...shadows.lg,
+  },
+  playButtonIcon: {
+    fontSize: 24,
+    color: colors.primary.contrast,
+    marginLeft: 3,
   },
   gameHud: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: spacing[6],
-    paddingVertical: spacing[2],
+    paddingVertical: spacing[3],
     gap: spacing[4],
   },
   hudItem: {
@@ -521,80 +904,190 @@ const styles = StyleSheet.create({
   },
   boardContainer: {
     flex: 1,
+    minHeight: 300,
   },
-  selectorContainer: {
-    alignItems: 'center',
-    paddingHorizontal: spacing[4],
-    paddingBottom: spacing[4],
-  },
-  selectorTitle: {
-    ...textStyles.body,
-    color: colors.text.secondary,
-    marginBottom: spacing[4],
-  },
-  levelButtons: {
+
+  // Micro-objective styles
+  microObjective: {
     flexDirection: 'row',
-    gap: spacing[3],
-    marginBottom: spacing[5],
-  },
-  levelButton: {
-    backgroundColor: colors.background.card,
-    borderRadius: borderRadius.xl,
-    paddingVertical: spacing[3],
-    paddingHorizontal: spacing[3],
     alignItems: 'center',
-    minWidth: 56,
-    borderWidth: 3,
-    borderColor: 'transparent',
+    justifyContent: 'center',
+    paddingVertical: spacing[2],
+    paddingHorizontal: spacing[4],
+    backgroundColor: colors.background.card,
+    borderRadius: borderRadius.lg,
+    alignSelf: 'center',
+    marginBottom: spacing[2],
     ...shadows.sm,
   },
-  levelButtonSelected: {
-    borderColor: colors.primary.main,
-    backgroundColor: colors.primary.main,
+  microObjectiveLabel: {
+    ...textStyles.caption,
+    color: colors.text.secondary,
+    marginRight: spacing[2],
   },
-  levelButtonNumber: {
-    ...textStyles.h2,
-    color: colors.text.primary,
-    marginBottom: spacing[1],
+  microObjectiveText: {
+    ...textStyles.body,
+    color: colors.primary.main,
+    fontWeight: '600',
   },
-  levelButtonNumberSelected: {
-    color: colors.primary.contrast,
-  },
-  miniDisks: {
-    alignItems: 'center',
-    gap: 2,
-  },
-  miniDisk: {
-    height: 5,
-    borderRadius: 2.5,
-  },
-  playButton: {
-    width: 70,
-    height: 70,
-    borderRadius: 35,
-    backgroundColor: colors.primary.main,
-    alignItems: 'center',
+
+  // Bottom HUD styles
+  bottomHud: {
+    flexDirection: 'row',
     justifyContent: 'center',
+    gap: spacing[4],
+    paddingVertical: spacing[3],
+  },
+  hudButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.background.card,
+    paddingVertical: spacing[2],
+    paddingHorizontal: spacing[4],
+    borderRadius: borderRadius.xl,
+    gap: spacing[2],
+    ...shadows.md,
+  },
+  hintButton: {
+    backgroundColor: colors.secondary.main,
+  },
+  hudButtonIcon: {
+    fontSize: 18,
+  },
+  hudButtonText: {
+    ...textStyles.body,
+    color: colors.text.primary,
+    fontWeight: '600',
+  },
+
+  // Hint toast
+  hintToast: {
+    position: 'absolute',
+    top: '40%',
+    alignSelf: 'center',
+    backgroundColor: colors.primary.main,
+    paddingVertical: spacing[3],
+    paddingHorizontal: spacing[6],
+    borderRadius: borderRadius.xl,
     ...shadows.lg,
   },
-  playButtonIcon: {
-    fontSize: 28,
+  hintToastText: {
+    ...textStyles.h3,
     color: colors.primary.contrast,
-    marginLeft: 4,
   },
-  victoryOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+
+  // Modal overlay
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  // Rules card
+  rulesCard: {
+    backgroundColor: colors.background.card,
+    borderRadius: borderRadius.xl,
+    padding: spacing[6],
+    width: 320,
+    ...shadows.lg,
+  },
+  rulesTitle: {
+    ...textStyles.h3,
+    color: colors.text.primary,
+    textAlign: 'center',
+    marginBottom: spacing[5],
+  },
+  ruleItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing[3],
+    marginBottom: spacing[3],
+  },
+  ruleIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  victoryEmoji: {
-    fontSize: 80,
-    marginBottom: spacing[4],
+  ruleIconText: {
+    color: colors.text.inverse,
+    fontSize: 14,
+    fontWeight: 'bold',
   },
-  victoryText: {
-    ...textStyles.gameTitle,
+  ruleText: {
+    ...textStyles.body,
+    color: colors.text.primary,
+    flex: 1,
+  },
+
+  // Strategy pause card
+  strategyCard: {
+    backgroundColor: colors.background.card,
+    borderRadius: borderRadius.xl,
+    padding: spacing[6],
+    width: 340,
+    alignItems: 'center',
+    ...shadows.lg,
+  },
+  strategyTitle: {
+    ...textStyles.h2,
+    color: colors.primary.main,
+    marginBottom: spacing[2],
+  },
+  strategySubtitle: {
+    ...textStyles.body,
+    color: colors.text.secondary,
+    textAlign: 'center',
+    marginBottom: spacing[6],
+  },
+  strategyButtons: {
+    width: '100%',
+    gap: spacing[3],
+  },
+  strategyButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.secondary.main,
+    paddingVertical: spacing[3],
+    paddingHorizontal: spacing[5],
+    borderRadius: borderRadius.xl,
+    gap: spacing[2],
+  },
+  strategyButtonOutline: {
+    backgroundColor: 'transparent',
+    borderWidth: 2,
+    borderColor: colors.text.muted,
+  },
+  strategyButtonIcon: {
+    fontSize: 20,
+  },
+  strategyButtonText: {
+    ...textStyles.body,
+    color: colors.text.inverse,
+    fontWeight: '600',
+  },
+  strategyButtonTextOutline: {
+    ...textStyles.body,
+    color: colors.text.primary,
+    fontWeight: '600',
+  },
+
+  // Close button
+  closeButton: {
+    backgroundColor: colors.primary.main,
+    borderRadius: borderRadius.lg,
+    paddingVertical: spacing[3],
+    marginTop: spacing[6],
+    alignItems: 'center',
+    width: '100%',
+  },
+  closeButtonText: {
+    ...textStyles.body,
     color: colors.primary.contrast,
+    fontWeight: 'bold',
   },
 
   // Demo styles

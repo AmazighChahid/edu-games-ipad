@@ -92,18 +92,12 @@ export function HanoiVictoryScreen() {
   }));
 
   const handlePlayAgain = () => {
-    router.replace({
-      pathname: '/(games)/hanoi/play',
-      params: { levelId: currentLevel.id },
-    });
+    router.replace('/(games)/hanoi');
   };
 
   const handleNextLevel = () => {
     if (nextLevel) {
-      router.replace({
-        pathname: '/(games)/hanoi/play',
-        params: { levelId: nextLevel.id },
-      });
+      router.replace('/(games)/hanoi');
     }
   };
 

@@ -112,9 +112,9 @@ export function DraggableDisk({
       'worklet';
       const finalX = lastAbsoluteX.value;
 
-      translateX.value = withSpring(0, { damping: 15 });
-      translateY.value = withSpring(0, { damping: 15 });
-      scale.value = withSpring(1, { damping: 15 });
+      translateX.value = withSpring(0, { damping: 25, stiffness: 300 });
+      translateY.value = withSpring(0, { damping: 25, stiffness: 300 });
+      scale.value = withSpring(1, { damping: 20 });
       zIndex.value = 0;
 
       runOnJS(handleDragEnd)(finalX);
