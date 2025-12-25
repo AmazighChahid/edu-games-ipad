@@ -11,11 +11,9 @@ export default function HomeScreen() {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
 
-  const handleGamePress = (gameId: string, status: string) => {
+  const handleGamePress = (gameId: string, status: string, route: string) => {
     if (status === 'available') {
-      if (gameId === 'hanoi') {
-        router.push('/(games)/hanoi');
-      }
+      router.push(route as any);
     }
   };
 
@@ -55,12 +53,12 @@ export default function HomeScreen() {
               game.status !== 'available' && styles.gameCardDisabled,
               pressed && game.status === 'available' && styles.gameCardPressed,
             ]}
-            onPress={() => handleGamePress(game.id, game.status)}
+            onPress={() => handleGamePress(game.id, game.status, game.route)}
             disabled={game.status !== 'available'}
           >
             <View style={styles.gameIconContainer}>
               <Text style={styles.gameIcon}>
-                {game.id === 'hanoi' ? '🗼' : '🎮'}
+                {game.id === 'hanoi' ? '🗼' : game.id === 'math-blocks' ? '🧮' : '🎮'}
               </Text>
             </View>
             <Text style={styles.gameName}>{t(game.nameKey)}</Text>

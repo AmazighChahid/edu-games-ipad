@@ -140,3 +140,118 @@ export function checkVictory(
 export function getOptimalMoves(level: HanoiLevelConfig): number {
   return Math.pow(2, level.diskCount) - 1;
 }
+
+/**
+ * Represents a single move in the solution
+ */
+export interface HanoiMove {
+  from: TowerId;
+  to: TowerId;
+  diskSize: number;
+}
+
+/**
+ * Recursive solver for Tower of Hanoi
+ * Returns the optimal sequence of moves
+ */
+export function solveHanoi(
+  numDisks: number,
+  source: TowerId,
+  auxiliary: TowerId,
+  target: TowerId,
+  moves: HanoiMove[] = []
+): HanoiMove[] {
+  if (numDisks === 0) return moves;
+
+  // Move n-1 disks from source to auxiliary
+  solveHanoi(numDisks - 1, source, target, auxiliary, moves);
+
+  // Move the largest disk from source to target
+  moves.push({ from: source, to: target, diskSize: numDisks });
+
+  // Move n-1 disks from auxiliary to target
+  solveHanoi(numDisks - 1, auxiliary, source, target, moves);
+
+  return moves;
+}
+
+/**
+ * Gets the optimal solution for a level
+ */
+export function getSolution(level: HanoiLevelConfig): HanoiMove[] {
+  const auxiliary: TowerId = ([0, 1, 2] as TowerId[]).find(
+    (t) => t !== level.sourceTower && t !== level.targetTower
+  ) as TowerId;
+
+  return solveHanoi(
+    level.diskCount,
+    level.sourceTower,
+    auxiliary,
+    level.targetTower
+  );
+}
+
+/**
+ * Gets the next optimal move from current state
+ * Compares current state against the optimal solution to find where we are
+ */
+export function getNextOptimalMove(
+  state: HanoiGameState,
+  level: HanoiLevelConfig
+): HanoiMove | null {
+  const solution = getSolution(level);
+
+  // Simulate moves to find current position in solution
+  let simulatedState = createInitialState(level);
+  let moveIndex = 0;
+
+  // Find how far along the solution we are by comparing states
+  for (let i = 0; i < solution.length; i++) {
+    const move = solution[i];
+    const nextState = moveDisk(simulatedState, move.from, move.to);
+
+    // Check if simulated state matches current state
+    if (statesEqual(nextState, state)) {
+      moveIndex = i + 1;
+      break;
+    }
+
+    // Check if we've diverged from optimal path
+    if (statesEqual(simulatedState, state)) {
+      // We're at this point in the solution
+      return solution[i];
+    }
+
+    simulatedState = nextState;
+  }
+
+  // If we're at the start and haven't moved
+  if (statesEqual(simulatedState, state) && moveIndex === 0) {
+    return solution[0];
+  }
+
+  // Return next move if available
+  if (moveIndex < solution.length) {
+    return solution[moveIndex];
+  }
+
+  return null;
+}
+
+/**
+ * Compares two game states for equality
+ */
+function statesEqual(a: HanoiGameState, b: HanoiGameState): boolean {
+  for (let i = 0; i < 3; i++) {
+    const towerA = a.towers[i as TowerId];
+    const towerB = b.towers[i as TowerId];
+
+    if (towerA.disks.length !== towerB.disks.length) return false;
+
+    for (let j = 0; j < towerA.disks.length; j++) {
+      if (towerA.disks[j].size !== towerB.disks[j].size) return false;
+    }
+  }
+
+  return true;
+}

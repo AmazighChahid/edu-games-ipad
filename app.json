@@ -1,54 +1,16 @@
 {
   "expo": {
-<<<<<<< HEAD
-    "name": "Bonjour",
-    "slug": "Bonjour",
-    "version": "1.0.0",
-    "orientation": "default",
-    "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
-    "newArchEnabled": true,
-    "splash": {
-      "image": "./assets/splash-icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#FBF9F7"
-    },
-    "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "com.bonjour.educapp",
-      "requireFullScreen": false
-    },
-    "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#FBF9F7"
-      },
-      "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false,
-      "package": "com.bonjour.educapp"
-    },
-    "web": {
-      "favicon": "./assets/favicon.png"
-    },
-    "plugins": [
-      "expo-font"
-    ],
-    "extra": {
-      "eas": {
-        "projectId": "bonjour-educ-app"
-      }
-=======
-    "name": "EduGames",
-    "slug": "edu-games",
+    "name": "Hello guys",
+    "slug": "hello-guys",
     "version": "1.0.0",
     "orientation": "landscape",
     "icon": "./assets/images/icon.png",
-    "scheme": "edugames",
+    "scheme": "helloguys",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.edugames.app",
+      "bundleIdentifier": "com.helloguys.app",
       "requireFullScreen": false,
       "infoPlist": {
         "UISupportedInterfaceOrientations~ipad": [
@@ -85,7 +47,6 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
->>>>>>> 135019e12a7a2fddb6c8824047e00ef021f1f91a
     }
   }
 }

@@ -1,11 +1,13 @@
 /**
  * DraggableGameBoard component
  * The main game area with drag and drop support
+ * With wooden 3D base design
  */
 
 import { useState, useCallback, useRef } from 'react';
 import { View, StyleSheet, useWindowDimensions, LayoutChangeEvent } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { LinearGradient } from 'expo-linear-gradient';
 
 import { colors, spacing, borderRadius, shadows } from '@/theme';
 import type { HanoiGameState, TowerId, Disk } from '../types';
@@ -87,6 +89,31 @@ export function DraggableGameBoard({
   return (
     <GestureHandlerRootView style={styles.gestureRoot}>
       <View style={styles.container}>
+        {/* Wooden base 3D */}
+        <View style={[styles.woodenBaseContainer, { width: availableWidth }]}>
+          {/* Top surface */}
+          <LinearGradient
+            colors={[colors.game.towerBase, colors.game.towerBaseSide]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 0, y: 1 }}
+            style={[styles.woodenTop, { width: availableWidth }]}
+          >
+            {/* Highlight on wood */}
+            <View style={styles.woodHighlight} />
+          </LinearGradient>
+
+          {/* Front face (depth) */}
+          <LinearGradient
+            colors={[colors.game.towerBaseSide, colors.game.towerBaseDark]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 0, y: 1 }}
+            style={[styles.woodenFront, { width: availableWidth }]}
+          />
+
+          {/* Shadow */}
+          <View style={[styles.woodenShadow, { width: availableWidth - 30 }]} />
+        </View>
+
         <View
           onLayout={handleBoardLayout}
           style={[
@@ -131,13 +158,44 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'flex-end',
+    paddingBottom: 30,
+  },
+  woodenBaseContainer: {
+    position: 'absolute',
+    bottom: 30,
+    alignItems: 'center',
+  },
+  woodenTop: {
+    height: 40,
+    borderRadius: 8,
+    overflow: 'hidden',
+  },
+  woodHighlight: {
+    position: 'absolute',
+    top: 4,
+    left: 30,
+    right: 30,
+    height: 8,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    borderRadius: 4,
+  },
+  woodenFront: {
+    height: 25,
+    borderBottomLeftRadius: 8,
+    borderBottomRightRadius: 8,
+    marginTop: -2,
+  },
+  woodenShadow: {
+    height: 15,
+    backgroundColor: 'rgba(0, 0, 0, 0.08)',
+    borderRadius: 100,
+    marginTop: 5,
   },
   board: {
-    backgroundColor: colors.background.card,
     borderRadius: borderRadius.xl,
     padding: spacing[6],
-    ...shadows.lg,
+    paddingBottom: 70,
   },
   towersRow: {
     flexDirection: 'row',

@@ -1,6 +1,6 @@
 /**
  * Disk component
- * Visual representation of a Hanoi disk
+ * Flat design with subtle highlight/reflection
  */
 
 import { View, StyleSheet } from 'react-native';
@@ -9,7 +9,7 @@ import Animated, {
   withSpring,
 } from 'react-native-reanimated';
 
-import { colors, borderRadius, shadows } from '@/theme';
+import { colors, borderRadius } from '@/theme';
 import type { Disk as DiskType } from '../types';
 
 interface DiskProps {
@@ -21,6 +21,20 @@ interface DiskProps {
   totalDisks: number;
 }
 
+// Get disk color based on size (1 = smallest)
+const getDiskColor = (size: number): string => {
+  const diskColors: Record<number, string> = {
+    1: colors.game.disk1, // Red (smallest)
+    2: colors.game.disk2, // Orange
+    3: colors.game.disk3, // Yellow
+    4: colors.game.disk4, // Green
+    5: colors.game.disk5, // Cyan
+    6: colors.game.disk6, // Purple
+    7: colors.game.disk7, // Blue (largest)
+  };
+  return diskColors[size] || colors.game.disk1;
+};
+
 export function Disk({
   disk,
   maxWidth,
@@ -31,11 +45,12 @@ export function Disk({
 }: DiskProps) {
   const widthRange = maxWidth - minWidth;
   const width = minWidth + (widthRange * disk.size) / totalDisks;
+  const diskColor = getDiskColor(disk.size);
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [
       { scale: withSpring(isSelected ? 1.05 : 1, { damping: 15 }) },
-      { translateY: withSpring(isSelected ? -8 : 0, { damping: 15 }) },
+      { translateY: withSpring(isSelected ? -10 : 0, { damping: 15 }) },
     ],
   }));
 
@@ -47,12 +62,16 @@ export function Disk({
           {
             width,
             height,
-            backgroundColor: disk.color,
+            backgroundColor: diskColor,
           },
           isSelected && styles.diskSelected,
         ]}
       >
-        <View style={styles.highlight} />
+        {/* Top highlight - subtle white reflection */}
+        <View style={[styles.highlightTop, { height: height * 0.25 }]} />
+
+        {/* Bottom shadow for depth */}
+        <View style={[styles.shadowBottom, { height: height * 0.15 }]} />
       </View>
     </Animated.View>
   );
@@ -63,20 +82,38 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   disk: {
-    borderRadius: borderRadius.md,
-    ...shadows.md,
+    borderRadius: borderRadius.lg,
     overflow: 'hidden',
+    // Soft shadow
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 3,
   },
   diskSelected: {
-    ...shadows.lg,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    elevation: 6,
   },
-  highlight: {
+  highlightTop: {
     position: 'absolute',
-    top: 4,
-    left: 8,
-    right: 8,
-    height: 6,
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
-    borderRadius: borderRadius.sm,
+    top: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'rgba(255, 255, 255, 0.35)',
+    borderTopLeftRadius: borderRadius.lg,
+    borderTopRightRadius: borderRadius.lg,
+  },
+  shadowBottom: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.1)',
+    borderBottomLeftRadius: borderRadius.lg,
+    borderBottomRightRadius: borderRadius.lg,
   },
 });

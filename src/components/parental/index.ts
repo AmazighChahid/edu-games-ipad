@@ -1,1 +1,0 @@
-export { ParentalGate } from './ParentalGate';

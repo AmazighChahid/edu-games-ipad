@@ -1,1 +1,0 @@
-export { ConfettiEffect } from './ConfettiEffect';

@@ -14,6 +14,8 @@ import {
   canPlaceDisk,
   getTopDisk,
   checkVictory,
+  getNextOptimalMove,
+  type HanoiMove,
 } from '../logic/hanoiEngine';
 import { validateMove } from '../logic/moveValidator';
 import { getDefaultLevel, getLevel } from '../data/levels';
@@ -310,6 +312,19 @@ export function useHanoiGame(options: UseHanoiGameOptions = {}) {
     ]
   );
 
+  // Get hint - returns the next optimal move
+  const getHint = useCallback((): HanoiMove | null => {
+    return getNextOptimalMove(gameState, level);
+  }, [gameState, level]);
+
+  // Play hint - automatically performs the next optimal move
+  const playHint = useCallback(() => {
+    const hint = getHint();
+    if (hint) {
+      performMove(hint.from, hint.to);
+    }
+  }, [getHint, performMove]);
+
   return {
     gameState,
     level,
@@ -323,5 +338,7 @@ export function useHanoiGame(options: UseHanoiGameOptions = {}) {
     clearSelection,
     performMove,
     reset,
+    getHint,
+    playHint,
   };
 }

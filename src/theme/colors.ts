@@ -1,78 +1,106 @@
 /**
  * Color palette for EduGames
- * Inspired by Montessori principles: calm, natural, non-overstimulating
+ * Modern flat design with vibrant colors
  */
 
 export const colors = {
-  // Primary palette - warm and inviting
+  // Primary palette - Blue theme
   primary: {
-    main: '#5C8A6E',      // Sage green - calm, natural
-    light: '#7BA98A',
-    dark: '#456B54',
+    main: '#4A90D9',      // Main blue
+    light: '#6BA5E7',
+    dark: '#3A7BC8',
     contrast: '#FFFFFF',
   },
 
-  // Secondary palette - playful accents
+  // Secondary palette - Orange/Yellow accents
   secondary: {
-    main: '#E8A849',      // Warm amber - encouraging
-    light: '#F2C478',
-    dark: '#C88A2D',
-    contrast: '#2D2D2D',
+    main: '#F5A623',      // Warm orange
+    light: '#FFB94D',
+    dark: '#E09000',
+    contrast: '#FFFFFF',
   },
 
-  // Background colors - soft and easy on eyes
+  // Background colors - Blue gradient theme
   background: {
-    primary: '#F5F0E8',   // Warm cream
-    secondary: '#EDE6DB',
+    primary: '#E8F4FC',   // Light blue
+    secondary: '#D0E8F8', // Slightly darker blue
     card: '#FFFFFF',
-    game: '#FAF7F2',
+    game: '#E8F4FC',      // Game area background
+    gradientStart: '#E8F4FC',
+    gradientEnd: '#D0E8F8',
   },
 
   // Text colors
   text: {
-    primary: '#2D2D2D',
-    secondary: '#5A5A5A',
-    muted: '#8A8A8A',
+    primary: '#2D3748',
+    secondary: '#4A5568',
+    muted: '#718096',
     inverse: '#FFFFFF',
   },
 
-  // Feedback colors - softer versions for children
+  // Feedback colors
   feedback: {
-    success: '#7CB87C',   // Soft green
-    successLight: '#E8F5E8',
-    warning: '#E8B84A',   // Warm yellow
-    warningLight: '#FFF8E6',
-    error: '#D98B8B',     // Soft coral (not harsh red)
-    errorLight: '#FEF0F0',
-    info: '#7AAED4',
-    infoLight: '#E8F4FC',
+    success: '#48BB78',   // Green
+    successLight: '#C6F6D5',
+    warning: '#ECC94B',   // Yellow
+    warningLight: '#FEFCBF',
+    error: '#F56565',     // Red
+    errorLight: '#FED7D7',
+    info: '#4299E1',
+    infoLight: '#BEE3F8',
   },
 
-  // Game-specific colors (Tower of Hanoi disks)
+  // Game-specific colors (Tower of Hanoi)
   game: {
-    disk1: '#E57373',     // Coral red
-    disk2: '#64B5F6',     // Sky blue
-    disk3: '#81C784',     // Leaf green
-    disk4: '#FFD54F',     // Sunny yellow
-    disk5: '#BA68C8',     // Lavender purple
-    tower: '#8D6E63',     // Warm brown
-    towerBase: '#6D4C41', // Dark brown
+    // Disk colors - vibrant and distinct (smallest to largest)
+    disk1: '#E74C3C',     // Red
+    disk2: '#F39C12',     // Orange
+    disk3: '#F1C40F',     // Yellow
+    disk4: '#2ECC71',     // Green
+    disk5: '#1ABC9C',     // Cyan/Teal
+    disk6: '#9B59B6',     // Purple
+    disk7: '#3498DB',     // Blue (for 7-disk levels)
+
+    // Tower/wood colors
+    tower: '#B8860B',     // Dark goldenrod (pole)
+    towerHighlight: '#DAA520', // Goldenrod (highlight)
+    towerBase: '#D4A574', // Light wood (base top)
+    towerBaseSide: '#B8956E', // Medium wood (base side)
+    towerBaseDark: '#8B7355', // Dark wood (base shadow)
+
+    // Platform/board
+    boardSurface: '#DEB887', // Burlywood (board top)
+    boardEdge: '#CD853F',    // Peru (board edge)
   },
 
   // UI elements
   ui: {
-    border: '#E0D8CC',
-    divider: '#EDE6DB',
-    shadow: 'rgba(0, 0, 0, 0.08)',
-    overlay: 'rgba(0, 0, 0, 0.4)',
-    disabled: '#CCCCCC',
+    border: '#E2E8F0',
+    divider: '#EDF2F7',
+    shadow: 'rgba(0, 0, 0, 0.1)',
+    overlay: 'rgba(0, 0, 0, 0.5)',
+    disabled: '#CBD5E0',
+    buttonBlue: '#5B9BD5',
+    buttonBlueDark: '#4A8AC4',
+    buttonOrange: '#F5A623',
+    buttonOrangeDark: '#E09000',
+    buttonGray: '#A0AEC0',
+  },
+
+  // Parent zone
+  parent: {
+    background: '#F7FAFC',
+    border: '#E2E8F0',
+    iconGreen: '#48BB78',
+    iconYellow: '#ECC94B',
+    iconRed: '#F56565',
   },
 
   // Assistant character
   assistant: {
     bubble: '#FFFFFF',
-    bubbleBorder: '#E0D8CC',
-    character: '#5C8A6E',
+    bubbleBorder: '#E2E8F0',
+    character: '#4A90D9',
   },
 } as const;
 

@@ -23,6 +23,10 @@
     "parentAccess": "Espace Parents"
   },
   "games": {
+    "mathblocks": {
+      "name": "MathBlocks",
+      "description": "Associe les calculs avec leurs résultats"
+    },
     "hanoi": {
       "name": "Tour de Hanoï",
       "description": "Déplace les disques d'une tour à l'autre",

@@ -89,6 +89,11 @@ export const textStyles = {
     fontWeight: fontWeight.medium,
     lineHeight: fontSize.sm * lineHeight.normal,
   },
+  caption: {
+    fontSize: fontSize.xs,
+    fontWeight: fontWeight.medium,
+    lineHeight: fontSize.xs * lineHeight.normal,
+  },
 
   // Game-specific
   gameTitle: {

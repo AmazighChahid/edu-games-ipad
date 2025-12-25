@@ -19,6 +19,10 @@
     "parentAccess": "Parent Space"
   },
   "games": {
+    "mathblocks": {
+      "name": "MathBlocks",
+      "description": "Match calculations with their results"
+    },
     "hanoi": {
       "name": "Tower of Hanoi",
       "description": "Move the disks from one tower to another",
