@@ -4,7 +4,7 @@
  */
 
 import { useState, useCallback, useRef } from 'react';
-import { View, StyleSheet, useWindowDimensions, LayoutChangeEvent } from 'react-native';
+import { View, StyleSheet, useWindowDimensions, LayoutChangeEvent, Platform } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { LinearGradient } from 'expo-linear-gradient';
 
@@ -52,16 +52,36 @@ export function DraggableGameBoard({
   const towerHeight = diskHeight * (totalDisks + 2) + 50;
 
   const handleBoardLayout = useCallback((event: LayoutChangeEvent) => {
-    event.target.measureInWindow((x, y, w, h) => {
-      boardXRef.current = x;
-      const towerSpacing = w / 3;
-      const centers = [
-        x + towerSpacing * 0.5,
-        x + towerSpacing * 1.5,
-        x + towerSpacing * 2.5,
-      ];
-      setTowerCenters(centers);
-    });
+    const { x, width: w } = event.nativeEvent.layout;
+
+    if (Platform.OS === 'web') {
+      // On web, use the layout event data directly
+      // The x coordinate from layout is relative to parent
+      const target = event.target as unknown as HTMLElement;
+      if (target && target.getBoundingClientRect) {
+        const rect = target.getBoundingClientRect();
+        boardXRef.current = rect.x;
+        const towerSpacing = rect.width / 3;
+        const centers = [
+          rect.x + towerSpacing * 0.5,
+          rect.x + towerSpacing * 1.5,
+          rect.x + towerSpacing * 2.5,
+        ];
+        setTowerCenters(centers);
+      }
+    } else {
+      // On native, use measureInWindow
+      (event.target as any).measureInWindow((mx: number, my: number, mw: number, mh: number) => {
+        boardXRef.current = mx;
+        const towerSpacing = mw / 3;
+        const centers = [
+          mx + towerSpacing * 0.5,
+          mx + towerSpacing * 1.5,
+          mx + towerSpacing * 2.5,
+        ];
+        setTowerCenters(centers);
+      });
+    }
   }, []);
 
   const handleDiskDragStart = useCallback((disk: Disk, towerId: TowerId) => {
