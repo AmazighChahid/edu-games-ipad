@@ -7,6 +7,7 @@ import { useState, useCallback, useEffect, useRef } from 'react';
 import * as Haptics from 'expo-haptics';
 
 import { useStore } from '@/store/useStore';
+import { useSound } from '../../../hooks/useSound';
 import type { HanoiGameState, HanoiLevelConfig, TowerId } from '../types';
 import {
   createInitialState,
@@ -52,6 +53,8 @@ export function useHanoiGame(options: UseHanoiGameOptions = {}) {
     endSession,
     recordCompletion,
   } = useStore();
+
+  const { playSound } = useSound();
 
   const hasShownWelcome = useRef(false);
   const hasShownFirstMove = useRef(false);
@@ -106,6 +109,9 @@ export function useHanoiGame(options: UseHanoiGameOptions = {}) {
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
           }
 
+          // Play disk placement sound
+          playSound('disk_place', 0.6);
+
           if (!hasShownFirstMove.current && moveCount === 0) {
             hasShownFirstMove.current = true;
             const firstMoveScript = hanoiScripts.find(
@@ -128,6 +134,9 @@ export function useHanoiGame(options: UseHanoiGameOptions = {}) {
             if (hapticEnabled) {
               Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
             }
+
+            // Play victory sound
+            playSound('victory', 0.7);
 
             const victoryScript = hanoiScripts.find(
               (s) => s.id === 'hanoi_victory'
@@ -155,6 +164,9 @@ export function useHanoiGame(options: UseHanoiGameOptions = {}) {
           if (hapticEnabled) {
             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
           }
+
+          // Play error sound
+          playSound('disk_error', 0.5);
 
           const invalidScript = hanoiScripts.find(
             (s) => s.id === 'hanoi_invalid_move'
@@ -235,6 +247,9 @@ export function useHanoiGame(options: UseHanoiGameOptions = {}) {
           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
         }
 
+        // Play disk placement sound
+        playSound('disk_place', 0.6);
+
         if (!hasShownFirstMove.current && moveCount === 0) {
           hasShownFirstMove.current = true;
           const firstMoveScript = hanoiScripts.find(
@@ -257,6 +272,9 @@ export function useHanoiGame(options: UseHanoiGameOptions = {}) {
           if (hapticEnabled) {
             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
           }
+
+          // Play victory sound
+          playSound('victory', 0.7);
 
           const victoryScript = hanoiScripts.find(
             (s) => s.id === 'hanoi_victory'
@@ -284,6 +302,9 @@ export function useHanoiGame(options: UseHanoiGameOptions = {}) {
         if (hapticEnabled) {
           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
         }
+
+        // Play error sound
+        playSound('disk_error', 0.5);
 
         const invalidScript = hanoiScripts.find(
           (s) => s.id === 'hanoi_invalid_move'
