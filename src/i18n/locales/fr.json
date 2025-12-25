@@ -1,0 +1,90 @@
+{
+  "common": {
+    "play": "Jouer",
+    "back": "Retour",
+    "home": "Accueil",
+    "reset": "Recommencer",
+    "hint": "Aide",
+    "pause": "Pause",
+    "continue": "Continuer",
+    "quit": "Quitter",
+    "yes": "Oui",
+    "no": "Non",
+    "ok": "D'accord",
+    "moves": "Coups",
+    "comingSoon": "Bientôt disponible",
+    "settings": "Paramètres",
+    "easy": "Facile",
+    "medium": "Moyen",
+    "hard": "Difficile"
+  },
+  "home": {
+    "title": "Mes Jeux",
+    "parentAccess": "Espace Parents"
+  },
+  "games": {
+    "hanoi": {
+      "name": "Tour de Hanoï",
+      "description": "Déplace les disques d'une tour à l'autre",
+      "disks": "disques",
+      "minMoves": "Min",
+      "intro": {
+        "welcome": "Bienvenue !",
+        "goal": "Déplace tous les disques vers la tour de droite.",
+        "rule1": "Tu ne peux déplacer qu'un disque à la fois.",
+        "rule2": "Un grand disque ne peut pas aller sur un petit.",
+        "letsGo": "C'est parti !",
+        "selectLevel": "Choisis ton niveau"
+      },
+      "victory": {
+        "congratulations": "Bravo !",
+        "youDidIt": "Tu as réussi !",
+        "movesUsed": "Tu as fait {{count}} coups",
+        "playAgain": "Rejouer",
+        "backHome": "Retour"
+      }
+    }
+  },
+  "assistant": {
+    "hanoi": {
+      "welcome": "Bonjour ! Prêt à jouer ?",
+      "start": "Déplace tous les disques vers la tour de droite. Un grand disque ne peut pas aller sur un plus petit !",
+      "firstMove": "Super ! Continue comme ça !",
+      "invalidMove": "Oups ! Ce disque est trop grand pour aller ici.",
+      "tryAgain": "Essaie une autre tour !",
+      "stuck": "Besoin d'aide ? Regarde quel disque tu peux bouger.",
+      "goodProgress": "Tu te débrouilles très bien !",
+      "almostThere": "Tu y es presque !",
+      "victory": "Félicitations ! Tu as réussi !"
+    }
+  },
+  "settings": {
+    "sound": "Sons",
+    "music": "Musique",
+    "haptic": "Vibrations"
+  },
+  "parent": {
+    "title": "Espace Parents",
+    "gate": {
+      "question": "Combien font {{a}} + {{b}} ?",
+      "placeholder": "Entrez la réponse",
+      "submit": "Valider",
+      "incorrect": "Ce n'est pas la bonne réponse"
+    },
+    "progress": {
+      "title": "Progression",
+      "gamesPlayed": "Parties jouées",
+      "totalTime": "Temps total",
+      "lastPlayed": "Dernière partie"
+    },
+    "about": {
+      "title": "À propos du jeu",
+      "hanoiDescription": "La Tour de Hanoï est un casse-tête mathématique qui développe la logique et la planification.",
+      "skills": "Compétences développées",
+      "skillPlanning": "Planification",
+      "skillProblemSolving": "Résolution de problèmes",
+      "skillSequencing": "Séquençage",
+      "skillPerseverance": "Persévérance"
+    }
+  }
+}
