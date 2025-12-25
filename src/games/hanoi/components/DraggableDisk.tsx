@@ -50,16 +50,29 @@ export function DraggableDisk({
   const lastAbsoluteX = useSharedValue(0);
 
   const handleDragEnd = (absoluteX: number) => {
-    // Find which tower the disk was dropped on
-    const halfWidth = towerWidth / 2;
-    for (let i = 0; i < towerCenters.length; i++) {
-      const center = towerCenters[i];
-      if (absoluteX >= center - halfWidth && absoluteX <= center + halfWidth) {
-        onDragEnd(i as TowerId);
-        return;
+    // Find the closest tower to where the disk was dropped
+    console.log('Drop debug:', { absoluteX, towerCenters });
+
+    if (towerCenters[0] === 0 && towerCenters[1] === 0 && towerCenters[2] === 0) {
+      // Tower centers not initialized yet
+      console.log('Tower centers not initialized');
+      onDragEnd(null);
+      return;
+    }
+
+    let closestTower: TowerId = 0;
+    let closestDistance = Math.abs(absoluteX - towerCenters[0]);
+
+    for (let i = 1; i < towerCenters.length; i++) {
+      const distance = Math.abs(absoluteX - towerCenters[i]);
+      if (distance < closestDistance) {
+        closestDistance = distance;
+        closestTower = i as TowerId;
       }
     }
-    onDragEnd(null);
+
+    console.log('Closest tower:', closestTower, 'distance:', closestDistance);
+    onDragEnd(closestTower);
   };
 
   const panGesture = Gesture.Pan()

@@ -60,6 +60,7 @@ export function DraggableGameBoard({
           rect.x + towerSpacing * 1.5,
           rect.x + towerSpacing * 2.5,
         ];
+        console.log('Tower centers set (web):', centers, 'rect:', rect);
         setTowerCenters(centers);
       }
     } else {
