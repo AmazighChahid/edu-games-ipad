@@ -1,6 +1,6 @@
 /**
  * GameContainer component
- * Modern game layout with styled header and gradient
+ * Clean modern layout with blue gradient header
  */
 
 import { View, StyleSheet, Pressable, Text } from 'react-native';
@@ -9,7 +9,7 @@ import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { LinearGradient } from 'expo-linear-gradient';
 
-import { colors, spacing, textStyles, borderRadius, touchTargets } from '@/theme';
+import { colors, spacing, borderRadius } from '@/theme';
 
 interface GameContainerProps {
   children: React.ReactNode;
@@ -52,22 +52,21 @@ export function GameContainer({
     <View style={styles.container}>
       {showHeader && (
         <>
-          {/* Header avec dégradé bleu */}
+          {/* Clean blue gradient header */}
           <LinearGradient
-            colors={['#5BA3E8', '#4A90D9']}
+            colors={['#4A9FE8', '#3B82D6']}
             start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            style={[styles.header, { paddingTop: insets.top + spacing[2] }]}
+            end={{ x: 0, y: 1 }}
+            style={[styles.header, { paddingTop: insets.top + spacing[3] }]}
           >
-            {/* Top row: Menu button, Title, Status dots */}
-            <View style={styles.topRow}>
+            <View style={styles.headerContent}>
               {/* Menu Button */}
               <Pressable
                 onPress={handleHome}
                 style={styles.menuButton}
                 accessibilityLabel={t('common.home')}
               >
-                <Text style={styles.menuIcon}>{'◀'}</Text>
+                <Text style={styles.menuIcon}>{'←'}</Text>
                 <Text style={styles.menuText}>Menu</Text>
               </Pressable>
 
@@ -75,67 +74,65 @@ export function GameContainer({
               <View style={styles.titleContainer}>
                 <Text style={styles.title}>
                   {title || 'Tour de Hanoï'}
-                  {levelNumber !== undefined && ` — Niveau ${levelNumber}`}
                 </Text>
+                {levelNumber !== undefined && (
+                  <Text style={styles.levelText}>Niveau {levelNumber}</Text>
+                )}
               </View>
 
-              {/* Status dots */}
-              <View style={styles.statusDots}>
-                {[1, 2, 3, 4, 5, 6].map((i) => (
-                  <View
-                    key={i}
-                    style={[
-                      styles.statusDot,
-                      {
-                        backgroundColor:
-                          i <= (levelNumber || 1)
-                            ? '#FFFFFF'
-                            : 'rgba(255,255,255,0.3)',
-                      },
-                    ]}
-                  />
-                ))}
+              {/* Action buttons */}
+              <View style={styles.headerButtons}>
+                {onHelp && (
+                  <Pressable
+                    onPress={onHelp}
+                    style={styles.iconButton}
+                    accessibilityLabel="Aide"
+                  >
+                    <Text style={styles.iconButtonText}>?</Text>
+                  </Pressable>
+                )}
+
+                {onReset && (
+                  <Pressable
+                    onPress={onReset}
+                    style={styles.iconButton}
+                    accessibilityLabel={t('common.reset')}
+                  >
+                    <Text style={styles.iconButtonText}>↻</Text>
+                  </Pressable>
+                )}
               </View>
             </View>
           </LinearGradient>
 
-          {/* Stats and buttons row */}
+          {/* Stats row */}
           <View style={styles.statsRow}>
-            {/* Move counter */}
-            <View style={styles.moveCounterBox}>
-              <Text style={styles.moveCounterLabel}>Coups</Text>
-              <Text style={styles.moveCounterValue}>{moveCount ?? 0}</Text>
-            </View>
+            <View style={styles.statsContent}>
+              {/* Move counter */}
+              <View style={styles.statItem}>
+                <Text style={styles.statLabel}>Coups</Text>
+                <Text style={styles.statValue}>{moveCount ?? 0}</Text>
+              </View>
 
-            {optimalMoves !== undefined && (
-              <Text style={styles.optimalText}>
-                Objectif : {optimalMoves} (optimal)
-              </Text>
-            )}
-
-            {/* Action buttons */}
-            <View style={styles.actionButtons}>
-              {onHelp && (
-                <Pressable
-                  onPress={onHelp}
-                  style={styles.helpButton}
-                  accessibilityLabel="Aide"
-                >
-                  <Text style={styles.buttonIcon}>💡</Text>
-                  <Text style={styles.buttonText}>Aide</Text>
-                </Pressable>
+              {optimalMoves !== undefined && (
+                <View style={styles.statItem}>
+                  <Text style={styles.statLabel}>Objectif</Text>
+                  <Text style={styles.statValueSmall}>{optimalMoves}</Text>
+                </View>
               )}
 
-              {onReset && (
-                <Pressable
-                  onPress={onReset}
-                  style={styles.resetButton}
-                  accessibilityLabel={t('common.reset')}
-                >
-                  <Text style={styles.buttonIcon}>↻</Text>
-                  <Text style={styles.buttonText}>Reset</Text>
-                </Pressable>
-              )}
+              {/* Progress dots */}
+              <View style={styles.progressDots}>
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <View
+                    key={i}
+                    style={[
+                      styles.progressDot,
+                      i <= (levelNumber || 1) && styles.progressDotActive,
+                    ]}
+                  />
+                ))}
+              </View>
             </View>
           </View>
         </>
@@ -157,15 +154,13 @@ export function GameContainer({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background.primary,
+    backgroundColor: '#F5F0E8',
   },
   header: {
     paddingHorizontal: spacing[4],
-    paddingBottom: spacing[3],
-    borderBottomLeftRadius: 20,
-    borderBottomRightRadius: 20,
+    paddingBottom: spacing[4],
   },
-  topRow: {
+  headerContent: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -173,119 +168,102 @@ const styles = StyleSheet.create({
   menuButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.2)',
+    backgroundColor: 'rgba(255,255,255,0.25)',
     paddingVertical: spacing[2],
     paddingHorizontal: spacing[4],
-    borderRadius: borderRadius.xl,
+    borderRadius: 20,
     gap: spacing[2],
   },
   menuIcon: {
     color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: 'bold',
+    fontSize: 18,
+    fontWeight: '600',
   },
   menuText: {
     color: '#FFFFFF',
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '600',
   },
   titleContainer: {
     flex: 1,
     alignItems: 'center',
-    marginHorizontal: spacing[3],
   },
   title: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: '700',
     color: '#FFFFFF',
   },
-  statusDots: {
-    flexDirection: 'row',
-    gap: 4,
+  levelText: {
+    fontSize: 13,
+    fontWeight: '500',
+    color: 'rgba(255,255,255,0.8)',
+    marginTop: 2,
   },
-  statusDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+  headerButtons: {
+    flexDirection: 'row',
+    gap: spacing[2],
+  },
+  iconButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255,255,255,0.25)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  iconButtonText: {
+    color: '#FFFFFF',
+    fontSize: 20,
+    fontWeight: '600',
   },
   statsRow: {
+    paddingHorizontal: spacing[4],
+    paddingVertical: spacing[3],
+  },
+  statsContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: spacing[4],
-    paddingVertical: spacing[4],
-    flexWrap: 'wrap',
-    gap: spacing[3],
+    justifyContent: 'center',
+    gap: spacing[6],
   },
-  moveCounterBox: {
-    backgroundColor: colors.background.card,
-    paddingVertical: spacing[2],
-    paddingHorizontal: spacing[6],
-    borderRadius: borderRadius.xl,
+  statItem: {
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
   },
-  moveCounterLabel: {
-    color: colors.text.muted,
-    fontSize: 14,
+  statLabel: {
+    color: '#8B7355',
+    fontSize: 12,
     fontWeight: '500',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
-  moveCounterValue: {
-    color: colors.primary.dark,
-    fontSize: 32,
-    fontWeight: 'bold',
+  statValue: {
+    color: '#4A9FE8',
+    fontSize: 28,
+    fontWeight: '700',
+    marginTop: 2,
   },
-  optimalText: {
-    color: colors.text.muted,
-    fontSize: 14,
-  },
-  actionButtons: {
-    flexDirection: 'row',
-    gap: spacing[3],
-  },
-  helpButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.secondary.main,
-    paddingVertical: spacing[2],
-    paddingHorizontal: spacing[4],
-    borderRadius: borderRadius.xl,
-    gap: spacing[2],
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 3,
-    elevation: 3,
-  },
-  resetButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.primary.main,
-    paddingVertical: spacing[2],
-    paddingHorizontal: spacing[4],
-    borderRadius: borderRadius.xl,
-    gap: spacing[2],
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 3,
-    elevation: 3,
-  },
-  buttonIcon: {
-    color: '#FFFFFF',
-    fontSize: 18,
-  },
-  buttonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
+  statValueSmall: {
+    color: '#69DB7C',
+    fontSize: 22,
     fontWeight: '600',
+    marginTop: 2,
+  },
+  progressDots: {
+    flexDirection: 'row',
+    gap: 6,
+    marginLeft: spacing[4],
+  },
+  progressDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: '#E0D5C5',
+  },
+  progressDotActive: {
+    backgroundColor: '#4ADE80',
   },
   content: {
     flex: 1,
-    paddingHorizontal: spacing[4],
+    paddingHorizontal: spacing[2],
   },
 });

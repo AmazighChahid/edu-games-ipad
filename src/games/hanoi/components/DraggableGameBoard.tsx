@@ -1,7 +1,6 @@
 /**
  * DraggableGameBoard component
- * The main game area with drag and drop support
- * With wooden 3D base design
+ * Clean wooden platform design
  */
 
 import { useState, useCallback, useRef } from 'react';
@@ -9,7 +8,7 @@ import { View, StyleSheet, useWindowDimensions, LayoutChangeEvent, Platform } fr
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { LinearGradient } from 'expo-linear-gradient';
 
-import { colors, spacing, borderRadius, shadows } from '@/theme';
+import { spacing, borderRadius } from '@/theme';
 import type { HanoiGameState, TowerId, Disk } from '../types';
 import { DraggableTower } from './DraggableTower';
 
@@ -20,6 +19,14 @@ interface DraggableGameBoardProps {
   onTowerPress: (towerId: TowerId) => void;
   canMoveTo: (towerId: TowerId) => boolean;
 }
+
+// Warm wood colors for platform
+const WOOD_COLORS = {
+  light: '#DEB887',
+  main: '#C4A574',
+  dark: '#A08060',
+  darker: '#8B7355',
+};
 
 export function DraggableGameBoard({
   gameState,
@@ -35,14 +42,14 @@ export function DraggableGameBoard({
   const boardXRef = useRef(0);
 
   const isLandscape = width > height;
-  const availableWidth = isLandscape ? width * 0.9 : width * 0.95;
-  const availableHeight = isLandscape ? height * 0.55 : height * 0.5;
+  const availableWidth = isLandscape ? width * 0.85 : width * 0.92;
+  const availableHeight = isLandscape ? height * 0.55 : height * 0.45;
 
   const towerWidth = (availableWidth - spacing[8] * 2) / 3;
-  const maxDiskWidth = Math.min(towerWidth - spacing[4], 200);
+  const maxDiskWidth = Math.min(towerWidth - spacing[4], 180);
   const minDiskWidth = maxDiskWidth * 0.35;
-  const diskHeight = Math.min(45, (availableHeight - 60) / (totalDisks + 1));
-  const towerHeight = diskHeight * (totalDisks + 1) + 40;
+  const diskHeight = Math.min(32, (availableHeight - 80) / (totalDisks + 1));
+  const towerHeight = diskHeight * (totalDisks + 2) + 50;
 
   const handleBoardLayout = useCallback((event: LayoutChangeEvent) => {
     const { x, width: w } = event.nativeEvent.layout;
@@ -109,31 +116,7 @@ export function DraggableGameBoard({
   return (
     <GestureHandlerRootView style={styles.gestureRoot}>
       <View style={styles.container}>
-        {/* Wooden base 3D */}
-        <View style={[styles.woodenBaseContainer, { width: availableWidth }]}>
-          {/* Top surface */}
-          <LinearGradient
-            colors={[colors.game.towerBase, colors.game.towerBaseSide]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 0, y: 1 }}
-            style={[styles.woodenTop, { width: availableWidth }]}
-          >
-            {/* Highlight on wood */}
-            <View style={styles.woodHighlight} />
-          </LinearGradient>
-
-          {/* Front face (depth) */}
-          <LinearGradient
-            colors={[colors.game.towerBaseSide, colors.game.towerBaseDark]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 0, y: 1 }}
-            style={[styles.woodenFront, { width: availableWidth }]}
-          />
-
-          {/* Shadow */}
-          <View style={[styles.woodenShadow, { width: availableWidth - 30 }]} />
-        </View>
-
+        {/* Towers area */}
         <View
           onLayout={handleBoardLayout}
           style={[
@@ -166,6 +149,28 @@ export function DraggableGameBoard({
             ))}
           </View>
         </View>
+
+        {/* Wooden Platform Base */}
+        <View style={[styles.platformContainer, { width: availableWidth }]}>
+          {/* Top surface */}
+          <LinearGradient
+            colors={[WOOD_COLORS.light, WOOD_COLORS.main]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 0, y: 1 }}
+            style={styles.platformTop}
+          >
+            {/* Wood grain effect */}
+            <View style={styles.woodGrain} />
+          </LinearGradient>
+
+          {/* Front face (depth) */}
+          <LinearGradient
+            colors={[WOOD_COLORS.dark, WOOD_COLORS.darker]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 0, y: 1 }}
+            style={styles.platformFront}
+          />
+        </View>
       </View>
     </GestureHandlerRootView>
   );
@@ -181,47 +186,42 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     paddingBottom: 30,
   },
-  woodenBaseContainer: {
-    position: 'absolute',
-    bottom: 30,
-    alignItems: 'center',
-  },
-  woodenTop: {
-    height: 40,
-    borderRadius: 8,
-    overflow: 'hidden',
-  },
-  woodHighlight: {
-    position: 'absolute',
-    top: 4,
-    left: 30,
-    right: 30,
-    height: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    borderRadius: 4,
-  },
-  woodenFront: {
-    height: 25,
-    borderBottomLeftRadius: 8,
-    borderBottomRightRadius: 8,
-    marginTop: -2,
-  },
-  woodenShadow: {
-    height: 15,
-    backgroundColor: 'rgba(0, 0, 0, 0.08)',
-    borderRadius: 100,
-    marginTop: 5,
-  },
   board: {
     borderRadius: borderRadius.xl,
-    padding: spacing[6],
-    paddingBottom: 70,
+    padding: spacing[4],
+    paddingBottom: 20,
   },
   towersRow: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'flex-end',
     flex: 1,
-    gap: spacing[6],
+    gap: spacing[2],
+  },
+  platformContainer: {
+    alignItems: 'center',
+    marginTop: -10,
+  },
+  platformTop: {
+    width: '100%',
+    height: 24,
+    borderTopLeftRadius: 8,
+    borderTopRightRadius: 8,
+    overflow: 'hidden',
+  },
+  woodGrain: {
+    position: 'absolute',
+    top: 4,
+    left: 30,
+    right: 30,
+    height: 6,
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    borderRadius: 3,
+  },
+  platformFront: {
+    width: '100%',
+    height: 16,
+    borderBottomLeftRadius: 8,
+    borderBottomRightRadius: 8,
   },
 });
