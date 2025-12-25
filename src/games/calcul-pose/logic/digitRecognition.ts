@@ -1,434 +1,422 @@
 /**
- * Digit Recognition using TensorFlow.js
- * Works on iOS, Android, and Web with Expo
+ * Digit Recognition - Improved heuristics-based approach
+ * Analyzes stroke patterns for reliable digit recognition
  */
 
 import * as tf from '@tensorflow/tfjs';
 import type { DrawingPath, RecognitionResult } from '../types';
 
-// Model URL - Using a pre-trained MNIST model
-const MODEL_URL = 'https://storage.googleapis.com/tfjs-models/tfjs/mnist_transfer_cnn_v1/model.json';
-
 let model: tf.LayersModel | null = null;
 let isLoading = false;
+let modelLoadAttempted = false;
 
 /**
- * Initialize TensorFlow.js and load the model
+ * Initialize TensorFlow.js (optional - heuristics work without it)
  */
 export async function initializeRecognition(): Promise<boolean> {
-  if (model) return true;
-  if (isLoading) return false;
-
-  isLoading = true;
+  if (modelLoadAttempted) return true;
+  modelLoadAttempted = true;
 
   try {
-    // Initialize TensorFlow.js backend
     await tf.ready();
-    console.log('TensorFlow.js backend:', tf.getBackend());
-
-    // Try to load the pre-trained model
-    try {
-      model = await tf.loadLayersModel(MODEL_URL);
-      console.log('MNIST model loaded successfully');
-    } catch (err) {
-      // If model loading fails, we'll use heuristic approach
-      console.log('Model loading failed, using fallback recognition:', err);
-      model = null;
-    }
-
-    isLoading = false;
-    return true;
-  } catch (error) {
-    console.error('Failed to initialize TensorFlow.js:', error);
-    isLoading = false;
-    return false;
-  }
-}
-
-/**
- * Convert drawing paths to a centered, normalized 28x28 grayscale image tensor
- * MNIST expects white digits on black background
- */
-function pathsToImageTensor(
-  paths: DrawingPath[],
-  canvasWidth: number,
-  canvasHeight: number
-): tf.Tensor4D {
-  const imageSize = 28;
-  const pixels = new Float32Array(imageSize * imageSize);
-
-  // Get all points to find bounding box
-  const allPoints = paths.flatMap(p => p.points);
-  if (allPoints.length === 0) {
-    return tf.tensor4d(pixels, [1, imageSize, imageSize, 1]);
-  }
-
-  // Find bounding box
-  let minX = Infinity, maxX = -Infinity;
-  let minY = Infinity, maxY = -Infinity;
-  for (const p of allPoints) {
-    minX = Math.min(minX, p.x);
-    maxX = Math.max(maxX, p.x);
-    minY = Math.min(minY, p.y);
-    maxY = Math.max(maxY, p.y);
-  }
-
-  const drawWidth = maxX - minX;
-  const drawHeight = maxY - minY;
-
-  // Add padding and calculate scale to fit in 20x20 area (centered in 28x28)
-  const padding = 4;
-  const targetSize = imageSize - 2 * padding; // 20x20
-  const scale = Math.min(targetSize / (drawWidth || 1), targetSize / (drawHeight || 1));
-
-  // Center offset
-  const scaledWidth = drawWidth * scale;
-  const scaledHeight = drawHeight * scale;
-  const offsetX = (imageSize - scaledWidth) / 2;
-  const offsetY = (imageSize - scaledHeight) / 2;
-
-  // Draw paths onto the pixel array (white on black for MNIST)
-  for (const path of paths) {
-    for (let i = 0; i < path.points.length - 1; i++) {
-      const p1 = path.points[i];
-      const p2 = path.points[i + 1];
-
-      // Transform to centered 28x28 space
-      const x1 = Math.floor((p1.x - minX) * scale + offsetX);
-      const y1 = Math.floor((p1.y - minY) * scale + offsetY);
-      const x2 = Math.floor((p2.x - minX) * scale + offsetX);
-      const y2 = Math.floor((p2.y - minY) * scale + offsetY);
-
-      drawLine(pixels, imageSize, x1, y1, x2, y2, 2.0);
-    }
-  }
-
-  // Normalize to 0-1 range
-  return tf.tensor4d(pixels, [1, imageSize, imageSize, 1]);
-}
-
-/**
- * Draw a line on the pixel array using Bresenham's algorithm
- */
-function drawLine(
-  pixels: Float32Array,
-  size: number,
-  x1: number,
-  y1: number,
-  x2: number,
-  y2: number,
-  thickness: number
-): void {
-  const dx = Math.abs(x2 - x1);
-  const dy = Math.abs(y2 - y1);
-  const sx = x1 < x2 ? 1 : -1;
-  const sy = y1 < y2 ? 1 : -1;
-  let err = dx - dy;
-
-  let x = x1;
-  let y = y1;
-
-  while (true) {
-    setPixelWithRadius(pixels, size, x, y, thickness);
-
-    if (x === x2 && y === y2) break;
-
-    const e2 = 2 * err;
-    if (e2 > -dy) {
-      err -= dy;
-      x += sx;
-    }
-    if (e2 < dx) {
-      err += dx;
-      y += sy;
-    }
-  }
-}
-
-/**
- * Set a pixel with some radius for thicker lines
- */
-function setPixelWithRadius(
-  pixels: Float32Array,
-  size: number,
-  x: number,
-  y: number,
-  radius: number
-): void {
-  const r = Math.ceil(radius);
-  for (let dy = -r; dy <= r; dy++) {
-    for (let dx = -r; dx <= r; dx++) {
-      const px = x + dx;
-      const py = y + dy;
-      if (px >= 0 && px < size && py >= 0 && py < size) {
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist <= radius) {
-          const idx = py * size + px;
-          // White on black (1.0 = white)
-          pixels[idx] = Math.min(1, pixels[idx] + (1 - dist / (radius + 0.5)));
-        }
-      }
-    }
-  }
-}
-
-/**
- * Recognize digit from drawing paths using TensorFlow model
- */
-async function recognizeWithModel(
-  paths: DrawingPath[],
-  canvasWidth: number,
-  canvasHeight: number
-): Promise<RecognitionResult> {
-  if (!model) {
-    return { digit: -1, confidence: 0 };
-  }
-
-  const imageTensor = pathsToImageTensor(paths, canvasWidth, canvasHeight);
-
-  try {
-    const prediction = model.predict(imageTensor) as tf.Tensor;
-    const probabilities = await prediction.data();
-
-    // Find the digit with highest probability
-    let maxProb = 0;
-    let maxDigit = 0;
-    for (let i = 0; i < probabilities.length; i++) {
-      if (probabilities[i] > maxProb) {
-        maxProb = probabilities[i];
-        maxDigit = i;
-      }
-    }
-
-    // Log for debugging
-    console.log('Model prediction:', maxDigit, 'confidence:', maxProb.toFixed(3));
-
-    // Cleanup tensors
-    imageTensor.dispose();
-    prediction.dispose();
-
-    return { digit: maxDigit, confidence: maxProb };
+    console.log('TensorFlow.js ready, backend:', tf.getBackend());
   } catch (err) {
-    console.error('Model prediction error:', err);
-    imageTensor.dispose();
-    return { digit: -1, confidence: 0 };
+    console.log('TensorFlow.js init failed, using heuristics only');
   }
+
+  return true;
+}
+
+interface StrokeAnalysis {
+  // Bounding box
+  minX: number;
+  maxX: number;
+  minY: number;
+  maxY: number;
+  width: number;
+  height: number;
+  aspectRatio: number;
+
+  // Points analysis
+  startPoint: { x: number; y: number };
+  endPoint: { x: number; y: number };
+  startRelX: number;
+  startRelY: number;
+  endRelX: number;
+  endRelY: number;
+
+  // Center of mass
+  centerX: number;
+  centerY: number;
+
+  // Stroke characteristics
+  isClosed: boolean;
+  strokeCount: number;
+
+  // Region analysis (divide into 3x3 grid)
+  topLeftDensity: number;
+  topCenterDensity: number;
+  topRightDensity: number;
+  midLeftDensity: number;
+  midCenterDensity: number;
+  midRightDensity: number;
+  botLeftDensity: number;
+  botCenterDensity: number;
+  botRightDensity: number;
+
+  // Direction analysis
+  hasHorizontalTop: boolean;
+  hasHorizontalMiddle: boolean;
+  hasHorizontalBottom: boolean;
+  hasVerticalLeft: boolean;
+  hasVerticalCenter: boolean;
+  hasVerticalRight: boolean;
+
+  // Curve detection
+  topLoopDetected: boolean;
+  bottomLoopDetected: boolean;
+  middleWaistDetected: boolean;
+
+  // Total points
+  totalPoints: number;
 }
 
 /**
- * Improved heuristic-based digit recognition
- * Analyzes stroke patterns to guess the digit
+ * Analyze stroke patterns
  */
-function recognizeWithHeuristics(
-  paths: DrawingPath[],
-  canvasWidth: number,
-  canvasHeight: number
-): RecognitionResult {
-  if (paths.length === 0) {
-    return { digit: -1, confidence: 0 };
-  }
-
+function analyzeStrokes(paths: DrawingPath[]): StrokeAnalysis | null {
   const allPoints = paths.flatMap(p => p.points);
-  if (allPoints.length < 5) {
-    return { digit: -1, confidence: 0 };
-  }
+  if (allPoints.length < 5) return null;
 
-  // Calculate bounding box
+  // Bounding box
   const minX = Math.min(...allPoints.map(p => p.x));
   const maxX = Math.max(...allPoints.map(p => p.x));
   const minY = Math.min(...allPoints.map(p => p.y));
   const maxY = Math.max(...allPoints.map(p => p.y));
 
-  const width = maxX - minX;
-  const height = maxY - minY;
-  const aspectRatio = width / (height || 1);
+  const width = maxX - minX || 1;
+  const height = maxY - minY || 1;
 
-  // Normalize points to 0-1 range
-  const normalizedPoints = allPoints.map(p => ({
-    x: (p.x - minX) / (width || 1),
-    y: (p.y - minY) / (height || 1),
-  }));
+  // Start and end points
+  const startPoint = paths[0].points[0];
+  const lastPath = paths[paths.length - 1];
+  const endPoint = lastPath.points[lastPath.points.length - 1];
 
-  // Calculate center of mass
-  const centerX = normalizedPoints.reduce((sum, p) => sum + p.x, 0) / normalizedPoints.length;
-  const centerY = normalizedPoints.reduce((sum, p) => sum + p.y, 0) / normalizedPoints.length;
+  // Relative positions (0-1)
+  const startRelX = (startPoint.x - minX) / width;
+  const startRelY = (startPoint.y - minY) / height;
+  const endRelX = (endPoint.x - minX) / width;
+  const endRelY = (endPoint.y - minY) / height;
 
-  const strokeCount = paths.length;
+  // Center of mass
+  const centerX = allPoints.reduce((s, p) => s + (p.x - minX) / width, 0) / allPoints.length;
+  const centerY = allPoints.reduce((s, p) => s + (p.y - minY) / height, 0) / allPoints.length;
 
-  // Analyze path characteristics
-  const firstPoint = paths[0].points[0];
-  const lastPoint = paths[0].points[paths[0].points.length - 1];
-
-  // Check if the path is closed (start and end points are close)
-  const closureDistance = Math.sqrt(
-    Math.pow((lastPoint.x - firstPoint.x) / (width || 1), 2) +
-    Math.pow((lastPoint.y - firstPoint.y) / (height || 1), 2)
+  // Closure check
+  const closureDist = Math.sqrt(
+    Math.pow((endPoint.x - startPoint.x) / width, 2) +
+    Math.pow((endPoint.y - startPoint.y) / height, 2)
   );
-  const isClosed = closureDistance < 0.25;
+  const isClosed = closureDist < 0.2;
 
-  // Check where the stroke ends relative to the bounding box
-  const endPointRelY = (lastPoint.y - minY) / (height || 1);
-  const startPointRelY = (firstPoint.y - minY) / (height || 1);
-
-  // Count direction changes and analyze stroke patterns
-  let directionChangesX = 0;
-  let directionChangesY = 0;
-  let totalLength = 0;
-  let topHalfLength = 0;
-  let bottomHalfLength = 0;
-
-  for (const path of paths) {
-    let lastDx = 0;
-    let lastDy = 0;
-    for (let i = 0; i < path.points.length - 1; i++) {
-      const dx = path.points[i + 1].x - path.points[i].x;
-      const dy = path.points[i + 1].y - path.points[i].y;
-      const segmentLength = Math.sqrt(dx * dx + dy * dy);
-      totalLength += segmentLength;
-
-      const midY = (path.points[i].y + path.points[i + 1].y) / 2;
-      const relMidY = (midY - minY) / (height || 1);
-      if (relMidY < 0.5) {
-        topHalfLength += segmentLength;
-      } else {
-        bottomHalfLength += segmentLength;
-      }
-
-      if (i > 0) {
-        if (Math.sign(dx) !== Math.sign(lastDx) && Math.abs(dx) > 2 && Math.abs(lastDx) > 2) {
-          directionChangesX++;
-        }
-        if (Math.sign(dy) !== Math.sign(lastDy) && Math.abs(dy) > 2 && Math.abs(lastDy) > 2) {
-          directionChangesY++;
-        }
-      }
-      lastDx = dx;
-      lastDy = dy;
-    }
+  // 3x3 grid density analysis
+  const gridCounts = Array(9).fill(0);
+  for (const p of allPoints) {
+    const gx = Math.min(2, Math.floor(((p.x - minX) / width) * 3));
+    const gy = Math.min(2, Math.floor(((p.y - minY) / height) * 3));
+    gridCounts[gy * 3 + gx]++;
   }
+  const totalPoints = allPoints.length;
+  const densities = gridCounts.map(c => c / totalPoints);
 
-  const topBottomRatio = topHalfLength / (bottomHalfLength || 1);
-
-  // Analyze horizontal segments in different regions
-  let horizontalTop = 0;
-  let horizontalBottom = 0;
-  let verticalSegments = 0;
+  // Direction analysis - check for horizontal/vertical segments
+  let hTop = 0, hMid = 0, hBot = 0;
+  let vLeft = 0, vCenter = 0, vRight = 0;
 
   for (const path of paths) {
     for (let i = 0; i < path.points.length - 1; i++) {
-      const dx = Math.abs(path.points[i + 1].x - path.points[i].x);
-      const dy = Math.abs(path.points[i + 1].y - path.points[i].y);
-      const midY = (path.points[i].y + path.points[i + 1].y) / 2;
-      const relMidY = (midY - minY) / (height || 1);
+      const p1 = path.points[i];
+      const p2 = path.points[i + 1];
+      const dx = Math.abs(p2.x - p1.x);
+      const dy = Math.abs(p2.y - p1.y);
+      const midY = ((p1.y + p2.y) / 2 - minY) / height;
+      const midX = ((p1.x + p2.x) / 2 - minX) / width;
 
-      if (dx > dy * 2) {
-        // Horizontal segment
-        if (relMidY < 0.3) horizontalTop++;
-        else if (relMidY > 0.7) horizontalBottom++;
-      } else if (dy > dx * 2) {
-        verticalSegments++;
+      // Horizontal segments (dx > 2*dy)
+      if (dx > dy * 2 && dx > 5) {
+        if (midY < 0.33) hTop++;
+        else if (midY < 0.67) hMid++;
+        else hBot++;
+      }
+      // Vertical segments (dy > 2*dx)
+      if (dy > dx * 2 && dy > 5) {
+        if (midX < 0.33) vLeft++;
+        else if (midX < 0.67) vCenter++;
+        else vRight++;
       }
     }
   }
 
-  // Decision tree for digit recognition
-  let digit = 0;
-  let confidence = 0.5;
+  // Loop detection - look for circular patterns in regions
+  const topLoopDetected = detectLoop(paths, minX, minY, width, height, 0, 0.4);
+  const bottomLoopDetected = detectLoop(paths, minX, minY, width, height, 0.6, 1.0);
 
-  // 1: Very narrow, mostly vertical
-  if (strokeCount === 1 && aspectRatio < 0.35 && directionChangesX < 3) {
-    digit = 1;
-    confidence = 0.8;
-  }
-  // 7: Horizontal at top, then diagonal/vertical down
-  else if (strokeCount <= 2 && horizontalTop > 3 && aspectRatio > 0.4 && centerY > 0.4) {
-    digit = 7;
-    confidence = 0.7;
-  }
-  // 4: Usually 2-3 strokes, or one stroke with angles
-  else if ((strokeCount >= 2 || directionChangesX >= 2) && aspectRatio > 0.5 && aspectRatio < 1.0) {
-    digit = 4;
-    confidence = 0.55;
-  }
-  // 0 vs 9: Both can be closed loops
-  else if (strokeCount === 1 && isClosed && aspectRatio > 0.5) {
-    // 0 is more oval, center of mass is middle
-    // 9 would have center of mass higher (loop at top)
-    if (centerY > 0.4 && centerY < 0.6 && topBottomRatio > 0.7 && topBottomRatio < 1.4) {
-      digit = 0;
-      confidence = 0.7;
-    } else if (centerY < 0.45 || topBottomRatio > 1.3) {
-      digit = 9;
-      confidence = 0.6;
-    } else {
-      digit = 0;
-      confidence = 0.5;
-    }
-  }
-  // 9: Loop at top with tail going down (not closed)
-  else if (strokeCount === 1 && !isClosed && endPointRelY > 0.7 && topBottomRatio > 1.2) {
-    digit = 9;
-    confidence = 0.75;
-  }
-  // 6: Loop at bottom with stem going up
-  else if (strokeCount === 1 && !isClosed && startPointRelY < 0.3 && topBottomRatio < 0.8) {
-    digit = 6;
-    confidence = 0.7;
-  }
-  // 8: Two loops stacked, center of mass in middle
-  else if (strokeCount === 1 && centerY > 0.4 && centerY < 0.6 && directionChangesY >= 3) {
-    digit = 8;
-    confidence = 0.6;
-  }
-  // 2: Curved at top, horizontal at bottom
-  else if (strokeCount === 1 && horizontalBottom > 2 && directionChangesY >= 2) {
-    digit = 2;
-    confidence = 0.6;
-  }
-  // 3: Two curves on right side
-  else if (strokeCount === 1 && directionChangesY >= 2 && centerX > 0.5) {
-    digit = 3;
-    confidence = 0.55;
-  }
-  // 5: Horizontal at top, curved at bottom
-  else if (strokeCount <= 2 && horizontalTop > 2 && centerY > 0.45) {
-    digit = 5;
-    confidence = 0.55;
-  }
-  // Default: analyze more carefully
-  else {
-    // Use aspect ratio and center of mass as final heuristics
-    if (aspectRatio < 0.5) {
-      digit = 1;
-      confidence = 0.4;
-    } else if (centerY < 0.45) {
-      digit = 9;
-      confidence = 0.4;
-    } else if (centerY > 0.55) {
-      digit = 6;
-      confidence = 0.4;
-    } else {
-      digit = 0;
-      confidence = 0.3;
-    }
-  }
+  // Middle waist detection (for 8) - check if middle is narrower
+  const middleWaistDetected = detectMiddleWaist(allPoints, minX, minY, width, height);
 
-  console.log('Heuristic:', {
-    digit,
-    confidence,
-    aspectRatio: aspectRatio.toFixed(2),
-    centerY: centerY.toFixed(2),
+  return {
+    minX, maxX, minY, maxY, width, height,
+    aspectRatio: width / height,
+    startPoint, endPoint,
+    startRelX, startRelY, endRelX, endRelY,
+    centerX, centerY,
     isClosed,
-    topBottomRatio: topBottomRatio.toFixed(2),
-    endPointRelY: endPointRelY.toFixed(2),
+    strokeCount: paths.length,
+    topLeftDensity: densities[0],
+    topCenterDensity: densities[1],
+    topRightDensity: densities[2],
+    midLeftDensity: densities[3],
+    midCenterDensity: densities[4],
+    midRightDensity: densities[5],
+    botLeftDensity: densities[6],
+    botCenterDensity: densities[7],
+    botRightDensity: densities[8],
+    hasHorizontalTop: hTop > 3,
+    hasHorizontalMiddle: hMid > 3,
+    hasHorizontalBottom: hBot > 3,
+    hasVerticalLeft: vLeft > 3,
+    hasVerticalCenter: vCenter > 3,
+    hasVerticalRight: vRight > 3,
+    topLoopDetected,
+    bottomLoopDetected,
+    middleWaistDetected,
+    totalPoints,
+  };
+}
+
+/**
+ * Detect a loop in a specific vertical region
+ */
+function detectLoop(
+  paths: DrawingPath[],
+  minX: number, minY: number,
+  width: number, height: number,
+  yStart: number, yEnd: number
+): boolean {
+  // Get points in the region
+  const regionPoints: Array<{x: number, y: number}> = [];
+  for (const path of paths) {
+    for (const p of path.points) {
+      const relY = (p.y - minY) / height;
+      if (relY >= yStart && relY <= yEnd) {
+        regionPoints.push({ x: (p.x - minX) / width, y: relY });
+      }
+    }
+  }
+
+  if (regionPoints.length < 10) return false;
+
+  // Check if points form a rough circle by analyzing variance in angles from center
+  const cx = regionPoints.reduce((s, p) => s + p.x, 0) / regionPoints.length;
+  const cy = regionPoints.reduce((s, p) => s + p.y, 0) / regionPoints.length;
+
+  // Check if points are distributed around the center
+  let leftCount = 0, rightCount = 0, topCount = 0, bottomCount = 0;
+  for (const p of regionPoints) {
+    if (p.x < cx) leftCount++;
+    else rightCount++;
+    if (p.y < cy) topCount++;
+    else bottomCount++;
+  }
+
+  const minRatio = 0.2;
+  const total = regionPoints.length;
+  return (
+    leftCount / total > minRatio &&
+    rightCount / total > minRatio &&
+    topCount / total > minRatio &&
+    bottomCount / total > minRatio
+  );
+}
+
+/**
+ * Detect if there's a waist (narrowing) in the middle (characteristic of 8)
+ */
+function detectMiddleWaist(
+  points: Array<{x: number, y: number}>,
+  minX: number, minY: number,
+  width: number, height: number
+): boolean {
+  // Divide into 5 horizontal bands and measure width of each
+  const bands = [0, 0, 0, 0, 0];
+  const bandMinX = [Infinity, Infinity, Infinity, Infinity, Infinity];
+  const bandMaxX = [-Infinity, -Infinity, -Infinity, -Infinity, -Infinity];
+
+  for (const p of points) {
+    const relY = (p.y - minY) / height;
+    const band = Math.min(4, Math.floor(relY * 5));
+    const relX = (p.x - minX) / width;
+    bandMinX[band] = Math.min(bandMinX[band], relX);
+    bandMaxX[band] = Math.max(bandMaxX[band], relX);
+    bands[band]++;
+  }
+
+  const bandWidths = bands.map((_, i) =>
+    bands[i] > 3 ? bandMaxX[i] - bandMinX[i] : 1
+  );
+
+  // Check if middle band (index 2) is narrower than top and bottom
+  const topWidth = Math.max(bandWidths[0], bandWidths[1]);
+  const midWidth = bandWidths[2];
+  const botWidth = Math.max(bandWidths[3], bandWidths[4]);
+
+  return midWidth < topWidth * 0.8 && midWidth < botWidth * 0.8;
+}
+
+/**
+ * Main heuristic-based digit recognition
+ */
+function recognizeWithHeuristics(paths: DrawingPath[]): RecognitionResult {
+  const analysis = analyzeStrokes(paths);
+  if (!analysis) return { digit: -1, confidence: 0 };
+
+  const {
+    aspectRatio, centerX, centerY, isClosed, strokeCount,
+    startRelX, startRelY, endRelX, endRelY,
+    hasHorizontalTop, hasHorizontalMiddle, hasHorizontalBottom,
+    hasVerticalLeft, hasVerticalCenter, hasVerticalRight,
+    topLoopDetected, bottomLoopDetected, middleWaistDetected,
+    topLeftDensity, topCenterDensity, topRightDensity,
+    midLeftDensity, midRightDensity,
+    botLeftDensity, botCenterDensity, botRightDensity,
+  } = analysis;
+
+  // Scores for each digit
+  const scores: number[] = Array(10).fill(0);
+
+  // === 0: Closed oval, balanced density ===
+  if (isClosed && aspectRatio > 0.5 && aspectRatio < 1.5) {
+    scores[0] += 3;
+    if (!middleWaistDetected) scores[0] += 2;
+    if (centerY > 0.4 && centerY < 0.6) scores[0] += 1;
+  }
+
+  // === 1: Very narrow, vertical ===
+  if (aspectRatio < 0.4) {
+    scores[1] += 4;
+    if (hasVerticalCenter) scores[1] += 2;
+  }
+
+  // === 2: Starts top-right, curves, ends bottom with horizontal ===
+  if (strokeCount === 1 && !isClosed) {
+    if (startRelY < 0.4 && startRelX > 0.5) scores[2] += 2; // Starts top-right
+    if (endRelY > 0.8 && hasHorizontalBottom) scores[2] += 2; // Ends bottom with horizontal
+    if (topRightDensity > 0.1 && botLeftDensity > 0.1) scores[2] += 1;
+  }
+
+  // === 3: Two bumps on the right side ===
+  if (strokeCount === 1 && !isClosed) {
+    if (midRightDensity > midLeftDensity * 1.5) scores[3] += 2;
+    if (startRelX > 0.3 && endRelX > 0.3) scores[3] += 1;
+    if (topRightDensity > 0.1 && botRightDensity > 0.1) scores[3] += 1;
+  }
+
+  // === 4: Has vertical on right + horizontal crossing ===
+  if (hasVerticalRight && hasHorizontalMiddle) {
+    scores[4] += 3;
+    if (strokeCount >= 2) scores[4] += 1;
+  }
+  if (strokeCount === 1 && aspectRatio > 0.5) {
+    if (midLeftDensity > 0.05 && midRightDensity > 0.05) scores[4] += 1;
+  }
+
+  // === 5: Horizontal at top, vertical drop, curve at bottom ===
+  if (!isClosed && hasHorizontalTop) {
+    scores[5] += 2;
+    if (startRelX > 0.5 && startRelY < 0.3) scores[5] += 1; // Starts top-right
+    if (bottomLoopDetected || botRightDensity > 0.1) scores[5] += 1;
+    if (endRelY > 0.6 && endRelX < 0.5) scores[5] += 1; // Ends bottom-left
+  }
+
+  // === 6: Starts top, loop at bottom ===
+  if (strokeCount === 1 && bottomLoopDetected && !topLoopDetected) {
+    scores[6] += 4;
+    if (startRelY < 0.3) scores[6] += 2; // Starts at top
+  }
+  if (!isClosed && startRelY < 0.3 && centerY > 0.5) {
+    scores[6] += 1;
+  }
+
+  // === 7: Horizontal at top + diagonal/vertical down ===
+  if (hasHorizontalTop && !hasHorizontalBottom && !isClosed) {
+    scores[7] += 3;
+    if (startRelX < 0.5 && startRelY < 0.3) scores[7] += 1; // Starts top-left
+    if (endRelY > 0.7) scores[7] += 1; // Ends at bottom
+    if (topLeftDensity + topCenterDensity + topRightDensity > 0.3) scores[7] += 1;
+  }
+  // 7 usually has very little density in bottom-left
+  if (botLeftDensity < 0.05 && hasHorizontalTop) {
+    scores[7] += 1;
+  }
+
+  // === 8: Two stacked loops with waist ===
+  if (isClosed && middleWaistDetected) {
+    scores[8] += 4;
+  }
+  if (topLoopDetected && bottomLoopDetected) {
+    scores[8] += 3;
+  }
+  if (isClosed && centerY > 0.4 && centerY < 0.6 && aspectRatio > 0.4) {
+    scores[8] += 1;
+  }
+
+  // === 9: Loop at top, tail going down ===
+  if (topLoopDetected && !bottomLoopDetected) {
+    scores[9] += 4;
+    if (endRelY > 0.7) scores[9] += 2; // Tail ends at bottom
+  }
+  if (!isClosed && startRelY > 0.5 && endRelY > 0.7) {
+    // Starts mid, ends bottom (tail of 9)
+    scores[9] += 2;
+  }
+  if (centerY < 0.45 && aspectRatio > 0.5) {
+    scores[9] += 1;
+  }
+
+  // Find best match
+  let bestDigit = 0;
+  let bestScore = scores[0];
+  for (let i = 1; i < 10; i++) {
+    if (scores[i] > bestScore) {
+      bestScore = scores[i];
+      bestDigit = i;
+    }
+  }
+
+  // Calculate confidence based on score difference
+  const sortedScores = [...scores].sort((a, b) => b - a);
+  const scoreDiff = sortedScores[0] - sortedScores[1];
+  const confidence = Math.min(0.95, 0.4 + scoreDiff * 0.1);
+
+  console.log('Recognition scores:', scores.map((s, i) => `${i}:${s}`).join(' '));
+  console.log('Best:', bestDigit, 'conf:', confidence.toFixed(2));
+  console.log('Analysis:', {
+    aspectRatio: aspectRatio.toFixed(2),
+    isClosed,
+    hasHTop: hasHorizontalTop,
+    hasHBot: hasHorizontalBottom,
+    topLoop: topLoopDetected,
+    botLoop: bottomLoopDetected,
+    waist: middleWaistDetected,
+    startY: startRelY.toFixed(2),
+    endY: endRelY.toFixed(2),
   });
 
-  return { digit, confidence };
+  return { digit: bestDigit, confidence };
 }
 
 /**
  * Main recognition function
- * Uses TensorFlow model if available, falls back to heuristics
  */
 export async function recognizeDigit(
   paths: DrawingPath[],
@@ -439,25 +427,12 @@ export async function recognizeDigit(
     return { digit: -1, confidence: 0 };
   }
 
-  // Try model first
-  if (model) {
-    const result = await recognizeWithModel(paths, canvasWidth, canvasHeight);
-    if (result.confidence > 0.6) {
-      return result;
-    }
-    // If model is not confident, try heuristics
-    const heuristicResult = recognizeWithHeuristics(paths, canvasWidth, canvasHeight);
-    // Return the one with higher confidence
-    return heuristicResult.confidence > result.confidence ? heuristicResult : result;
-  }
-
-  // Fallback to heuristics only
-  return recognizeWithHeuristics(paths, canvasWidth, canvasHeight);
+  return recognizeWithHeuristics(paths);
 }
 
 /**
  * Check if recognition is ready
  */
 export function isRecognitionReady(): boolean {
-  return model !== null || !isLoading;
+  return true;
 }
