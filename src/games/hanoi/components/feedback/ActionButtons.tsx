@@ -87,8 +87,8 @@ export function ActionButtons({
 const styles = StyleSheet.create({
   container: {
     gap: 12,
-    paddingHorizontal: 20,
-    paddingVertical: 20,
+    paddingHorizontal: 30,
+    paddingVertical: 30,
   },
   primaryButton: {
     borderRadius: 16,
@@ -105,13 +105,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 10,
-    paddingVertical: 18,
-    paddingHorizontal: 24,
+    paddingVertical: 20,
+    paddingHorizontal: 32,
   },
   primaryButtonText: {
-    fontFamily: 'Fredoka-SemiBold',
-    fontSize: 18,
-    fontWeight: '600',
+    fontFamily: 'Fredoka-Bold',
+    fontSize: 22,
+    fontWeight: '700',
     color: '#fff',
   },
   secondaryRow: {
@@ -130,12 +130,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    paddingVertical: 18,
-    paddingHorizontal: 16,
+    paddingVertical: 20,
+    paddingHorizontal: 24,
   },
   secondaryButtonText: {
-    fontFamily: 'Nunito-SemiBold',
-    fontSize: 16,
+    fontFamily: 'Fredoka-SemiBold',
+    fontSize: 18,
     fontWeight: '600',
     color: '#4A4A4A',
   },

@@ -1,3 +1,10 @@
 export { SudokuCell } from './SudokuCell';
 export { SudokuGrid } from './SudokuGrid';
 export { SymbolSelector } from './SymbolSelector';
+export { SudokuBackground } from './SudokuBackground';
+export { ProfessorHooMascot } from './ProfessorHooMascot';
+export { LibraryDecoration } from './LibraryDecoration';
+export { StatsPanel } from './StatsPanel';
+export { GameTimer } from './GameTimer';
+export { ProgressBar } from './ProgressBar';
+export { FloatingActionButtons } from './FloatingActionButtons';

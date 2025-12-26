@@ -34,8 +34,6 @@ export function StatsSection({
         <Text style={styles.statLabel}>Tes coups</Text>
       </View>
 
-      <View style={styles.divider} />
-
       {/* Optimal */}
       <View style={styles.statItem}>
         <Text style={[styles.statValue, styles.greenValue]}>{optimalMoves}</Text>
@@ -47,8 +45,6 @@ export function StatsSection({
           </View>
         )}
       </View>
-
-      <View style={styles.divider} />
 
       {/* Time */}
       <View style={styles.statItem}>
@@ -64,19 +60,18 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#F8F9FA',
-    borderRadius: 16,
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    marginTop: 20,
-    gap: 24,
+    paddingHorizontal: 30,
+    paddingVertical: 20,
+    borderTopWidth: 2,
+    borderTopColor: '#F0F0F0',
+    gap: 40,
   },
   statItem: {
     alignItems: 'center',
   },
   statValue: {
     fontFamily: 'Fredoka-Bold',
-    fontSize: 32,
+    fontSize: 36,
     fontWeight: '700',
   },
   blueValue: {
@@ -90,14 +85,9 @@ const styles = StyleSheet.create({
   },
   statLabel: {
     fontFamily: 'Nunito-Regular',
-    fontSize: 12,
-    color: '#9CA3AF',
+    fontSize: 14,
+    color: '#9A9A9A',
     marginTop: 4,
-  },
-  divider: {
-    width: 1,
-    height: 40,
-    backgroundColor: '#E5E7EB',
   },
   perfectBadge: {
     flexDirection: 'row',

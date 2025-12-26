@@ -1,9 +1,10 @@
 import React, { useMemo } from 'react';
-import { View, StyleSheet, Pressable } from 'react-native';
+import { View, StyleSheet, Pressable, Text } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withSpring,
+  FadeIn,
 } from 'react-native-reanimated';
 import { SequenceElement as ElementType } from '../types';
 import { SequenceElement } from './SequenceElement';
@@ -78,10 +79,7 @@ export const ChoicePanel: React.FC<Props> = ({
     const handlePress = () => {
       if (!disabled) {
         onSelect(element);
-        // Confirmer automatiquement après sélection
-        if (onConfirm) {
-          setTimeout(() => onConfirm(element), 100);
-        }
+        // Ne plus confirmer automatiquement - l'utilisateur doit cliquer sur "Valider"
       }
     };
 
@@ -115,6 +113,23 @@ export const ChoicePanel: React.FC<Props> = ({
           />
         ))}
       </View>
+
+      {/* Bouton Valider - apparaît quand une réponse est sélectionnée */}
+      {selectedId && !disabled && onConfirm && (
+        <Animated.View entering={FadeIn} style={styles.validateButtonContainer}>
+          <Pressable
+            style={styles.validateButton}
+            onPress={() => {
+              const selected = choices.find(c => c.id === selectedId);
+              if (selected) {
+                onConfirm(selected);
+              }
+            }}
+          >
+            <Text style={styles.validateButtonText}>✓ Valider</Text>
+          </Pressable>
+        </Animated.View>
+      )}
     </View>
   );
 };
@@ -154,5 +169,26 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.6,
     shadowRadius: 12,
     elevation: 8,
+  },
+  validateButtonContainer: {
+    marginTop: DIMENSIONS.spacing.lg,
+    alignItems: 'center',
+  },
+  validateButton: {
+    backgroundColor: '#4CAF50',
+    paddingHorizontal: 40,
+    paddingVertical: 14,
+    borderRadius: 25,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 5,
+  },
+  validateButtonText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+    textAlign: 'center',
   },
 });

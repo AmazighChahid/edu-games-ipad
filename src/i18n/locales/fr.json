@@ -27,6 +27,18 @@
       "name": "MathBlocks",
       "description": "Associe les calculs avec leurs résultats"
     },
+    "sudoku": {
+      "name": "Sudoku Montessori",
+      "description": "Complète la grille avec logique"
+    },
+    "suiteslogiques": {
+      "name": "Suites Logiques",
+      "description": "Découvre les motifs et complète les suites"
+    },
+    "memory": {
+      "name": "Memory",
+      "description": "Trouve les paires d'images"
+    },
     "hanoi": {
       "name": "Tour de Hanoï",
       "description": "Déplace les disques d'une tour à l'autre",

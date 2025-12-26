@@ -116,6 +116,119 @@ export const colors = {
     symbolConflict: '#F39C12',    // Warning yellow/orange (not red)
     symbolSuccess: '#7BC74D',     // Green for validation
   },
+
+  // Home screen colors (from home-redesign.html)
+  home: {
+    // Background gradient colors
+    gradients: {
+      skyTop: '#FFE8D6',          // Peach cream
+      skyMid1: '#FFEAA7',         // Yellow cream
+      skyMid2: '#B8E6C1',         // Light mint green
+      grassBottom: '#98D9A8',     // Grass green
+    },
+
+    // Sun animation colors
+    sun: {
+      core: '#FFD93D',            // Bright yellow
+      outer: '#F5C800',           // Golden yellow
+      glow: 'rgba(255, 217, 61, 0.3)', // Transparent yellow glow
+    },
+
+    // Cloud colors
+    clouds: {
+      white: '#FFFFFF',
+      shadow: 'rgba(0, 0, 0, 0.05)',
+    },
+
+    // Tree colors
+    trees: {
+      trunk: '#8B5A2B',           // Brown trunk
+      greenDark: '#3D8B4D',       // Dark green leaves
+      greenLight: '#6BC77D',      // Light green leaves
+      greenMid: '#5BAE6B',        // Medium green
+    },
+
+    // Hills background
+    hills: {
+      front: '#7BC74D',           // Front hill green
+      frontDark: '#5BAE6B',       // Front hill dark
+      back: '#6BC77D',            // Back hill green
+      backDark: '#4AA85C',        // Back hill dark
+    },
+
+    // Flower colors
+    flowers: {
+      pink: '#FFB5C5',            // Pink flower
+      yellow: '#FFD93D',          // Yellow flower
+      purple: '#E056FD',          // Purple flower
+    },
+
+    // Owl mascot colors
+    owl: {
+      brown: '#D4A574',           // Owl body
+      brownDark: '#C49A6C',       // Owl body shadow
+      eye: '#FFFFFF',             // Eye white
+      pupil: '#4A4A4A',           // Eye pupil
+      beak: '#FFB347',            // Orange beak
+    },
+
+    // Progress garden colors
+    garden: {
+      sky: '#E8F6FF',             // Garden sky top
+      skyMid: '#D4EDFC',          // Garden sky mid
+      grass: '#B8E6C1',           // Garden grass
+      soil: '#8B5A2B',            // Garden soil
+      soilDark: '#6B4423',        // Garden soil dark
+      plantStem: '#5BAE6B',       // Plant stems
+    },
+
+    // Daily streak colors
+    streak: {
+      orange: '#FFB347',          // Streak background
+      orangeDark: '#FF9500',      // Streak gradient dark
+      white: '#FFFFFF',           // Completed day
+      transparent: 'rgba(255, 255, 255, 0.3)', // Today highlight
+      future: 'rgba(255, 255, 255, 0.15)',     // Future days
+    },
+
+    // Game category colors
+    categories: {
+      logic: '#5B8DEE',           // Blue
+      logicLight: '#7BA3F0',
+      spatial: '#E056FD',         // Purple
+      spatialLight: '#EA80FF',
+      numbers: '#7BC74D',         // Green
+      numbersLight: '#95D46A',
+      memory: '#FFB347',          // Orange
+      memoryLight: '#FFC56A',
+      language: '#FF6B9D',        // Pink (NEW for mots-croises)
+      languageLight: '#FF8FB8',
+    },
+
+    // Category background colors (for game card icons)
+    categoryBackgrounds: {
+      logic: '#E8F2FF',           // Light blue
+      logicDark: '#D4E6FF',
+      spatial: '#FCE8FF',         // Light purple
+      spatialDark: '#F5D0FF',
+      numbers: '#E8FFE8',         // Light green
+      numbersDark: '#D0F5D0',
+      memory: '#FFF5E8',          // Light orange
+      memoryDark: '#FFE8CC',
+      language: '#FFE8F0',        // Light pink (NEW)
+      languageDark: '#FFD0E0',
+    },
+
+    // UI colors
+    cardBackground: '#FFFFFF',
+    cardShadow: 'rgba(0, 0, 0, 0.08)',
+    cardShadowHover: 'rgba(0, 0, 0, 0.15)',
+    badge: {
+      new: '#7BC74D',             // Green badge
+      soon: '#FFB347',            // Orange badge
+      text: '#FFFFFF',
+    },
+  },
 } as const;
 
 export type Colors = typeof colors;

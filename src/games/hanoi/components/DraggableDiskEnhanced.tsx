@@ -79,6 +79,7 @@ export function DraggableDiskEnhanced({
   const zIndex = useSharedValue(0);
   const rotation = useSharedValue(0);
   const lastAbsoluteX = useSharedValue(0);
+  const isDragAllowed = useSharedValue(false); // ✅ Track if drag is allowed
 
   // Enhanced effect values
   const shimmerX = useSharedValue(-width);
@@ -167,9 +168,16 @@ export function DraggableDiskEnhanced({
   };
 
   const panGesture = Gesture.Pan()
-    .enabled(isTopDisk && isSelectable)
+    .enabled(true) // ✅ Always enabled - selection check is done in onStart
     .onStart(() => {
       'worklet';
+      // Check if this disk can be dragged (must be top disk and selectable)
+      isDragAllowed.value = isTopDisk && isSelectable;
+
+      if (!isDragAllowed.value) {
+        return; // Don't start drag if not allowed
+      }
+
       zIndex.value = 100;
       scale.value = withSpring(1.08, { damping: 15 });
       shadowIntensity.value = withTiming(1, { duration: 150 });
@@ -181,6 +189,11 @@ export function DraggableDiskEnhanced({
     })
     .onUpdate((event) => {
       'worklet';
+      // Only update position if drag is allowed
+      if (!isDragAllowed.value) {
+        return;
+      }
+
       translateX.value = event.translationX;
       translateY.value = event.translationY;
       lastAbsoluteX.value = event.absoluteX;
@@ -193,6 +206,11 @@ export function DraggableDiskEnhanced({
     })
     .onEnd(() => {
       'worklet';
+      // Only process drop if drag was allowed
+      if (!isDragAllowed.value) {
+        return;
+      }
+
       const finalX = lastAbsoluteX.value;
 
       translateX.value = withSpring(0, { damping: 22, stiffness: 280 });

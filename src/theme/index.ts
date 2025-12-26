@@ -18,6 +18,8 @@ export type { FontSize, TextStyle } from './typography';
 export {
   spacing,
   semanticSpacing,
+  homeLayout,
+  touchTargets as touchTargetSizes,
   borderRadius,
   shadows
 } from './spacing';
@@ -33,7 +35,14 @@ export type { TouchTarget, HitSlop } from './touchTargets';
 // Combined theme object for convenience
 import { colors } from './colors';
 import { fontFamily, fontSize, lineHeight, fontWeight, textStyles } from './typography';
-import { spacing, semanticSpacing, borderRadius, shadows } from './spacing';
+import {
+  spacing,
+  semanticSpacing,
+  homeLayout,
+  touchTargets as touchTargetSizes,
+  borderRadius,
+  shadows
+} from './spacing';
 import { touchTargets, hitSlop, touchSpacing } from './touchTargets';
 
 export const theme = {
@@ -45,9 +54,11 @@ export const theme = {
   textStyles,
   spacing,
   semanticSpacing,
+  homeLayout,
   borderRadius,
   shadows,
   touchTargets,
+  touchTargetSizes,
   hitSlop,
   touchSpacing,
 } as const;

@@ -1,6 +1,6 @@
 /**
  * SudokuCell Component
- * Individual cell in the Sudoku grid
+ * Individual cell in the Sudoku grid with animations
  */
 
 import { Pressable, Text, StyleSheet, View } from 'react-native';
@@ -10,8 +10,10 @@ import Animated, {
   useSharedValue,
   withSequence,
   withTiming,
+  Easing,
 } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
+import { useEffect } from 'react';
 
 import { colors, spacing, textStyles, borderRadius } from '@/theme';
 import { useStore } from '@/store/useStore';
@@ -23,6 +25,8 @@ interface SudokuCellProps {
   onPress: () => void;
   cellSize: number;
   showConflict: boolean;
+  triggerSuccess?: boolean; // Trigger success animation
+  triggerError?: boolean; // Trigger error shake animation
 }
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
@@ -33,9 +37,43 @@ export function SudokuCell({
   onPress,
   cellSize,
   showConflict,
+  triggerSuccess = false,
+  triggerError = false,
 }: SudokuCellProps) {
   const hapticEnabled = useStore((state) => state.hapticEnabled);
   const scale = useSharedValue(1);
+  const translateX = useSharedValue(0);
+
+  // Success animation (pop effect)
+  useEffect(() => {
+    if (triggerSuccess && cell.value !== null && !cell.isFixed) {
+      scale.value = withSequence(
+        withSpring(1.2, { damping: 8, stiffness: 200 }),
+        withSpring(1, { damping: 10, stiffness: 150 })
+      );
+
+      if (hapticEnabled) {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      }
+    }
+  }, [triggerSuccess]);
+
+  // Error animation (shake effect)
+  useEffect(() => {
+    if (triggerError) {
+      translateX.value = withSequence(
+        withTiming(-5, { duration: 50, easing: Easing.linear }),
+        withTiming(5, { duration: 100, easing: Easing.linear }),
+        withTiming(-5, { duration: 100, easing: Easing.linear }),
+        withTiming(5, { duration: 100, easing: Easing.linear }),
+        withTiming(0, { duration: 50, easing: Easing.linear })
+      );
+
+      if (hapticEnabled) {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      }
+    }
+  }, [triggerError]);
 
   const handlePress = () => {
     if (cell.isFixed) return; // Cannot select fixed cells
@@ -53,7 +91,10 @@ export function SudokuCell({
   };
 
   const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }],
+    transform: [
+      { scale: scale.value },
+      { translateX: translateX.value },
+    ],
   }));
 
   const hasConflict = showConflict && cell.hasConflict && cell.value !== null;

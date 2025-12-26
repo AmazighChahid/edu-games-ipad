@@ -27,7 +27,10 @@ export type CognitiveSkill =
   | 'sequencing'
   | 'deductive_reasoning'
   | 'patience'
-  | 'systematic_thinking';
+  | 'systematic_thinking'
+  | 'spatial_reasoning'   // NEW - for tangram, labyrinthe
+  | 'vocabulary'          // NEW - for mots-croises
+  | 'spelling';           // NEW - for mots-croises
 
 // ============================================
 // GAME METADATA

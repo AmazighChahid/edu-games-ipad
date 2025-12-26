@@ -56,12 +56,12 @@ function RotatingRays() {
             styles.ray,
             {
               transform: [{ rotate: `${angle}deg` }],
-              opacity: 0.3 + (index % 2) * 0.2,
+              opacity: 0.2 + (index % 2) * 0.1,
             },
           ]}
         >
           <LinearGradient
-            colors={['rgba(255, 215, 0, 0.6)', 'transparent']}
+            colors={['rgba(255, 255, 255, 0.3)', 'transparent']}
             start={{ x: 0.5, y: 0 }}
             end={{ x: 0.5, y: 1 }}
             style={styles.rayGradient}
@@ -174,18 +174,18 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: '50%',
     left: '50%',
-    width: 8,
+    width: 4,
     height: 200,
-    marginLeft: -4,
+    marginLeft: -2,
     transformOrigin: 'center top',
   },
   rayGradient: {
     flex: 1,
-    borderRadius: 4,
+    borderRadius: 2,
   },
   title: {
     fontFamily: 'Fredoka-Bold',
-    fontSize: 40,
+    fontSize: 48,
     fontWeight: '700',
     color: '#fff',
     textAlign: 'center',
@@ -194,7 +194,7 @@ const styles = StyleSheet.create({
     textShadowRadius: 15,
   },
   subtitle: {
-    fontSize: 18,
+    fontSize: 20,
     color: 'rgba(255, 255, 255, 0.9)',
     textAlign: 'center',
     marginTop: 8,
@@ -203,10 +203,10 @@ const styles = StyleSheet.create({
   starsContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    gap: 12,
+    gap: 16,
     marginTop: 20,
   },
   star: {
-    fontSize: 42,
+    fontSize: 48,
   },
 });

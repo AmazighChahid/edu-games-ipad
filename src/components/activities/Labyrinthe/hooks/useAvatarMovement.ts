@@ -1,5 +1,5 @@
-import { useSharedValue } from 'react-native-reanimated';
-import { withSpring, withSequence, withTiming } from 'react-native-reanimated';
+import { useSharedValue, withSpring, withSequence, withTiming } from 'react-native-reanimated';
+import { useCallback } from 'react';
 import { Position } from '../types';
 
 const SPRING_CONFIG = {
@@ -14,55 +14,54 @@ export function useAvatarMovement() {
   /**
    * Anime le déplacement vers une nouvelle position
    */
-  const animateMove = (newPosition: Position, cellSize: number) => {
-    'worklet';
+  const animateMove = useCallback((newPosition: Position, cellSize: number) => {
     x.value = withSpring(newPosition.x * cellSize, SPRING_CONFIG);
     y.value = withSpring(newPosition.y * cellSize, SPRING_CONFIG);
-  };
+  }, []);
 
   /**
    * Anime un rebond quand bloqué
    */
-  const animateBlocked = (direction: 'up' | 'down' | 'left' | 'right', cellSize: number) => {
-    'worklet';
+  const animateBlocked = useCallback((direction: 'up' | 'down' | 'left' | 'right', cellSize: number) => {
     const offset = cellSize * 0.15;
+    const currentX = x.value;
+    const currentY = y.value;
 
     switch (direction) {
       case 'up':
         y.value = withSequence(
-          withTiming(y.value - offset, { duration: 100 }),
-          withSpring(y.value, SPRING_CONFIG)
+          withTiming(currentY - offset, { duration: 100 }),
+          withSpring(currentY, SPRING_CONFIG)
         );
         break;
       case 'down':
         y.value = withSequence(
-          withTiming(y.value + offset, { duration: 100 }),
-          withSpring(y.value, SPRING_CONFIG)
+          withTiming(currentY + offset, { duration: 100 }),
+          withSpring(currentY, SPRING_CONFIG)
         );
         break;
       case 'left':
         x.value = withSequence(
-          withTiming(x.value - offset, { duration: 100 }),
-          withSpring(x.value, SPRING_CONFIG)
+          withTiming(currentX - offset, { duration: 100 }),
+          withSpring(currentX, SPRING_CONFIG)
         );
         break;
       case 'right':
         x.value = withSequence(
-          withTiming(x.value + offset, { duration: 100 }),
-          withSpring(x.value, SPRING_CONFIG)
+          withTiming(currentX + offset, { duration: 100 }),
+          withSpring(currentX, SPRING_CONFIG)
         );
         break;
     }
-  };
+  }, []);
 
   /**
    * Position initiale de l'avatar
    */
-  const setInitialPosition = (position: Position, cellSize: number) => {
-    'worklet';
+  const setInitialPosition = useCallback((position: Position, cellSize: number) => {
     x.value = position.x * cellSize;
     y.value = position.y * cellSize;
-  };
+  }, []);
 
   return {
     animatedPosition: { x, y },

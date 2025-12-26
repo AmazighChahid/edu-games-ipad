@@ -8,6 +8,16 @@ import { THEME_SYMBOLS, DIFFICULTY_CONFIGS } from '../types';
 import { validatePlacement, isGridComplete } from './validation';
 
 /**
+ * Get box dimensions for a given grid size
+ */
+function getBoxDimensions(size: number): { rows: number; cols: number } {
+  if (size === 4) return { rows: 2, cols: 2 };
+  if (size === 6) return { rows: 2, cols: 3 };
+  if (size === 9) return { rows: 3, cols: 3 };
+  throw new Error(`Unsupported grid size: ${size}`);
+}
+
+/**
  * Generates a complete valid Sudoku grid
  */
 function generateFullGrid(size: number, symbols: SudokuValue[]): SudokuValue[][] {
@@ -27,12 +37,12 @@ function generateFullGrid(size: number, symbols: SudokuValue[]): SudokuValue[][]
     }
 
     // Check box
-    const boxSize = Math.sqrt(size);
-    const boxRow = Math.floor(row / boxSize) * boxSize;
-    const boxCol = Math.floor(col / boxSize) * boxSize;
+    const box = getBoxDimensions(size);
+    const boxRow = Math.floor(row / box.rows) * box.rows;
+    const boxCol = Math.floor(col / box.cols) * box.cols;
 
-    for (let r = boxRow; r < boxRow + boxSize; r++) {
-      for (let c = boxCol; c < boxCol + boxSize; c++) {
+    for (let r = boxRow; r < boxRow + box.rows; r++) {
+      for (let c = boxCol; c < boxCol + box.cols; c++) {
         if (grid[r][c] === value) return false;
       }
     }
@@ -82,7 +92,7 @@ function countSolutions(
   let count = 0;
 
   function isValid(row: number, col: number, value: SudokuValue): boolean {
-    const boxSize = Math.sqrt(size);
+    const box = getBoxDimensions(size);
 
     for (let i = 0; i < size; i++) {
       if (grid[row][i] === value || grid[i][col] === value) {
@@ -90,11 +100,11 @@ function countSolutions(
       }
     }
 
-    const boxRow = Math.floor(row / boxSize) * boxSize;
-    const boxCol = Math.floor(col / boxSize) * boxSize;
+    const boxRow = Math.floor(row / box.rows) * box.rows;
+    const boxCol = Math.floor(col / box.cols) * box.cols;
 
-    for (let r = boxRow; r < boxRow + boxSize; r++) {
-      for (let c = boxCol; c < boxCol + boxSize; c++) {
+    for (let r = boxRow; r < boxRow + box.rows; r++) {
+      for (let c = boxCol; c < boxCol + box.cols; c++) {
         if (grid[r][c] === value) return false;
       }
     }

@@ -48,14 +48,79 @@ export const semanticSpacing = {
   towerGap: spacing[10],
 } as const;
 
+// Home screen specific layout (from home-redesign.html)
+export const homeLayout = {
+  // Header & content spacing
+  headerPadding: 28,
+  contentPadding: 40,
+
+  // Sidebar dimensions
+  sidebarWidth: 320,
+  sidebarGap: 20,
+
+  // Game grid
+  gameCardGap: 20,
+
+  // Component sizes
+  avatarSize: 90,
+  avatarBorder: 4,
+  avatarBadgePadding: 4,
+
+  gameIconSize: 80,
+  gameIconBorderRadius: 20,
+
+  owlSmallWidth: 60,
+  owlSmallHeight: 70,
+  owlEyeSize: 18,
+  owlBeakSize: 8,
+
+  plantFlowerSize: 28,
+  plantStemWidth: 4,
+
+  // Navigation
+  navHeight: 70,
+  navBottom: 30,
+  navButtonPadding: 10,
+
+  // Stat badges
+  statBadgePadding: 8,
+  statBadgePaddingHorizontal: 14,
+
+  // Progress bar
+  progressBarHeight: 8,
+  progressBarRadius: 4,
+
+  // Streak days
+  streakDaySize: 36,
+  streakDayGap: 8,
+
+  // Garden
+  gardenHeight: 140,
+  gardenGroundHeight: 40,
+
+  // Mascot bubble
+  bubblePadding: 14,
+  bubblePaddingHorizontal: 18,
+  bubbleTailSize: 10,
+} as const;
+
+// Touch target sizes (child-friendly, accessibility compliant)
+export const touchTargets = {
+  minimum: 64,     // Minimum interactive element size (WCAG)
+  large: 80,       // Large touch target
+  huge: 90,        // Extra large (e.g., avatar)
+  spacing: 16,     // Minimum spacing between touch targets
+} as const;
+
 // Border radius
 export const borderRadius = {
   none: 0,
-  sm: 8,
-  md: 12,
-  lg: 16,
+  xs: 8,
+  sm: 12,
+  md: 16,
+  lg: 20,
   xl: 24,
-  full: 9999,
+  round: 9999,     // Fully rounded (was 'full')
 } as const;
 
 // Shadows

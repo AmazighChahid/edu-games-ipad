@@ -6,6 +6,16 @@
 import type { SudokuGrid, SudokuValue, ValidationResult, Conflict, SudokuCell } from '../types';
 
 /**
+ * Get box dimensions for a given grid size
+ */
+function getBoxDimensions(size: number): { rows: number; cols: number } {
+  if (size === 4) return { rows: 2, cols: 2 };
+  if (size === 6) return { rows: 2, cols: 3 };
+  if (size === 9) return { rows: 3, cols: 3 };
+  throw new Error(`Unsupported grid size: ${size}`);
+}
+
+/**
  * Validates if a value can be placed in a specific cell
  */
 export function validatePlacement(
@@ -35,12 +45,12 @@ export function validatePlacement(
   }
 
   // Check box/region
-  const boxSize = Math.sqrt(grid.size);
-  const boxRow = Math.floor(row / boxSize) * boxSize;
-  const boxCol = Math.floor(col / boxSize) * boxSize;
+  const box = getBoxDimensions(grid.size);
+  const boxRow = Math.floor(row / box.rows) * box.rows;
+  const boxCol = Math.floor(col / box.cols) * box.cols;
 
-  for (let r = boxRow; r < boxRow + boxSize; r++) {
-    for (let c = boxCol; c < boxCol + boxSize; c++) {
+  for (let r = boxRow; r < boxRow + box.rows; r++) {
+    for (let c = boxCol; c < boxCol + box.cols; c++) {
       if ((r !== row || c !== col) && grid.cells[r][c].value === value) {
         conflicts.push({ type: 'box', row: r, col: c });
       }

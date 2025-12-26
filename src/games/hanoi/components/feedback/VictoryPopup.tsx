@@ -11,6 +11,7 @@ import { PopupHeader } from './PopupHeader';
 import { CollectibleCardFlip } from './CollectibleCardFlip';
 import { CollectionProgress } from './CollectionProgress';
 import { StatsSection } from './StatsSection';
+import { PerformanceAnalysis } from './PerformanceAnalysis';
 import { ActionButtons } from './ActionButtons';
 import { getVictoryMessage } from '../../logic/cardAwardEngine';
 
@@ -68,7 +69,6 @@ export function VictoryPopup({
           </>
         ) : (
           <Animated.View entering={FadeInDown.delay(1200)} style={styles.noCardMessage}>
-            <Text style={styles.noCardEmoji}>🎉</Text>
             <Text style={styles.noCardText}>
               Continue de jouer pour débloquer plus de cartes !
             </Text>
@@ -81,6 +81,13 @@ export function VictoryPopup({
         moves={moves}
         optimalMoves={optimalMoves}
         timeElapsed={timeElapsed}
+        isPerfect={isPerfect}
+      />
+
+      {/* Performance Analysis */}
+      <PerformanceAnalysis
+        moves={moves}
+        optimalMoves={optimalMoves}
         isPerfect={isPerfect}
       />
 
@@ -99,7 +106,7 @@ const styles = StyleSheet.create({
   popup: {
     backgroundColor: '#fff',
     borderRadius: 32,
-    maxWidth: Math.min(600, SCREEN_WIDTH * 0.9),
+    maxWidth: Math.min(580, SCREEN_WIDTH * 0.9),
     width: '90%',
     overflow: 'hidden',
     shadowColor: '#000',
@@ -109,13 +116,14 @@ const styles = StyleSheet.create({
     elevation: 24,
   },
   cardSection: {
-    paddingHorizontal: 24,
+    paddingHorizontal: 30,
     paddingTop: 0,
     marginTop: -50, // Overlap with header
+    paddingBottom: 30,
   },
   cardMessage: {
     alignItems: 'center',
-    marginTop: 16,
+    marginTop: 20,
     paddingHorizontal: 16,
   },
   messageText: {
@@ -127,11 +135,7 @@ const styles = StyleSheet.create({
   },
   noCardMessage: {
     alignItems: 'center',
-    paddingVertical: 40,
-  },
-  noCardEmoji: {
-    fontSize: 80,
-    marginBottom: 16,
+    paddingVertical: 50,
   },
   noCardText: {
     fontFamily: 'Nunito-SemiBold',

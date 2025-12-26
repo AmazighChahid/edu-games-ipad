@@ -18,7 +18,7 @@ import {
 } from '../../logic/cardAwardEngine';
 import { ConfettiLayer } from './ConfettiLayer';
 import { VictoryPopup } from './VictoryPopup';
-import { MascotCelebration } from './MascotCelebration';
+import { VictoryMascot } from './VictoryMascot';
 import { useSound } from '@/hooks/useSound';
 
 export interface VictoryOverlayProps {
@@ -138,7 +138,7 @@ export function VictoryOverlay({
       />
 
       {/* Mascot Celebration */}
-      <MascotCelebration message={mascotMessage} delay={2500} />
+      <VictoryMascot message={mascotMessage} delay={2500} />
     </View>
   );
 }

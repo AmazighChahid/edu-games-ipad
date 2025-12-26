@@ -34,12 +34,11 @@ import {
   GameBackground,
   MascotOwl,
   ProgressPanel,
-  TowerLabel,
   FloatingButtons,
 } from '../components';
 import { useHanoiGame } from '../hooks/useHanoiGame';
 import { hanoiLevels } from '../data/levels';
-import { ParentZone, type GameMode } from '@/components/parent/ParentZone';
+import { ParentDrawer, type GameMode } from '@/components/parent/ParentDrawer';
 import { useStore } from '@/store/useStore';
 import type { HanoiLevelConfig, TowerId } from '../types';
 
@@ -634,16 +633,18 @@ export function HanoiIntroScreen() {
         onHome={() => router.back()}
       />
 
-      {/* Parent Zone */}
-      <ParentZone
-        progression={moveCount}
-        maxProgression={level.optimalMoves ?? 7}
+      {/* Parent Drawer - New design with bottom drawer */}
+      <ParentDrawer
+        isVisible={showParentZone}
+        onClose={() => setShowParentZone(false)}
+        currentMoves={moveCount}
+        optimalMoves={level.optimalMoves ?? 7}
         hintsRemaining={hintsRemaining}
         maxHints={maxHints}
         currentMode={gameMode}
         onModeChange={handleModeChange}
         onHintPress={handleHint}
-        isVisible={showParentZone}
+        currentLevel={level.diskCount}
       />
 
       {/* Rules Overlay Modal */}
@@ -801,7 +802,7 @@ const styles = StyleSheet.create({
   headerButton: {
     width: touchTargets.medium,
     height: touchTargets.medium,
-    borderRadius: borderRadius.full,
+    borderRadius: borderRadius.round,
     backgroundColor: colors.background.card,
     alignItems: 'center',
     justifyContent: 'center',
@@ -859,7 +860,7 @@ const styles = StyleSheet.create({
   helpButton: {
     width: touchTargets.medium,
     height: touchTargets.medium,
-    borderRadius: borderRadius.full,
+    borderRadius: borderRadius.round,
     backgroundColor: colors.secondary.main,
     alignItems: 'center',
     justifyContent: 'center',

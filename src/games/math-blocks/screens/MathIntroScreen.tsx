@@ -1,19 +1,23 @@
 /**
  * MathBlocks Intro Screen
  * Game introduction and level selection
+ *
+ * Refactored to use standardized components:
+ * - ScreenHeader for consistent header
+ * - ScreenBackground for playful background
+ * - PageContainer for layout
  */
 
-import { View, StyleSheet, Text, Pressable, ScrollView } from 'react-native';
+import { View, StyleSheet, Text, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { colors, spacing, borderRadius, shadows } from '@/theme';
+import { theme } from '@/theme';
+import { PageContainer, ScreenHeader } from '@/components/common';
 import { mathLevels } from '../data/levels';
 import { OPERATION_SYMBOLS } from '../types';
 
 export function MathIntroScreen() {
   const router = useRouter();
-  const insets = useSafeAreaInsets();
 
   const handlePlayLevel = (levelId: string) => {
     router.push(`/(games)/math-blocks/play?levelId=${levelId}`);
@@ -23,28 +27,24 @@ export function MathIntroScreen() {
     router.push('/');
   };
 
-  return (
-    <ScrollView
-      style={[
-        styles.container,
-        {
-          paddingTop: insets.top + spacing[4],
-          paddingLeft: insets.left + spacing[4],
-          paddingRight: insets.right + spacing[4],
-        },
-      ]}
-      contentContainerStyle={styles.content}
-    >
-      {/* Header */}
-      <View style={styles.header}>
-        <Pressable onPress={handleBack} style={styles.backButton}>
-          <Text style={styles.backButtonText}>{'<'} Menu</Text>
-        </Pressable>
-      </View>
+  const handleParentPress = () => {
+    router.push('/(parent)');
+  };
 
-      {/* Title */}
-      <View style={styles.titleContainer}>
-        <Text style={styles.title}>MathBlocks</Text>
+  return (
+    <PageContainer variant="playful" scrollable>
+      {/* Header standardisé */}
+      <ScreenHeader
+        variant="game"
+        title="MathBlocks"
+        emoji="🧮"
+        onBack={handleBack}
+        showParentButton
+        onParentPress={handleParentPress}
+      />
+
+      {/* Subtitle */}
+      <View style={styles.subtitleContainer}>
         <Text style={styles.subtitle}>Calcul Mental</Text>
       </View>
 
@@ -128,133 +128,114 @@ export function MathIntroScreen() {
           );
         })}
       </View>
-    </ScrollView>
+    </PageContainer>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background.primary,
-  },
-  content: {
-    paddingBottom: spacing[8],
-  },
-  header: {
-    marginBottom: spacing[4],
-  },
-  backButton: {
-    alignSelf: 'flex-start',
-    backgroundColor: colors.primary.main,
-    paddingVertical: spacing[2],
-    paddingHorizontal: spacing[4],
-    borderRadius: borderRadius.lg,
-  },
-  backButtonText: {
-    color: colors.text.inverse,
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  titleContainer: {
+  subtitleContainer: {
     alignItems: 'center',
-    marginBottom: spacing[6],
-  },
-  title: {
-    fontSize: 42,
-    fontWeight: 'bold',
-    color: colors.primary.main,
+    marginBottom: theme.spacing[6],
+    marginTop: theme.spacing[2],
+    paddingHorizontal: theme.spacing[6],
   },
   subtitle: {
-    fontSize: 18,
-    color: colors.text.secondary,
-    marginTop: spacing[1],
+    ...theme.textStyles.h3,
+    color: theme.colors.text.secondary,
   },
   instructionsCard: {
-    backgroundColor: colors.background.card,
-    borderRadius: borderRadius.xl,
-    padding: spacing[5],
-    marginBottom: spacing[6],
-    ...shadows.md,
+    backgroundColor: theme.colors.background.card,
+    borderRadius: theme.borderRadius.xl,
+    padding: theme.spacing[5],
+    marginBottom: theme.spacing[6],
+    marginHorizontal: theme.spacing[6],
+    ...theme.shadows.md,
   },
   instructionsTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: colors.text.primary,
-    marginBottom: spacing[3],
+    ...theme.textStyles.h3,
+    color: theme.colors.text.primary,
+    marginBottom: theme.spacing[3],
   },
   instructionsList: {
-    gap: spacing[2],
+    gap: theme.spacing[2],
   },
   instruction: {
-    fontSize: 15,
-    color: colors.text.secondary,
-    lineHeight: 22,
+    fontSize: 18, // ✅ Augmenté de 15 → 18 pour respecter guideline enfant
+    color: theme.colors.text.secondary,
+    lineHeight: 26,
+    fontFamily: 'Nunito_400Regular',
   },
   sectionTitle: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: colors.text.primary,
-    marginBottom: spacing[4],
+    ...theme.textStyles.h2,
+    color: theme.colors.text.primary,
+    marginBottom: theme.spacing[4],
+    paddingHorizontal: theme.spacing[6],
   },
   levelsGrid: {
-    gap: spacing[4],
+    gap: theme.spacing[4],
+    paddingHorizontal: theme.spacing[6],
   },
   levelCard: {
-    backgroundColor: colors.background.card,
-    borderRadius: borderRadius.xl,
-    padding: spacing[4],
-    ...shadows.md,
+    backgroundColor: theme.colors.background.card,
+    borderRadius: theme.borderRadius.xl,
+    padding: theme.spacing[5],
+    ...theme.shadows.md,
   },
   levelBadge: {
     alignSelf: 'flex-start',
-    paddingVertical: spacing[1],
-    paddingHorizontal: spacing[3],
-    borderRadius: borderRadius.full,
-    marginBottom: spacing[2],
+    paddingVertical: theme.spacing[2],
+    paddingHorizontal: theme.spacing[3],
+    borderRadius: theme.borderRadius.full,
+    marginBottom: theme.spacing[2],
   },
   levelBadgeText: {
-    color: colors.text.inverse,
+    color: theme.colors.text.inverse,
     fontSize: 12,
     fontWeight: 'bold',
+    fontFamily: 'Nunito_700Bold',
   },
   levelNumber: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: colors.text.primary,
-    marginBottom: spacing[2],
+    ...theme.textStyles.h2,
+    color: theme.colors.text.primary,
+    marginBottom: theme.spacing[2],
   },
   levelInfo: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: spacing[3],
-    marginBottom: spacing[4],
+    gap: theme.spacing[3],
+    marginBottom: theme.spacing[4],
   },
   levelOperations: {
     fontSize: 20,
-    color: colors.primary.main,
+    color: theme.colors.primary.main,
     fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold',
   },
   levelRange: {
-    fontSize: 14,
-    color: colors.text.secondary,
+    fontSize: 16, // ✅ Augmenté de 14 → 16
+    color: theme.colors.text.secondary,
+    fontFamily: 'Nunito_400Regular',
   },
   levelPairs: {
-    fontSize: 14,
-    color: colors.text.secondary,
+    fontSize: 16, // ✅ Augmenté de 14 → 16
+    color: theme.colors.text.secondary,
+    fontFamily: 'Nunito_400Regular',
   },
   levelTime: {
-    fontSize: 14,
-    color: colors.text.muted,
+    fontSize: 16, // ✅ Augmenté de 14 → 16
+    color: theme.colors.text.muted,
+    fontFamily: 'Nunito_400Regular',
   },
   playButton: {
-    backgroundColor: colors.secondary.main,
-    paddingVertical: spacing[3],
-    borderRadius: borderRadius.lg,
+    backgroundColor: theme.colors.secondary.main,
+    paddingVertical: theme.spacing[4],
+    borderRadius: theme.borderRadius.lg,
     alignItems: 'center',
+    minHeight: theme.touchTargets.child, // ✅ Touch target enfant
+    justifyContent: 'center',
   },
   playButtonText: {
-    color: colors.text.inverse,
-    fontSize: 18,
-    fontWeight: 'bold',
+    ...theme.textStyles.button,
+    color: theme.colors.text.inverse,
   },
 });

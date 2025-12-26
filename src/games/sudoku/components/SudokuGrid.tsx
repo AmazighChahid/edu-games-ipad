@@ -26,7 +26,12 @@ export function SudokuGrid({
   showConflicts,
 }: SudokuGridProps) {
   const cellSize = calculateCellSize(grid.size);
-  const boxSize = Math.sqrt(grid.size);
+
+  // Calculate box dimensions based on grid size
+  // 4x4: 2x2 blocks
+  // 6x6: 2x3 blocks (2 rows, 3 columns)
+  const boxRows = grid.size === 6 ? 2 : Math.sqrt(grid.size);
+  const boxCols = grid.size === 6 ? 3 : Math.sqrt(grid.size);
 
   const renderCell = (row: number, col: number) => {
     const cell = grid.cells[row][col];
@@ -38,8 +43,8 @@ export function SudokuGrid({
         style={[
           styles.cellWrapper,
           // Add thicker borders for box boundaries
-          col % boxSize === 0 && col !== 0 && styles.boxBorderLeft,
-          row % boxSize === 0 && row !== 0 && styles.boxBorderTop,
+          col % boxCols === 0 && col !== 0 && styles.boxBorderLeft,
+          row % boxRows === 0 && row !== 0 && styles.boxBorderTop,
         ]}
       >
         <SudokuCell

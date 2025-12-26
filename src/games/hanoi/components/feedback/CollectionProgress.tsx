@@ -16,6 +16,7 @@ export function CollectionProgress({ unlockedCount }: CollectionProgressProps) {
 
   return (
     <View style={styles.container}>
+      <Text style={styles.emoji}>🎁</Text>
       <View style={styles.progressBar}>
         <View style={[styles.progressFill, { width: `${progress * 100}%` }]} />
       </View>
@@ -30,13 +31,16 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
-    paddingVertical: 8,
+    gap: 10,
+    paddingVertical: 12,
+  },
+  emoji: {
+    fontSize: 18,
   },
   progressBar: {
-    flex: 1,
+    width: 120,
     height: 8,
-    backgroundColor: '#E5E7EB',
+    backgroundColor: '#EEE',
     borderRadius: 4,
     overflow: 'hidden',
   },
@@ -46,8 +50,8 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   progressText: {
-    fontFamily: 'Nunito-SemiBold',
+    fontFamily: 'Nunito-Regular',
     fontSize: 14,
-    color: '#6B7280',
+    color: '#9A9A9A',
   },
 });
