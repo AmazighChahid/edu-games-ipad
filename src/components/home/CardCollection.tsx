@@ -1,38 +1,113 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import React, { useMemo } from 'react';
+import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { router } from 'expo-router';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+  withRepeat,
+  withSequence,
+  withTiming,
+} from 'react-native-reanimated';
+import { useCollection } from '@/store/useStore';
+import { ALL_CARDS, getCardById } from '@/data/cards';
 
 interface CardCollectionProps {
-  collectedCards: number;
-  totalCards: number;
-  previewCards: { emoji: string; isUnlocked: boolean }[];
+  collectedCards?: number;
+  totalCards?: number;
+  previewCards?: { emoji: string; isUnlocked: boolean }[];
 }
 
-export const CardCollection: React.FC<CardCollectionProps> = ({
-  collectedCards,
-  totalCards,
-  previewCards,
-}) => {
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+
+export const CardCollection: React.FC<CardCollectionProps> = (props) => {
+  const { collectionData, newCardIds, getUnlockedCardsCount } = useCollection();
+
+  // Get data from store or props
+  const collectedCards = props.collectedCards ?? getUnlockedCardsCount();
+  const totalCards = props.totalCards ?? ALL_CARDS.length;
+
+  // Generate preview cards from actual collection
+  const previewCards = useMemo(() => {
+    if (props.previewCards) return props.previewCards;
+
+    const unlockedIds = Object.keys(collectionData);
+    const previewList: { emoji: string; isUnlocked: boolean; isNew: boolean }[] = [];
+
+    // Show first 4 unlocked cards or placeholder
+    for (let i = 0; i < 4; i++) {
+      if (unlockedIds[i]) {
+        const card = getCardById(unlockedIds[i]);
+        previewList.push({
+          emoji: card?.emoji || '❓',
+          isUnlocked: true,
+          isNew: newCardIds.includes(unlockedIds[i]),
+        });
+      } else {
+        previewList.push({
+          emoji: '❓',
+          isUnlocked: false,
+          isNew: false,
+        });
+      }
+    }
+    return previewList;
+  }, [collectionData, newCardIds, props.previewCards]);
+
   const progressPercent = (collectedCards / totalCards) * 100;
+  const hasNewCards = newCardIds.length > 0;
+
+  // Animation for scale on press
+  const scale = useSharedValue(1);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
+
+  const handlePressIn = () => {
+    scale.value = withSpring(0.97, { damping: 15 });
+  };
+
+  const handlePressOut = () => {
+    scale.value = withSpring(1, { damping: 15 });
+  };
+
+  const handlePress = () => {
+    router.push('/(games)/collection');
+  };
 
   return (
-    <LinearGradient
-      colors={['#F3E5F5', '#E1BEE7']}
-      style={styles.container}
+    <AnimatedPressable
+      onPress={handlePress}
+      onPressIn={handlePressIn}
+      onPressOut={handlePressOut}
+      style={animatedStyle}
     >
+      <LinearGradient
+        colors={['#F3E5F5', '#E1BEE7']}
+        style={styles.container}
+      >
       {/* Icône de fond */}
       <Text style={styles.bgIcon}>🏆</Text>
 
-      {/* Header */}
-      <View style={styles.header}>
-        <LinearGradient
-          colors={['#E056FD', '#9B59B6']}
-          style={styles.headerIcon}
-        >
-          <Text style={styles.headerIconText}>🏆</Text>
-        </LinearGradient>
-        <Text style={styles.headerTitle}>Ma Collection</Text>
-      </View>
+        {/* NEW badge */}
+        {hasNewCards && (
+          <View style={styles.newBadge}>
+            <Text style={styles.newBadgeText}>{newCardIds.length} NEW!</Text>
+          </View>
+        )}
+
+        {/* Header */}
+        <View style={styles.header}>
+          <LinearGradient
+            colors={['#E056FD', '#9B59B6']}
+            style={styles.headerIcon}
+          >
+            <Text style={styles.headerIconText}>🏆</Text>
+          </LinearGradient>
+          <Text style={styles.headerTitle}>Ma Collection</Text>
+        </View>
 
       {/* Aperçu des cartes */}
       <View style={styles.cardsPreview}>
@@ -65,7 +140,8 @@ export const CardCollection: React.FC<CardCollectionProps> = ({
           {collectedCards} / {totalCards} cartes débloquées
         </Text>
       </View>
-    </LinearGradient>
+      </LinearGradient>
+    </AnimatedPressable>
   );
 };
 
@@ -163,5 +239,26 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#7B1FA2',
     textAlign: 'center',
+  },
+  newBadge: {
+    position: 'absolute',
+    top: -8,
+    right: -8,
+    backgroundColor: '#FF6B6B',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 10,
+    zIndex: 10,
+    shadowColor: '#FF6B6B',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  newBadgeText: {
+    fontFamily: 'Fredoka_700Bold',
+    fontSize: 10,
+    color: 'white',
+    letterSpacing: 0.5,
   },
 });

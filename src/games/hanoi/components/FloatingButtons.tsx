@@ -1,7 +1,7 @@
 /**
  * FloatingButtons component
  * Floating action buttons for Reset and Hint
- * Child-friendly design with animations
+ * New design with halo/pulse effect on hint button
  */
 
 import { useEffect } from 'react';
@@ -18,7 +18,7 @@ import Animated, {
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 
-import { shadows, touchTargets } from '@/theme';
+import { shadows } from '@/theme';
 
 interface FloatingButtonsProps {
   onReset: () => void;
@@ -31,18 +31,15 @@ interface FloatingButtonsProps {
 // Colors
 const COLORS = {
   reset: {
-    background: '#FFFFFF',
+    background: 'rgba(255, 255, 255, 0.95)',
     icon: '#5B8DEE',
-    shadow: 'rgba(0, 0, 0, 0.1)',
   },
   hint: {
-    gradient: ['#F39C12', '#E67E22'] as [string, string],
-    icon: '#FFFFFF',
-    shadow: 'rgba(243, 156, 18, 0.4)',
+    gradient: ['#FFB347', '#FFA020'] as [string, string],
+    haloColor: 'rgba(255, 179, 71, 0.3)',
   },
   disabled: {
     background: '#CCCCCC',
-    icon: '#999999',
   },
 };
 
@@ -69,21 +66,32 @@ export function FloatingButtons({
   // Animation values
   const resetScale = useSharedValue(1);
   const hintScale = useSharedValue(1);
-  const hintPulse = useSharedValue(1);
+  const haloScale = useSharedValue(1);
+  const haloOpacity = useSharedValue(0.3);
 
-  // Pulse animation for hint button when available
+  // Halo pulse animation for hint button
   useEffect(() => {
     if (!hintDisabled && hintsRemaining > 0) {
-      hintPulse.value = withRepeat(
+      // Halo expanding animation
+      haloScale.value = withRepeat(
         withSequence(
-          withTiming(1.05, { duration: 1000, easing: Easing.inOut(Easing.ease) }),
-          withTiming(1, { duration: 1000, easing: Easing.inOut(Easing.ease) })
+          withTiming(1, { duration: 0 }),
+          withTiming(1.4, { duration: 1000, easing: Easing.out(Easing.ease) })
+        ),
+        -1,
+        false
+      );
+      haloOpacity.value = withRepeat(
+        withSequence(
+          withTiming(0.4, { duration: 0 }),
+          withTiming(0, { duration: 1000, easing: Easing.out(Easing.ease) })
         ),
         -1,
         false
       );
     } else {
-      hintPulse.value = withTiming(1, { duration: 200 });
+      haloScale.value = withTiming(1, { duration: 200 });
+      haloOpacity.value = withTiming(0, { duration: 200 });
     }
   }, [hintDisabled, hintsRemaining]);
 
@@ -114,7 +122,12 @@ export function FloatingButtons({
   }));
 
   const hintStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: hintScale.value * hintPulse.value }],
+    transform: [{ scale: hintScale.value }],
+  }));
+
+  const haloStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: haloScale.value }],
+    opacity: haloOpacity.value,
   }));
 
   if (!visible) return null;
@@ -128,51 +141,58 @@ export function FloatingButtons({
         onPress={handleResetPress}
         style={[styles.button, styles.resetButton, resetStyle]}
       >
-        <Text style={styles.resetIcon}>🔄</Text>
+        <Text style={styles.resetIcon}>↻</Text>
       </AnimatedPressable>
 
-      {/* Hint button - Right */}
-      <AnimatedPressable
-        onPress={handleHintPress}
-        disabled={isHintDisabled}
-        style={[styles.button, hintStyle]}
-      >
-        {isHintDisabled ? (
-          <View style={[styles.hintButtonInner, styles.hintButtonDisabled]}>
-            <Text style={styles.hintIcon}>💡</Text>
-          </View>
-        ) : (
-          <LinearGradient
-            colors={COLORS.hint.gradient}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.hintButtonInner}
-          >
-            <Text style={styles.hintIcon}>💡</Text>
-            {/* Badge compteur indices */}
-            {hintsRemaining < 99 && (
-              <View style={styles.hintBadge}>
-                <Text style={styles.hintBadgeText}>{hintsRemaining}</Text>
-              </View>
-            )}
-          </LinearGradient>
+      {/* Hint button - Right with halo effect */}
+      <View style={styles.hintContainer}>
+        {/* Halo effect */}
+        {!isHintDisabled && (
+          <Animated.View style={[styles.halo, haloStyle]} />
         )}
-      </AnimatedPressable>
+
+        <AnimatedPressable
+          onPress={handleHintPress}
+          disabled={isHintDisabled}
+          style={[styles.button, hintStyle]}
+        >
+          {isHintDisabled ? (
+            <View style={[styles.hintButtonInner, styles.hintButtonDisabled]}>
+              <Text style={styles.hintIcon}>💡</Text>
+            </View>
+          ) : (
+            <LinearGradient
+              colors={COLORS.hint.gradient}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.hintButtonInner}
+            >
+              <Text style={styles.hintIcon}>💡</Text>
+              {/* Badge compteur indices */}
+              {hintsRemaining < 99 && (
+                <View style={styles.hintBadge}>
+                  <Text style={styles.hintBadgeText}>{hintsRemaining}</Text>
+                </View>
+              )}
+            </LinearGradient>
+          )}
+        </AnimatedPressable>
+      </View>
     </View>
   );
 }
 
-const BUTTON_SIZE = 80;
+const BUTTON_SIZE = 64;
 
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
-    bottom: 100,
+    bottom: 90,
     left: 0,
     right: 0,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingHorizontal: 40,
+    paddingHorizontal: 30,
     zIndex: 100,
   },
 
@@ -190,7 +210,25 @@ const styles = StyleSheet.create({
     ...shadows.lg,
   },
   resetIcon: {
-    fontSize: 36,
+    fontSize: 28,
+    color: COLORS.reset.icon,
+  },
+
+  // Hint button container with halo
+  hintContainer: {
+    width: BUTTON_SIZE,
+    height: BUTTON_SIZE,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  // Halo effect
+  halo: {
+    position: 'absolute',
+    width: BUTTON_SIZE,
+    height: BUTTON_SIZE,
+    borderRadius: BUTTON_SIZE / 2,
+    backgroundColor: COLORS.hint.haloColor,
   },
 
   // Hint button
@@ -206,7 +244,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.disabled.background,
   },
   hintIcon: {
-    fontSize: 36,
+    fontSize: 28,
   },
 
   // Badge compteur indices
@@ -214,9 +252,9 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: -4,
     right: -4,
-    width: 28,
-    height: 28,
-    borderRadius: 14,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
     backgroundColor: '#5B8DEE',
     alignItems: 'center',
     justifyContent: 'center',
@@ -224,7 +262,7 @@ const styles = StyleSheet.create({
     borderColor: '#FFFFFF',
   },
   hintBadgeText: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: '700',
     color: '#FFFFFF',
   },

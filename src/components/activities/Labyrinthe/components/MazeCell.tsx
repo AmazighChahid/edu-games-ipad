@@ -9,6 +9,8 @@ interface Props {
   theme: Theme;
 }
 
+const WALL_THICKNESS = 3;
+
 export const MazeCell = memo<Props>(({ cell, cellSize, theme }) => {
   const isWall = cell.type === 'wall';
   const isStart = cell.type === 'start';
@@ -22,12 +24,51 @@ export const MazeCell = memo<Props>(({ cell, cellSize, theme }) => {
     height: cellSize,
   };
 
+  // Couleur de fond : chemin ou mur
   const backgroundStyle = {
     backgroundColor: isWall ? theme.wallColor : theme.pathColor,
   };
 
   return (
     <View style={[styles.cell, cellStyle, backgroundStyle]}>
+      {/* Murs entre les cellules */}
+      {!isWall && (
+        <>
+          {cell.walls.top && (
+            <View
+              style={[
+                styles.wallTop,
+                { backgroundColor: theme.wallColor, height: WALL_THICKNESS },
+              ]}
+            />
+          )}
+          {cell.walls.right && (
+            <View
+              style={[
+                styles.wallRight,
+                { backgroundColor: theme.wallColor, width: WALL_THICKNESS },
+              ]}
+            />
+          )}
+          {cell.walls.bottom && (
+            <View
+              style={[
+                styles.wallBottom,
+                { backgroundColor: theme.wallColor, height: WALL_THICKNESS },
+              ]}
+            />
+          )}
+          {cell.walls.left && (
+            <View
+              style={[
+                styles.wallLeft,
+                { backgroundColor: theme.wallColor, width: WALL_THICKNESS },
+              ]}
+            />
+          )}
+        </>
+      )}
+
       {/* Marqueur de départ */}
       {isStart && (
         <View style={styles.marker}>
@@ -73,5 +114,29 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(91, 141, 238, 0.15)',
     borderRadius: 2,
+  },
+  wallTop: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+  },
+  wallRight: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    bottom: 0,
+  },
+  wallBottom: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+  },
+  wallLeft: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    bottom: 0,
   },
 });

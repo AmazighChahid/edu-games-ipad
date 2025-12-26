@@ -4,8 +4,7 @@ import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withSpring,
-  FadeIn,
-  FadeOut,
+  withTiming,
 } from 'react-native-reanimated';
 
 interface Props {
@@ -24,9 +23,11 @@ export const MascotBubble: React.FC<Props> = ({
   onDismiss,
 }) => {
   const scale = useSharedValue(0);
+  const opacity = useSharedValue(0);
 
   useEffect(() => {
-    if (visible) {
+    if (visible && message) {
+      opacity.value = withTiming(1, { duration: 300 });
       scale.value = withSpring(1, {
         damping: 12,
         stiffness: 200,
@@ -37,11 +38,16 @@ export const MascotBubble: React.FC<Props> = ({
         return () => clearTimeout(timer);
       }
     } else {
+      opacity.value = withTiming(0, { duration: 200 });
       scale.value = withSpring(0);
     }
   }, [visible, message]);
 
-  const animatedStyle = useAnimatedStyle(() => ({
+  const containerAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+  }));
+
+  const bubbleAnimatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
   }));
 
@@ -49,9 +55,7 @@ export const MascotBubble: React.FC<Props> = ({
 
   return (
     <Animated.View
-      entering={FadeIn.duration(300)}
-      exiting={FadeOut.duration(200)}
-      style={[styles.container, position === 'bottom' && styles.containerBottom]}
+      style={[styles.container, position === 'bottom' && styles.containerBottom, containerAnimatedStyle]}
     >
       <View style={styles.mascotContainer}>
         <Text style={styles.mascot}>🐿️</Text>
@@ -60,7 +64,7 @@ export const MascotBubble: React.FC<Props> = ({
         </View>
       </View>
 
-      <Animated.View style={[styles.bubble, animatedStyle]}>
+      <Animated.View style={[styles.bubble, bubbleAnimatedStyle]}>
         <Text style={styles.message}>{message}</Text>
         <View style={[styles.arrow, position === 'bottom' && styles.arrowBottom]} />
       </Animated.View>

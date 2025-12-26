@@ -72,35 +72,6 @@ function RotatingRays() {
   );
 }
 
-function AnimatedStar({ index, filled }: { index: number; filled: boolean }) {
-  const scale = useSharedValue(0);
-  const rotation = useSharedValue(-180);
-
-  useEffect(() => {
-    const delay = 500 + index * 200; // 500ms, 700ms, 900ms
-
-    scale.value = withDelay(delay, withSpring(1, { damping: 8, stiffness: 200 }));
-    rotation.value = withDelay(
-      delay,
-      withSequence(
-        withTiming(15, { duration: 150 }),
-        withTiming(-15, { duration: 150 }),
-        withTiming(0, { duration: 150 })
-      )
-    );
-  }, [index]);
-
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }, { rotate: `${rotation.value}deg` }],
-  }));
-
-  return (
-    <Animated.Text style={[styles.star, animatedStyle]}>
-      {filled ? '⭐' : '☆'}
-    </Animated.Text>
-  );
-}
-
 export function PopupHeader({ stars }: PopupHeaderProps) {
   const titleScale = useSharedValue(0);
 
@@ -134,12 +105,6 @@ export function PopupHeader({ stars }: PopupHeaderProps) {
           🎉 BRAVO ! 🎉
         </Animated.Text>
         <Text style={styles.subtitle}>Tu as résolu le puzzle !</Text>
-
-        <View style={styles.starsContainer}>
-          {[0, 1, 2].map((index) => (
-            <AnimatedStar key={index} index={index} filled={index < stars} />
-          ))}
-        </View>
       </View>
     </LinearGradient>
   );
@@ -147,9 +112,9 @@ export function PopupHeader({ stars }: PopupHeaderProps) {
 
 const styles = StyleSheet.create({
   header: {
-    paddingTop: 30,
+    paddingTop: 24,
     paddingHorizontal: 20,
-    paddingBottom: 80,
+    paddingBottom: 60,
     position: 'relative',
     overflow: 'hidden',
     borderTopLeftRadius: 32,
@@ -199,14 +164,5 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 8,
     fontFamily: 'Nunito-Regular',
-  },
-  starsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    gap: 16,
-    marginTop: 20,
-  },
-  star: {
-    fontSize: 48,
   },
 });

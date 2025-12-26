@@ -139,10 +139,7 @@ export function DraggableDisk({
             start={{ x: 0.3, y: 0 }}
             end={{ x: 0.7, y: 1 }}
             style={[styles.disk, { borderRadius: diskHeight / 2 }]}
-          >
-            {/* Subtle top highlight */}
-            <View style={[styles.highlight, { width: width * 0.5 }]} />
-          </LinearGradient>
+          />
 
           {/* Bottom edge for depth */}
           <View
@@ -180,14 +177,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     shadowRadius: 4,
     elevation: 3,
-  },
-  highlight: {
-    position: 'absolute',
-    top: 4,
-    left: '15%',
-    height: 6,
-    backgroundColor: 'rgba(255, 255, 255, 0.4)',
-    borderRadius: 3,
   },
   diskBottom: {
     position: 'absolute',

@@ -15,6 +15,7 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import { View, Text, StyleSheet, Pressable, Modal } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
 import Animated, {
   FadeIn,
   FadeOut,
@@ -24,10 +25,11 @@ import Animated, {
   withSequence,
   withDelay,
   withSpring,
+  withRepeat,
   Easing,
 } from 'react-native-reanimated';
 
-import { colors, spacing, textStyles, borderRadius, shadows, touchTargets } from '@/theme';
+import { colors, spacing, textStyles, borderRadius, shadows } from '@/theme';
 import {
   DraggableGameBoard,
   VictoryOverlay,
@@ -114,13 +116,9 @@ export function HanoiIntroScreen() {
 
   // Gameplay UI state
   const [showRulesOverlay, setShowRulesOverlay] = useState(false);
-  const [showStrategyPause, setShowStrategyPause] = useState(false);
   const [hintMessage, setHintMessage] = useState<string | null>(null);
   const [highlightedTowers, setHighlightedTowers] = useState<{source: TowerId, target: TowerId} | null>(null);
 
-  // Blocage detection
-  const lastMoveTimeRef = useRef<number>(Date.now());
-  const blockageCheckRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Hints based on mode
   const maxHints = gameMode === 'discovery' ? 99 : gameMode === 'challenge' ? 3 : 0;
@@ -171,32 +169,6 @@ export function HanoiIntroScreen() {
   // Get owl message based on current game state
   const owlState = getOwlMessage(isPlaying, isVictory, consecutiveInvalid, progress);
 
-  // Update last move time on each move
-  useEffect(() => {
-    lastMoveTimeRef.current = Date.now();
-  }, [moveCount]);
-
-  // Blocage detection
-  useEffect(() => {
-    if (!isPlaying || isVictory) return;
-
-    blockageCheckRef.current = setInterval(() => {
-      const idleTime = (Date.now() - lastMoveTimeRef.current) / 1000;
-
-      // Trigger pause stratégie if:
-      // - 3+ invalid moves quickly OR
-      // - 25+ seconds idle
-      if ((consecutiveInvalid >= 3 || idleTime >= 25) && !showStrategyPause) {
-        setShowStrategyPause(true);
-      }
-    }, 5000);
-
-    return () => {
-      if (blockageCheckRef.current) {
-        clearInterval(blockageCheckRef.current);
-      }
-    };
-  }, [isPlaying, consecutiveInvalid, isVictory, showStrategyPause]);
 
   // Animated hint handler
   const handleHint = useCallback(() => {
@@ -224,24 +196,6 @@ export function HanoiIntroScreen() {
       }
     }
   }, [hintsRemaining, isVictory, getHint, playHint, hintPulse]);
-
-  // Strategy pause handlers
-  const handleStrategyHint = () => {
-    setShowStrategyPause(false);
-    handleHint();
-  };
-
-  const handleStrategyDemo = () => {
-    setShowStrategyPause(false);
-    playHint();
-    setTimeout(() => {
-      if (!isVictory) playHint();
-    }, 1000);
-  };
-
-  const handleStrategyContinue = () => {
-    setShowStrategyPause(false);
-  };
 
   const handleModeChange = (mode: GameMode) => {
     setGameMode(mode);
@@ -455,19 +409,30 @@ export function HanoiIntroScreen() {
       >
         {/* Header */}
         <View style={styles.header}>
+          {/* Left button */}
           <Pressable onPress={handleBack} style={styles.headerButton}>
             <Text style={styles.headerButtonText}>←</Text>
           </Pressable>
 
-          <View style={styles.headerTitleContainer}>
-            <Text style={styles.headerEmoji}>🏰</Text>
-            <Text style={styles.headerTitle}>La Tour Magique</Text>
-            <Text style={styles.headerEmoji}>✨</Text>
+          {/* Center title - absolutely positioned */}
+          <View style={styles.headerTitleWrapper}>
+            <View style={styles.headerTitleContainer}>
+              <Text style={styles.headerEmoji}>🏰</Text>
+              <Text style={styles.headerTitle}>La Tour Magique</Text>
+              <Text style={styles.headerEmoji}>✨</Text>
+            </View>
           </View>
 
+          {/* Right buttons */}
           <View style={styles.headerRightButtons}>
             <Pressable onPress={() => setShowParentZone(!showParentZone)} style={styles.parentButton}>
-              <Text style={styles.parentButtonIcon}>👨‍👩‍👧</Text>
+              <LinearGradient
+                colors={['#E056FD', '#9B59B6']}
+                style={styles.parentIconContainer}
+              >
+                <Text style={styles.parentButtonIcon}>👨‍👩‍👧</Text>
+              </LinearGradient>
+              <Text style={styles.parentText}>Espace Parent</Text>
             </Pressable>
 
             <Pressable onPress={() => setShowDemo(true)} style={styles.helpButton}>
@@ -475,13 +440,6 @@ export function HanoiIntroScreen() {
             </Pressable>
           </View>
         </View>
-
-        {/* Mascot Owl - shows contextual messages */}
-        <MascotOwl
-          message={owlState.message}
-          messageType={owlState.type}
-          visible={!isVictory}
-        />
 
         {/* Progress Panel - shows when playing */}
         {isPlaying && (
@@ -495,57 +453,64 @@ export function HanoiIntroScreen() {
 
       {/* Level Selector - At top, slides down when playing */}
       <Animated.View style={[styles.selectorContainer, selectorStyle]} pointerEvents={isPlaying ? 'none' : 'auto'}>
-        <Text style={styles.selectorTitle}>Choisis le nombre de disques</Text>
-
         <View style={styles.levelButtons}>
           {hanoiLevels.slice(0, 5).map((lvl) => {
             const isSelected = selectedLevel.id === lvl.id;
             return (
               <Pressable
                 key={lvl.id}
-                onPress={() => setSelectedLevel(lvl)}
+                onPress={() => {
+                  setSelectedLevel(lvl);
+                  // Don't auto-start - wait for first disk move
+                }}
                 style={[
-                  styles.levelButton,
-                  isSelected && styles.levelButtonSelected,
+                  styles.levelCard,
+                  isSelected && styles.levelCardSelected,
                 ]}
               >
+                {/* Mini disk stack preview - smallest on top, largest at bottom */}
+                <View style={styles.miniDisksStack}>
+                  {Array.from({ length: lvl.diskCount }).map((_, i) => {
+                    // i=0 → top → smallest disk (narrowest)
+                    // i=diskCount-1 → bottom → largest disk (widest)
+                    const width = 20 + (i + 1) * 8;
+                    // Color: top disk = disk1 color, bottom = diskN color
+                    const colorIndex = ((lvl.diskCount - 1 - i) % 5) + 1;
+                    return (
+                      <View
+                        key={i}
+                        style={[
+                          styles.miniDisk,
+                          {
+                            width: width,
+                            backgroundColor: colors.game[`disk${colorIndex}` as keyof typeof colors.game],
+                          },
+                        ]}
+                      />
+                    );
+                  })}
+                </View>
+
                 <Text
                   style={[
-                    styles.levelButtonNumber,
-                    isSelected && styles.levelButtonNumberSelected,
+                    styles.levelCardNumber,
+                    isSelected && styles.levelCardNumberSelected,
                   ]}
                 >
                   {lvl.diskCount}
                 </Text>
-                {/* Mini disk stack preview */}
-                <View style={styles.miniDisks}>
-                  {Array.from({ length: lvl.diskCount }).map((_, i) => (
-                    <View
-                      key={i}
-                      style={[
-                        styles.miniDisk,
-                        {
-                          width: 14 + (lvl.diskCount - i) * 5,
-                          backgroundColor: isSelected
-                            ? colors.primary.contrast
-                            : colors.game[`disk${(i % 5) + 1}` as keyof typeof colors.game],
-                        },
-                      ]}
-                    />
-                  ))}
-                </View>
               </Pressable>
             );
           })}
         </View>
-
-        {/* Play button */}
-        <Animated.View style={{ transform: [{ scale: playButtonScale }] }}>
-          <Pressable onPress={handlePlay} style={styles.playButton}>
-            <Text style={styles.playButtonIcon}>▶</Text>
-          </Pressable>
-        </Animated.View>
       </Animated.View>
+
+      {/* Mascot Owl - shows contextual messages between level selector and game board */}
+      <MascotOwl
+        message={owlState.message}
+        messageType={owlState.type}
+        visible={!isVictory}
+      />
 
       {/* Game HUD - Appears when playing */}
       <Animated.View style={[styles.gameHud, hudStyle]} pointerEvents={isPlaying ? 'auto' : 'none'}>
@@ -689,42 +654,6 @@ export function HanoiIntroScreen() {
         </View>
       </Modal>
 
-      {/* Strategy Pause Modal */}
-      <Modal
-        visible={showStrategyPause}
-        transparent
-        animationType="fade"
-        onRequestClose={handleStrategyContinue}
-      >
-        <View style={styles.modalOverlay}>
-          <Animated.View entering={FadeIn} style={styles.strategyCard}>
-            <Text style={styles.strategyTitle}>Besoin d'aide ?</Text>
-            <Text style={styles.strategySubtitle}>
-              Pas de souci ! Choisis une option :
-            </Text>
-
-            <View style={styles.strategyButtons}>
-              <Pressable onPress={handleStrategyHint} style={styles.strategyButton}>
-                <Text style={styles.strategyButtonIcon}>💡</Text>
-                <Text style={styles.strategyButtonText}>Un indice</Text>
-              </Pressable>
-
-              <Pressable onPress={handleStrategyDemo} style={styles.strategyButton}>
-                <Text style={styles.strategyButtonIcon}>▶️</Text>
-                <Text style={styles.strategyButtonText}>Voir 2 coups</Text>
-              </Pressable>
-
-              <Pressable
-                onPress={handleStrategyContinue}
-                style={[styles.strategyButton, styles.strategyButtonOutline]}
-              >
-                <Text style={styles.strategyButtonTextOutline}>Je continue seul</Text>
-              </Pressable>
-            </View>
-          </Animated.View>
-        </View>
-      </Modal>
-
       {/* Demo Modal */}
       <Modal
         visible={showDemo}
@@ -798,28 +727,42 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: spacing[4],
     marginBottom: spacing[2],
+    zIndex: 100,
   },
   headerButton: {
-    width: touchTargets.medium,
-    height: touchTargets.medium,
-    borderRadius: borderRadius.round,
-    backgroundColor: colors.background.card,
+    width: 52,
+    height: 52,
+    borderRadius: 16,
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
     alignItems: 'center',
     justifyContent: 'center',
-    ...shadows.sm,
+    ...shadows.md,
   },
   headerButtonText: {
-    fontSize: 24,
-    color: colors.text.primary,
+    fontSize: 22,
+    color: '#5B8DEE',
+  },
+  headerTitleWrapper: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+    zIndex: -1,
   },
   headerTitleContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing[2],
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    paddingVertical: spacing[2],
+    paddingHorizontal: spacing[5],
+    borderRadius: 20,
+    ...shadows.md,
   },
   headerTitle: {
     ...textStyles.h2,
-    color: colors.text.primary,
+    color: '#4A5568',
+    fontFamily: 'Fredoka_700Bold',
   },
   headerEmoji: {
     fontSize: 24,
@@ -830,45 +773,44 @@ const styles = StyleSheet.create({
     gap: spacing[2],
   },
   parentButton: {
-    height: 40,
-    paddingHorizontal: spacing[3],
-    borderRadius: 20,
-    backgroundColor: '#FFA94D',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing[2],
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    paddingVertical: spacing[2],
+    paddingHorizontal: spacing[4],
+    borderRadius: borderRadius.md,
+    ...shadows.md,
+  },
+  parentIconContainer: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
-    flexDirection: 'row',
-    gap: spacing[1],
-    ...shadows.sm,
   },
   parentButtonIcon: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: '#FFFFFF',
-    backgroundColor: '#E8943D',
-    width: 22,
-    height: 22,
-    borderRadius: 11,
-    textAlign: 'center',
-    lineHeight: 22,
-    overflow: 'hidden',
+    fontSize: 18,
   },
-  parentButtonLabel: {
-    fontSize: 13,
+  parentText: {
+    fontFamily: 'Fredoka_600SemiBold',
+    fontSize: 14,
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: '#7A7A7A',
   },
   helpButton: {
-    width: touchTargets.medium,
-    height: touchTargets.medium,
-    borderRadius: borderRadius.round,
-    backgroundColor: colors.secondary.main,
+    width: 52,
+    height: 52,
+    borderRadius: 16,
+    backgroundColor: '#FFB347',
     alignItems: 'center',
     justifyContent: 'center',
-    ...shadows.sm,
+    ...shadows.md,
+    shadowColor: 'rgba(255, 179, 71, 0.4)',
   },
   helpButtonText: {
-    fontSize: 16,
-    color: colors.text.inverse,
+    fontSize: 18,
+    color: '#FFFFFF',
     fontWeight: 'bold',
   },
   selectorContainer: {
@@ -876,60 +818,47 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing[4],
     paddingVertical: spacing[3],
   },
-  selectorTitle: {
-    ...textStyles.body,
-    color: colors.text.secondary,
-    marginBottom: spacing[3],
-  },
   levelButtons: {
     flexDirection: 'row',
     gap: spacing[3],
-    marginBottom: spacing[4],
+    marginBottom: spacing[2],
   },
-  levelButton: {
+  levelCard: {
     backgroundColor: colors.background.card,
     borderRadius: borderRadius.xl,
-    paddingVertical: spacing[3],
-    paddingHorizontal: spacing[3],
+    paddingVertical: spacing[6],
+    paddingHorizontal: spacing[6],
     alignItems: 'center',
-    minWidth: 56,
-    borderWidth: 3,
-    borderColor: 'transparent',
-    ...shadows.sm,
+    minWidth: 140,
+    minHeight: 160,
+    borderWidth: 4,
+    borderColor: colors.background.secondary,
+    ...shadows.md,
   },
-  levelButtonSelected: {
+  levelCardSelected: {
     borderColor: colors.primary.main,
-    backgroundColor: colors.primary.main,
+    backgroundColor: colors.primary.light,
+    transform: [{ scale: 1.05 }],
   },
-  levelButtonNumber: {
-    ...textStyles.h2,
-    color: colors.text.primary,
-    marginBottom: spacing[1],
-  },
-  levelButtonNumberSelected: {
-    color: colors.primary.contrast,
-  },
-  miniDisks: {
+  miniDisksStack: {
     alignItems: 'center',
-    gap: 2,
+    gap: 4,
+    marginBottom: spacing[4],
+    minHeight: 80,
+    justifyContent: 'flex-end',
   },
   miniDisk: {
-    height: 5,
-    borderRadius: 2.5,
+    height: 10,
+    borderRadius: 5,
   },
-  playButton: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: colors.primary.main,
-    alignItems: 'center',
-    justifyContent: 'center',
-    ...shadows.lg,
+  levelCardNumber: {
+    ...textStyles.h1,
+    fontSize: 48,
+    color: colors.text.primary,
+    fontWeight: 'bold',
   },
-  playButtonIcon: {
-    fontSize: 24,
-    color: colors.primary.contrast,
-    marginLeft: 3,
+  levelCardNumberSelected: {
+    color: colors.primary.main,
   },
   gameHud: {
     flexDirection: 'row',
@@ -975,7 +904,10 @@ const styles = StyleSheet.create({
   },
   boardContainer: {
     flex: 1,
-    minHeight: 300,
+    minHeight: 450,
+    maxHeight: 600,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 
   // Micro-objective styles
@@ -1062,59 +994,6 @@ const styles = StyleSheet.create({
     ...textStyles.body,
     color: colors.text.primary,
     flex: 1,
-  },
-
-  // Strategy pause card
-  strategyCard: {
-    backgroundColor: colors.background.card,
-    borderRadius: borderRadius.xl,
-    padding: spacing[6],
-    width: 340,
-    alignItems: 'center',
-    ...shadows.lg,
-  },
-  strategyTitle: {
-    ...textStyles.h2,
-    color: colors.primary.main,
-    marginBottom: spacing[2],
-  },
-  strategySubtitle: {
-    ...textStyles.body,
-    color: colors.text.secondary,
-    textAlign: 'center',
-    marginBottom: spacing[6],
-  },
-  strategyButtons: {
-    width: '100%',
-    gap: spacing[3],
-  },
-  strategyButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: colors.secondary.main,
-    paddingVertical: spacing[3],
-    paddingHorizontal: spacing[5],
-    borderRadius: borderRadius.xl,
-    gap: spacing[2],
-  },
-  strategyButtonOutline: {
-    backgroundColor: 'transparent',
-    borderWidth: 2,
-    borderColor: colors.text.muted,
-  },
-  strategyButtonIcon: {
-    fontSize: 20,
-  },
-  strategyButtonText: {
-    ...textStyles.body,
-    color: colors.text.inverse,
-    fontWeight: '600',
-  },
-  strategyButtonTextOutline: {
-    ...textStyles.body,
-    color: colors.text.primary,
-    fontWeight: '600',
   },
 
   // Close button

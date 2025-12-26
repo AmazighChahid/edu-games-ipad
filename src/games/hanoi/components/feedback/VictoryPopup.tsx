@@ -105,21 +105,22 @@ export function VictoryPopup({
 const styles = StyleSheet.create({
   popup: {
     backgroundColor: '#fff',
-    borderRadius: 32,
-    maxWidth: Math.min(580, SCREEN_WIDTH * 0.9),
-    width: '90%',
+    borderRadius: 28,
+    maxWidth: Math.min(420, SCREEN_WIDTH * 0.85),
+    width: '85%',
     overflow: 'hidden',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 25 },
-    shadowOpacity: 0.4,
-    shadowRadius: 80,
-    elevation: 24,
+    shadowOffset: { width: 0, height: 20 },
+    shadowOpacity: 0.35,
+    shadowRadius: 60,
+    elevation: 20,
   },
   cardSection: {
-    paddingHorizontal: 30,
+    paddingHorizontal: 24,
     paddingTop: 0,
-    marginTop: -50, // Overlap with header
-    paddingBottom: 30,
+    marginTop: -40, // Overlap with header
+    paddingBottom: 20,
+    alignItems: 'center',
   },
   cardMessage: {
     alignItems: 'center',

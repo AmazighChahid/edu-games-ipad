@@ -6,10 +6,11 @@
  * - "Bravo !" + "Tu as réussi."
  * - Boutons: Rejouer / Niveau suivant
  * - Option badge non-compétitif
+ * - Card unlock animation when applicable
  */
 
-import { useEffect } from 'react';
-import { View, Text, StyleSheet, Pressable } from 'react-native';
+import { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, Pressable, Modal } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -29,8 +30,10 @@ import Animated, {
 
 import { colors, spacing, textStyles, borderRadius, shadows } from '@/theme';
 import { Button } from '@/components/common';
-import { useStore } from '@/store/useStore';
+import { useStore, useCollection } from '@/store/useStore';
 import { hanoiLevels } from '../data/levels';
+import { CardUnlockScreen } from '@/components/collection';
+import { useCardUnlock } from '@/hooks/useCardUnlock';
 
 // Badges non-compétitifs (spec 05-parent-space.md)
 const getBadge = (moveCount: number, optimalMoves: number, hintsUsed: number): { icon: string; label: string } => {
@@ -52,6 +55,7 @@ export function HanoiVictoryScreen() {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const recentSessions = useStore((state) => state.recentSessions);
+  const { getUnlockedCardsCount } = useCollection();
 
   const lastSession = recentSessions.find((s) => s.gameId === 'hanoi');
   const moveCount = lastSession?.moveCount ?? 0;
@@ -64,6 +68,36 @@ export function HanoiVictoryScreen() {
   const nextLevel = currentIndex < hanoiLevels.length - 1 ? hanoiLevels[currentIndex + 1] : null;
 
   const badge = getBadge(moveCount, currentLevel.optimalMoves ?? 7, hintsUsed);
+
+  // Check if performance was optimal
+  const isOptimal = moveCount <= (currentLevel.optimalMoves ?? 7);
+
+  // Card unlock system
+  const {
+    unlockedCard,
+    showUnlockAnimation,
+    checkAndUnlockCard,
+    dismissUnlockAnimation,
+  } = useCardUnlock({
+    gameId: 'hanoi',
+    levelId: levelId ?? 'level_1',
+    levelNumber: currentLevel.diskCount ?? 3,
+    isOptimal,
+  });
+
+  // Check for card unlock on mount
+  const [hasCheckedUnlock, setHasCheckedUnlock] = useState(false);
+
+  useEffect(() => {
+    if (!hasCheckedUnlock) {
+      // Delay the check to let victory animation play first
+      const timer = setTimeout(() => {
+        checkAndUnlockCard();
+        setHasCheckedUnlock(true);
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [hasCheckedUnlock, checkAndUnlockCard]);
 
   // Confetti animation
   const confettiScale = useSharedValue(0);
@@ -104,6 +138,27 @@ export function HanoiVictoryScreen() {
   const handleHome = () => {
     router.push('/');
   };
+
+  const handleViewCollection = () => {
+    dismissUnlockAnimation();
+    router.push('/(games)/collection');
+  };
+
+  const handleContinueAfterUnlock = () => {
+    dismissUnlockAnimation();
+  };
+
+  // Show card unlock animation if a card was unlocked
+  if (showUnlockAnimation && unlockedCard) {
+    return (
+      <CardUnlockScreen
+        card={unlockedCard}
+        unlockedCount={getUnlockedCardsCount()}
+        onViewCollection={handleViewCollection}
+        onContinue={handleContinueAfterUnlock}
+      />
+    );
+  }
 
   return (
     <View
@@ -178,6 +233,12 @@ export function HanoiVictoryScreen() {
           <Pressable onPress={handlePlayAgain} style={styles.secondaryButton}>
             <Text style={styles.secondaryButtonIcon}>↻</Text>
             <Text style={styles.secondaryButtonText}>Rejouer ce niveau</Text>
+          </Pressable>
+
+          {/* Collection button */}
+          <Pressable onPress={handleViewCollection} style={styles.collectionButton}>
+            <Text style={styles.collectionButtonIcon}>📚</Text>
+            <Text style={styles.collectionButtonText}>Ma Collection</Text>
           </Pressable>
 
           {/* Tertiary: Home */}
@@ -330,5 +391,24 @@ const styles = StyleSheet.create({
     ...textStyles.body,
     color: colors.text.muted,
     textDecorationLine: 'underline',
+  },
+  collectionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(224, 86, 253, 0.1)',
+    paddingVertical: spacing[2],
+    paddingHorizontal: spacing[4],
+    borderRadius: borderRadius.lg,
+    gap: spacing[2],
+    borderWidth: 2,
+    borderColor: '#E056FD',
+  },
+  collectionButtonIcon: {
+    fontSize: 16,
+  },
+  collectionButtonText: {
+    ...textStyles.body,
+    color: '#E056FD',
+    fontWeight: '600',
   },
 });

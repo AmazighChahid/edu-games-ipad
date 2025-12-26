@@ -3,34 +3,33 @@
  * Bottom drawer with modern tabs for parent educational guide
  * Design: Option 2 - Drawer inférieur avec tabs modernes
  *
- * Features:
- * - Draggable handle to open/close
- * - Full screen mode with animation
- * - 5 tabs: Objectif & Règles, Compétences, Questions, Vie quotidienne, Progression
- * - Content from educational files
+ * Simple behavior:
+ * - Click "Espace Parent" button → drawer slides up
+ * - Click outside or swipe down on handle → drawer closes
  */
 
-import { useEffect, useState, useCallback } from 'react';
-import { View, StyleSheet, Text, Pressable, ScrollView, Dimensions, Platform } from 'react-native';
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
-  withTiming,
-  runOnJS,
-} from 'react-native-reanimated';
-import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import { useEffect, useState, useRef } from 'react';
+import {
+  View,
+  StyleSheet,
+  Text,
+  Pressable,
+  ScrollView,
+  Dimensions,
+  Platform,
+  Animated,
+  PanResponder,
+  TouchableWithoutFeedback,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
 
 import { shadows } from '@/theme';
 
-const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window');
+const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
-// Drawer heights
-const COLLAPSED_HEIGHT = 0;
-const DRAWER_HEIGHT = 420;
-const FULLSCREEN_OFFSET = 80; // Space from top in fullscreen mode
+// Drawer height
+const DRAWER_HEIGHT = 450;
 
 // Tab types
 type TabType = 'objectif' | 'competences' | 'questions' | 'quotidien' | 'progression';
@@ -98,11 +97,13 @@ export function ParentDrawer({
 }: ParentDrawerProps) {
   const insets = useSafeAreaInsets();
   const [activeTab, setActiveTab] = useState<TabType>('objectif');
-  const [isFullScreen, setIsFullScreen] = useState(false);
 
-  // Animation values
-  const translateY = useSharedValue(SCREEN_HEIGHT);
-  const drawerHeight = useSharedValue(DRAWER_HEIGHT);
+  // Animation values - start offscreen
+  const translateY = useRef(new Animated.Value(SCREEN_HEIGHT)).current;
+  const backdropOpacity = useRef(new Animated.Value(0)).current;
+
+  // Track if component has been shown at least once
+  const [hasBeenVisible, setHasBeenVisible] = useState(false);
 
   // Calculate success rate
   const successRate = totalGames > 0 ? Math.round((successfulGames / totalGames) * 100) : 0;
@@ -110,99 +111,68 @@ export function ParentDrawer({
   // Open/close drawer based on visibility
   useEffect(() => {
     if (isVisible) {
-      translateY.value = withSpring(SCREEN_HEIGHT - DRAWER_HEIGHT, {
-        damping: 20,
-        stiffness: 150,
-      });
-    } else {
-      translateY.value = withSpring(SCREEN_HEIGHT, {
-        damping: 20,
-        stiffness: 150,
-      });
-      // Reset fullscreen when closing
-      if (isFullScreen) {
-        setIsFullScreen(false);
-        drawerHeight.value = withTiming(DRAWER_HEIGHT, { duration: 300 });
-      }
+      setHasBeenVisible(true);
+      // Animate both backdrop and drawer
+      Animated.parallel([
+        Animated.timing(backdropOpacity, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+        Animated.spring(translateY, {
+          toValue: 0,
+          damping: 20,
+          stiffness: 150,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    } else if (hasBeenVisible) {
+      Animated.parallel([
+        Animated.timing(backdropOpacity, {
+          toValue: 0,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(translateY, {
+          toValue: SCREEN_HEIGHT,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+      ]).start();
     }
-  }, [isVisible]);
+  }, [isVisible, hasBeenVisible]);
 
-  // Toggle fullscreen mode
-  const toggleFullScreen = useCallback(() => {
-    triggerHaptic('medium');
-    const newIsFullScreen = !isFullScreen;
-    setIsFullScreen(newIsFullScreen);
-
-    if (newIsFullScreen) {
-      // Expand to fullscreen
-      drawerHeight.value = withSpring(SCREEN_HEIGHT - FULLSCREEN_OFFSET - insets.top, {
-        damping: 20,
-        stiffness: 150,
-      });
-      translateY.value = withSpring(FULLSCREEN_OFFSET + insets.top, {
-        damping: 20,
-        stiffness: 150,
-      });
-    } else {
-      // Collapse to normal
-      drawerHeight.value = withSpring(DRAWER_HEIGHT, {
-        damping: 20,
-        stiffness: 150,
-      });
-      translateY.value = withSpring(SCREEN_HEIGHT - DRAWER_HEIGHT, {
-        damping: 20,
-        stiffness: 150,
-      });
-    }
-  }, [isFullScreen, insets.top]);
-
-  // Context for gesture
-  const startY = useSharedValue(0);
-
-  // Pan gesture for dragging drawer
-  const panGesture = Gesture.Pan()
-    .onStart(() => {
-      startY.value = translateY.value;
-    })
-    .onUpdate((event) => {
-      const newY = startY.value + event.translationY;
-      // Clamp between fullscreen position and closed position
-      const minY = FULLSCREEN_OFFSET + insets.top;
-      const maxY = SCREEN_HEIGHT;
-      translateY.value = Math.max(minY, Math.min(maxY, newY));
-    })
-    .onEnd((event) => {
-      const velocity = event.velocityY;
-      const currentY = translateY.value;
-
-      // Determine final position based on velocity and position
-      if (velocity > 500 || currentY > SCREEN_HEIGHT - DRAWER_HEIGHT / 2) {
-        // Close drawer
-        translateY.value = withSpring(SCREEN_HEIGHT, { damping: 20, stiffness: 150 });
-        runOnJS(triggerHaptic)('light');
-        if (onClose) {
-          runOnJS(onClose)();
+  // Pan responder for swipe to close
+  const panResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponder: (_, gestureState) => {
+        // Only respond to downward swipes
+        return gestureState.dy > 10;
+      },
+      onPanResponderMove: (_, gestureState) => {
+        // Only allow downward movement (0 = open, positive = closing)
+        if (gestureState.dy > 0) {
+          translateY.setValue(gestureState.dy);
         }
-      } else if (velocity < -500 || currentY < SCREEN_HEIGHT - DRAWER_HEIGHT - 100) {
-        // Expand to fullscreen
-        translateY.value = withSpring(FULLSCREEN_OFFSET + insets.top, { damping: 20, stiffness: 150 });
-        drawerHeight.value = withSpring(SCREEN_HEIGHT - FULLSCREEN_OFFSET - insets.top, { damping: 20, stiffness: 150 });
-        runOnJS(setIsFullScreen)(true);
-        runOnJS(triggerHaptic)('medium');
-      } else {
-        // Snap to normal position
-        translateY.value = withSpring(SCREEN_HEIGHT - DRAWER_HEIGHT, { damping: 20, stiffness: 150 });
-        drawerHeight.value = withSpring(DRAWER_HEIGHT, { damping: 20, stiffness: 150 });
-        runOnJS(setIsFullScreen)(false);
-        runOnJS(triggerHaptic)('light');
-      }
-    });
-
-  // Animated styles
-  const drawerStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: translateY.value }],
-    height: drawerHeight.value,
-  }));
+      },
+      onPanResponderRelease: (_, gestureState) => {
+        // If swiped down more than 100px or with velocity, close
+        if (gestureState.dy > 100 || gestureState.vy > 0.5) {
+          triggerHaptic('light');
+          onClose?.();
+        } else {
+          // Snap back to open position
+          Animated.spring(translateY, {
+            toValue: 0,
+            damping: 20,
+            stiffness: 150,
+            useNativeDriver: true,
+          }).start();
+        }
+      },
+    })
+  ).current;
 
   // Tab data
   const tabs: { id: TabType; label: string; emoji: string }[] = [
@@ -547,13 +517,33 @@ export function ParentDrawer({
     }
   };
 
-  if (!isVisible) return null;
+  // Don't render if never been visible
+  if (!isVisible && !hasBeenVisible) return null;
 
   return (
-    <GestureDetector gesture={panGesture}>
-      <Animated.View style={[styles.container, drawerStyle]}>
+    <View style={styles.overlay} pointerEvents={isVisible ? 'auto' : 'none'}>
+      {/* Backdrop - click to close */}
+      <TouchableWithoutFeedback onPress={onClose}>
+        <Animated.View
+          style={[
+            styles.backdrop,
+            { opacity: backdropOpacity }
+          ]}
+        />
+      </TouchableWithoutFeedback>
+
+      {/* Drawer */}
+      <Animated.View
+        style={[
+          styles.container,
+          {
+            transform: [{ translateY }],
+            height: DRAWER_HEIGHT,
+          },
+        ]}
+      >
         {/* Drag Handle */}
-        <View style={styles.handleContainer}>
+        <View {...panResponder.panHandlers} style={styles.handleContainer}>
           <View style={styles.handle} />
         </View>
 
@@ -566,11 +556,8 @@ export function ParentDrawer({
               <Text style={styles.headerBadgeText}>Tour de Hanoï</Text>
             </View>
           </View>
-          <Pressable onPress={toggleFullScreen} style={styles.expandButton}>
-            <Text style={styles.expandButtonText}>
-              {isFullScreen ? 'Réduire' : 'Plein écran'}
-            </Text>
-            <Text style={styles.expandButtonIcon}>{isFullScreen ? '↓' : '↑'}</Text>
+          <Pressable onPress={onClose} style={styles.closeButton}>
+            <Text style={styles.closeButtonText}>✕</Text>
           </Pressable>
         </View>
 
@@ -605,14 +592,22 @@ export function ParentDrawer({
           bounces={true}
         >
           {renderTabContent()}
-          <View style={{ height: 40 }} />
+          <View style={{ height: 40 + insets.bottom }} />
         </ScrollView>
       </Animated.View>
-    </GestureDetector>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    zIndex: 1000,
+  },
+  backdrop: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+  },
   container: {
     position: 'absolute',
     left: 0,
@@ -676,23 +671,17 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#FFFFFF',
   },
-  expandButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
+  closeButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     backgroundColor: COLORS.surface,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  expandButtonText: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: COLORS.textMedium,
-  },
-  expandButtonIcon: {
-    fontSize: 14,
-    color: COLORS.textMedium,
+  closeButtonText: {
+    fontSize: 18,
+    color: COLORS.textMuted,
   },
 
   // Tabs

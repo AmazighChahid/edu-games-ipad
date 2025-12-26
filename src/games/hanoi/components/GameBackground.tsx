@@ -1,151 +1,38 @@
 /**
  * GameBackground component
- * Immersive nature background with sky gradient, clouds, trees, flowers, and grass
+ * Immersive animated nature background reusing home page animations
  * Child-friendly design for "La Tour Magique" theme
  */
 
-import { useEffect } from 'react';
+import { memo } from 'react';
 import { View, StyleSheet, useWindowDimensions } from 'react-native';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withRepeat,
-  withTiming,
-  withSequence,
-  Easing,
-} from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useReducedMotion } from 'react-native-reanimated';
+
+// Import animated components from home background
+import { AnimatedClouds } from '@/components/background/AnimatedCloud';
+import { Trees } from '@/components/background/Trees';
+import { Flowers } from '@/components/background/Flowers';
+import {
+  Butterflies,
+  Birds,
+  Bee,
+  Ladybug,
+} from '@/components/background/animals';
 
 interface GameBackgroundProps {
   children: React.ReactNode;
 }
 
-// Color palette for the magic tower theme
+// Color palette - same as ForestBackground
 const COLORS = {
-  sky: ['#E8F6FF', '#D4EDFC', '#B8E6C1', '#98D9A8'] as const,
+  sky: ['#87CEEB', '#B0E0E6', '#98D9A8', '#7BC74D'] as const,
   grass: ['#7BC74D', '#5BAE6B'] as const,
-  cloud: '#FFFFFF',
-  tree: {
-    crown: ['#5BAE6B', '#3D8B4D'] as const,
-    crownLight: ['#6BC77D', '#4AA85C'] as const,
-    trunk: '#8B5A2B',
-  },
-  flower: {
-    pink: '#FFB5C5',
-    yellow: '#FFD700',
-    rose: '#FF91A4',
-  },
 };
 
-// Cloud component with floating animation
-function Cloud({
-  style,
-  size = 'medium',
-  delay = 0,
-}: {
-  style: object;
-  size?: 'small' | 'medium' | 'large';
-  delay?: number;
-}) {
-  const translateY = useSharedValue(0);
-
-  const dimensions = {
-    small: { width: 80, height: 35, beforeWidth: 55, beforeHeight: 28 },
-    medium: { width: 100, height: 45, beforeWidth: 70, beforeHeight: 35 },
-    large: { width: 120, height: 50, beforeWidth: 80, beforeHeight: 40 },
-  };
-
-  const d = dimensions[size];
-
-  useEffect(() => {
-    translateY.value = withRepeat(
-      withSequence(
-        withTiming(-10, { duration: 3000, easing: Easing.inOut(Easing.ease) }),
-        withTiming(0, { duration: 3000, easing: Easing.inOut(Easing.ease) })
-      ),
-      -1,
-      false
-    );
-  }, []);
-
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: translateY.value }],
-  }));
-
-  return (
-    <Animated.View style={[styles.cloud, style, { width: d.width, height: d.height }, animatedStyle]}>
-      <View style={[styles.cloudBefore, { width: d.beforeWidth, height: d.beforeHeight }]} />
-    </Animated.View>
-  );
-}
-
-// Tree component
-function Tree({
-  style,
-  size = 'medium',
-}: {
-  style: object;
-  size?: 'small' | 'medium' | 'large';
-}) {
-  const dimensions = {
-    small: { crownWidth: 60, crownHeight: 90, trunkWidth: 15, trunkHeight: 30 },
-    medium: { crownWidth: 70, crownHeight: 100, trunkWidth: 18, trunkHeight: 35 },
-    large: { crownWidth: 80, crownHeight: 120, trunkWidth: 20, trunkHeight: 40 },
-  };
-
-  const d = dimensions[size];
-  const crownColors = size === 'small' ? COLORS.tree.crownLight : COLORS.tree.crown;
-
-  return (
-    <View style={[styles.tree, style]}>
-      <LinearGradient
-        colors={crownColors as unknown as string[]}
-        start={{ x: 0.5, y: 0 }}
-        end={{ x: 0.5, y: 1 }}
-        style={[styles.treeCrown, { width: d.crownWidth, height: d.crownHeight }]}
-      />
-      <View
-        style={[
-          styles.treeTrunk,
-          {
-            width: d.trunkWidth,
-            height: d.trunkHeight,
-            backgroundColor: COLORS.tree.trunk,
-          }
-        ]}
-      />
-    </View>
-  );
-}
-
-// Flower component
-function Flower({
-  style,
-  color,
-  size = 18,
-}: {
-  style: object;
-  color: string;
-  size?: number;
-}) {
-  return (
-    <View
-      style={[
-        styles.flower,
-        style,
-        {
-          width: size,
-          height: size,
-          backgroundColor: color,
-          borderRadius: size / 2,
-        }
-      ]}
-    />
-  );
-}
-
-export function GameBackground({ children }: GameBackgroundProps) {
+export const GameBackground = memo(({ children }: GameBackgroundProps) => {
   const { width, height } = useWindowDimensions();
+  const reducedMotion = useReducedMotion();
   const grassHeight = Math.max(60, height * 0.08);
 
   return (
@@ -155,30 +42,29 @@ export function GameBackground({ children }: GameBackgroundProps) {
         colors={COLORS.sky as unknown as string[]}
         start={{ x: 0, y: 0 }}
         end={{ x: 0, y: 1 }}
-        locations={[0, 0.4, 0.7, 1]}
+        locations={[0, 0.25, 0.6, 1]}
         style={StyleSheet.absoluteFill}
       />
 
-      {/* Clouds - positioned relative to screen */}
-      <Cloud style={{ top: 60, left: width * 0.05 }} size="large" />
-      <Cloud style={{ top: 90, left: width * 0.4 }} size="medium" delay={2000} />
-      <Cloud style={{ top: 50, right: width * 0.08 }} size="small" delay={1000} />
+      {/* Background elements layer */}
+      <View style={[styles.backgroundLayer, { width, height }]} pointerEvents="none">
+        {/* Trees from home background */}
+        <Trees />
 
-      {/* Trees - left side, positioned above grass */}
-      <Tree style={{ left: 20, bottom: grassHeight - 10 }} size="large" />
-      <Tree style={{ left: 90, bottom: grassHeight + 10 }} size="small" />
+        {/* Flowers from home background */}
+        <Flowers />
 
-      {/* Trees - right side */}
-      <Tree style={{ right: 30, bottom: grassHeight - 10 }} size="medium" />
-      <Tree style={{ right: 100, bottom: grassHeight + 5 }} size="small" />
-
-      {/* Flowers scattered in grass area */}
-      <Flower style={{ left: 150, bottom: grassHeight + 5 }} color={COLORS.flower.pink} size={16} />
-      <Flower style={{ left: 180, bottom: grassHeight + 10 }} color={COLORS.flower.yellow} size={12} />
-      <Flower style={{ right: 140, bottom: grassHeight + 8 }} color={COLORS.flower.rose} size={14} />
-      <Flower style={{ right: 170, bottom: grassHeight + 3 }} color={COLORS.flower.pink} size={10} />
-      <Flower style={{ left: width * 0.3, bottom: grassHeight + 6 }} color={COLORS.flower.yellow} size={13} />
-      <Flower style={{ right: width * 0.35, bottom: grassHeight + 12 }} color={COLORS.flower.rose} size={11} />
+        {/* Animated elements - only if motion not reduced */}
+        {!reducedMotion && (
+          <>
+            <AnimatedClouds />
+            <Butterflies />
+            <Birds />
+            <Bee />
+            <Ladybug />
+          </>
+        )}
+      </View>
 
       {/* Grass at the bottom */}
       <LinearGradient
@@ -186,6 +72,7 @@ export function GameBackground({ children }: GameBackgroundProps) {
         start={{ x: 0, y: 0 }}
         end={{ x: 0, y: 1 }}
         style={[styles.grass, { height: grassHeight }]}
+        pointerEvents="none"
       />
 
       {/* Content - children rendered on top */}
@@ -194,59 +81,26 @@ export function GameBackground({ children }: GameBackgroundProps) {
       </View>
     </View>
   );
-}
+});
+
+GameBackground.displayName = 'GameBackground';
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     position: 'relative',
   },
-  content: {
-    flex: 1,
-    zIndex: 10,
-  },
-
-  // Cloud styles
-  cloud: {
+  backgroundLayer: {
     position: 'absolute',
-    backgroundColor: COLORS.cloud,
-    borderRadius: 50,
-    opacity: 0.9,
+    top: 0,
+    left: 0,
+    overflow: 'hidden',
     zIndex: 1,
   },
-  cloudBefore: {
-    position: 'absolute',
-    top: -15,
-    left: '25%',
-    backgroundColor: COLORS.cloud,
-    borderRadius: 40,
+  content: {
+    flex: 1,
+    zIndex: 20,
   },
-
-  // Tree styles
-  tree: {
-    position: 'absolute',
-    alignItems: 'center',
-    zIndex: 2,
-  },
-  treeCrown: {
-    borderTopLeftRadius: 100,
-    borderTopRightRadius: 100,
-    borderBottomLeftRadius: 20,
-    borderBottomRightRadius: 20,
-  },
-  treeTrunk: {
-    marginTop: -5,
-    borderBottomLeftRadius: 5,
-    borderBottomRightRadius: 5,
-  },
-
-  // Flower styles
-  flower: {
-    position: 'absolute',
-    zIndex: 3,
-  },
-
-  // Grass styles
   grass: {
     position: 'absolute',
     bottom: 0,

@@ -52,7 +52,8 @@ export function MascotOwl({
   messageType = 'intro',
   visible = true,
 }: MascotOwlProps) {
-  const [currentMessage, setCurrentMessage] = useState(message);
+  const [currentMessage, setCurrentMessage] = useState('');
+  const [displayedText, setDisplayedText] = useState('');
 
   // Animation values
   const bodyY = useSharedValue(0);
@@ -93,18 +94,35 @@ export function MascotOwl({
     return () => clearInterval(interval);
   }, []);
 
-  // Bubble appearance animation
+  // Bubble appearance animation - reduced pop effect
   useEffect(() => {
     if (visible) {
-      bubbleScale.value = withSpring(1, { damping: 12, stiffness: 200 });
+      bubbleScale.value = withSpring(1, { damping: 18, stiffness: 150 }); // ✅ More subtle
     } else {
       bubbleScale.value = withTiming(0, { duration: 200 });
     }
   }, [visible]);
 
-  // Update message with fade transition
+  // Streaming text effect - like LLM typing
   useEffect(() => {
+    if (message === currentMessage) return; // Don't retype same message
+
     setCurrentMessage(message);
+    setDisplayedText(''); // Reset displayed text
+
+    let currentIndex = 0;
+    const typingSpeed = 30; // ms per character (adjust for speed)
+
+    const interval = setInterval(() => {
+      if (currentIndex < message.length) {
+        setDisplayedText(message.slice(0, currentIndex + 1));
+        currentIndex++;
+      } else {
+        clearInterval(interval);
+      }
+    }, typingSpeed);
+
+    return () => clearInterval(interval);
   }, [message]);
 
   // Animated styles
@@ -134,7 +152,7 @@ export function MascotOwl({
         <Text style={[styles.bubbleName, { color: MESSAGE_COLORS[messageType] }]}>
           Piou le Hibou :
         </Text>
-        <Text style={styles.bubbleText}>{currentMessage}</Text>
+        <Text style={styles.bubbleText}>{displayedText}</Text>
         <View style={styles.bubbleArrow} />
       </Animated.View>
 
@@ -164,19 +182,21 @@ export function MascotOwl({
 
 const styles = StyleSheet.create({
   container: {
-    position: 'absolute',
-    top: 100,
-    left: 20,
-    zIndex: 100,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: spacing[4],
+    paddingHorizontal: spacing[4],
   },
 
   // Speech bubble
   speechBubble: {
     backgroundColor: '#FFFFFF',
     borderRadius: borderRadius.xl,
-    padding: spacing[4],
-    paddingBottom: spacing[3],
-    maxWidth: 220,
+    padding: spacing[5],
+    paddingBottom: spacing[4],
+    maxWidth: 320,
+    minWidth: 280,
+    minHeight: 80,
     ...shadows.lg,
     marginBottom: spacing[3],
   },
@@ -193,7 +213,8 @@ const styles = StyleSheet.create({
   bubbleArrow: {
     position: 'absolute',
     bottom: -10,
-    left: 30,
+    left: '50%',
+    marginLeft: -12,
     width: 0,
     height: 0,
     borderLeftWidth: 12,
@@ -210,7 +231,6 @@ const styles = StyleSheet.create({
     height: 90,
     alignItems: 'center',
     justifyContent: 'center',
-    marginLeft: 20,
   },
   body: {
     width: 80,

@@ -23,7 +23,13 @@ interface Props {
   onExit: () => void;
 }
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+
+// Espace réservé pour header, mascotte, stats
+const HEADER_HEIGHT = 80;
+const MASCOT_HEIGHT = 100;
+const STATS_HEIGHT = 50;
+const PADDING = 32;
 
 export const LabyrintheGame: React.FC<Props> = ({ level, onComplete, onExit }) => {
   const { mazeState, gameStatus, moveAvatar, requestHint, resetLevel } = useMazeGame(level);
@@ -35,8 +41,14 @@ export const LabyrintheGame: React.FC<Props> = ({ level, onComplete, onExit }) =
   const [showMascot, setShowMascot] = useState(true);
   const [showVictory, setShowVictory] = useState(false);
 
-  // Calcul de la taille des cellules
-  const cellSize = Math.floor((SCREEN_WIDTH - 48) / level.width);
+  // Calcul de la taille des cellules - adapter à l'espace disponible
+  const availableWidth = SCREEN_WIDTH - PADDING * 2;
+  const availableHeight = SCREEN_HEIGHT - HEADER_HEIGHT - MASCOT_HEIGHT - STATS_HEIGHT - PADDING * 2;
+
+  // Prendre la plus petite taille pour que le labyrinthe rentre
+  const cellSizeByWidth = Math.floor(availableWidth / level.width);
+  const cellSizeByHeight = Math.floor(availableHeight / level.height);
+  const cellSize = Math.min(cellSizeByWidth, cellSizeByHeight, 80); // Max 80px par cellule
 
   // Initialisation
   useEffect(() => {

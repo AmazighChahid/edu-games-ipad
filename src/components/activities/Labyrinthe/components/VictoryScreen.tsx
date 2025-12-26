@@ -1,6 +1,14 @@
 import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
-import Animated, { FadeIn, FadeInUp, useAnimatedStyle, useSharedValue, withRepeat, withSequence, withTiming } from 'react-native-reanimated';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withDelay,
+  withRepeat,
+  withSequence,
+  withSpring,
+  withTiming,
+} from 'react-native-reanimated';
 import { SessionStats } from '../types';
 
 interface Props {
@@ -14,14 +22,18 @@ const Star: React.FC<{ filled: boolean; delay: number }> = ({ filled, delay }) =
   const scale = useSharedValue(0);
 
   useEffect(() => {
-    scale.value = withSequence(
-      withTiming(0, { duration: delay }),
-      withTiming(1.2, { duration: 200 }),
-      withTiming(1, { duration: 100 })
+    // Animation d'apparition avec délai
+    scale.value = withDelay(
+      delay,
+      withSequence(
+        withTiming(1.2, { duration: 200 }),
+        withTiming(1, { duration: 100 })
+      )
     );
 
+    // Animation de pulsation continue pour les étoiles remplies
     if (filled) {
-      setTimeout(() => {
+      const pulseTimer = setTimeout(() => {
         scale.value = withRepeat(
           withSequence(
             withTiming(1.1, { duration: 500 }),
@@ -31,8 +43,9 @@ const Star: React.FC<{ filled: boolean; delay: number }> = ({ filled, delay }) =
           true
         );
       }, delay + 300);
+      return () => clearTimeout(pulseTimer);
     }
-  }, []);
+  }, [filled, delay]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
@@ -45,7 +58,39 @@ const Star: React.FC<{ filled: boolean; delay: number }> = ({ filled, delay }) =
   );
 };
 
+// Composant pour animer l'apparition avec délai
+const AnimatedSection: React.FC<{
+  delay: number;
+  children: React.ReactNode;
+  style?: any;
+}> = ({ delay, children, style }) => {
+  const opacity = useSharedValue(0);
+  const translateY = useSharedValue(20);
+
+  useEffect(() => {
+    opacity.value = withDelay(delay, withTiming(1, { duration: 300 }));
+    translateY.value = withDelay(delay, withSpring(0, { damping: 15 }));
+  }, [delay]);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+    transform: [{ translateY: translateY.value }],
+  }));
+
+  return <Animated.View style={[style, animatedStyle]}>{children}</Animated.View>;
+};
+
 export const VictoryScreen: React.FC<Props> = ({ stats, onReplay, onNext, onExit }) => {
+  const containerOpacity = useSharedValue(0);
+
+  useEffect(() => {
+    containerOpacity.value = withTiming(1, { duration: 300 });
+  }, []);
+
+  const containerAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: containerOpacity.value,
+  }));
+
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
@@ -54,35 +99,35 @@ export const VictoryScreen: React.FC<Props> = ({ stats, onReplay, onNext, onExit
 
   return (
     <View style={styles.container}>
-      <Animated.View entering={FadeIn.duration(300)} style={styles.content}>
+      <Animated.View style={[styles.content, containerAnimatedStyle]}>
         {/* Mascotte */}
-        <Animated.View entering={FadeInUp.delay(200)} style={styles.mascotContainer}>
+        <AnimatedSection delay={200} style={styles.mascotContainer}>
           <Text style={styles.mascot}>🐿️</Text>
           <View style={styles.bubble}>
             <Text style={styles.bubbleText}>
               {stats.stars === 3
                 ? 'Incroyable ! Tu es un vrai champion ! 🎉'
                 : stats.stars === 2
-                ? 'Super ! Tu as été rapide ! 👏'
-                : 'Hourra ! On est sortis ! 🎉'}
+                  ? 'Super ! Tu as été rapide ! 👏'
+                  : 'Hourra ! On est sortis ! 🎉'}
             </Text>
           </View>
-        </Animated.View>
+        </AnimatedSection>
 
         {/* Titre */}
-        <Animated.Text entering={FadeInUp.delay(400)} style={styles.title}>
-          Victoire !
-        </Animated.Text>
+        <AnimatedSection delay={400}>
+          <Text style={styles.title}>Victoire !</Text>
+        </AnimatedSection>
 
         {/* Étoiles */}
-        <Animated.View entering={FadeInUp.delay(600)} style={styles.starsContainer}>
+        <AnimatedSection delay={600} style={styles.starsContainer}>
           <Star filled={stats.stars >= 1} delay={700} />
           <Star filled={stats.stars >= 2} delay={900} />
           <Star filled={stats.stars >= 3} delay={1100} />
-        </Animated.View>
+        </AnimatedSection>
 
         {/* Statistiques */}
-        <Animated.View entering={FadeInUp.delay(1300)} style={styles.statsContainer}>
+        <AnimatedSection delay={1300} style={styles.statsContainer}>
           <View style={styles.statRow}>
             <Text style={styles.statLabel}>⏱️ Temps</Text>
             <Text style={styles.statValue}>{formatTime(stats.time)}</Text>
@@ -103,10 +148,10 @@ export const VictoryScreen: React.FC<Props> = ({ stats, onReplay, onNext, onExit
               <Text style={styles.statValue}>{stats.hintsUsed}</Text>
             </View>
           )}
-        </Animated.View>
+        </AnimatedSection>
 
         {/* Boutons */}
-        <Animated.View entering={FadeInUp.delay(1500)} style={styles.buttonsContainer}>
+        <AnimatedSection delay={1500} style={styles.buttonsContainer}>
           <Pressable style={[styles.button, styles.buttonSecondary]} onPress={onReplay}>
             <Text style={styles.buttonText}>🔄 Rejouer</Text>
           </Pressable>
@@ -116,7 +161,7 @@ export const VictoryScreen: React.FC<Props> = ({ stats, onReplay, onNext, onExit
           <Pressable style={[styles.button, styles.buttonGhost]} onPress={onExit}>
             <Text style={styles.buttonText}>🏠 Menu</Text>
           </Pressable>
-        </Animated.View>
+        </AnimatedSection>
       </Animated.View>
     </View>
   );

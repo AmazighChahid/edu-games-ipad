@@ -1,6 +1,12 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import Animated, { useAnimatedStyle, withRepeat, withSequence, withTiming } from 'react-native-reanimated';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withSequence,
+  withTiming,
+} from 'react-native-reanimated';
 import { InteractiveElement as InteractiveType } from '../types';
 
 interface Props {
@@ -28,26 +34,27 @@ export const InteractiveElement: React.FC<Props> = ({ element, size }) => {
   const icon = ELEMENT_ICONS[element.type];
   const colorStyle = element.color ? COLOR_STYLES[element.color] : 'transparent';
 
-  // Animation de pulsation pour les objets
-  const animatedStyle = useAnimatedStyle(() => {
+  // Shared value pour l'animation de pulsation
+  const scale = useSharedValue(1);
+
+  // Démarrer l'animation de pulsation pour les objets collectables
+  useEffect(() => {
     if (element.type === 'gem' || element.type === 'key') {
-      return {
-        transform: [
-          {
-            scale: withRepeat(
-              withSequence(
-                withTiming(1.1, { duration: 800 }),
-                withTiming(1, { duration: 800 })
-              ),
-              -1,
-              false
-            ),
-          },
-        ],
-      };
+      scale.value = withRepeat(
+        withSequence(
+          withTiming(1.1, { duration: 800 }),
+          withTiming(1, { duration: 800 })
+        ),
+        -1,
+        false
+      );
     }
-    return {};
-  });
+  }, [element.type]);
+
+  // Style animé simple qui lit la valeur partagée
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
 
   return (
     <Animated.View

@@ -55,42 +55,43 @@ export function CollectibleCardFlip({ card, isNew }: CollectibleCardFlipProps) {
   return (
     <View style={styles.cardContainer}>
       {/* Card Back (initially visible) */}
-      <Animated.View style={[styles.cardFace, styles.cardAbsolute, backAnimatedStyle]}>
+      <Animated.View style={[styles.cardFace, backAnimatedStyle]}>
         <CardBack />
       </Animated.View>
 
       {/* Card Front (initially hidden) */}
-      <Animated.View style={[styles.cardFace, styles.cardAbsolute, frontAnimatedStyle]}>
+      <Animated.View style={[styles.cardFace, styles.cardFront, frontAnimatedStyle]}>
         <CardFront card={card} isNew={isNew} />
       </Animated.View>
     </View>
   );
 }
 
-const CARD_WIDTH = 200;
-const CARD_HEIGHT = 280;
+const CARD_WIDTH = 180;
+const CARD_HEIGHT = 250;
 
 const styles = StyleSheet.create({
   cardContainer: {
     width: CARD_WIDTH,
     height: CARD_HEIGHT,
     alignSelf: 'center',
-    marginVertical: 20,
+    marginVertical: 16,
+    position: 'relative',
   },
   cardFace: {
     width: CARD_WIDTH,
     height: CARD_HEIGHT,
-    borderRadius: 20,
+    borderRadius: 18,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.3,
-    shadowRadius: 20,
-    elevation: 10,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.25,
+    shadowRadius: 16,
+    elevation: 8,
+    backfaceVisibility: 'hidden',
   },
-  cardAbsolute: {
+  cardFront: {
     position: 'absolute',
     top: 0,
     left: 0,
-    backfaceVisibility: 'hidden', // Still include for platforms that support it
   },
 });

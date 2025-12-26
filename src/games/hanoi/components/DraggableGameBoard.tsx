@@ -40,8 +40,10 @@ export function DraggableGameBoard({
   const towerWidth = (availableWidth - spacing[8] * 2) / 3;
   const maxDiskWidth = Math.min(towerWidth - spacing[4], 180);
   const minDiskWidth = maxDiskWidth * 0.35;
-  const diskHeight = Math.min(32, (availableHeight - 80) / (totalDisks + 1));
-  const towerHeight = diskHeight * (totalDisks + 2) + 50;
+  // Fixed dimensions based on 6 disks (max level) to prevent layout shifts
+  const maxDisks = 6;
+  const diskHeight = Math.min(42, (availableHeight - 80) / (maxDisks + 1));
+  const towerHeight = diskHeight * (maxDisks + 2) + 50;
 
   const handleBoardLayout = useCallback((event: LayoutChangeEvent) => {
     const { x, width: w } = event.nativeEvent.layout;

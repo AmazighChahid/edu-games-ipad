@@ -1,7 +1,7 @@
 /**
  * ProgressPanel component
- * Displays game stats with moves counter, optimal target, and progress bar
- * Child-friendly design with encouraging messages
+ * Centered stats block with moves, objective, record, and progress bar
+ * Inspired by new UX design
  */
 
 import { useEffect } from 'react';
@@ -18,29 +18,30 @@ interface ProgressPanelProps {
   currentMoves: number;
   optimalMoves: number;
   progress: number; // 0-1, based on disks moved to target
+  bestMoves?: number; // Personal best record
   visible?: boolean;
 }
 
 // Colors
 const COLORS = {
-  background: '#FFFFFF',
-  divider: '#EEEEEE',
+  background: 'rgba(255, 255, 255, 0.97)',
+  divider: '#E2E8F0',
   moves: '#5B8DEE',
   optimal: '#7BC74D',
-  progressBg: '#EEEEEE',
-  progressFill: ['#7BC74D', '#5BAE6B'],
+  best: '#E056FD',
+  progressBg: '#E2E8F0',
+  progressFill: '#7BC74D',
   text: {
-    label: '#9A9A9A',
-    value: '#4A4A4A',
+    label: '#A0AEC0',
     encourage: '#7BC74D',
   },
 };
 
 // Get encouraging message based on progress
 const getEncouragingMessage = (progress: number, moves: number, optimal: number): string => {
-  if (progress >= 1) return 'Bravo ! Tu as gagné ! 🎉';
+  if (progress >= 1) return 'Bravo ! 🎉';
   if (progress >= 0.7) return 'Tu y es presque ! 💪';
-  if (progress >= 0.4) return 'Continue comme ça ! 🌟';
+  if (progress >= 0.4) return 'Continue ! 🌟';
   if (moves <= optimal / 2) return 'Bon début ! ✨';
   return 'C\'est parti ! 🚀';
 };
@@ -49,6 +50,7 @@ export function ProgressPanel({
   currentMoves,
   optimalMoves,
   progress,
+  bestMoves,
   visible = true,
 }: ProgressPanelProps) {
   const progressWidth = useSharedValue(0);
@@ -75,101 +77,117 @@ export function ProgressPanel({
       <View style={styles.statsRow}>
         {/* Current moves */}
         <View style={styles.statItem}>
-          <Text style={styles.statLabel}>Tes coups</Text>
-          <Text style={[styles.statNumber, { color: COLORS.moves }]}>
+          <Text style={styles.statLabel}>TES COUPS</Text>
+          <Text style={[styles.statValue, { color: COLORS.moves }]}>
             {currentMoves}
           </Text>
         </View>
 
-        {/* Divider */}
         <View style={styles.divider} />
 
         {/* Optimal moves */}
         <View style={styles.statItem}>
-          <Text style={styles.statLabel}>Objectif</Text>
-          <Text style={[styles.statNumber, { color: COLORS.optimal }]}>
+          <Text style={styles.statLabel}>OBJECTIF</Text>
+          <Text style={[styles.statValue, { color: COLORS.optimal }]}>
             {optimalMoves}
           </Text>
         </View>
-      </View>
 
-      {/* Progress bar */}
-      <View style={styles.progressContainer}>
-        <View style={styles.progressBackground}>
-          <Animated.View style={[styles.progressFill, progressStyle]} />
+        {bestMoves !== undefined && (
+          <>
+            <View style={styles.divider} />
+
+            {/* Best record */}
+            <View style={styles.statItem}>
+              <Text style={styles.statLabel}>TON RECORD</Text>
+              <Text style={[styles.statValue, { color: COLORS.best }]}>
+                {bestMoves}
+              </Text>
+            </View>
+          </>
+        )}
+
+        <View style={styles.divider} />
+
+        {/* Progress indicator */}
+        <View style={styles.progressSection}>
+          <View style={styles.progressBar}>
+            <Animated.View style={[styles.progressFill, progressStyle]} />
+          </View>
+          <Text style={styles.encourageText}>{encourageMessage}</Text>
         </View>
       </View>
-
-      {/* Encouraging message */}
-      <Text style={styles.encourageText}>{encourageMessage}</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    position: 'absolute',
-    top: 110,
-    right: 20,
+    alignSelf: 'center',
     backgroundColor: COLORS.background,
-    borderRadius: borderRadius.xl,
-    padding: spacing[5],
-    paddingBottom: spacing[4],
-    minWidth: 180,
+    borderRadius: 20,
+    paddingVertical: spacing[4],
+    paddingHorizontal: spacing[6],
     ...shadows.lg,
     zIndex: 100,
+    marginVertical: spacing[2],
   },
 
-  // Stats row
   statsRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: spacing[4],
+    gap: spacing[5],
   },
+
   statItem: {
     alignItems: 'center',
-    flex: 1,
+    minWidth: 70,
   },
+
   statLabel: {
-    ...textStyles.caption,
-    color: COLORS.text.label,
+    fontSize: 11,
     fontWeight: '600',
+    color: COLORS.text.label,
+    letterSpacing: 0.5,
     marginBottom: spacing[1],
   },
-  statNumber: {
-    fontSize: 42,
-    fontWeight: '800',
-    lineHeight: 48,
+
+  statValue: {
+    fontFamily: 'Fredoka_700Bold',
+    fontSize: 32,
+    fontWeight: '700',
+    lineHeight: 36,
   },
+
   divider: {
     width: 2,
-    height: 50,
+    height: 40,
     backgroundColor: COLORS.divider,
+    borderRadius: 1,
   },
 
-  // Progress bar
-  progressContainer: {
-    marginTop: spacing[4],
+  progressSection: {
+    alignItems: 'center',
+    gap: spacing[2],
   },
-  progressBackground: {
-    height: 12,
+
+  progressBar: {
+    width: 100,
+    height: 8,
     backgroundColor: COLORS.progressBg,
-    borderRadius: 6,
+    borderRadius: 4,
     overflow: 'hidden',
   },
+
   progressFill: {
     height: '100%',
-    backgroundColor: COLORS.optimal,
-    borderRadius: 6,
+    backgroundColor: COLORS.progressFill,
+    borderRadius: 4,
   },
 
-  // Encouraging message
   encourageText: {
-    ...textStyles.caption,
+    fontSize: 12,
+    fontWeight: '700',
     color: COLORS.text.encourage,
-    fontWeight: '600',
-    textAlign: 'center',
-    marginTop: spacing[2],
   },
 });

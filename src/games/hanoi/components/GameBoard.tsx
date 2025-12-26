@@ -31,8 +31,10 @@ export function GameBoard({
   const towerWidth = (availableWidth - spacing[8] * 2) / 3;
   const maxDiskWidth = Math.min(towerWidth - spacing[4], 180);
   const minDiskWidth = maxDiskWidth * 0.35;
-  const diskHeight = Math.min(40, (availableHeight - 80) / (totalDisks + 1));
-  const towerHeight = diskHeight * (totalDisks + 1) + 50;
+  // Fixed dimensions based on 6 disks (max level) to prevent layout shifts
+  const maxDisks = 6;
+  const diskHeight = Math.min(40, (availableHeight - 80) / (maxDisks + 1));
+  const towerHeight = diskHeight * (maxDisks + 1) + 50;
 
   const baseHeight = 35;
   const baseSideHeight = 20;

@@ -66,13 +66,7 @@ export function Disk({
           },
           isSelected && styles.diskSelected,
         ]}
-      >
-        {/* Top highlight - subtle white reflection */}
-        <View style={[styles.highlightTop, { height: height * 0.25 }]} />
-
-        {/* Bottom shadow for depth */}
-        <View style={[styles.shadowBottom, { height: height * 0.15 }]} />
-      </View>
+      />
     </Animated.View>
   );
 }
@@ -97,23 +91,5 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 8,
     elevation: 6,
-  },
-  highlightTop: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: 'rgba(255, 255, 255, 0.35)',
-    borderTopLeftRadius: borderRadius.lg,
-    borderTopRightRadius: borderRadius.lg,
-  },
-  shadowBottom: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.1)',
-    borderBottomLeftRadius: borderRadius.lg,
-    borderBottomRightRadius: borderRadius.lg,
   },
 });
