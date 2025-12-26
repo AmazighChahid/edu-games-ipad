@@ -3,11 +3,12 @@
  * Immersive animated forest background with floating widgets and game grid
  */
 
-import React, { useState, useCallback, useMemo } from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
+import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react';
+import { View, StyleSheet, ScrollView, AppState, AppStateStatus } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Audio } from 'expo-av';
 
 // Home V10 Components
 import {
@@ -61,6 +62,62 @@ const GAME_ROUTES: Record<string, string> = {
 export default function HomeScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const soundRef = useRef<Audio.Sound | null>(null);
+  const appState = useRef(AppState.currentState);
+
+  // Forest ambiance audio
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadAndPlayAudio = async () => {
+      try {
+        // Configure audio mode for background playback
+        await Audio.setAudioModeAsync({
+          playsInSilentModeIOS: true,
+          staysActiveInBackground: false,
+          shouldDuckAndroid: true,
+        });
+
+        // Load and play forest ambiance
+        const { sound } = await Audio.Sound.createAsync(
+          require('../assets/audio/forest-ambiance.mp3'),
+          {
+            isLooping: true,
+            volume: 0.3,
+            shouldPlay: true,
+          }
+        );
+
+        if (isMounted) {
+          soundRef.current = sound;
+        } else {
+          await sound.unloadAsync();
+        }
+      } catch (error) {
+        console.warn('Failed to load forest ambiance audio:', error);
+      }
+    };
+
+    loadAndPlayAudio();
+
+    // Handle app state changes (pause when app goes to background)
+    const subscription = AppState.addEventListener('change', (nextAppState: AppStateStatus) => {
+      if (appState.current.match(/active/) && nextAppState.match(/inactive|background/)) {
+        // App going to background - pause audio
+        soundRef.current?.pauseAsync();
+      } else if (appState.current.match(/inactive|background/) && nextAppState === 'active') {
+        // App coming to foreground - resume audio
+        soundRef.current?.playAsync();
+      }
+      appState.current = nextAppState;
+    });
+
+    return () => {
+      isMounted = false;
+      subscription.remove();
+      soundRef.current?.unloadAsync();
+    };
+  }, []);
 
   // Get home data from hook
   const {
@@ -90,19 +147,26 @@ export default function HomeScreen() {
       name: string;
       icon: string;
       color: 'blue' | 'purple' | 'orange' | 'teal' | 'pink' | 'indigo' | 'coral' | 'cyan' | 'amber';
-      medal: 'bronze' | 'silver' | 'gold' | 'diamond' | 'locked';
+      medal: 'none' | 'bronze' | 'silver' | 'gold' | 'diamond' | 'locked';
       badge?: 'new' | 'hot' | 'soon';
       isLocked: boolean;
     }> = [];
 
     gameCategories.forEach((category) => {
       category.games.forEach((game) => {
+        // Si le jeu est verrouillé explicitement -> 'locked'
+        // Si le jeu n'a pas de médaille mais est accessible -> 'none' (À jouer)
+        // Sinon -> la médaille obtenue
+        const medal = game.isLocked
+          ? 'locked'
+          : (game.medal as 'none' | 'bronze' | 'silver' | 'gold' | 'diamond');
+
         games.push({
           id: game.id,
           name: game.name,
           icon: game.icon,
           color: GAME_COLORS[game.id] || 'blue',
-          medal: game.medal === 'none' ? 'locked' : game.medal as 'bronze' | 'silver' | 'gold' | 'diamond',
+          medal,
           badge: game.badge as 'new' | 'hot' | 'soon' | undefined,
           isLocked: game.isLocked,
         });

@@ -19,7 +19,7 @@ import {
 } from '@/theme/home-v10-colors';
 
 type GameColor = keyof typeof gameCardGradients;
-type MedalType = 'bronze' | 'silver' | 'gold' | 'diamond' | 'locked';
+type MedalType = 'none' | 'bronze' | 'silver' | 'gold' | 'diamond' | 'locked';
 
 interface GameCardV10Props {
   name: string;
@@ -32,6 +32,7 @@ interface GameCardV10Props {
 }
 
 const medalConfigs: Record<MedalType, { icon: string; label: string; textColor: string }> = {
+  none: { icon: '🎮', label: 'À jouer', textColor: '#FFFFFF' },
   bronze: { icon: '🥉', label: 'Bronze', textColor: '#FFFFFF' },
   silver: { icon: '🥈', label: 'Argent', textColor: '#FFFFFF' },
   gold: { icon: '🥇', label: 'Or', textColor: '#FFFFFF' },

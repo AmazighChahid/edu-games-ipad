@@ -87,11 +87,12 @@ export const gameCardGradients = {
 
 // Gradients pour les médailles
 export const medalGradients = {
+  none: ['rgba(255,255,255,0.3)', 'rgba(255,255,255,0.15)'] as const, // Non joué mais accessible
   bronze: ['#CD7F32', '#8B5A2B'] as const,
   silver: ['#C0C0C0', '#909090'] as const,
   gold: ['#FFD700', '#FFA500'] as const,
   diamond: ['#B9F2FF', '#00CED1'] as const,
-  locked: ['rgba(255,255,255,0.2)', 'rgba(255,255,255,0.1)'] as const,
+  locked: ['rgba(100,100,100,0.4)', 'rgba(80,80,80,0.3)'] as const,
 };
 
 // Dimensions et layout

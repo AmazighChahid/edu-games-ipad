@@ -68,17 +68,6 @@ const getOwlMessage = (
   return { message: 'Continue, tu te débrouilles bien ! ✨', type: 'intro' };
 };
 
-// Micro-objectifs selon la progression
-const getMicroObjective = (progress: number): string => {
-  if (progress < 0.3) {
-    return 'Libérer le grand disque';
-  } else if (progress < 0.6) {
-    return 'Construire une pile provisoire';
-  } else {
-    return 'Recomposer la pile finale';
-  }
-};
-
 export function HanoiIntroScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -127,7 +116,6 @@ export function HanoiIntroScreen() {
   // Animation values
   const selectorY = useSharedValue(0);
   const selectorOpacity = useSharedValue(1);
-  const hudOpacity = useSharedValue(0);
   const playButtonScale = useSharedValue(1);
 
   // Demo animation values
@@ -222,14 +210,11 @@ export function HanoiIntroScreen() {
     selectorY.value = withTiming(150, { duration: 400, easing: Easing.out(Easing.quad) });
     selectorOpacity.value = withTiming(0, { duration: 300 });
 
-    // Fade in game HUD
-    hudOpacity.value = withDelay(200, withTiming(1, { duration: 300 }));
-
     // Start playing after animation
     setTimeout(() => {
       setIsPlaying(true);
     }, 300);
-  }, [isPlaying, selectorY, selectorOpacity, hudOpacity]);
+  }, [isPlaying, selectorY, selectorOpacity]);
 
   const handleBack = () => {
     if (isPlaying) {
@@ -237,7 +222,6 @@ export function HanoiIntroScreen() {
       setIsPlaying(false);
       selectorY.value = withSpring(0, { damping: 15 });
       selectorOpacity.value = withTiming(1, { duration: 300 });
-      hudOpacity.value = withTiming(0, { duration: 200 });
       reset();
     } else {
       router.back();
@@ -366,10 +350,6 @@ export function HanoiIntroScreen() {
   const selectorStyle = useAnimatedStyle(() => ({
     transform: [{ translateY: selectorY.value }],
     opacity: selectorOpacity.value,
-  }));
-
-  const hudStyle = useAnimatedStyle(() => ({
-    opacity: hudOpacity.value,
   }));
 
   const fingerStyle = useAnimatedStyle(() => ({
@@ -560,7 +540,6 @@ export function HanoiIntroScreen() {
             setIsPlaying(false);
             selectorY.value = withSpring(0, { damping: 15 });
             selectorOpacity.value = withTiming(1, { duration: 300 });
-            hudOpacity.value = withTiming(0, { duration: 200 });
           }
         }}
         onReplay={() => {
@@ -568,7 +547,6 @@ export function HanoiIntroScreen() {
           setIsPlaying(false);
           selectorY.value = withSpring(0, { damping: 15 });
           selectorOpacity.value = withTiming(1, { duration: 300 });
-          hudOpacity.value = withTiming(0, { duration: 200 });
         }}
         onHome={() => router.back()}
       />
@@ -835,78 +813,12 @@ const styles = StyleSheet.create({
   levelCardNumberSelected: {
     color: colors.primary.main,
   },
-  gameHud: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: spacing[6],
-    paddingVertical: spacing[3],
-    gap: spacing[4],
-  },
-  hudItem: {
-    alignItems: 'center',
-  },
-  hudLabel: {
-    ...textStyles.caption,
-    color: colors.text.muted,
-  },
-  hudValue: {
-    ...textStyles.h2,
-    color: colors.primary.main,
-  },
-  hudValueOptimal: {
-    ...textStyles.h3,
-    color: colors.feedback.success,
-  },
-  hudDivider: {
-    width: 1,
-    height: 30,
-    backgroundColor: colors.background.secondary,
-  },
-  resetButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: colors.background.card,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginLeft: spacing[4],
-    ...shadows.sm,
-  },
-  resetButtonText: {
-    fontSize: 20,
-    color: colors.text.secondary,
-  },
   boardContainer: {
     flex: 1,
     minHeight: 450,
     maxHeight: 600,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-
-  // Micro-objective styles
-  microObjective: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: spacing[2],
-    paddingHorizontal: spacing[4],
-    backgroundColor: colors.background.card,
-    borderRadius: borderRadius.lg,
-    alignSelf: 'center',
-    marginBottom: spacing[2],
-    ...shadows.sm,
-  },
-  microObjectiveLabel: {
-    ...textStyles.caption,
-    color: colors.text.secondary,
-    marginRight: spacing[2],
-  },
-  microObjectiveText: {
-    ...textStyles.body,
-    color: colors.primary.main,
-    fontWeight: '600',
   },
 
   // Hint toast
