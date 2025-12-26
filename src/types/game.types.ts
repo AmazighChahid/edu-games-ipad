@@ -24,7 +24,10 @@ export type CognitiveSkill =
   | 'perseverance'
   | 'concentration'
   | 'pattern_recognition'
-  | 'sequencing';
+  | 'sequencing'
+  | 'deductive_reasoning'
+  | 'patience'
+  | 'systematic_thinking';
 
 // ============================================
 // GAME METADATA

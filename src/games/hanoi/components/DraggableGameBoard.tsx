@@ -16,16 +16,16 @@ interface DraggableGameBoardProps {
   gameState: HanoiGameState;
   totalDisks: number;
   onMove: (from: TowerId, to: TowerId) => void;
-  onTowerPress: (towerId: TowerId) => void;
-  canMoveTo: (towerId: TowerId) => boolean;
+  hasMovedOnce: boolean;
+  highlightedTowers?: { source: TowerId; target: TowerId } | null;
 }
 
 export function DraggableGameBoard({
   gameState,
   totalDisks,
   onMove,
-  onTowerPress,
-  canMoveTo,
+  hasMovedOnce,
+  highlightedTowers,
 }: DraggableGameBoardProps) {
   const { width, height } = useWindowDimensions();
   const [towerCenters, setTowerCenters] = useState<number[]>([0, 0, 0]);
@@ -127,7 +127,6 @@ export function DraggableGameBoard({
                 tower={gameState.towers[towerId]}
                 isValidTarget={isValidTarget(towerId)}
                 isDragging={isDragging}
-                onPress={() => onTowerPress(towerId)}
                 onDiskDragStart={handleDiskDragStart}
                 onDiskDragEnd={handleDiskDragEnd}
                 maxDiskWidth={maxDiskWidth}
@@ -137,6 +136,9 @@ export function DraggableGameBoard({
                 towerHeight={towerHeight}
                 towerCenters={towerCenters}
                 towerWidth={towerWidth}
+                hasMovedOnce={hasMovedOnce}
+                isHintHighlighted={highlightedTowers?.source === towerId || highlightedTowers?.target === towerId}
+                isHintTarget={highlightedTowers?.target === towerId}
               />
             ))}
           </View>

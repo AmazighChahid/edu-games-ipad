@@ -19,10 +19,10 @@ interface WoodenBaseProps {
   platformHeight?: number;
 }
 
-// Rich wood color palette
+// Rich wood color palette (matching hanoi-redesign.html)
 const WOOD_PALETTE = {
-  // Top surface (lighter)
-  surface: ['#E8D4B8', '#D4B896', '#C4A574'] as const,
+  // Top surface (lighter) - matches HTML: #D4A574
+  surface: ['#D4A574', '#C49A68', '#B8956A'] as const,
   // Front face (darker for 3D depth)
   front: ['#B8956A', '#A07850', '#8B6B45'] as const,
   // Pole colors
@@ -33,7 +33,7 @@ const WOOD_PALETTE = {
   },
   // Effects
   shadow: 'rgba(139, 107, 69, 0.35)',
-  grain: 'rgba(255, 255, 255, 0.12)',
+  grain: 'rgba(0, 0, 0, 0.1)', // Darker grain lines like HTML
   bevel: 'rgba(255, 255, 255, 0.25)',
   highlight: '#4ADE80',
 };
@@ -64,11 +64,11 @@ export function WoodenBase({
           end={{ x: 0, y: 1 }}
           style={[styles.topSurface, { height: topHeight }]}
         >
-          {/* Wood grain lines */}
+          {/* Wood grain lines - matching HTML design */}
           <View style={styles.grainContainer}>
-            <View style={[styles.grainLine, { top: '20%', width: '70%', left: '15%' }]} />
-            <View style={[styles.grainLine, { top: '45%', width: '50%', left: '25%' }]} />
-            <View style={[styles.grainLine, { top: '70%', width: '60%', left: '20%' }]} />
+            <View style={[styles.grainLine, { top: 8, left: 20, right: 20 }]} />
+            <View style={[styles.grainLine, { top: 20, left: 40, right: 40, height: 2 }]} />
+            <View style={[styles.grainLine, { top: 32, left: 60, right: 60, height: 2 }]} />
           </View>
 
           {/* Top bevel highlight */}
@@ -196,7 +196,7 @@ const styles = StyleSheet.create({
   },
   grainLine: {
     position: 'absolute',
-    height: 4,
+    height: 3,
     backgroundColor: WOOD_PALETTE.grain,
     borderRadius: 2,
   },

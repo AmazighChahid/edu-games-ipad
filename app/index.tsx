@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, Pressable } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, Href, Link } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -10,12 +10,6 @@ export default function HomeScreen() {
   const router = useRouter();
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
-
-  const handleGamePress = (gameId: string, status: string, route: string) => {
-    if (status === 'available') {
-      router.push(route as any);
-    }
-  };
 
   const handleParentPress = () => {
     router.push('/(parent)');
@@ -46,28 +40,44 @@ export default function HomeScreen() {
 
       <View style={styles.gamesGrid}>
         {gameRegistry.map((game) => (
-          <Pressable
-            key={game.id}
-            style={({ pressed }) => [
-              styles.gameCard,
-              game.status !== 'available' && styles.gameCardDisabled,
-              pressed && game.status === 'available' && styles.gameCardPressed,
-            ]}
-            onPress={() => handleGamePress(game.id, game.status, game.route)}
-            disabled={game.status !== 'available'}
-          >
-            <View style={styles.gameIconContainer}>
-              <Text style={styles.gameIcon}>
-                {game.id === 'hanoi' ? '🗼' : game.id === 'math-blocks' ? '🧮' : '🎮'}
-              </Text>
-            </View>
-            <Text style={styles.gameName}>{t(game.nameKey)}</Text>
-            {game.status === 'coming_soon' && (
-              <View style={styles.comingSoonBadge}>
-                <Text style={styles.comingSoonText}>{t('common.comingSoon')}</Text>
+          game.status === 'available' ? (
+            <Link
+              key={game.id}
+              href={game.route as Href}
+              asChild
+            >
+              <Pressable
+                style={({ pressed }) => [
+                  styles.gameCard,
+                  pressed && styles.gameCardPressed,
+                ]}
+              >
+                <View style={styles.gameIconContainer}>
+                  <Text style={styles.gameIcon}>
+                    {game.id === 'hanoi' ? '🗼' : game.id === 'math-blocks' ? '🧮' : game.id === 'sudoku' ? '🧩' : '🎮'}
+                  </Text>
+                </View>
+                <Text style={styles.gameName}>{t(game.nameKey)}</Text>
+              </Pressable>
+            </Link>
+          ) : (
+            <View
+              key={game.id}
+              style={[styles.gameCard, styles.gameCardDisabled]}
+            >
+              <View style={styles.gameIconContainer}>
+                <Text style={styles.gameIcon}>
+                  {game.id === 'hanoi' ? '🗼' : game.id === 'math-blocks' ? '🧮' : game.id === 'sudoku' ? '🧩' : '🎮'}
+                </Text>
               </View>
-            )}
-          </Pressable>
+              <Text style={styles.gameName}>{t(game.nameKey)}</Text>
+              {game.status === 'coming_soon' && (
+                <View style={styles.comingSoonBadge}>
+                  <Text style={styles.comingSoonText}>{t('common.comingSoon')}</Text>
+                </View>
+              )}
+            </View>
+          )
         ))}
       </View>
     </View>

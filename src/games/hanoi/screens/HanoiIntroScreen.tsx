@@ -28,11 +28,44 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import { colors, spacing, textStyles, borderRadius, shadows, touchTargets } from '@/theme';
-import { DraggableGameBoard, VictoryCelebration } from '../components';
+import {
+  DraggableGameBoard,
+  VictoryOverlay,
+  GameBackground,
+  MascotOwl,
+  ProgressPanel,
+  TowerLabel,
+  FloatingButtons,
+} from '../components';
 import { useHanoiGame } from '../hooks/useHanoiGame';
 import { hanoiLevels } from '../data/levels';
 import { ParentZone, type GameMode } from '@/components/parent/ParentZone';
+import { useStore } from '@/store/useStore';
 import type { HanoiLevelConfig, TowerId } from '../types';
+
+// Owl messages based on game state
+type OwlMessageType = 'intro' | 'hint' | 'error' | 'encourage' | 'victory';
+
+const getOwlMessage = (
+  isPlaying: boolean,
+  isVictory: boolean,
+  consecutiveInvalid: number,
+  progress: number
+): { message: string; type: OwlMessageType } => {
+  if (isVictory) {
+    return { message: 'Bravo ! Tu as réussi ! 🎉', type: 'victory' };
+  }
+  if (consecutiveInvalid >= 2) {
+    return { message: 'Oups ! Un grand anneau ne peut pas aller sur un petit 🤔', type: 'error' };
+  }
+  if (progress > 0.7) {
+    return { message: 'Tu y es presque ! Continue comme ça 💪', type: 'encourage' };
+  }
+  if (!isPlaying) {
+    return { message: 'Déplace un seul anneau à la fois ! Le plus gros reste en dessous 🎯', type: 'intro' };
+  }
+  return { message: 'Continue, tu te débrouilles bien ! ✨', type: 'intro' };
+};
 
 // Micro-objectifs selon la progression
 const getMicroObjective = (progress: number): string => {
@@ -49,6 +82,10 @@ export function HanoiIntroScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
 
+  // Tutorial state from store
+  const hasSeenHanoiTutorial = useStore((state) => state.hasSeenHanoiTutorial);
+  const setHasSeenHanoiTutorial = useStore((state) => state.setHasSeenHanoiTutorial);
+
   // Game state
   const [selectedLevel, setSelectedLevel] = useState<HanoiLevelConfig>(hanoiLevels[1]); // Default 3 disks
   const [isPlaying, setIsPlaying] = useState(false);
@@ -59,6 +96,18 @@ export function HanoiIntroScreen() {
   const [demoStep, setDemoStep] = useState(0);
   const demoTimeoutsRef = useRef<ReturnType<typeof setTimeout>[]>([]);
 
+  // Auto-show demo on first launch
+  useEffect(() => {
+    if (!hasSeenHanoiTutorial) {
+      // Small delay to let the screen render first
+      const timer = setTimeout(() => {
+        setShowDemo(true);
+        setHasSeenHanoiTutorial();
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [hasSeenHanoiTutorial, setHasSeenHanoiTutorial]);
+
   // Parent zone state
   const [showParentZone, setShowParentZone] = useState(false);
   const [gameMode, setGameMode] = useState<GameMode>('discovery');
@@ -68,6 +117,7 @@ export function HanoiIntroScreen() {
   const [showRulesOverlay, setShowRulesOverlay] = useState(false);
   const [showStrategyPause, setShowStrategyPause] = useState(false);
   const [hintMessage, setHintMessage] = useState<string | null>(null);
+  const [highlightedTowers, setHighlightedTowers] = useState<{source: TowerId, target: TowerId} | null>(null);
 
   // Blocage detection
   const lastMoveTimeRef = useRef<number>(Date.now());
@@ -93,28 +143,21 @@ export function HanoiIntroScreen() {
   const demoDisk2X = useSharedValue(0);
   const demoDisk2Y = useSharedValue(0);
 
-  // Use the actual game hook
-  const handleVictory = useCallback(() => {
-    setTimeout(() => {
-      router.push('/(games)/hanoi/victory');
-    }, 1500);
-  }, [router]);
-
+  // Use the actual game hook (no navigation - overlay handles victory)
   const {
     gameState,
     level,
     moveCount,
     consecutiveInvalid,
     isVictory,
-    selectTower,
-    canMoveTo,
+    hasMovedOnce,
+    timeElapsed,
     performMove,
     reset,
     getHint,
     playHint,
   } = useHanoiGame({
     levelId: currentLevelId,
-    onVictory: handleVictory,
   });
 
   // Hint animation
@@ -125,6 +168,9 @@ export function HanoiIntroScreen() {
   const disksOnTarget = gameState.towers[2].disks.length;
   const progress = disksOnTarget / targetDisks;
   const microObjective = getMicroObjective(progress);
+
+  // Get owl message based on current game state
+  const owlState = getOwlMessage(isPlaying, isVictory, consecutiveInvalid, progress);
 
   // Update last move time on each move
   useEffect(() => {
@@ -168,9 +214,13 @@ export function HanoiIntroScreen() {
         const towerNames = ['A', 'B', 'C'];
         setHintMessage(`Déplace vers ${towerNames[hint.to]}`);
 
+        // Highlight source and target towers
+        setHighlightedTowers({ source: hint.from, target: hint.to });
+
         setTimeout(() => {
           playHint();
           setHintMessage(null);
+          setHighlightedTowers(null);
         }, 1500);
       }
     }
@@ -254,11 +304,6 @@ export function HanoiIntroScreen() {
 
   const handleReset = () => {
     reset();
-  };
-
-  const handleTowerPress = (towerId: TowerId) => {
-    if (isVictory) return;
-    selectTower(towerId);
   };
 
   const handleMove = (from: TowerId, to: TowerId) => {
@@ -399,34 +444,55 @@ export function HanoiIntroScreen() {
   }));
 
   return (
-    <View
-      style={[
-        styles.container,
-        {
-          paddingTop: insets.top + spacing[2],
-          paddingBottom: insets.bottom + spacing[2],
-        },
-      ]}
-    >
-      {/* Header */}
-      <View style={styles.header}>
-        <Pressable onPress={handleBack} style={styles.headerButton}>
-          <Text style={styles.headerButtonText}>←</Text>
-        </Pressable>
-
-        <Text style={styles.headerTitle}>Tour de Hanoï</Text>
-
-        <View style={styles.headerRightButtons}>
-          <Pressable onPress={() => setShowParentZone(!showParentZone)} style={styles.parentButton}>
-            <Text style={styles.parentButtonIcon}>?</Text>
-            <Text style={styles.parentButtonLabel}>Parent</Text>
+    <GameBackground>
+      <View
+        style={[
+          styles.container,
+          {
+            paddingTop: insets.top + spacing[2],
+            paddingBottom: insets.bottom + spacing[2],
+          },
+        ]}
+      >
+        {/* Header */}
+        <View style={styles.header}>
+          <Pressable onPress={handleBack} style={styles.headerButton}>
+            <Text style={styles.headerButtonText}>←</Text>
           </Pressable>
 
-          <Pressable onPress={() => setShowDemo(true)} style={styles.helpButton}>
-            <Text style={styles.helpButtonText}>▶</Text>
-          </Pressable>
+          <View style={styles.headerTitleContainer}>
+            <Text style={styles.headerEmoji}>🏰</Text>
+            <Text style={styles.headerTitle}>La Tour Magique</Text>
+            <Text style={styles.headerEmoji}>✨</Text>
+          </View>
+
+          <View style={styles.headerRightButtons}>
+            <Pressable onPress={() => setShowParentZone(!showParentZone)} style={styles.parentButton}>
+              <Text style={styles.parentButtonIcon}>👨‍👩‍👧</Text>
+            </Pressable>
+
+            <Pressable onPress={() => setShowDemo(true)} style={styles.helpButton}>
+              <Text style={styles.helpButtonText}>?</Text>
+            </Pressable>
+          </View>
         </View>
-      </View>
+
+        {/* Mascot Owl - shows contextual messages */}
+        <MascotOwl
+          message={owlState.message}
+          messageType={owlState.type}
+          visible={!isVictory}
+        />
+
+        {/* Progress Panel - shows when playing */}
+        {isPlaying && (
+          <ProgressPanel
+            currentMoves={moveCount}
+            optimalMoves={level.optimalMoves ?? 7}
+            progress={progress}
+            visible={!isVictory}
+          />
+        )}
 
       {/* Level Selector - At top, slides down when playing */}
       <Animated.View style={[styles.selectorContainer, selectorStyle]} pointerEvents={isPlaying ? 'none' : 'auto'}>
@@ -512,33 +578,20 @@ export function HanoiIntroScreen() {
           gameState={gameState}
           totalDisks={level.diskCount}
           onMove={handleMove}
-          onTowerPress={handleTowerPress}
-          canMoveTo={canMoveTo}
+          hasMovedOnce={hasMovedOnce}
+          highlightedTowers={highlightedTowers}
         />
       </View>
 
-      {/* Bottom HUD - Hint and Rules buttons */}
+      {/* Floating Action Buttons - Reset and Hint */}
       {isPlaying && !isVictory && (
-        <Animated.View entering={FadeIn} style={styles.bottomHud}>
-          <Pressable
-            onPress={handleHint}
-            style={[styles.hudButton, styles.hintButton]}
-            disabled={hintsRemaining <= 0}
-          >
-            <Text style={styles.hudButtonIcon}>💡</Text>
-            <Text style={styles.hudButtonText}>
-              Indice {gameMode !== 'expert' && `(${hintsRemaining})`}
-            </Text>
-          </Pressable>
-
-          <Pressable
-            onPress={() => setShowRulesOverlay(true)}
-            style={styles.hudButton}
-          >
-            <Text style={styles.hudButtonIcon}>📜</Text>
-            <Text style={styles.hudButtonText}>Règles</Text>
-          </Pressable>
-        </Animated.View>
+        <FloatingButtons
+          onReset={handleReset}
+          onHint={handleHint}
+          hintsRemaining={hintsRemaining}
+          hintDisabled={gameMode === 'expert'}
+          visible={true}
+        />
       )}
 
       {/* Hint Toast */}
@@ -548,19 +601,15 @@ export function HanoiIntroScreen() {
         </Animated.View>
       )}
 
-      {/* Victory Celebration */}
-      <VictoryCelebration
+      {/* Victory Overlay */}
+      <VictoryOverlay
         visible={isVictory}
         moves={moveCount}
         optimalMoves={level.optimalMoves ?? 7}
+        timeElapsed={timeElapsed}
         hintsUsed={3 - hintsRemaining}
-        onReplay={() => {
-          reset();
-          setIsPlaying(false);
-          selectorY.value = withSpring(0, { damping: 15 });
-          selectorOpacity.value = withTiming(1, { duration: 300 });
-          hudOpacity.value = withTiming(0, { duration: 200 });
-        }}
+        levelId={level.id}
+        hasNextLevel={hanoiLevels.findIndex(l => l.id === selectedLevel.id) < hanoiLevels.length - 1}
         onNextLevel={() => {
           // Find next level
           const currentIndex = hanoiLevels.findIndex(l => l.id === selectedLevel.id);
@@ -569,8 +618,20 @@ export function HanoiIntroScreen() {
             setSelectedLevel(nextLevel);
             setCurrentLevelId(nextLevel.id);
             reset();
+            setIsPlaying(false);
+            selectorY.value = withSpring(0, { damping: 15 });
+            selectorOpacity.value = withTiming(1, { duration: 300 });
+            hudOpacity.value = withTiming(0, { duration: 200 });
           }
         }}
+        onReplay={() => {
+          reset();
+          setIsPlaying(false);
+          selectorY.value = withSpring(0, { damping: 15 });
+          selectorOpacity.value = withTiming(1, { duration: 300 });
+          hudOpacity.value = withTiming(0, { duration: 200 });
+        }}
+        onHome={() => router.back()}
       />
 
       {/* Parent Zone */}
@@ -721,13 +782,14 @@ export function HanoiIntroScreen() {
         </View>
       </Modal>
     </View>
+    </GameBackground>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background.game,
+    // Transparent pour laisser voir le GameBackground
   },
   header: {
     flexDirection: 'row',
@@ -749,9 +811,17 @@ const styles = StyleSheet.create({
     fontSize: 24,
     color: colors.text.primary,
   },
+  headerTitleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing[2],
+  },
   headerTitle: {
     ...textStyles.h2,
     color: colors.text.primary,
+  },
+  headerEmoji: {
+    fontSize: 24,
   },
   headerRightButtons: {
     flexDirection: 'row',
@@ -928,35 +998,6 @@ const styles = StyleSheet.create({
   microObjectiveText: {
     ...textStyles.body,
     color: colors.primary.main,
-    fontWeight: '600',
-  },
-
-  // Bottom HUD styles
-  bottomHud: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    gap: spacing[4],
-    paddingVertical: spacing[3],
-  },
-  hudButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.background.card,
-    paddingVertical: spacing[2],
-    paddingHorizontal: spacing[4],
-    borderRadius: borderRadius.xl,
-    gap: spacing[2],
-    ...shadows.md,
-  },
-  hintButton: {
-    backgroundColor: colors.secondary.main,
-  },
-  hudButtonIcon: {
-    fontSize: 18,
-  },
-  hudButtonText: {
-    ...textStyles.body,
-    color: colors.text.primary,
     fontWeight: '600',
   },
 

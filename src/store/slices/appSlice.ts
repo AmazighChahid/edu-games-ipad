@@ -16,6 +16,9 @@ export interface AppState {
   hasCompletedOnboarding: boolean;
   lastOpenedAt: number | null;
 
+  // Tutorial flags
+  hasSeenHanoiTutorial: boolean;
+
   // Hydration status
   hasHydrated: boolean;
 }
@@ -28,6 +31,7 @@ export interface AppActions {
   completeOnboarding: () => void;
   updateLastOpened: () => void;
   setHasHydrated: (hydrated: boolean) => void;
+  setHasSeenHanoiTutorial: () => void;
 }
 
 export type AppSlice = AppState & AppActions;
@@ -39,6 +43,7 @@ export const initialAppState: AppState = {
   language: 'fr',
   hasCompletedOnboarding: false,
   lastOpenedAt: null,
+  hasSeenHanoiTutorial: false,
   hasHydrated: false,
 };
 
@@ -52,4 +57,5 @@ export const createAppSlice: StateCreator<AppSlice, [], [], AppSlice> = (set) =>
   completeOnboarding: () => set({ hasCompletedOnboarding: true }),
   updateLastOpened: () => set({ lastOpenedAt: Date.now() }),
   setHasHydrated: (hydrated) => set({ hasHydrated: hydrated }),
+  setHasSeenHanoiTutorial: () => set({ hasSeenHanoiTutorial: true }),
 });

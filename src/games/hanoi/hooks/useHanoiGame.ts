@@ -41,6 +41,9 @@ export function useHanoiGame(options: UseHanoiGameOptions = {}) {
   const [consecutiveInvalid, setConsecutiveInvalid] = useState(0);
   const [isVictory, setIsVictory] = useState(false);
   const [lastInvalidReason, setLastInvalidReason] = useState<string | null>(null);
+  const [hasMovedOnce, setHasMovedOnce] = useState(false);
+  const [startTime, setStartTime] = useState<number | null>(null);
+  const [timeElapsed, setTimeElapsed] = useState(0);
 
   const {
     hapticEnabled,
@@ -74,6 +77,24 @@ export function useHanoiGame(options: UseHanoiGameOptions = {}) {
     }
   }, [level.id]);
 
+  // Start timer on first move
+  useEffect(() => {
+    if (hasMovedOnce && !startTime) {
+      setStartTime(Date.now());
+    }
+  }, [hasMovedOnce, startTime]);
+
+  // Update elapsed time every second
+  useEffect(() => {
+    if (!startTime || isVictory) return;
+
+    const interval = setInterval(() => {
+      setTimeElapsed(Math.floor((Date.now() - startTime) / 1000));
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [startTime, isVictory]);
+
   const reset = useCallback(() => {
     setGameState(createInitialState(level));
     setMoveCount(0);
@@ -81,6 +102,9 @@ export function useHanoiGame(options: UseHanoiGameOptions = {}) {
     setConsecutiveInvalid(0);
     setIsVictory(false);
     setLastInvalidReason(null);
+    setHasMovedOnce(false);
+    setStartTime(null);
+    setTimeElapsed(0);
     hasShownFirstMove.current = false;
     startSession('hanoi', level.id, createInitialState(level));
   }, [level, startSession]);
@@ -103,6 +127,7 @@ export function useHanoiGame(options: UseHanoiGameOptions = {}) {
           setMoveCount((c) => c + 1);
           setConsecutiveInvalid(0);
           setLastInvalidReason(null);
+          setHasMovedOnce(true);
           incrementMoves();
 
           if (hapticEnabled) {
@@ -241,6 +266,7 @@ export function useHanoiGame(options: UseHanoiGameOptions = {}) {
         setMoveCount((c) => c + 1);
         setConsecutiveInvalid(0);
         setLastInvalidReason(null);
+        setHasMovedOnce(true);
         incrementMoves();
 
         if (hapticEnabled) {
@@ -342,9 +368,11 @@ export function useHanoiGame(options: UseHanoiGameOptions = {}) {
   const playHint = useCallback(() => {
     const hint = getHint();
     if (hint) {
+      // Play hint sound
+      playSound('hint', 0.6);
       performMove(hint.from, hint.to);
     }
-  }, [getHint, performMove]);
+  }, [getHint, performMove, playSound]);
 
   return {
     gameState,
@@ -354,6 +382,8 @@ export function useHanoiGame(options: UseHanoiGameOptions = {}) {
     consecutiveInvalid,
     isVictory,
     lastInvalidReason,
+    hasMovedOnce,
+    timeElapsed,
     selectTower,
     canMoveTo,
     clearSelection,

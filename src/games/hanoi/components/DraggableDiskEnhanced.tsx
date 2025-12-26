@@ -21,6 +21,7 @@ import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 
+import { useSound } from '../../../hooks/useSound';
 import type { Disk as DiskType, TowerId } from '../types';
 
 interface DraggableDiskEnhancedProps {
@@ -35,6 +36,7 @@ interface DraggableDiskEnhancedProps {
   towerWidth: number;
   onDragStart: () => void;
   onDragEnd: (targetTower: TowerId | null) => void;
+  hasMovedOnce: boolean;
 }
 
 // Vibrant flat colors - child-friendly palette
@@ -64,6 +66,7 @@ export function DraggableDiskEnhanced({
   towerWidth,
   onDragStart,
   onDragEnd,
+  hasMovedOnce,
 }: DraggableDiskEnhancedProps) {
   const widthRange = maxWidth - minWidth;
   const width = minWidth + (widthRange * disk.size) / totalDisks;
@@ -83,10 +86,11 @@ export function DraggableDiskEnhanced({
   const shadowIntensity = useSharedValue(0);
 
   const colors = getDiskColors(disk.size);
+  const { playSound } = useSound();
 
-  // Start shimmer animation for selectable disks
+  // Start shimmer animation for selectable disks (only if no move has been made yet)
   useEffect(() => {
-    if (isTopDisk && isSelectable) {
+    if (isTopDisk && isSelectable && !hasMovedOnce) {
       // Shimmer effect - slides across disk (faster, more visible)
       shimmerX.value = withRepeat(
         withTiming(width * 2, { duration: 1500, easing: Easing.inOut(Easing.ease) }),
@@ -108,7 +112,7 @@ export function DraggableDiskEnhanced({
       shimmerX.value = -width;
       pulseScale.value = 1;
     }
-  }, [isTopDisk, isSelectable, width]);
+  }, [isTopDisk, isSelectable, width, hasMovedOnce]);
 
   const triggerHaptic = (type: 'start' | 'end' | 'error') => {
     if (Platform.OS === 'web') return;
@@ -126,17 +130,39 @@ export function DraggableDiskEnhanced({
     }
   };
 
+  // Shake animation for invalid moves
+  const shakeAnimation = () => {
+    translateX.value = withSequence(
+      withTiming(-12, { duration: 50 }),
+      withTiming(12, { duration: 50 }),
+      withTiming(-12, { duration: 50 }),
+      withTiming(12, { duration: 50 }),
+      withSpring(0, { damping: 15 })
+    );
+  };
+
+  // Play pickup sound
+  const playPickupSound = () => {
+    playSound('disk_move', 0.5);
+  };
+
   const handleDragEnd = (absoluteX: number) => {
+    // Debug log to help identify the issue
+    console.log('handleDragEnd called:', { absoluteX, towerCenters, towerWidth });
+
     const halfWidth = towerWidth / 2;
     for (let i = 0; i < towerCenters.length; i++) {
       const center = towerCenters[i];
       if (absoluteX >= center - halfWidth && absoluteX <= center + halfWidth) {
+        console.log('Found target tower:', i);
         triggerHaptic('end');
         onDragEnd(i as TowerId);
         return;
       }
     }
+    console.log('No target tower found');
     triggerHaptic('error');
+    shakeAnimation();
     onDragEnd(null);
   };
 
@@ -150,6 +176,7 @@ export function DraggableDiskEnhanced({
       // Stop pulse while dragging
       pulseScale.value = 1;
       runOnJS(triggerHaptic)('start');
+      runOnJS(playPickupSound)();
       runOnJS(onDragStart)();
     })
     .onUpdate((event) => {
@@ -196,10 +223,10 @@ export function DraggableDiskEnhanced({
     elevation: interpolate(shadowIntensity.value, [0, 1], [3, 8]),
   }));
 
-  // Shimmer style - more visible
+  // Shimmer style - more visible (only before first move)
   const shimmerStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: shimmerX.value }],
-    opacity: isTopDisk ? 0.8 : 0,
+    opacity: isTopDisk && !hasMovedOnce ? 0.8 : 0,
   }));
 
   return (

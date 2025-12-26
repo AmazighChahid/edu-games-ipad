@@ -62,6 +62,50 @@ const getBadge = (moves: number, optimalMoves: number, hintsUsed: number = 0): B
   }
 };
 
+// Star rating system by threshold
+const getStars = (moves: number, optimalMoves: number): number => {
+  const efficiency = moves / optimalMoves;
+  if (efficiency <= 1.0) return 3;  // Parfait
+  if (efficiency <= 1.3) return 3;  // Très bien
+  if (efficiency <= 1.5) return 2;  // Bien
+  if (efficiency <= 2.0) return 1;  // OK
+  return 0;
+};
+
+// Animated Star component
+function AnimatedStar({ index, filled, delay }: { index: number; filled: boolean; delay: number }) {
+  const scale = useSharedValue(0);
+  const rotation = useSharedValue(0);
+
+  useEffect(() => {
+    scale.value = withDelay(
+      delay,
+      withSpring(1, { damping: 8, stiffness: 200 })
+    );
+    rotation.value = withDelay(
+      delay,
+      withSequence(
+        withTiming(15, { duration: 150 }),
+        withTiming(-15, { duration: 150 }),
+        withTiming(0, { duration: 150 })
+      )
+    );
+  }, [delay]);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [
+      { scale: scale.value },
+      { rotate: `${rotation.value}deg` },
+    ],
+  }));
+
+  return (
+    <Animated.Text style={[styles.starIcon, animatedStyle]}>
+      {filled ? '⭐' : '☆'}
+    </Animated.Text>
+  );
+}
+
 // Generate random confetti pieces
 const generateConfetti = () => {
   return Array.from({ length: CONFETTI_COUNT }, (_, i) => ({
@@ -206,6 +250,7 @@ export function VictoryCelebration({
 }: VictoryCelebrationProps) {
   const confetti = useMemo(() => generateConfetti(), [visible]);
   const badge = useMemo(() => getBadge(moves, optimalMoves, hintsUsed), [moves, optimalMoves, hintsUsed]);
+  const stars = useMemo(() => getStars(moves, optimalMoves), [moves, optimalMoves]);
 
   // Haptic celebration
   useEffect(() => {
@@ -256,10 +301,22 @@ export function VictoryCelebration({
         style={styles.card}
         entering={ZoomIn.delay(200).springify().damping(15)}
       >
+        {/* Stars */}
+        <View style={styles.starsContainer}>
+          {[0, 1, 2].map((index) => (
+            <AnimatedStar
+              key={index}
+              index={index}
+              filled={index < stars}
+              delay={400 + index * 200}
+            />
+          ))}
+        </View>
+
         {/* Badge */}
         <Animated.View
           style={[styles.badgeContainer, { backgroundColor: badge.color + '20' }]}
-          entering={BounceIn.delay(400)}
+          entering={BounceIn.delay(1000)}
         >
           <Text style={styles.badgeEmoji}>{badge.emoji}</Text>
           <Text style={[styles.badgeLabel, { color: badge.color }]}>{badge.label}</Text>
@@ -380,6 +437,16 @@ const styles = StyleSheet.create({
     shadowRadius: 24,
     elevation: 12,
     maxWidth: SCREEN_WIDTH * 0.85,
+  },
+  starsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 16,
+    gap: 8,
+  },
+  starIcon: {
+    fontSize: 42,
   },
   badgeContainer: {
     flexDirection: 'row',

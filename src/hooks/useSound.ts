@@ -1,10 +1,10 @@
 /**
  * useSound hook
- * Manages sound effects using expo-av
+ * Manages sound effects using expo-audio
  */
 
 import { useEffect, useRef } from 'react';
-import { Audio } from 'expo-av';
+import { useAudioPlayer, AudioSource } from 'expo-audio';
 import { useAppSettings } from '../store/useStore';
 
 type SoundName =
@@ -15,7 +15,7 @@ type SoundName =
   | 'hint';          // Hint activated
 
 // Sound file mappings
-const SOUND_FILES: Record<SoundName, any> = {
+const SOUND_FILES: Record<SoundName, AudioSource> = {
   disk_move: require('../../assets/sounds/disk_move.mp3'),
   disk_error: require('../../assets/sounds/disk_error.mp3'),
   disk_place: require('../../assets/sounds/disk_place.mp3'),
@@ -25,74 +25,36 @@ const SOUND_FILES: Record<SoundName, any> = {
 
 export function useSound() {
   const { soundEnabled } = useAppSettings();
-  const soundsRef = useRef<Map<SoundName, Audio.Sound>>(new Map());
-  const isLoadingRef = useRef(false);
 
-  useEffect(() => {
-    // Configure audio mode
-    const setupAudio = async () => {
-      try {
-        await Audio.setAudioModeAsync({
-          playsInSilentModeIOS: true,
-          staysActiveInBackground: false,
-          shouldDuckAndroid: true,
-        });
-      } catch (error) {
-        console.warn('Failed to configure audio mode:', error);
-      }
-    };
+  // Create audio players for each sound
+  const diskMovePlayer = useAudioPlayer(SOUND_FILES.disk_move);
+  const diskErrorPlayer = useAudioPlayer(SOUND_FILES.disk_error);
+  const diskPlacePlayer = useAudioPlayer(SOUND_FILES.disk_place);
+  const victoryPlayer = useAudioPlayer(SOUND_FILES.victory);
+  const hintPlayer = useAudioPlayer(SOUND_FILES.hint);
 
-    setupAudio();
+  const playersRef = useRef<Map<SoundName, ReturnType<typeof useAudioPlayer>>>(new Map([
+    ['disk_move', diskMovePlayer],
+    ['disk_error', diskErrorPlayer],
+    ['disk_place', diskPlacePlayer],
+    ['victory', victoryPlayer],
+    ['hint', hintPlayer],
+  ]));
 
-    // Load sounds
-    const loadSounds = async () => {
-      if (isLoadingRef.current) return;
-      isLoadingRef.current = true;
-
-      try {
-        for (const [name, source] of Object.entries(SOUND_FILES)) {
-          try {
-            const { sound } = await Audio.Sound.createAsync(source, {
-              shouldPlay: false,
-              volume: 0.8,
-            });
-            soundsRef.current.set(name as SoundName, sound);
-          } catch (error) {
-            console.warn(`Failed to load sound ${name}:`, error);
-          }
-        }
-      } catch (error) {
-        console.warn('Failed to load sounds:', error);
-      } finally {
-        isLoadingRef.current = false;
-      }
-    };
-
-    loadSounds();
-
-    // Cleanup
-    return () => {
-      soundsRef.current.forEach((sound) => {
-        sound.unloadAsync().catch(console.warn);
-      });
-      soundsRef.current.clear();
-    };
-  }, []);
-
-  const playSound = async (name: SoundName, volume = 0.8) => {
+  const playSound = (name: SoundName, volume = 0.8) => {
     if (!soundEnabled) return;
 
     try {
-      const sound = soundsRef.current.get(name);
-      if (!sound) {
-        console.warn(`Sound ${name} not loaded`);
+      const player = playersRef.current.get(name);
+      if (!player) {
+        console.warn(`Sound ${name} not found`);
         return;
       }
 
-      // Reset to start and play
-      await sound.setPositionAsync(0);
-      await sound.setVolumeAsync(volume);
-      await sound.playAsync();
+      // Set volume and play
+      player.volume = volume;
+      player.seekTo(0);
+      player.play();
     } catch (error) {
       console.warn(`Failed to play sound ${name}:`, error);
     }

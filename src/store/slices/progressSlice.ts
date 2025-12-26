@@ -9,6 +9,8 @@ import type { GameProgress, LevelCompletion, CompletedSession } from '@/types';
 export interface ProgressState {
   gameProgress: Record<string, GameProgress>;
   recentSessions: CompletedSession[];
+  unlockedCards: string[]; // Array of unlocked card IDs across all games
+  newlyUnlockedCard: string | null; // For "NEW!" badge display
 }
 
 export interface ProgressActions {
@@ -17,6 +19,11 @@ export interface ProgressActions {
   recordCompletion: (session: CompletedSession) => void;
   getGameProgress: (gameId: string) => GameProgress | undefined;
   addPlayTime: (gameId: string, minutes: number) => void;
+  unlockCard: (cardId: string) => void;
+  markCardAsSeen: () => void;
+  getUnlockedCardsCount: () => number;
+  isCardNew: (cardId: string) => boolean;
+  getTotalCompletions: (gameId: string) => number;
 }
 
 export type ProgressSlice = ProgressState & ProgressActions;
@@ -26,6 +33,8 @@ const MAX_RECENT_SESSIONS = 50;
 export const initialProgressState: ProgressState = {
   gameProgress: {},
   recentSessions: [],
+  unlockedCards: [],
+  newlyUnlockedCard: null,
 };
 
 const createDefaultGameProgress = (gameId: string): GameProgress => ({
@@ -127,5 +136,39 @@ export const createProgressSlice: StateCreator<ProgressSlice, [], [], ProgressSl
         },
       };
     });
+  },
+
+  unlockCard: (cardId) => {
+    set((state) => {
+      if (state.unlockedCards.includes(cardId)) {
+        return state; // Already unlocked
+      }
+      return {
+        unlockedCards: [...state.unlockedCards, cardId],
+        newlyUnlockedCard: cardId, // Mark as new for "NEW!" badge
+      };
+    });
+  },
+
+  markCardAsSeen: () => {
+    set({ newlyUnlockedCard: null });
+  },
+
+  getUnlockedCardsCount: () => {
+    return get().unlockedCards.length;
+  },
+
+  isCardNew: (cardId) => {
+    return get().newlyUnlockedCard === cardId;
+  },
+
+  getTotalCompletions: (gameId) => {
+    const progress = get().gameProgress[gameId];
+    if (!progress) return 0;
+
+    return Object.values(progress.completedLevels).reduce(
+      (total, completion) => total + completion.timesCompleted,
+      0
+    );
   },
 });

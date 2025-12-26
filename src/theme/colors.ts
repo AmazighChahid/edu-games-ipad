@@ -102,6 +102,20 @@ export const colors = {
     bubbleBorder: '#E2E8F0',
     character: '#4A90D9',
   },
+
+  // Sudoku game colors (following UX guide)
+  sudoku: {
+    cellBackground: '#FFFFFF',
+    cellBorder: '#DFE6E9',        // Lighter, softer border
+    cellFixed: '#FFF9F0',         // Cream background for fixed cells
+    cellSelected: '#BEE3F8',      // Light blue (from primary)
+    cellConflict: '#FFE5D9',      // Orange doux (not aggressive red)
+    gridBorder: '#2D3748',
+    symbolPrimary: '#5B8DEE',     // Primary blue from palette
+    symbolFixed: '#2D3436',       // Dark gray for readability
+    symbolConflict: '#F39C12',    // Warning yellow/orange (not red)
+    symbolSuccess: '#7BC74D',     // Green for validation
+  },
 } as const;
 
 export type Colors = typeof colors;
