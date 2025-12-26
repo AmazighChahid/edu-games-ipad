@@ -61,12 +61,12 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 12,
     backgroundColor: colors.ui.divider,
-    borderRadius: borderRadius.full,
+    borderRadius: borderRadius.round,
     overflow: 'hidden',
   },
   bar: {
     height: '100%',
-    borderRadius: borderRadius.full,
+    borderRadius: borderRadius.round,
   },
   timeText: {
     fontSize: 16,

@@ -105,7 +105,7 @@ const styles = StyleSheet.create({
   iconButton: {
     width: theme.touchTargets.child,
     height: theme.touchTargets.child,
-    borderRadius: theme.borderRadius.full,
+    borderRadius: theme.borderRadius.round,
     backgroundColor: theme.colors.background.card,
     alignItems: 'center',
     justifyContent: 'center',

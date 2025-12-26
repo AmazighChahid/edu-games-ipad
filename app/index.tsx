@@ -1,27 +1,62 @@
 /**
- * Home Screen V9 - "Forêt Magique"
- * Immersive animated forest background with widgets and game categories
+ * Home Screen V10 - "Forêt Immersive"
+ * Immersive animated forest background with floating widgets and game grid
  */
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
-import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
+import { LinearGradient } from 'expo-linear-gradient';
 
-// Background
-import { ForestBackground } from '@/components/background';
-
-// Home components V9
-import { HomeHeaderV9 } from '@/components/home/HomeHeaderV9';
-import { WidgetsSection } from '@/components/home/widgets';
-import { GameCategoriesSection } from '@/components/home/GameCategoriesSection';
+// Home V10 Components
+import {
+  ForestBackgroundV10,
+  PiouFloating,
+  CollectionFloating,
+  HomeHeaderV10,
+  GameCardV10,
+} from '@/components/home-v10';
+import { HomeV10Layout } from '@/theme/home-v10-colors';
 
 // Hooks
 import { useHomeData } from '@/hooks/useHomeData';
 
-// Parent drawer (keeping existing functionality)
-import { ParentDrawer } from '@/components/parent/ParentDrawer';
-import { useStore } from '@/store/useStore';
+// Parent dashboard (full-screen modal)
+import { ParentDashboard } from '@/components/parent/ParentDashboard';
+import { useStore } from '@/store';
+
+// Game color mapping
+const GAME_COLORS: Record<string, 'blue' | 'purple' | 'orange' | 'teal' | 'pink' | 'indigo' | 'coral' | 'cyan' | 'amber'> = {
+  hanoi: 'blue',
+  'suites-logiques': 'indigo',
+  'logix-grid': 'cyan',
+  'math-blocks': 'purple',
+  sudoku: 'teal',
+  tangram: 'pink',
+  labyrinthe: 'amber',
+  memory: 'orange',
+  'mots-croises': 'coral',
+  'conteur-curieux': 'purple',
+  balance: 'amber',
+  'matrices-magiques': 'cyan',
+};
+
+// Game route mapping
+const GAME_ROUTES: Record<string, string> = {
+  hanoi: '/(games)/hanoi',
+  'suites-logiques': '/(games)/suites-logiques',
+  'logix-grid': '/(games)/logix-grid',
+  'math-blocks': '/(games)/math-blocks',
+  sudoku: '/(games)/sudoku',
+  tangram: '/(games)/tangram',
+  labyrinthe: '/(games)/labyrinthe',
+  memory: '/(games)/memory',
+  'mots-croises': '/(games)/mots-croises',
+  'conteur-curieux': '/(games)/conteur-curieux',
+  balance: '/(games)/balance',
+  'matrices-magiques': '/(games)/matrices-magiques',
+};
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -31,14 +66,12 @@ export default function HomeScreen() {
   const {
     profile,
     piouAdvice,
-    gardenStats,
-    streakData,
     collectionData,
     gameCategories,
   } = useHomeData();
 
-  // Parent drawer state
-  const [isParentDrawerVisible, setIsParentDrawerVisible] = useState(false);
+  // Parent dashboard state
+  const [isParentDashboardVisible, setIsParentDashboardVisible] = useState(false);
 
   // Get game progress for parent drawer stats
   const gameProgress = useStore((state) => state.gameProgress);
@@ -48,53 +81,152 @@ export default function HomeScreen() {
     (sum, gp) => sum + Object.keys(gp.completedLevels).length,
     0
   );
-  const successfulGames = totalGames; // All completed are successful
+  const successfulGames = totalGames;
+
+  // Flatten games from categories for grid display
+  const allGames = useMemo(() => {
+    const games: Array<{
+      id: string;
+      name: string;
+      icon: string;
+      color: 'blue' | 'purple' | 'orange' | 'teal' | 'pink' | 'indigo' | 'coral' | 'cyan' | 'amber';
+      medal: 'bronze' | 'silver' | 'gold' | 'diamond' | 'locked';
+      badge?: 'new' | 'hot' | 'soon';
+      isLocked: boolean;
+    }> = [];
+
+    gameCategories.forEach((category) => {
+      category.games.forEach((game) => {
+        games.push({
+          id: game.id,
+          name: game.name,
+          icon: game.icon,
+          color: GAME_COLORS[game.id] || 'blue',
+          medal: game.medal === 'none' ? 'locked' : game.medal as 'bronze' | 'silver' | 'gold' | 'diamond',
+          badge: game.badge as 'new' | 'hot' | 'soon' | undefined,
+          isLocked: game.isLocked,
+        });
+      });
+    });
+
+    return games;
+  }, [gameCategories]);
+
+  // Group games into rows of 3
+  const gameRows = useMemo(() => {
+    const rows: typeof allGames[] = [];
+    for (let i = 0; i < allGames.length; i += 3) {
+      rows.push(allGames.slice(i, i + 3));
+    }
+    return rows;
+  }, [allGames]);
 
   // Handlers
   const handleParentPress = useCallback(() => {
-    setIsParentDrawerVisible(true);
+    setIsParentDashboardVisible(true);
   }, []);
 
-  const handleParentDrawerClose = useCallback(() => {
-    setIsParentDrawerVisible(false);
+  const handleParentDashboardClose = useCallback(() => {
+    setIsParentDashboardVisible(false);
   }, []);
+
+  const handleGamePress = useCallback((gameId: string) => {
+    const route = GAME_ROUTES[gameId];
+    if (route) {
+      router.push(route as any);
+    }
+  }, [router]);
+
+  const handlePiouActionPress = useCallback(() => {
+    if (piouAdvice.targetGameId) {
+      handleGamePress(piouAdvice.targetGameId);
+    }
+  }, [piouAdvice.targetGameId, handleGamePress]);
+
+  const handleCollectionPress = useCallback(() => {
+    router.push('/(games)/collection' as any);
+  }, [router]);
 
   return (
     <View style={styles.container}>
-      {/* Animated forest background */}
-      <ForestBackground>
-        {/* Content layer */}
+      {/* Animated forest background V10 */}
+      <ForestBackgroundV10>
+        {/* Fixed Header with mask - doesn't scroll */}
+        <View style={[styles.fixedHeader, { paddingTop: insets.top }]}>
+          {/* Gradient mask to hide scrolled content */}
+          <LinearGradient
+            colors={[
+              'rgba(126, 200, 227, 0.95)',
+              'rgba(168, 224, 240, 0.9)',
+              'rgba(168, 224, 240, 0.7)',
+              'rgba(168, 224, 240, 0)',
+            ]}
+            locations={[0, 0.5, 0.8, 1]}
+            style={styles.headerMask}
+          />
+          <HomeHeaderV10
+            profile={profile}
+            onParentPress={handleParentPress}
+          />
+        </View>
+
+        {/* Scrollable Content */}
         <ScrollView
           style={styles.scrollView}
           contentContainerStyle={[
             styles.scrollContent,
-            { paddingBottom: insets.bottom + 40 },
+            {
+              paddingTop: insets.top + 200,
+              paddingBottom: insets.bottom + HomeV10Layout.gamesSectionPaddingBottom,
+            },
           ]}
           showsVerticalScrollIndicator={false}
           bounces={true}
         >
-          {/* Header */}
-          <HomeHeaderV9 profile={profile} onParentPress={handleParentPress} />
+          {/* Piou and Collection - now in scroll */}
+          <View style={styles.floatingRow}>
+            <PiouFloating
+              message={piouAdvice.message}
+              highlightedPart={piouAdvice.highlightedPart}
+              actionLabel={piouAdvice.actionLabel}
+              onActionPress={handlePiouActionPress}
+            />
 
-          {/* Widgets section (2x2 grid) */}
-          <WidgetsSection
-            piouAdvice={piouAdvice}
-            gardenStats={gardenStats}
-            streakData={streakData}
-            collectionData={collectionData}
-          />
+            <CollectionFloating
+              cardCount={collectionData.unlockedCards.length}
+              onPress={handleCollectionPress}
+            />
+          </View>
 
-          {/* Game categories with horizontal scroll */}
-          <GameCategoriesSection categories={gameCategories} />
+          {/* Games Grid */}
+          <View style={styles.gamesSection}>
+            {gameRows.map((row, rowIndex) => (
+              <View key={rowIndex} style={styles.gamesRow}>
+                {row.map((game) => (
+                  <GameCardV10
+                    key={game.id}
+                    name={game.name}
+                    icon={game.icon}
+                    color={game.color}
+                    medal={game.medal}
+                    badge={game.badge}
+                    isLocked={game.isLocked}
+                    onPress={() => handleGamePress(game.id)}
+                  />
+                ))}
+              </View>
+            ))}
+          </View>
         </ScrollView>
-      </ForestBackground>
+      </ForestBackgroundV10>
 
-      {/* Parent drawer overlay */}
-      <ParentDrawer
-        isVisible={isParentDrawerVisible}
-        onClose={handleParentDrawerClose}
-        totalGames={totalGames}
-        successfulGames={successfulGames}
+      {/* Parent dashboard modal */}
+      <ParentDashboard
+        isVisible={isParentDashboardVisible}
+        onClose={handleParentDashboardClose}
+        childName={profile.name}
+        levelsCompleted={totalGames}
+        successRate={totalGames > 0 ? Math.round((successfulGames / totalGames) * 100) : 0}
       />
     </View>
   );
@@ -104,10 +236,40 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  fixedHeader: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 100,
+  },
+  headerMask: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: -40,
+  },
   scrollView: {
     flex: 1,
   },
   scrollContent: {
     flexGrow: 1,
+  },
+  floatingRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    paddingHorizontal: 20,
+    marginBottom: 80,
+  },
+  gamesSection: {
+    paddingTop: 60,
+    paddingHorizontal: HomeV10Layout.gamesSectionPaddingH,
+  },
+  gamesRow: {
+    flexDirection: 'row',
+    gap: HomeV10Layout.gamesRowGap,
+    marginBottom: HomeV10Layout.gamesRowMarginBottom,
   },
 });

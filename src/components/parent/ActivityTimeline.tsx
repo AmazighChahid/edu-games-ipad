@@ -6,7 +6,7 @@
 import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { colors, spacing, borderRadius, shadows } from '@/theme';
-import { useStore } from '@/store/useStore';
+import { useStore } from '@/store';
 import { generateActivityTimeline } from '@/utils/analytics';
 import type { ActivityItem } from '@/types';
 

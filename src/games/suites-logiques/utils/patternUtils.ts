@@ -130,30 +130,45 @@ export function generateDistractors(
     }
   } else {
     // Pour les patterns visuels, prendre d'autres éléments du thème
-    const candidates = allElements.filter(e => e.id !== correctAnswer.id);
+    // Filtrer par value pour éviter les doublons visuels (même forme/couleur)
+    const usedValues = new Set([correctAnswer.value]);
+    const candidates = allElements.filter(
+      e => e.id !== correctAnswer.id && e.value !== correctAnswer.value
+    );
     const shuffled = candidates.sort(() => Math.random() - 0.5);
 
-    for (const element of shuffled.slice(0, count)) {
-      if (!usedIds.has(element.id)) {
+    for (const element of shuffled) {
+      if (!usedIds.has(element.id) && !usedValues.has(element.value)) {
         distractors.push({
           ...element,
           id: `distractor_${element.id}`,
         });
         usedIds.add(element.id);
+        usedValues.add(element.value);
+        if (distractors.length >= count) break;
       }
     }
   }
 
   // S'assurer qu'on a assez de distracteurs
-  while (distractors.length < count && allElements.length > 0) {
+  // Utiliser un Set de values pour éviter les doublons visuels
+  const existingValues = new Set(distractors.map(d => d.value));
+  existingValues.add(correctAnswer.value);
+
+  let attempts = 0;
+  const maxAttempts = allElements.length * 2; // Éviter boucle infinie
+
+  while (distractors.length < count && attempts < maxAttempts) {
     const randomElement = allElements[Math.floor(Math.random() * allElements.length)];
-    if (!usedIds.has(randomElement.id)) {
+    if (!usedIds.has(randomElement.id) && !existingValues.has(randomElement.value)) {
       distractors.push({
         ...randomElement,
         id: `distractor_fallback_${randomElement.id}`,
       });
       usedIds.add(randomElement.id);
+      existingValues.add(randomElement.value);
     }
+    attempts++;
   }
 
   return distractors.slice(0, count);

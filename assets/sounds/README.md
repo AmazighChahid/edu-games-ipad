@@ -76,8 +76,26 @@ playSound('success'); // Joue success.mp3
 playSound('tap');     // Joue tap.mp3
 ```
 
-## TODO
-- [ ] Créer ou télécharger les fichiers MP3
-- [ ] Tester volumes relatifs
+## Fichiers Présents
+
+Les fichiers suivants sont disponibles et fonctionnels :
+
+### Sons Généraux
+- `disk_move.mp3` - Déplacement de disque (Hanoi)
+- `disk_place.mp3` - Disque posé (Hanoi)
+- `disk_error.mp3` - Mouvement invalide (doux)
+- `victory.mp3` - Victoire/succès
+- `hint.mp3` - Activation d'indice
+
+### Sons Robot (Math Blocks)
+- `robot_select.mp3` - Sélection
+- `robot_correct.mp3` - Réponse correcte
+- `robot_error.mp3` - Erreur
+- `robot_ambient.mp3` - Ambiance
+- `robot_thinking.mp3` - Réflexion
+
+## TODO (Polish)
+- [ ] Remplacer par des sons professionnels si nécessaire
+- [ ] Tester volumes relatifs sur différents appareils
 - [ ] Valider avec des enfants (pas trop fort ?)
-- [ ] Ajouter paramètre de désactivation dans Settings
+- [x] Paramètre de désactivation dans Settings (déjà implémenté via useSound)

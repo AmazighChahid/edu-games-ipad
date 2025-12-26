@@ -97,7 +97,7 @@ const styles = StyleSheet.create({
   character: {
     width: 64,
     height: 64,
-    borderRadius: borderRadius.full,
+    borderRadius: borderRadius.round,
     backgroundColor: colors.assistant.character,
     alignItems: 'center',
     justifyContent: 'center',

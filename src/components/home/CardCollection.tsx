@@ -10,7 +10,7 @@ import Animated, {
   withSequence,
   withTiming,
 } from 'react-native-reanimated';
-import { useCollection } from '@/store/useStore';
+import { useCollection } from '@/store';
 import { ALL_CARDS, getCardById } from '@/data/cards';
 
 interface CardCollectionProps {

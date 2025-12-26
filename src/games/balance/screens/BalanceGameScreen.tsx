@@ -36,6 +36,35 @@ import type {
   DialogueContext,
 } from '../types';
 import { PHASE_INFO } from '../types';
+import { VictoryCard, type VictoryBadge } from '@/components/common';
+import { CardUnlockScreen } from '@/components/collection';
+import { useCardUnlock } from '@/hooks/useCardUnlock';
+import { useCollection } from '@/store';
+
+// Fonction pour calculer le badge non-compétitif de Balance
+const getBalanceBadge = (attempts: number, hintsUsed: number, stars: number): VictoryBadge => {
+  if (stars === 3 && hintsUsed === 0) {
+    return { icon: '⚖️', label: 'Équilibriste' };
+  } else if (stars >= 2) {
+    return { icon: '🧪', label: 'Scientifique' };
+  } else if (hintsUsed >= 2) {
+    return { icon: '💪', label: 'Persévérant' };
+  } else {
+    return { icon: '🌟', label: 'Explorateur' };
+  }
+};
+
+// Calculate stars based on performance (moved outside component for use before hooks)
+const calculateStars = (
+  attempts: number,
+  hints: number,
+  maxAttempts: number,
+  maxHints: number
+): 1 | 2 | 3 => {
+  if (attempts <= maxAttempts && hints <= maxHints) return 3;
+  if (attempts <= maxAttempts * 1.5 || hints <= maxHints * 1.5) return 2;
+  return 1;
+};
 
 // ============================================
 // TYPES
@@ -63,6 +92,7 @@ const INITIAL_PROGRESS: PlayerProgress = {
 
 export function BalanceGameScreen() {
   const router = useRouter();
+  const { getUnlockedCardsCount } = useCollection();
 
   // State
   const [view, setView] = useState<GameView>('menu');
@@ -72,6 +102,7 @@ export function BalanceGameScreen() {
   const [mascotMood, setMascotMood] = useState<MascotMood>('neutral');
   const [mascotContext, setMascotContext] = useState<DialogueContext>('intro');
   const [showMascotBubble, setShowMascotBubble] = useState(true);
+  const [hasCheckedUnlock, setHasCheckedUnlock] = useState(false);
 
   // Get first puzzle for default
   const allPuzzles = useMemo(() => getAllPuzzles(), []);
@@ -96,6 +127,57 @@ export function BalanceGameScreen() {
       handlePuzzleComplete(stats);
     },
   });
+
+  // Calculer si la performance est optimale (3 étoiles)
+  const puzzle = currentPuzzle || firstPuzzle;
+  const earnedStars = isVictory ? calculateStars(
+    attempts,
+    hintsUsed,
+    puzzle.maxAttemptsForThreeStars,
+    puzzle.maxHintsForThreeStars
+  ) : 1;
+  const isOptimal = earnedStars === 3 && hintsUsed === 0;
+
+  // Système de déblocage de cartes
+  const {
+    unlockedCard,
+    showUnlockAnimation,
+    checkAndUnlockCard,
+    dismissUnlockAnimation,
+  } = useCardUnlock({
+    gameId: 'balance',
+    levelId: `level_${puzzle.level}`,
+    levelNumber: puzzle.level,
+    isOptimal,
+  });
+
+  // Check pour déblocage de carte après victoire
+  useEffect(() => {
+    if (isVictory && !hasCheckedUnlock) {
+      const timer = setTimeout(() => {
+        checkAndUnlockCard();
+        setHasCheckedUnlock(true);
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [isVictory, hasCheckedUnlock, checkAndUnlockCard]);
+
+  // Reset l'état quand on recommence
+  useEffect(() => {
+    if (!isVictory) {
+      setHasCheckedUnlock(false);
+    }
+  }, [isVictory]);
+
+  // Handlers pour le déblocage de cartes
+  const handleViewCollection = useCallback(() => {
+    dismissUnlockAnimation();
+    router.push('/(games)/collection');
+  }, [dismissUnlockAnimation, router]);
+
+  const handleContinueAfterUnlock = useCallback(() => {
+    dismissUnlockAnimation();
+  }, [dismissUnlockAnimation]);
 
   // Handle puzzle selection
   const handleSelectPuzzle = useCallback((puzzle: Puzzle) => {
@@ -140,18 +222,6 @@ export function BalanceGameScreen() {
     setMascotMood('celebratory');
     setMascotContext('balanced');
   }, [currentPuzzle]);
-
-  // Calculate stars based on performance
-  const calculateStars = (
-    attempts: number,
-    hints: number,
-    maxAttempts: number,
-    maxHints: number
-  ): 1 | 2 | 3 => {
-    if (attempts <= maxAttempts && hints <= maxHints) return 3;
-    if (attempts <= maxAttempts * 1.5 || hints <= maxHints * 1.5) return 2;
-    return 1;
-  };
 
   // Handle object drop on plate
   const handleObjectDrop = useCallback((object: WeightObjectType, x: number, y: number) => {
@@ -359,7 +429,18 @@ export function BalanceGameScreen() {
   // RENDER: GAME VIEW
   // ============================================
 
-  const puzzle = currentPuzzle || firstPuzzle;
+  // Afficher l'écran de déblocage de carte si une carte a été débloquée
+  if (showUnlockAnimation && unlockedCard) {
+    return (
+      <CardUnlockScreen
+        card={unlockedCard}
+        unlockedCount={getUnlockedCardsCount()}
+        onViewCollection={handleViewCollection}
+        onContinue={handleContinueAfterUnlock}
+      />
+    );
+  }
+
   const phaseInfo = PHASE_INFO[puzzle.phase];
 
   return (
@@ -466,72 +547,45 @@ export function BalanceGameScreen() {
             />
           </View>
 
-          {/* Victory Overlay */}
-          {isVictory && (
-            <Animated.View entering={FadeIn} style={styles.victoryOverlay}>
-              <Animated.View
-                entering={ZoomIn.springify().damping(12)}
-                style={styles.victoryCard}
-              >
-                <Text style={styles.victoryEmoji}>🎉</Text>
-                <Text style={styles.victoryTitle}>Eurêka !</Text>
-                <Text style={styles.victoryMessage}>
-                  Tu as équilibré la balance !
-                </Text>
-
-                {/* Stars */}
-                <View style={styles.starsRow}>
-                  {[1, 2, 3].map((star) => {
-                    const earnedStars = calculateStars(
-                      attempts,
-                      hintsUsed,
-                      puzzle.maxAttemptsForThreeStars,
-                      puzzle.maxHintsForThreeStars
-                    );
-                    return (
-                      <Animated.Text
-                        key={star}
-                        entering={ZoomIn.delay(star * 200)}
-                        style={[
-                          styles.victoryStar,
-                          star <= earnedStars && styles.victoryStarEarned,
-                        ]}
-                      >
-                        {star <= earnedStars ? '★' : '☆'}
-                      </Animated.Text>
-                    );
-                  })}
-                </View>
-
-                {/* Discovered equivalences */}
-                {discoveredEquivalences.length > 0 && (
-                  <View style={styles.discoveryContainer}>
-                    <Text style={styles.discoveryTitle}>Tu as découvert :</Text>
-                    {discoveredEquivalences.map((eq, index) => (
-                      <Text key={index} style={styles.discoveryText}>
-                        {eq}
-                      </Text>
-                    ))}
-                  </View>
-                )}
-
-                {/* Buttons */}
-                <View style={styles.victoryButtons}>
-                  <Pressable onPress={reset} style={styles.victoryButton}>
-                    <Text style={styles.victoryButtonText}>Rejouer</Text>
-                  </Pressable>
-                  <Pressable
-                    onPress={handleNextPuzzle}
-                    style={[styles.victoryButton, styles.victoryButtonPrimary]}
-                  >
-                    <Text style={[styles.victoryButtonText, styles.victoryButtonTextPrimary]}>
-                      Suivant
-                    </Text>
-                  </Pressable>
-                </View>
-              </Animated.View>
-            </Animated.View>
-          )}
+          {/* Victory Overlay avec VictoryCard unifié */}
+          {isVictory && (() => {
+            const earnedStars = calculateStars(
+              attempts,
+              hintsUsed,
+              puzzle.maxAttemptsForThreeStars,
+              puzzle.maxHintsForThreeStars
+            );
+            return (
+              <VictoryCard
+                variant="overlay"
+                title="Eurêka !"
+                message="Tu as équilibré la balance !"
+                mascot={{
+                  emoji: '🦉',
+                  message: earnedStars === 3 ? 'Parfait !' : 'Bien joué !',
+                }}
+                stats={{
+                  moves: attempts,
+                  hintsUsed: hintsUsed,
+                  stars: earnedStars,
+                  customStats: discoveredEquivalences.length > 0
+                    ? discoveredEquivalences.map((eq, i) => ({
+                        label: i === 0 ? 'Découverte' : '',
+                        value: eq,
+                        icon: '🔬'
+                      }))
+                    : undefined,
+                }}
+                badge={getBalanceBadge(attempts, hintsUsed, earnedStars)}
+                onReplay={reset}
+                onNextLevel={handleNextPuzzle}
+                hasNextLevel={currentPuzzle ? allPuzzles.findIndex(p => p.id === currentPuzzle.id) < allPuzzles.length - 1 : false}
+                nextLevelLabel="Puzzle suivant →"
+                onHome={() => setView('menu')}
+                onCollection={handleViewCollection}
+              />
+            );
+          })()}
         </SafeAreaView>
       </LinearGradient>
     </View>
@@ -567,7 +621,7 @@ const styles = StyleSheet.create({
     left: spacing[4],
     width: touchTargets.medium,
     height: touchTargets.medium,
-    borderRadius: borderRadius.full,
+    borderRadius: borderRadius.round,
     backgroundColor: colors.background.card,
     alignItems: 'center',
     justifyContent: 'center',
@@ -683,7 +737,7 @@ const styles = StyleSheet.create({
   hintButton: {
     width: touchTargets.medium,
     height: touchTargets.medium,
-    borderRadius: borderRadius.full,
+    borderRadius: borderRadius.round,
     backgroundColor: colors.secondary.main,
     alignItems: 'center',
     justifyContent: 'center',
@@ -695,7 +749,7 @@ const styles = StyleSheet.create({
   resetButton: {
     width: touchTargets.medium,
     height: touchTargets.medium,
-    borderRadius: borderRadius.full,
+    borderRadius: borderRadius.round,
     backgroundColor: colors.background.card,
     alignItems: 'center',
     justifyContent: 'center',
@@ -807,95 +861,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 180,
     right: spacing[2],
-  },
-
-  // Victory overlay
-  victoryOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  victoryCard: {
-    backgroundColor: colors.background.card,
-    borderRadius: borderRadius.xl,
-    padding: spacing[6],
-    alignItems: 'center',
-    maxWidth: 350,
-    ...shadows.large,
-  },
-  victoryEmoji: {
-    fontSize: 64,
-    marginBottom: spacing[3],
-  },
-  victoryTitle: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: colors.feedback.success,
-    marginBottom: spacing[2],
-  },
-  victoryMessage: {
-    fontSize: 16,
-    color: colors.text.primary,
-    textAlign: 'center',
-    marginBottom: spacing[3],
-  },
-  starsRow: {
-    flexDirection: 'row',
-    gap: spacing[2],
-    marginBottom: spacing[4],
-  },
-  victoryStar: {
-    fontSize: 36,
-    color: colors.ui.disabled,
-  },
-  victoryStarEarned: {
-    color: colors.secondary.main,
-  },
-  discoveryContainer: {
-    backgroundColor: colors.background.secondary,
-    padding: spacing[4],
-    borderRadius: borderRadius.large,
-    marginBottom: spacing[4],
-    width: '100%',
-    alignItems: 'center',
-  },
-  discoveryTitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: colors.text.primary,
-    marginBottom: spacing[2],
-  },
-  discoveryText: {
-    fontSize: 20,
-    color: colors.primary.main,
-    textAlign: 'center',
-  },
-  victoryButtons: {
-    flexDirection: 'row',
-    gap: spacing[3],
-  },
-  victoryButton: {
-    paddingVertical: spacing[3],
-    paddingHorizontal: spacing[5],
-    borderRadius: borderRadius.large,
-    backgroundColor: colors.background.secondary,
-    ...shadows.small,
-  },
-  victoryButtonPrimary: {
-    backgroundColor: colors.primary.main,
-  },
-  victoryButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: colors.text.primary,
-  },
-  victoryButtonTextPrimary: {
-    color: colors.text.inverse,
   },
 });
 

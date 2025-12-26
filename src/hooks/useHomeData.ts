@@ -4,7 +4,7 @@
  */
 
 import { useMemo } from 'react';
-import { useStore, useActiveProfile, useCollection, useGameProgress } from '@/store/useStore';
+import { useStore, useActiveProfile, useCollection, useGameProgress } from '@/store';
 import {
   UserProfileV9,
   PiouAdvice,

@@ -21,7 +21,7 @@ import Animated, {
   FadeIn,
   FadeOut,
 } from 'react-native-reanimated';
-import { useCollection } from '@/store/useStore';
+import { useCollection } from '../../../src/store';
 import {
   CollectionBook,
   CardDetailModal,

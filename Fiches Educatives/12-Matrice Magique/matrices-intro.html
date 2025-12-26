@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Matrices Magiques - Intro</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    :root {
+      --primary: #6C5CE7;
+      --primary-dark: #5B4BD6;
+      --secondary: #FF9F43;
+      --success: #00D2A0;
+      --background: #F8F4FF;
+      --surface: #FFFFFF;
+      --text-dark: #2D3436;
+      --text-medium: #636E72;
+      
+      /* World Colors */
+      --forest-primary: #4A9D5A;
+      --forest-bg: #E8F5E9;
+      --space-primary: #5B8DEE;
+      --space-bg: #1A1A2E;
+      --castle-primary: #9B59B6;
+      --castle-bg: #F5E6FF;
+      --art-primary: #E91E63;
+      --art-bg: #FFF0F5;
+      --mystery-primary: #6C5CE7;
+      --mystery-bg: #2D3436;
+    }
+    
+    body {
+      font-family: 'Nunito', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: #1a1a2e;
+      padding: 20px;
+    }
+    
+    .ipad-frame {
+      width: 1194px;
+      height: 834px;
+      background: linear-gradient(135deg, #F8F4FF 0%, #EDE7F6 50%, #E8E0F0 100%);
+      border-radius: 24px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 25px 80px rgba(0,0,0,0.4);
+    }
+    
+    /* ========== BACKGROUND DECORATION ========== */
+    .bg-shapes {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    
+    .floating-shape {
+      position: absolute;
+      opacity: 0.1;
+      animation: float-shape 20s ease-in-out infinite;
+    }
+    
+    .shape-1 { top: 10%; left: 5%; font-size: 80px; animation-delay: 0s; }
+    .shape-2 { top: 60%; left: 8%; font-size: 60px; animation-delay: 3s; }
+    .shape-3 { top: 20%; right: 10%; font-size: 70px; animation-delay: 6s; }
+    .shape-4 { top: 70%; right: 5%; font-size: 50px; animation-delay: 9s; }
+    .shape-5 { top: 40%; left: 3%; font-size: 40px; animation-delay: 12s; }
+    .shape-6 { bottom: 15%; right: 12%; font-size: 65px; animation-delay: 4s; }
+    
+    @keyframes float-shape {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      25% { transform: translateY(-20px) rotate(5deg); }
+      50% { transform: translateY(0) rotate(0deg); }
+      75% { transform: translateY(20px) rotate(-5deg); }
+    }
+    
+    /* ========== HEADER ========== */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 32px;
+      position: relative;
+      z-index: 10;
+    }
+    
+    .back-button {
+      width: 56px;
+      height: 56px;
+      background: white;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .back-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+    }
+    
+    .title-section {
+      text-align: center;
+    }
+    .title-section h1 {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 36px;
+      font-weight: 700;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+    .title-section p {
+      font-size: 16px;
+      color: var(--text-medium);
+      margin-top: 4px;
+    }
+    
+    .stats-badges {
+      display: flex;
+      gap: 12px;
+    }
+    .stat-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: white;
+      padding: 10px 16px;
+      border-radius: 14px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    .stat-badge-icon { font-size: 20px; }
+    .stat-badge-value {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+    
+    /* ========== MAIN CONTENT ========== */
+    .main-content {
+      display: flex;
+      padding: 0 32px 32px;
+      gap: 40px;
+      height: calc(100% - 100px);
+    }
+    
+    /* ========== MASCOT SECTION ========== */
+    .mascot-section {
+      width: 280px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 20px;
+    }
+    
+    .pixel-mascot {
+      position: relative;
+      animation: mascot-bounce 2s ease-in-out infinite;
+    }
+    
+    @keyframes mascot-bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    
+    .pixel-body {
+      width: 160px;
+      height: 180px;
+      position: relative;
+    }
+    
+    /* Fox head */
+    .fox-head {
+      width: 140px;
+      height: 130px;
+      background: linear-gradient(180deg, #FF9F43 0%, #E67E22 100%);
+      border-radius: 50% 50% 45% 45%;
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    
+    /* Fox ears */
+    .fox-ear {
+      position: absolute;
+      top: -20px;
+      width: 0;
+      height: 0;
+      border-left: 22px solid transparent;
+      border-right: 22px solid transparent;
+      border-bottom: 40px solid #FF9F43;
+    }
+    .fox-ear.left { left: 10px; transform: rotate(-15deg); }
+    .fox-ear.right { right: 10px; transform: rotate(15deg); }
+    .fox-ear::after {
+      content: '';
+      position: absolute;
+      top: 18px;
+      left: -10px;
+      width: 0;
+      height: 0;
+      border-left: 10px solid transparent;
+      border-right: 10px solid transparent;
+      border-bottom: 20px solid #FFEAA7;
+    }
+    
+    /* Fox face */
+    .fox-face {
+      position: absolute;
+      top: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100px;
+    }
+    
+    .fox-eyes {
+      display: flex;
+      justify-content: space-between;
+      padding: 0 5px;
+    }
+    
+    .fox-eye {
+      width: 28px;
+      height: 28px;
+      background: white;
+      border-radius: 50%;
+      position: relative;
+    }
+    .fox-eye::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-30%, -50%);
+      width: 14px;
+      height: 14px;
+      background: #2D3436;
+      border-radius: 50%;
+    }
+    .fox-eye::before {
+      content: '';
+      position: absolute;
+      top: 6px;
+      left: 6px;
+      width: 6px;
+      height: 6px;
+      background: white;
+      border-radius: 50%;
+      z-index: 1;
+    }
+    
+    /* Glasses */
+    .fox-glasses {
+      position: absolute;
+      top: -5px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 110px;
+      height: 40px;
+    }
+    .glasses-lens {
+      position: absolute;
+      width: 36px;
+      height: 36px;
+      border: 3px solid #6C5CE7;
+      border-radius: 50%;
+      background: rgba(108, 92, 231, 0.1);
+    }
+    .glasses-lens.left { left: 5px; }
+    .glasses-lens.right { right: 5px; }
+    .glasses-bridge {
+      position: absolute;
+      top: 15px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 20px;
+      height: 3px;
+      background: #6C5CE7;
+    }
+    
+    .fox-nose {
+      width: 18px;
+      height: 12px;
+      background: #2D3436;
+      border-radius: 50%;
+      margin: 15px auto 5px;
+    }
+    
+    .fox-mouth {
+      width: 30px;
+      height: 15px;
+      border-bottom: 3px solid #2D3436;
+      border-radius: 0 0 50% 50%;
+      margin: 0 auto;
+    }
+    
+    /* Fox body */
+    .fox-body-main {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100px;
+      height: 70px;
+      background: linear-gradient(180deg, #FF9F43 0%, #E67E22 100%);
+      border-radius: 40% 40% 45% 45%;
+    }
+    
+    .fox-belly {
+      position: absolute;
+      bottom: 5px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 40px;
+      background: #FFEAA7;
+      border-radius: 50%;
+    }
+    
+    /* Fox tail */
+    .fox-tail {
+      position: absolute;
+      bottom: 20px;
+      right: -30px;
+      width: 60px;
+      height: 30px;
+      background: linear-gradient(90deg, #E67E22, #FF9F43);
+      border-radius: 0 50% 50% 0;
+      transform-origin: left center;
+      animation: tail-wag 1s ease-in-out infinite;
+    }
+    .fox-tail::after {
+      content: '';
+      position: absolute;
+      right: 0;
+      top: 5px;
+      width: 20px;
+      height: 20px;
+      background: #FFEAA7;
+      border-radius: 50%;
+    }
+    
+    @keyframes tail-wag {
+      0%, 100% { transform: rotate(-10deg); }
+      50% { transform: rotate(10deg); }
+    }
+    
+    /* Speech bubble */
+    .speech-bubble {
+      background: white;
+      padding: 16px 20px;
+      border-radius: 20px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+      margin-top: 20px;
+      max-width: 260px;
+      position: relative;
+      animation: bubble-pop 0.4s ease-out;
+    }
+    
+    @keyframes bubble-pop {
+      0% { transform: scale(0.8); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    
+    .speech-bubble::before {
+      content: '';
+      position: absolute;
+      top: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-left: 12px solid transparent;
+      border-right: 12px solid transparent;
+      border-bottom: 12px solid white;
+    }
+    
+    .speech-bubble p {
+      font-size: 15px;
+      color: var(--text-dark);
+      line-height: 1.5;
+      text-align: center;
+    }
+    .speech-bubble p strong {
+      color: var(--primary);
+    }
+    
+    /* ========== WORLDS GRID ========== */
+    .worlds-section {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .section-title {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--text-dark);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .worlds-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      flex: 1;
+    }
+    
+    .world-card {
+      background: white;
+      border-radius: 24px;
+      padding: 24px;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+    }
+    
+    .world-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.12);
+    }
+    
+    .world-card.locked {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    .world-card.locked:hover {
+      transform: none;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+    }
+    
+    .world-card-bg {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 120px;
+      height: 120px;
+      opacity: 0.1;
+      font-size: 100px;
+      line-height: 1;
+    }
+    
+    .world-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+      position: relative;
+      z-index: 2;
+    }
+    
+    .world-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+    }
+    
+    .world-card.forest .world-icon { background: linear-gradient(135deg, #81C784, #4CAF50); }
+    .world-card.space .world-icon { background: linear-gradient(135deg, #667eea, #764ba2); }
+    .world-card.castle .world-icon { background: linear-gradient(135deg, #a18cd1, #fbc2eb); }
+    .world-card.art .world-icon { background: linear-gradient(135deg, #f093fb, #f5576c); }
+    .world-card.mystery .world-icon { background: linear-gradient(135deg, #a55eea, #8854d0); }
+    
+    .world-info h3 {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-dark);
+    }
+    .world-info p {
+      font-size: 13px;
+      color: var(--text-medium);
+    }
+    
+    .world-progress {
+      margin-top: auto;
+      padding-top: 16px;
+      position: relative;
+      z-index: 2;
+    }
+    
+    .progress-bar {
+      height: 8px;
+      background: #EEE;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+    .progress-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.5s ease;
+    }
+    .world-card.forest .progress-fill { background: linear-gradient(90deg, #81C784, #4CAF50); }
+    .world-card.space .progress-fill { background: linear-gradient(90deg, #667eea, #764ba2); }
+    .world-card.castle .progress-fill { background: linear-gradient(90deg, #a18cd1, #fbc2eb); }
+    .world-card.art .progress-fill { background: linear-gradient(90deg, #f093fb, #f5576c); }
+    .world-card.mystery .progress-fill { background: linear-gradient(90deg, #a55eea, #8854d0); }
+    
+    .progress-text {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--text-medium);
+    }
+    .progress-text span:last-child {
+      font-weight: 700;
+    }
+    
+    .world-badge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      padding: 4px 10px;
+      border-radius: 8px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    .badge-new {
+      background: #00D2A0;
+      color: white;
+    }
+    .badge-locked {
+      background: #DDD;
+      color: #888;
+    }
+    .badge-complete {
+      background: linear-gradient(135deg, #FFD93D, #F5C800);
+      color: #8B6914;
+    }
+    
+    .lock-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(255,255,255,0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 24px;
+    }
+    .lock-icon {
+      font-size: 48px;
+      opacity: 0.5;
+    }
+    
+    /* World card - special full width for mystery */
+    .world-card.mystery {
+      grid-column: span 3;
+      flex-direction: row;
+      align-items: center;
+      padding: 20px 32px;
+    }
+    .world-card.mystery .world-header {
+      margin-bottom: 0;
+      flex: 0 0 auto;
+    }
+    .world-card.mystery .world-progress {
+      flex: 1;
+      padding-top: 0;
+      padding-left: 40px;
+      max-width: 400px;
+    }
+    
+    /* ========== DEMO PREVIEW ========== */
+    .demo-preview {
+      width: 200px;
+      background: white;
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    }
+    
+    .demo-title {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-medium);
+      margin-bottom: 16px;
+      text-align: center;
+    }
+    
+    .demo-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    
+    .demo-cell {
+      aspect-ratio: 1;
+      background: #F8F4FF;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+    }
+    .demo-cell.target {
+      background: linear-gradient(135deg, rgba(108,92,231,0.15), rgba(108,92,231,0.05));
+      border: 2px dashed var(--primary);
+    }
+    .demo-cell.target::after {
+      content: '?';
+      font-family: 'Fredoka', sans-serif;
+      font-size: 28px;
+      color: var(--primary);
+    }
+    
+    .demo-choices {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+    }
+    .demo-choice {
+      width: 40px;
+      height: 40px;
+      background: #F0F0F0;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .demo-choice:hover {
+      background: #E8E0F0;
+      transform: scale(1.1);
+    }
+    .demo-choice.correct {
+      background: rgba(0,210,160,0.2);
+      border: 2px solid var(--success);
+    }
+  </style>
+</head>
+<body>
+  <div class="ipad-frame">
+    <!-- Background decoration -->
+    <div class="bg-shapes">
+      <span class="floating-shape shape-1">🔮</span>
+      <span class="floating-shape shape-2">⭐</span>
+      <span class="floating-shape shape-3">🔷</span>
+      <span class="floating-shape shape-4">🔶</span>
+      <span class="floating-shape shape-5">◯</span>
+      <span class="floating-shape shape-6">△</span>
+    </div>
+    
+    <!-- Header -->
+    <header class="header">
+      <div class="back-button">←</div>
+      
+      <div class="title-section">
+        <h1>🔮 Matrices Magiques</h1>
+        <p>Trouve la pièce manquante !</p>
+      </div>
+      
+      <div class="stats-badges">
+        <div class="stat-badge">
+          <span class="stat-badge-icon">⭐</span>
+          <span class="stat-badge-value">127</span>
+        </div>
+        <div class="stat-badge">
+          <span class="stat-badge-icon">🧩</span>
+          <span class="stat-badge-value">34</span>
+        </div>
+      </div>
+    </header>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+      <!-- Mascot Section -->
+      <div class="mascot-section">
+        <div class="pixel-mascot">
+          <div class="pixel-body">
+            <!-- Fox head -->
+            <div class="fox-head">
+              <div class="fox-ear left"></div>
+              <div class="fox-ear right"></div>
+              <div class="fox-face">
+                <div class="fox-glasses">
+                  <div class="glasses-lens left"></div>
+                  <div class="glasses-lens right"></div>
+                  <div class="glasses-bridge"></div>
+                </div>
+                <div class="fox-eyes">
+                  <div class="fox-eye"></div>
+                  <div class="fox-eye"></div>
+                </div>
+                <div class="fox-nose"></div>
+                <div class="fox-mouth"></div>
+              </div>
+            </div>
+            <!-- Fox body -->
+            <div class="fox-body-main">
+              <div class="fox-belly"></div>
+            </div>
+            <div class="fox-tail"></div>
+          </div>
+        </div>
+        
+        <div class="speech-bubble">
+          <p>Salut détective ! 🔍<br>Choisis un monde et trouve les <strong>règles cachées</strong> dans chaque grille !</p>
+        </div>
+        
+        <!-- Demo preview -->
+        <div class="demo-preview" style="margin-top: 20px;">
+          <div class="demo-title">Exemple de puzzle</div>
+          <div class="demo-grid">
+            <div class="demo-cell">🔴</div>
+            <div class="demo-cell">🔵</div>
+            <div class="demo-cell">🟢</div>
+            <div class="demo-cell target"></div>
+          </div>
+          <div class="demo-choices">
+            <div class="demo-choice">🟡</div>
+            <div class="demo-choice correct">🟣</div>
+            <div class="demo-choice">🟠</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Worlds Grid -->
+      <div class="worlds-section">
+        <div class="section-title">
+          <span>🗺️</span>
+          <span>Choisis ton monde</span>
+        </div>
+        
+        <div class="worlds-grid">
+          <!-- Forest World -->
+          <div class="world-card forest">
+            <span class="world-card-bg">🌲</span>
+            <div class="world-header">
+              <div class="world-icon">🌲</div>
+              <div class="world-info">
+                <h3>Forêt Enchantée</h3>
+                <p>Puzzles avec animaux</p>
+              </div>
+            </div>
+            <div class="world-progress">
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: 80%;"></div>
+              </div>
+              <div class="progress-text">
+                <span>8/10 puzzles</span>
+                <span>⭐⭐⭐</span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Space World -->
+          <div class="world-card space">
+            <span class="world-card-bg">🚀</span>
+            <span class="world-badge badge-new">Nouveau</span>
+            <div class="world-header">
+              <div class="world-icon">🚀</div>
+              <div class="world-info">
+                <h3>Station Spatiale</h3>
+                <p>Formes géométriques</p>
+              </div>
+            </div>
+            <div class="world-progress">
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: 30%;"></div>
+              </div>
+              <div class="progress-text">
+                <span>3/10 puzzles</span>
+                <span>⭐☆☆</span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Castle World -->
+          <div class="world-card castle">
+            <span class="world-card-bg">🏰</span>
+            <div class="world-header">
+              <div class="world-icon">🏰</div>
+              <div class="world-info">
+                <h3>Château Magique</h3>
+                <p>Symboles fantastiques</p>
+              </div>
+            </div>
+            <div class="world-progress">
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: 0%;"></div>
+              </div>
+              <div class="progress-text">
+                <span>0/12 puzzles</span>
+                <span>☆☆☆</span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Art World -->
+          <div class="world-card art locked">
+            <span class="world-card-bg">🎨</span>
+            <span class="world-badge badge-locked">🔒 Verrouillé</span>
+            <div class="world-header">
+              <div class="world-icon">🎨</div>
+              <div class="world-info">
+                <h3>Atelier d'Artiste</h3>
+                <p>Formes abstraites</p>
+              </div>
+            </div>
+            <div class="world-progress">
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: 0%;"></div>
+              </div>
+              <div class="progress-text">
+                <span>Termine le Château</span>
+                <span>☆☆☆</span>
+              </div>
+            </div>
+            <div class="lock-overlay">
+              <span class="lock-icon">🔒</span>
+            </div>
+          </div>
+          
+          <!-- Mystery World - Full width -->
+          <div class="world-card mystery locked">
+            <span class="world-card-bg">🌀</span>
+            <span class="world-badge badge-locked">🔒 Expert</span>
+            <div class="world-header">
+              <div class="world-icon">🌀</div>
+              <div class="world-info">
+                <h3>Dimension Mystère</h3>
+                <p>Défis ultimes pour les maîtres des patterns</p>
+              </div>
+            </div>
+            <div class="world-progress">
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: 0%;"></div>
+              </div>
+              <div class="progress-text">
+                <span>Complète tous les mondes</span>
+                <span>☆☆☆</span>
+              </div>
+            </div>
+            <div class="lock-overlay">
+              <span class="lock-icon">🔒</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

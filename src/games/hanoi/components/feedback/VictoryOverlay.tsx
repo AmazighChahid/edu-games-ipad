@@ -8,7 +8,7 @@ import { useState, useEffect } from 'react';
 import { View, StyleSheet, Platform } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
-import { useStore } from '@/store/useStore';
+import { useStore } from '@/store';
 import type { CollectibleCard } from '../../data/collectibleCards';
 import {
   determineAwardedCard,

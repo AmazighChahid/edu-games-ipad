@@ -41,7 +41,7 @@ import {
 import { useHanoiGame } from '../hooks/useHanoiGame';
 import { hanoiLevels } from '../data/levels';
 import { ParentDrawer, type GameMode } from '@/components/parent/ParentDrawer';
-import { useStore } from '@/store/useStore';
+import { useStore } from '@/store';
 import type { HanoiLevelConfig, TowerId } from '../types';
 
 // Owl messages based on game state
@@ -160,11 +160,10 @@ export function HanoiIntroScreen() {
   // Hint animation
   const hintPulse = useSharedValue(1);
 
-  // Calculate progress for micro-objective
+  // Calculate progress
   const targetDisks = level.diskCount;
   const disksOnTarget = gameState.towers[2].disks.length;
   const progress = disksOnTarget / targetDisks;
-  const microObjective = getMicroObjective(progress);
 
   // Get owl message based on current game state
   const owlState = getOwlMessage(isPlaying, isVictory, consecutiveInvalid, progress);
@@ -441,15 +440,14 @@ export function HanoiIntroScreen() {
           </View>
         </View>
 
-        {/* Progress Panel - shows when playing */}
-        {isPlaying && (
-          <ProgressPanel
-            currentMoves={moveCount}
-            optimalMoves={level.optimalMoves ?? 7}
-            progress={progress}
-            visible={!isVictory}
-          />
-        )}
+        {/* Progress Panel - always visible */}
+        <ProgressPanel
+          currentMoves={moveCount}
+          optimalMoves={level.optimalMoves ?? 7}
+          progress={progress}
+          bestMoves={71}
+          visible={!isVictory}
+        />
 
       {/* Level Selector - At top, slides down when playing */}
       <Animated.View style={[styles.selectorContainer, selectorStyle]} pointerEvents={isPlaying ? 'none' : 'auto'}>
@@ -512,29 +510,6 @@ export function HanoiIntroScreen() {
         visible={!isVictory}
       />
 
-      {/* Game HUD - Appears when playing */}
-      <Animated.View style={[styles.gameHud, hudStyle]} pointerEvents={isPlaying ? 'auto' : 'none'}>
-        <View style={styles.hudItem}>
-          <Text style={styles.hudLabel}>Coups</Text>
-          <Text style={styles.hudValue}>{moveCount}</Text>
-        </View>
-        <View style={styles.hudDivider} />
-        <View style={styles.hudItem}>
-          <Text style={styles.hudLabel}>Optimal</Text>
-          <Text style={styles.hudValueOptimal}>{level.optimalMoves}</Text>
-        </View>
-        <Pressable onPress={handleReset} style={styles.resetButton}>
-          <Text style={styles.resetButtonText}>↻</Text>
-        </Pressable>
-      </Animated.View>
-
-      {/* Micro-objective - Appears when playing */}
-      {isPlaying && !isVictory && (
-        <Animated.View entering={FadeIn} style={styles.microObjective}>
-          <Text style={styles.microObjectiveLabel}>Mini-but :</Text>
-          <Text style={styles.microObjectiveText}>{microObjective}</Text>
-        </Animated.View>
-      )}
 
       {/* Game Board - Always visible, takes most of the space */}
       <View style={styles.boardContainer}>

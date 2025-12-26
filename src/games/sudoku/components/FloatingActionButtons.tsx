@@ -14,7 +14,7 @@ import Animated, {
 import * as Haptics from 'expo-haptics';
 
 import { spacing, shadows } from '@/theme';
-import { useStore } from '@/store/useStore';
+import { useStore } from '@/store';
 
 interface FloatingActionButtonsProps {
   onHint: () => void;

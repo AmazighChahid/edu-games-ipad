@@ -30,7 +30,7 @@ import Animated, {
 
 import { colors, spacing, textStyles, borderRadius, shadows } from '@/theme';
 import { Button } from '@/components/common';
-import { useStore, useCollection } from '@/store/useStore';
+import { useStore, useCollection } from '@/store';
 import { hanoiLevels } from '../data/levels';
 import { CardUnlockScreen } from '@/components/collection';
 import { useCardUnlock } from '@/hooks/useCardUnlock';
@@ -335,7 +335,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.secondary.light,
     paddingVertical: spacing[2],
     paddingHorizontal: spacing[4],
-    borderRadius: borderRadius.full,
+    borderRadius: borderRadius.round,
     gap: spacing[2],
   },
   badgeIcon: {

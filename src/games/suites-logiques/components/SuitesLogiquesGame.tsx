@@ -2,12 +2,12 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { View, StyleSheet, Text, Pressable } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 
 import { SequenceDisplay } from './SequenceDisplay';
 import { ChoicePanel } from './ChoicePanel';
 import { MascotRobot } from './MascotRobot';
 import { useSuitesGame } from '../hooks/useSuitesGame';
+import { useSuitesSound } from '../hooks/useSuitesSound';
 import { ThemeType, SessionStats, SequenceElement } from '../types';
 import { PIXEL_MESSAGES } from '../constants/gameConfig';
 import { colors, spacing, textStyles, touchTargets, borderRadius, shadows } from '@/theme';
@@ -42,28 +42,74 @@ export const SuitesLogiquesGame: React.FC<Props> = ({
     isSessionComplete,
   } = useSuitesGame({ theme, initialLevel });
 
+  // Hook pour les sons
+  const {
+    playSelect,
+    playCorrect,
+    playError,
+    playThinking,
+    startAmbient,
+    stopAmbient,
+  } = useSuitesSound();
+
   // Message de la mascotte
   const [mascotMessage, setMascotMessage] = useState<string>('');
   const [mascotEmotion, setMascotEmotion] = useState<EmotionType>('neutral');
+  const [hasUserInteracted, setHasUserInteracted] = useState(false); // Pour autoriser l'audio après interaction
 
   // Initialisation - démarrer une nouvelle séquence
   useEffect(() => {
     setMascotMessage("Bip bip ! Trouve ce qui vient après et clique sur Valider !");
     setMascotEmotion('encouraging');
     nextSequence();
+
+    // Nettoyage : arrêter le fond sonore quand on quitte
+    return () => {
+      stopAmbient();
+    };
   }, []);
 
   // Gestion du feedback selon le statut
   useEffect(() => {
     if (gameState.status === 'success') {
+      // Jouer le son de bonne réponse
+      playCorrect();
+
       const messages = PIXEL_MESSAGES.success;
       setMascotMessage(messages[Math.floor(Math.random() * messages.length)]);
       setMascotEmotion('excited'); // Grand sourire pour le succès
+
+      // Passer automatiquement à la suite suivante après un court délai
+      const timer = setTimeout(() => {
+        if (isSessionComplete) {
+          if (onSessionEnd) {
+            onSessionEnd({
+              completed: sessionState.sequencesCompleted,
+              correctFirstTry: sessionState.sequencesCorrectFirstTry,
+              maxStreak: sessionState.maxStreak,
+              totalTime: Date.now() - sessionState.startTime.getTime(),
+            });
+          }
+        } else {
+          nextSequence();
+          const startMessages = PIXEL_MESSAGES.start;
+          setMascotMessage(startMessages[Math.floor(Math.random() * startMessages.length)]);
+          setMascotEmotion('neutral');
+        }
+      }, 1200); // Délai de 1.2 secondes pour voir le feedback
+
+      return () => clearTimeout(timer);
     } else if (gameState.status === 'error') {
+      // Jouer le son d'erreur
+      playError();
+
       const messages = PIXEL_MESSAGES.error;
       setMascotMessage(messages[Math.floor(Math.random() * messages.length)]);
       setMascotEmotion('encouraging'); // Encourager après une erreur
     } else if (gameState.status === 'hint') {
+      // Jouer le son de réflexion
+      playThinking();
+
       setMascotEmotion('thinking'); // Réfléchit pour donner un indice
       // Messages d'indices selon le niveau
       if (gameState.currentHintLevel === 1) {
@@ -81,12 +127,22 @@ export const SuitesLogiquesGame: React.FC<Props> = ({
   // Sélection d'un élément
   const handleSelect = useCallback(
     (element: SequenceElement) => {
+      // Marquer qu'il y a eu une interaction (autorise l'audio)
+      if (!hasUserInteracted) {
+        setHasUserInteracted(true);
+        // Démarrer le fond sonore ambient après la première interaction
+        startAmbient();
+      }
+
+      // Jouer le son de sélection
+      playSelect();
+
       selectAnswer(element);
       // Message pour encourager à valider
       setMascotMessage("Bip ! Clique sur 'Valider' pour confirmer ton choix !");
       setMascotEmotion('happy'); // Sourire quand l'utilisateur sélectionne
     },
-    [selectAnswer]
+    [selectAnswer, playSelect, hasUserInteracted, startAmbient]
   );
 
   // Confirmation (appelé automatiquement après sélection)
@@ -100,26 +156,6 @@ export const SuitesLogiquesGame: React.FC<Props> = ({
   const handleHint = useCallback(() => {
     requestHint();
   }, [requestHint]);
-
-  // Passage à la suite suivante
-  const handleNext = useCallback(() => {
-    if (isSessionComplete) {
-      // Fin de session
-      if (onSessionEnd) {
-        onSessionEnd({
-          completed: sessionState.sequencesCompleted,
-          correctFirstTry: sessionState.sequencesCorrectFirstTry,
-          maxStreak: sessionState.maxStreak,
-          totalTime: Date.now() - sessionState.startTime.getTime(),
-        });
-      }
-    } else {
-      nextSequence();
-      const messages = PIXEL_MESSAGES.start;
-      setMascotMessage(messages[Math.floor(Math.random() * messages.length)]);
-      setMascotEmotion('neutral'); // Retour à l'état neutre pour la nouvelle suite
-    }
-  }, [isSessionComplete, sessionState, nextSequence, onSessionEnd]);
 
   if (!currentSequence) {
     return (
@@ -170,6 +206,7 @@ export const SuitesLogiquesGame: React.FC<Props> = ({
             message={mascotMessage}
             emotion={mascotEmotion}
             visible={true}
+            canPlayAudio={hasUserInteracted}
           />
 
           {/* Zone de la suite */}
@@ -193,6 +230,7 @@ export const SuitesLogiquesGame: React.FC<Props> = ({
               disabled={gameState.status === 'checking' || gameState.status === 'success'}
               hintLevel={gameState.currentHintLevel}
               correctAnswerId={currentSequence.correctAnswer.id}
+              status={gameState.status}
             />
           </View>
 
@@ -209,16 +247,6 @@ export const SuitesLogiquesGame: React.FC<Props> = ({
               <Text style={styles.hintButtonText}>💡</Text>
               <Text style={styles.hintButtonLabel}>Indice</Text>
             </Pressable>
-
-            {gameState.status === 'success' && (
-              <Animated.View entering={FadeIn}>
-                <Pressable onPress={handleNext} style={styles.nextButton}>
-                  <Text style={styles.nextButtonText}>
-                    {isSessionComplete ? '🏁 Terminer' : 'Suivant →'}
-                  </Text>
-                </Pressable>
-              </Animated.View>
-            )}
           </View>
 
           {/* Statistiques de session */}
@@ -259,7 +287,7 @@ const styles = StyleSheet.create({
   exitButton: {
     width: touchTargets.medium,
     height: touchTargets.medium,
-    borderRadius: borderRadius.full,
+    borderRadius: borderRadius.round,
     backgroundColor: colors.background.card,
     alignItems: 'center',
     justifyContent: 'center',
@@ -329,18 +357,6 @@ const styles = StyleSheet.create({
   hintButtonLabel: {
     ...textStyles.body,
     fontWeight: '600',
-    color: colors.text.inverse,
-  },
-  nextButton: {
-    backgroundColor: colors.primary.main,
-    paddingHorizontal: spacing[6],
-    paddingVertical: spacing[3],
-    borderRadius: borderRadius.xl,
-    ...shadows.md,
-  },
-  nextButtonText: {
-    ...textStyles.body,
-    fontWeight: 'bold',
     color: colors.text.inverse,
   },
   disabledButton: {

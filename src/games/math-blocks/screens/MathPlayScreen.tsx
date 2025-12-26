@@ -8,7 +8,7 @@ import { View, StyleSheet, Text, Pressable, Modal, Switch } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 
 import { colors, spacing, borderRadius, shadows, textStyles } from '@/theme';
-import { useAppSettings } from '@/store/useStore';
+import { useAppSettings } from '@/store';
 import { GameGrid, TimerBar, ScoreDisplay } from '../components';
 import { useMathGame } from '../hooks/useMathGame';
 import { OPERATION_SYMBOLS } from '../types';
@@ -226,7 +226,7 @@ const styles = StyleSheet.create({
   iconButton: {
     width: 40,
     height: 40,
-    borderRadius: borderRadius.full,
+    borderRadius: borderRadius.round,
     backgroundColor: colors.background.card,
     alignItems: 'center',
     justifyContent: 'center',

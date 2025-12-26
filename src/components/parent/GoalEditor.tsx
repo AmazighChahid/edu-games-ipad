@@ -13,7 +13,7 @@ import {
   ScrollView,
 } from 'react-native';
 import { colors, spacing, borderRadius, shadows } from '@/theme';
-import { useStore, useActiveProfile } from '@/store/useStore';
+import { useStore, useActiveProfile } from '@/store';
 import { GOAL_TEMPLATES } from '@/store/slices/goalsSlice';
 import type { ParentGoal, GoalType } from '@/types';
 

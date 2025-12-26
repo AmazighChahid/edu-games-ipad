@@ -372,7 +372,7 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.background.card,
     paddingVertical: theme.spacing[2],
     paddingHorizontal: theme.spacing[3],
-    borderRadius: theme.borderRadius.full,
+    borderRadius: theme.borderRadius.round,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
@@ -416,7 +416,7 @@ const styles = StyleSheet.create({
   backButton: {
     width: theme.touchTargets.child,
     height: theme.touchTargets.child,
-    borderRadius: theme.borderRadius.full,
+    borderRadius: theme.borderRadius.round,
     backgroundColor: theme.colors.background.card,
     alignItems: 'center',
     justifyContent: 'center',
@@ -469,7 +469,7 @@ const styles = StyleSheet.create({
   helpButton: {
     width: theme.touchTargets.child,
     height: theme.touchTargets.child,
-    borderRadius: theme.borderRadius.full,
+    borderRadius: theme.borderRadius.round,
     backgroundColor: theme.colors.secondary.main,
     alignItems: 'center',
     justifyContent: 'center',

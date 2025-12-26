@@ -20,7 +20,7 @@ import {
 import 'react-native-reanimated';
 
 import '@/i18n';
-import { useStore } from '@/store/useStore';
+import { useStore } from '@/store';
 import { colors } from '@/theme';
 
 SplashScreen.preventAutoHideAsync();

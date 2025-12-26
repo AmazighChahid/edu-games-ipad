@@ -2,9 +2,10 @@
  * MascotRobot component - Pixel le Robot
  * Animated robot mascot with speech bubble and emotions
  * Shows different facial expressions based on game state
+ * Includes typewriter text effect and audio playback
  */
 
-import { useEffect } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import Animated, {
   useSharedValue,
@@ -13,9 +14,10 @@ import Animated, {
   withTiming,
   withSequence,
   withSpring,
-  withDelay,
   Easing,
 } from 'react-native-reanimated';
+import { useAudioPlayer } from 'expo-audio';
+import { useAppSettings } from '../../../store/useStore';
 import Svg, {
   Rect,
   Circle,
@@ -29,10 +31,26 @@ import { spacing, borderRadius, shadows } from '@/theme';
 
 type EmotionType = 'neutral' | 'happy' | 'thinking' | 'excited' | 'encouraging';
 
+// Mapping des messages vers les fichiers audio
+// Les fichiers SL-XX correspondent au tableau de dialogues fourni
+const AUDIO_FILES: Record<string, ReturnType<typeof require>> = {
+  // SL-01: Accueil initial
+  "Bip bip ! Trouve ce qui vient après et clique sur Valider !": require('../../../../assets/audio/suites-logiques/SL-01.mp3'),
+  // SL-02: Début de suite (start)
+  "Regarde bien cette suite...": require('../../../../assets/audio/suites-logiques/SL-02.mp3'),
+  // SL-03: Début de suite (start)
+  "Bip ! Nouvelle suite !": require('../../../../assets/audio/suites-logiques/SL-03.mp3'),
+  // SL-04: Sélection
+  "Bip ! Clique sur 'Valider' pour confirmer ton choix !": require('../../../../assets/audio/suites-logiques/SL-04.mp3'),
+  // SL-05: Début de suite (start)
+  "Qu'est-ce qui se répète ? 🔍": require('../../../../assets/audio/suites-logiques/SL-05.mp3'),
+};
+
 interface MascotRobotProps {
   message: string;
   emotion?: EmotionType;
   visible?: boolean;
+  canPlayAudio?: boolean; // Indique si l'utilisateur a déjà interagi (pour l'autoplay)
 }
 
 // Robot color palette
@@ -77,16 +95,32 @@ const EMOTIONS = {
   },
 };
 
+// Vitesse de l'effet typewriter (ms par caractère)
+const TYPEWRITER_SPEED = 35;
+
 export function MascotRobot({
   message,
   emotion = 'neutral',
   visible = true,
+  canPlayAudio = false,
 }: MascotRobotProps) {
+  const { soundEnabled } = useAppSettings();
+
+  // État pour l'effet typewriter
+  const [displayedText, setDisplayedText] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
+  const typewriterRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const currentMessageRef = useRef<string>('');
+
+  // Audio player - on charge dynamiquement selon le message
+  const audioSource = AUDIO_FILES[message] || null;
+  const audioPlayer = useAudioPlayer(audioSource);
+
   // Animation values
   const bodyY = useSharedValue(0);
   const antennaRotate = useSharedValue(0);
   const eyesPulse = useSharedValue(1);
-  const bubbleScale = useSharedValue(0);
+  const bubbleScale = useSharedValue(1); // Pas d'animation de scale, toujours visible
   const screenGlow = useSharedValue(0.5);
 
   // Idle floating animation
@@ -143,14 +177,54 @@ export function MascotRobot({
     );
   }, []);
 
-  // Bubble appearance animation
+  // Effet typewriter quand le message change
   useEffect(() => {
-    if (visible) {
-      bubbleScale.value = withSpring(1, { damping: 15, stiffness: 200 });
-    } else {
-      bubbleScale.value = withTiming(0, { duration: 200 });
+    // Si c'est le même message, ne pas relancer
+    if (message === currentMessageRef.current) return;
+
+    currentMessageRef.current = message;
+
+    // Nettoyer le timeout précédent
+    if (typewriterRef.current) {
+      clearTimeout(typewriterRef.current);
     }
-  }, [visible]);
+
+    // Reset et démarrer le typewriter
+    setDisplayedText('');
+    setIsTyping(true);
+
+    // Jouer l'audio si disponible ET si l'utilisateur a déjà interagi
+    // (les navigateurs bloquent l'autoplay sans interaction)
+    if (soundEnabled && audioSource && audioPlayer && canPlayAudio) {
+      try {
+        audioPlayer.seekTo(0);
+        audioPlayer.play();
+      } catch (error) {
+        console.warn('Erreur lecture audio:', error);
+      }
+    }
+
+    // Animation typewriter
+    let currentIndex = 0;
+    const typeNextChar = () => {
+      if (currentIndex < message.length) {
+        setDisplayedText(message.slice(0, currentIndex + 1));
+        currentIndex++;
+        typewriterRef.current = setTimeout(typeNextChar, TYPEWRITER_SPEED);
+      } else {
+        setIsTyping(false);
+      }
+    };
+
+    // Petit délai avant de commencer
+    typewriterRef.current = setTimeout(typeNextChar, 100);
+
+    return () => {
+      if (typewriterRef.current) {
+        clearTimeout(typewriterRef.current);
+      }
+    };
+  }, [message, soundEnabled, audioSource, audioPlayer, canPlayAudio]);
 
   // Animated styles
   const bodyStyle = useAnimatedStyle(() => ({
@@ -180,16 +254,19 @@ export function MascotRobot({
 
   return (
     <View style={styles.container}>
-      {/* Speech bubble with fun styling */}
-      <Animated.View style={[styles.speechBubble, bubbleStyle]}>
+      {/* Speech bubble with typewriter effect - no popup animation */}
+      <View style={styles.speechBubble}>
         <View style={styles.bubbleHeader}>
           <Text style={[styles.bubbleName, { color: currentEmotion.color }]}>
-            🤖 Pixel :
+            Pixel :
           </Text>
         </View>
-        <Text style={styles.bubbleText}>{message}</Text>
+        <Text style={styles.bubbleText}>
+          {displayedText}
+          {isTyping && <Text style={styles.cursor}>|</Text>}
+        </Text>
         <View style={styles.bubbleArrow} />
-      </Animated.View>
+      </View>
 
       {/* Robot SVG */}
       <Animated.View style={[styles.robot, bodyStyle]}>
@@ -334,6 +411,11 @@ const styles = StyleSheet.create({
     color: '#2C3E50',
     lineHeight: 26,
     fontFamily: 'System',
+    minHeight: 52, // Réserve l'espace pour éviter les sauts de layout
+  },
+  cursor: {
+    color: '#5B8DEE',
+    fontWeight: '300',
   },
   bubbleArrow: {
     position: 'absolute',

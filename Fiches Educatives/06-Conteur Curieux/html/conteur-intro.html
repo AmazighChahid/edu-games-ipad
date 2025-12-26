@@ -1,0 +1,1174 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Le Conteur Curieux - Écran d'Introduction</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    :root {
+      --primary: #5B8DEE;
+      --secondary: #9B59B6;
+      --background: #FFF9F0;
+      --paper: #FFFBF5;
+      --wood: #8B5A2B;
+      --wood-light: #C49A6C;
+      --gold: #F5A623;
+      --text: #2D3436;
+      --text-light: #636E72;
+    }
+    
+    body {
+      font-family: 'Nunito', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: #1a1a2e;
+      padding: 20px;
+    }
+    
+    .ipad-frame {
+      width: 1194px;
+      height: 834px;
+      background: linear-gradient(180deg, var(--background) 0%, #FFF5E6 100%);
+      border-radius: 24px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 25px 80px rgba(0,0,0,0.4);
+    }
+    
+    /* ========== DÉCOR BIBLIOTHÈQUE ========== */
+    .library-bg {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+    }
+    
+    /* Étagères de livres en arrière-plan */
+    .bookshelf {
+      position: absolute;
+      background: linear-gradient(180deg, var(--wood-light), var(--wood));
+      border-radius: 4px;
+    }
+    
+    .bookshelf-1 {
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 120px;
+    }
+    
+    .bookshelf-left {
+      left: 0;
+      top: 200px;
+      bottom: 120px;
+      width: 80px;
+    }
+    
+    .bookshelf-right {
+      right: 0;
+      top: 200px;
+      bottom: 120px;
+      width: 80px;
+    }
+    
+    /* Livres sur les étagères */
+    .books-row {
+      position: absolute;
+      bottom: 120px;
+      left: 100px;
+      right: 100px;
+      height: 80px;
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+      padding: 0 20px;
+    }
+    
+    .book {
+      border-radius: 2px 4px 4px 2px;
+      box-shadow: inset -2px 0 4px rgba(0,0,0,0.2);
+    }
+    
+    .book-1 { width: 25px; height: 65px; background: linear-gradient(90deg, #E74C3C, #C0392B); }
+    .book-2 { width: 30px; height: 70px; background: linear-gradient(90deg, #3498DB, #2980B9); }
+    .book-3 { width: 20px; height: 55px; background: linear-gradient(90deg, #27AE60, #1E8449); }
+    .book-4 { width: 35px; height: 75px; background: linear-gradient(90deg, #F39C12, #D68910); }
+    .book-5 { width: 22px; height: 60px; background: linear-gradient(90deg, #9B59B6, #8E44AD); }
+    .book-6 { width: 28px; height: 68px; background: linear-gradient(90deg, #1ABC9C, #16A085); }
+    .book-7 { width: 25px; height: 62px; background: linear-gradient(90deg, #E67E22, #D35400); }
+    .book-8 { width: 32px; height: 72px; background: linear-gradient(90deg, #34495E, #2C3E50); }
+    
+    /* Fenêtre avec lumière */
+    .window {
+      position: absolute;
+      top: 80px;
+      right: 150px;
+      width: 200px;
+      height: 250px;
+      background: linear-gradient(180deg, #87CEEB 0%, #B0E0E6 100%);
+      border: 12px solid var(--wood);
+      border-radius: 8px 8px 0 0;
+    }
+    
+    .window-cross-v {
+      position: absolute;
+      left: 50%;
+      top: 0;
+      bottom: 0;
+      width: 8px;
+      background: var(--wood);
+      transform: translateX(-50%);
+    }
+    
+    .window-cross-h {
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 8px;
+      background: var(--wood);
+      transform: translateY(-50%);
+    }
+    
+    .sunlight {
+      position: absolute;
+      top: 80px;
+      right: 100px;
+      width: 300px;
+      height: 400px;
+      background: linear-gradient(135deg, rgba(255,217,61,0.15) 0%, transparent 60%);
+      transform: skewX(-15deg);
+      pointer-events: none;
+    }
+    
+    /* Particules de poussière */
+    .dust {
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      background: rgba(255,217,61,0.6);
+      border-radius: 50%;
+      animation: float-dust 8s ease-in-out infinite;
+    }
+    
+    .dust-1 { top: 150px; right: 200px; animation-delay: 0s; }
+    .dust-2 { top: 200px; right: 250px; animation-delay: 1s; }
+    .dust-3 { top: 180px; right: 180px; animation-delay: 2s; }
+    .dust-4 { top: 220px; right: 220px; animation-delay: 3s; }
+    .dust-5 { top: 160px; right: 280px; animation-delay: 4s; }
+    
+    @keyframes float-dust {
+      0%, 100% { transform: translateY(0) translateX(0); opacity: 0.6; }
+      25% { transform: translateY(-20px) translateX(10px); opacity: 0.8; }
+      50% { transform: translateY(-10px) translateX(-5px); opacity: 0.4; }
+      75% { transform: translateY(-30px) translateX(15px); opacity: 0.7; }
+    }
+    
+    /* ========== HEADER ========== */
+    .header {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 28px;
+    }
+    
+    .back-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.95);
+      padding: 12px 20px;
+      border-radius: 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    
+    .back-btn:hover {
+      transform: translateX(-4px);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+    }
+    
+    .back-btn span {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text);
+    }
+    
+    .title-area {
+      text-align: center;
+    }
+    
+    .title-area h1 {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    
+    .title-area h1 span {
+      color: var(--secondary);
+    }
+    
+    .title-area p {
+      font-size: 14px;
+      color: var(--text-light);
+      margin-top: 4px;
+    }
+    
+    .stats-row {
+      display: flex;
+      gap: 12px;
+    }
+    
+    .stat-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,255,255,0.95);
+      padding: 8px 14px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    
+    .stat-badge span:first-child { font-size: 18px; }
+    .stat-badge span:last-child {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    
+    /* ========== CONTENU PRINCIPAL ========== */
+    .main-content {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      height: calc(100% - 80px);
+      padding: 0 40px 40px;
+      gap: 40px;
+    }
+    
+    /* Zone gauche - Mascotte + Message */
+    .left-section {
+      flex: 0 0 350px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    /* Mascotte Plume */
+    .plume-container {
+      position: relative;
+      animation: plume-float 3s ease-in-out infinite;
+    }
+    
+    @keyframes plume-float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    
+    .plume-body {
+      width: 160px;
+      height: 180px;
+      background: linear-gradient(180deg, #C9A86C 0%, #A68B5B 100%);
+      border-radius: 50% 50% 45% 45%;
+      position: relative;
+    }
+    
+    .plume-belly {
+      position: absolute;
+      bottom: 15px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100px;
+      height: 80px;
+      background: linear-gradient(180deg, #F5E6D3, #EDD9C4);
+      border-radius: 50%;
+    }
+    
+    .plume-face {
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 120px;
+      height: 100px;
+    }
+    
+    .plume-eye {
+      position: absolute;
+      top: 10px;
+      width: 40px;
+      height: 40px;
+      background: #fff;
+      border-radius: 50%;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .plume-eye.left { left: 10px; }
+    .plume-eye.right { right: 10px; }
+    
+    .plume-eye::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 20px;
+      height: 20px;
+      background: #2C1810;
+      border-radius: 50%;
+    }
+    
+    .plume-eye::before {
+      content: '';
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 8px;
+      height: 8px;
+      background: #fff;
+      border-radius: 50%;
+      z-index: 2;
+    }
+    
+    .plume-beak {
+      position: absolute;
+      top: 55px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 18px solid transparent;
+      border-right: 18px solid transparent;
+      border-top: 28px solid #FFB347;
+    }
+    
+    .plume-ear {
+      position: absolute;
+      top: -30px;
+      width: 35px;
+      height: 50px;
+      background: linear-gradient(180deg, #C9A86C, #A68B5B);
+      border-radius: 50% 50% 0 0;
+    }
+    
+    .plume-ear.left {
+      left: 15px;
+      transform: rotate(-15deg);
+    }
+    
+    .plume-ear.right {
+      right: 15px;
+      transform: rotate(15deg);
+    }
+    
+    .plume-ear::after {
+      content: '';
+      position: absolute;
+      bottom: 5px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 20px;
+      height: 30px;
+      background: #F5E6D3;
+      border-radius: 50% 50% 0 0;
+    }
+    
+    .plume-wing {
+      position: absolute;
+      top: 70px;
+      width: 50px;
+      height: 70px;
+      background: #B8956B;
+      border-radius: 50%;
+      animation: wing-wave 2s ease-in-out infinite;
+    }
+    
+    .plume-wing.left {
+      left: -25px;
+      transform-origin: right center;
+    }
+    
+    .plume-wing.right {
+      right: -25px;
+      transform-origin: left center;
+    }
+    
+    @keyframes wing-wave {
+      0%, 100% { transform: rotate(0deg); }
+      50% { transform: rotate(-10deg); }
+    }
+    
+    .plume-foot {
+      position: absolute;
+      bottom: -20px;
+      width: 40px;
+      height: 25px;
+      background: #FFB347;
+      border-radius: 50% 50% 20% 20%;
+    }
+    
+    .plume-foot.left { left: 30px; }
+    .plume-foot.right { right: 30px; }
+    
+    /* Livre tenu par Plume */
+    .plume-book {
+      position: absolute;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 60px;
+      background: linear-gradient(135deg, #9B59B6, #8E44AD);
+      border-radius: 4px;
+      box-shadow: 0 4px 12px rgba(155, 89, 182, 0.3);
+      animation: book-glow 2s ease-in-out infinite alternate;
+    }
+    
+    @keyframes book-glow {
+      0% { box-shadow: 0 4px 12px rgba(155, 89, 182, 0.3); }
+      100% { box-shadow: 0 4px 24px rgba(155, 89, 182, 0.6); }
+    }
+    
+    .plume-book::before {
+      content: '📖';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 30px;
+    }
+    
+    /* Bulle de dialogue */
+    .speech-bubble {
+      background: var(--paper);
+      border-radius: 20px;
+      padding: 20px 24px;
+      margin-top: 24px;
+      max-width: 320px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+      position: relative;
+    }
+    
+    .speech-bubble::before {
+      content: '';
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 14px solid transparent;
+      border-right: 14px solid transparent;
+      border-bottom: 14px solid var(--paper);
+    }
+    
+    .speech-bubble p {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 18px;
+      color: var(--text);
+      text-align: center;
+      line-height: 1.5;
+    }
+    
+    .speech-bubble p strong {
+      color: var(--secondary);
+    }
+    
+    /* ========== ZONE DROITE - HISTOIRES ========== */
+    .right-section {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .section-title h2 {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    
+    .section-title span {
+      font-size: 28px;
+    }
+    
+    .filter-tabs {
+      display: flex;
+      gap: 8px;
+    }
+    
+    .filter-tab {
+      padding: 8px 16px;
+      background: rgba(255,255,255,0.8);
+      border: 2px solid transparent;
+      border-radius: 12px;
+      font-family: 'Fredoka', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-light);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .filter-tab:hover {
+      background: #fff;
+      color: var(--text);
+    }
+    
+    .filter-tab.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+    
+    /* Grille des histoires */
+    .stories-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      overflow-y: auto;
+      padding-right: 10px;
+      flex: 1;
+    }
+    
+    .stories-grid::-webkit-scrollbar { width: 6px; }
+    .stories-grid::-webkit-scrollbar-track { background: transparent; }
+    .stories-grid::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 3px; }
+    
+    /* Carte histoire */
+    .story-card {
+      background: var(--paper);
+      border-radius: 20px;
+      padding: 16px;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      border: 3px solid transparent;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .story-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 12px 32px rgba(91, 141, 238, 0.2);
+      border-color: var(--primary);
+    }
+    
+    .story-card.selected {
+      border-color: var(--secondary);
+      box-shadow: 0 8px 24px rgba(155, 89, 182, 0.25);
+    }
+    
+    .story-card.locked {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    
+    .story-card.locked:hover {
+      transform: none;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+      border-color: transparent;
+    }
+    
+    .story-badge {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      padding: 4px 10px;
+      border-radius: 8px;
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+    
+    .story-badge.new {
+      background: #27AE60;
+      color: #fff;
+    }
+    
+    .story-badge.completed {
+      background: var(--gold);
+      color: #fff;
+    }
+    
+    .story-cover {
+      width: 100%;
+      aspect-ratio: 3/4;
+      background: linear-gradient(135deg, #E8E0D5, #D5C9BA);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 12px;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .story-cover-emoji {
+      font-size: 64px;
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));
+    }
+    
+    /* Thèmes de couvertures */
+    .story-card[data-theme="nature"] .story-cover {
+      background: linear-gradient(135deg, #A8E6CF, #88D4AB);
+    }
+    
+    .story-card[data-theme="adventure"] .story-cover {
+      background: linear-gradient(135deg, #FFB347, #FF9A3C);
+    }
+    
+    .story-card[data-theme="magic"] .story-cover {
+      background: linear-gradient(135deg, #DDA0DD, #BA55D3);
+    }
+    
+    .story-card[data-theme="family"] .story-cover {
+      background: linear-gradient(135deg, #FFB6C1, #FF69B4);
+    }
+    
+    .story-card[data-theme="friendship"] .story-cover {
+      background: linear-gradient(135deg, #87CEEB, #6BB3D9);
+    }
+    
+    .story-title {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 6px;
+      line-height: 1.3;
+    }
+    
+    .story-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    
+    .story-level {
+      display: flex;
+      gap: 2px;
+    }
+    
+    .story-level span {
+      font-size: 12px;
+    }
+    
+    .story-duration {
+      font-size: 12px;
+      color: var(--text-light);
+    }
+    
+    .story-lock {
+      position: absolute;
+      inset: 0;
+      background: rgba(255,255,255,0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 20px;
+    }
+    
+    .story-lock span {
+      font-size: 48px;
+    }
+    
+    /* ========== MODAL SÉLECTION MODE ========== */
+    .mode-modal {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      animation: fadeIn 0.3s ease-out;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    .mode-content {
+      background: var(--paper);
+      border-radius: 28px;
+      padding: 32px 40px;
+      max-width: 600px;
+      text-align: center;
+      animation: slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    
+    @keyframes slideUp {
+      from { 
+        opacity: 0;
+        transform: translateY(40px) scale(0.95);
+      }
+      to { 
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+    
+    .mode-content h3 {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+    
+    .mode-content h3 span {
+      color: var(--secondary);
+    }
+    
+    .mode-subtitle {
+      font-size: 16px;
+      color: var(--text-light);
+      margin-bottom: 28px;
+    }
+    
+    .mode-options {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 28px;
+    }
+    
+    .mode-option {
+      flex: 1;
+      background: var(--background);
+      border: 3px solid transparent;
+      border-radius: 20px;
+      padding: 24px 16px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .mode-option:hover {
+      border-color: var(--primary);
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(91, 141, 238, 0.2);
+    }
+    
+    .mode-option.selected {
+      border-color: var(--secondary);
+      background: rgba(155, 89, 182, 0.1);
+    }
+    
+    .mode-icon {
+      font-size: 48px;
+      margin-bottom: 12px;
+    }
+    
+    .mode-label {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+    
+    .mode-desc {
+      font-size: 13px;
+      color: var(--text-light);
+      line-height: 1.4;
+    }
+    
+    .mode-recommended {
+      position: absolute;
+      top: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--gold);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 8px;
+    }
+    
+    .mode-option { position: relative; }
+    
+    .mode-buttons {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+    }
+    
+    .btn {
+      padding: 16px 32px;
+      border-radius: 16px;
+      font-family: 'Fredoka', sans-serif;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, var(--secondary), #8E44AD);
+      color: #fff;
+      box-shadow: 0 6px 20px rgba(155, 89, 182, 0.4);
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(155, 89, 182, 0.5);
+    }
+    
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-light);
+    }
+    
+    .btn-ghost:hover {
+      color: var(--text);
+    }
+    
+    /* ========== FOOTER ========== */
+    .footer-hint {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255,255,255,0.9);
+      padding: 10px 20px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      z-index: 10;
+    }
+    
+    .footer-hint span:first-child {
+      font-size: 20px;
+    }
+    
+    .footer-hint span:last-child {
+      font-size: 14px;
+      color: var(--text-light);
+    }
+  </style>
+</head>
+<body>
+  <div class="ipad-frame">
+    <!-- Décor bibliothèque -->
+    <div class="library-bg">
+      <div class="bookshelf bookshelf-1"></div>
+      <div class="bookshelf bookshelf-left"></div>
+      <div class="bookshelf bookshelf-right"></div>
+      
+      <div class="books-row">
+        <div class="book book-1"></div>
+        <div class="book book-2"></div>
+        <div class="book book-3"></div>
+        <div class="book book-4"></div>
+        <div class="book book-5"></div>
+        <div class="book book-6"></div>
+        <div class="book book-7"></div>
+        <div class="book book-8"></div>
+        <div class="book book-1"></div>
+        <div class="book book-3"></div>
+        <div class="book book-5"></div>
+        <div class="book book-2"></div>
+        <div class="book book-6"></div>
+        <div class="book book-4"></div>
+      </div>
+      
+      <div class="window">
+        <div class="window-cross-v"></div>
+        <div class="window-cross-h"></div>
+      </div>
+      
+      <div class="sunlight"></div>
+      
+      <div class="dust dust-1"></div>
+      <div class="dust dust-2"></div>
+      <div class="dust dust-3"></div>
+      <div class="dust dust-4"></div>
+      <div class="dust dust-5"></div>
+    </div>
+    
+    <!-- Header -->
+    <header class="header">
+      <div class="back-btn">
+        <span>←</span>
+        <span>Accueil</span>
+      </div>
+      
+      <div class="title-area">
+        <h1>📚 Le <span>Conteur Curieux</span></h1>
+        <p>Écoute, comprends, raconte !</p>
+      </div>
+      
+      <div class="stats-row">
+        <div class="stat-badge">
+          <span>📖</span>
+          <span>12 histoires</span>
+        </div>
+        <div class="stat-badge">
+          <span>⭐</span>
+          <span>85%</span>
+        </div>
+      </div>
+    </header>
+    
+    <!-- Contenu principal -->
+    <div class="main-content">
+      <!-- Zone gauche - Mascotte -->
+      <div class="left-section">
+        <div class="plume-container">
+          <div class="plume-body">
+            <div class="plume-ear left"></div>
+            <div class="plume-ear right"></div>
+            <div class="plume-belly"></div>
+            <div class="plume-face">
+              <div class="plume-eye left"></div>
+              <div class="plume-eye right"></div>
+              <div class="plume-beak"></div>
+            </div>
+            <div class="plume-wing left"></div>
+            <div class="plume-wing right"></div>
+            <div class="plume-foot left"></div>
+            <div class="plume-foot right"></div>
+          </div>
+          <div class="plume-book"></div>
+        </div>
+        
+        <div class="speech-bubble">
+          <p>Houhou ! Bienvenue dans ma bibliothèque ! 📚<br><br>Choisis une histoire et je te la raconte !</p>
+        </div>
+      </div>
+      
+      <!-- Zone droite - Histoires -->
+      <div class="right-section">
+        <div class="section-header">
+          <div class="section-title">
+            <span>📚</span>
+            <h2>Mes Histoires</h2>
+          </div>
+          
+          <div class="filter-tabs">
+            <button class="filter-tab active">Tous</button>
+            <button class="filter-tab">🌲 Nature</button>
+            <button class="filter-tab">🏰 Aventure</button>
+            <button class="filter-tab">✨ Magie</button>
+            <button class="filter-tab">👨‍👩‍👧 Famille</button>
+          </div>
+        </div>
+        
+        <div class="stories-grid">
+          <!-- Histoire 1 - Sélectionnée -->
+          <div class="story-card selected" data-theme="nature">
+            <span class="story-badge new">Nouveau</span>
+            <div class="story-cover">
+              <span class="story-cover-emoji">🦊</span>
+            </div>
+            <h4 class="story-title">L'Aventure de Léo dans la Forêt</h4>
+            <div class="story-meta">
+              <div class="story-level">
+                <span>⭐</span>
+                <span>⭐</span>
+                <span style="opacity: 0.3">⭐</span>
+              </div>
+              <span class="story-duration">5 min</span>
+            </div>
+          </div>
+          
+          <!-- Histoire 2 -->
+          <div class="story-card" data-theme="magic">
+            <div class="story-cover">
+              <span class="story-cover-emoji">🧙‍♂️</span>
+            </div>
+            <h4 class="story-title">Le Magicien Distrait</h4>
+            <div class="story-meta">
+              <div class="story-level">
+                <span>⭐</span>
+                <span style="opacity: 0.3">⭐</span>
+                <span style="opacity: 0.3">⭐</span>
+              </div>
+              <span class="story-duration">4 min</span>
+            </div>
+          </div>
+          
+          <!-- Histoire 3 - Complétée -->
+          <div class="story-card" data-theme="adventure">
+            <span class="story-badge completed">✓</span>
+            <div class="story-cover">
+              <span class="story-cover-emoji">🏴‍☠️</span>
+            </div>
+            <h4 class="story-title">Le Trésor du Capitaine</h4>
+            <div class="story-meta">
+              <div class="story-level">
+                <span>⭐</span>
+                <span>⭐</span>
+                <span>⭐</span>
+              </div>
+              <span class="story-duration">7 min</span>
+            </div>
+          </div>
+          
+          <!-- Histoire 4 -->
+          <div class="story-card" data-theme="family">
+            <div class="story-cover">
+              <span class="story-cover-emoji">👵</span>
+            </div>
+            <h4 class="story-title">Les Gâteaux de Mamie</h4>
+            <div class="story-meta">
+              <div class="story-level">
+                <span>⭐</span>
+                <span style="opacity: 0.3">⭐</span>
+                <span style="opacity: 0.3">⭐</span>
+              </div>
+              <span class="story-duration">3 min</span>
+            </div>
+          </div>
+          
+          <!-- Histoire 5 -->
+          <div class="story-card" data-theme="friendship">
+            <div class="story-cover">
+              <span class="story-cover-emoji">🐕</span>
+            </div>
+            <h4 class="story-title">Max et son Nouveau Copain</h4>
+            <div class="story-meta">
+              <div class="story-level">
+                <span>⭐</span>
+                <span>⭐</span>
+                <span style="opacity: 0.3">⭐</span>
+              </div>
+              <span class="story-duration">5 min</span>
+            </div>
+          </div>
+          
+          <!-- Histoire 6 - Verrouillée -->
+          <div class="story-card locked" data-theme="adventure">
+            <div class="story-cover">
+              <span class="story-cover-emoji">🐉</span>
+            </div>
+            <h4 class="story-title">Le Dragon Gentil</h4>
+            <div class="story-meta">
+              <div class="story-level">
+                <span>⭐</span>
+                <span>⭐</span>
+                <span>⭐</span>
+              </div>
+              <span class="story-duration">8 min</span>
+            </div>
+            <div class="story-lock">
+              <span>🔒</span>
+            </div>
+          </div>
+          
+          <!-- Histoire 7 -->
+          <div class="story-card" data-theme="nature">
+            <div class="story-cover">
+              <span class="story-cover-emoji">🦋</span>
+            </div>
+            <h4 class="story-title">La Chenille qui Rêvait</h4>
+            <div class="story-meta">
+              <div class="story-level">
+                <span>⭐</span>
+                <span style="opacity: 0.3">⭐</span>
+                <span style="opacity: 0.3">⭐</span>
+              </div>
+              <span class="story-duration">4 min</span>
+            </div>
+          </div>
+          
+          <!-- Histoire 8 -->
+          <div class="story-card" data-theme="magic">
+            <div class="story-cover">
+              <span class="story-cover-emoji">🦄</span>
+            </div>
+            <h4 class="story-title">La Licorne Arc-en-ciel</h4>
+            <div class="story-meta">
+              <div class="story-level">
+                <span>⭐</span>
+                <span>⭐</span>
+                <span style="opacity: 0.3">⭐</span>
+              </div>
+              <span class="story-duration">6 min</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Footer hint -->
+    <div class="footer-hint">
+      <span>💡</span>
+      <span>Tape sur une histoire pour commencer !</span>
+    </div>
+    
+    <!-- Modal sélection du mode (initialement cachée, décommentez pour voir) -->
+    <!--
+    <div class="mode-modal">
+      <div class="mode-content">
+        <h3>📚 <span>L'Aventure de Léo</span></h3>
+        <p class="mode-subtitle">Comment veux-tu découvrir cette histoire ?</p>
+        
+        <div class="mode-options">
+          <div class="mode-option">
+            <div class="mode-icon">🎧</div>
+            <div class="mode-label">Écouter</div>
+            <div class="mode-desc">Je raconte, tu écoutes et tu regardes les images</div>
+          </div>
+          
+          <div class="mode-option selected">
+            <span class="mode-recommended">Recommandé</span>
+            <div class="mode-icon">🎧👁️</div>
+            <div class="mode-label">Écouter + Lire</div>
+            <div class="mode-desc">Tu vois le texte pendant que j'écoute</div>
+          </div>
+          
+          <div class="mode-option">
+            <div class="mode-icon">👁️</div>
+            <div class="mode-label">Lire seul</div>
+            <div class="mode-desc">Tu lis l'histoire à ton rythme</div>
+          </div>
+        </div>
+        
+        <div class="mode-buttons">
+          <button class="btn btn-ghost">Annuler</button>
+          <button class="btn btn-primary">
+            <span>▶</span>
+            <span>C'est parti !</span>
+          </button>
+        </div>
+      </div>
+    </div>
+    -->
+  </div>
+</body>
+</html>

@@ -1,6 +1,6 @@
 /**
  * MascotOwl component
- * Animated owl mascot "Piou" with speech bubble
+ * Animated owl mascot "Piou" with speech bubble using Lottie animation
  * Provides contextual messages during gameplay
  */
 
@@ -9,17 +9,12 @@ import { View, Text, StyleSheet } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
-  withRepeat,
-  withTiming,
-  withSequence,
   withSpring,
-  withDelay,
-  Easing,
-  FadeIn,
-  FadeOut,
+  withTiming,
 } from 'react-native-reanimated';
+import LottieView from 'lottie-react-native';
 
-import { textStyles, spacing, borderRadius, shadows } from '@/theme';
+import { spacing, borderRadius, shadows } from '@/theme';
 
 type MessageType = 'intro' | 'hint' | 'error' | 'encourage' | 'victory';
 
@@ -28,15 +23,6 @@ interface MascotOwlProps {
   messageType?: MessageType;
   visible?: boolean;
 }
-
-// Color palette for the owl
-const OWL_COLORS = {
-  body: ['#D4A574', '#C49A6C'],
-  wing: '#C49A6C',
-  beak: '#FFB347',
-  eye: '#FFFFFF',
-  pupil: '#4A4A4A',
-};
 
 // Message type to color mapping
 const MESSAGE_COLORS: Record<MessageType, string> = {
@@ -56,48 +42,12 @@ export function MascotOwl({
   const [displayedText, setDisplayedText] = useState('');
 
   // Animation values
-  const bodyY = useSharedValue(0);
-  const leftPupilScale = useSharedValue(1);
-  const rightPupilScale = useSharedValue(1);
   const bubbleScale = useSharedValue(0);
-
-  // Idle floating animation
-  useEffect(() => {
-    bodyY.value = withRepeat(
-      withSequence(
-        withTiming(-5, { duration: 1000, easing: Easing.inOut(Easing.ease) }),
-        withTiming(0, { duration: 1000, easing: Easing.inOut(Easing.ease) })
-      ),
-      -1,
-      false
-    );
-  }, []);
-
-  // Blinking animation
-  useEffect(() => {
-    const blink = () => {
-      leftPupilScale.value = withSequence(
-        withTiming(0.1, { duration: 80 }),
-        withTiming(1, { duration: 80 })
-      );
-      rightPupilScale.value = withSequence(
-        withDelay(20, withTiming(0.1, { duration: 80 })),
-        withTiming(1, { duration: 80 })
-      );
-    };
-
-    // Blink every 3-5 seconds randomly
-    const interval = setInterval(() => {
-      blink();
-    }, 3500 + Math.random() * 1500);
-
-    return () => clearInterval(interval);
-  }, []);
 
   // Bubble appearance animation - reduced pop effect
   useEffect(() => {
     if (visible) {
-      bubbleScale.value = withSpring(1, { damping: 18, stiffness: 150 }); // ✅ More subtle
+      bubbleScale.value = withSpring(1, { damping: 18, stiffness: 150 });
     } else {
       bubbleScale.value = withTiming(0, { duration: 200 });
     }
@@ -125,19 +75,6 @@ export function MascotOwl({
     return () => clearInterval(interval);
   }, [message]);
 
-  // Animated styles
-  const bodyStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: bodyY.value }],
-  }));
-
-  const leftPupilStyle = useAnimatedStyle(() => ({
-    transform: [{ scaleY: leftPupilScale.value }],
-  }));
-
-  const rightPupilStyle = useAnimatedStyle(() => ({
-    transform: [{ scaleY: rightPupilScale.value }],
-  }));
-
   const bubbleStyle = useAnimatedStyle(() => ({
     transform: [{ scale: bubbleScale.value }],
     opacity: bubbleScale.value,
@@ -147,34 +84,23 @@ export function MascotOwl({
 
   return (
     <View style={styles.container}>
-      {/* Speech bubble */}
+      {/* Owl Lottie animation - à gauche */}
+      <View style={styles.owl}>
+        <LottieView
+          source={require('../../../../assets/animations/cute-owl.json')}
+          style={styles.lottie}
+          autoPlay
+          loop
+        />
+      </View>
+
+      {/* Speech bubble - à droite du hibou */}
       <Animated.View style={[styles.speechBubble, bubbleStyle]}>
+        <View style={styles.bubbleArrowLeft} />
         <Text style={[styles.bubbleName, { color: MESSAGE_COLORS[messageType] }]}>
           Piou le Hibou :
         </Text>
         <Text style={styles.bubbleText}>{displayedText}</Text>
-        <View style={styles.bubbleArrow} />
-      </Animated.View>
-
-      {/* Owl body */}
-      <Animated.View style={[styles.owl, bodyStyle]}>
-        {/* Wings */}
-        <View style={[styles.wing, styles.wingLeft]} />
-        <View style={[styles.wing, styles.wingRight]} />
-
-        {/* Body */}
-        <View style={styles.body}>
-          {/* Eyes */}
-          <View style={[styles.eye, styles.eyeLeft]}>
-            <Animated.View style={[styles.pupil, leftPupilStyle]} />
-          </View>
-          <View style={[styles.eye, styles.eyeRight]}>
-            <Animated.View style={[styles.pupil, rightPupilStyle]} />
-          </View>
-
-          {/* Beak */}
-          <View style={styles.beak} />
-        </View>
       </Animated.View>
     </View>
   );
@@ -182,122 +108,62 @@ export function MascotOwl({
 
 const styles = StyleSheet.create({
   container: {
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: spacing[4],
+    paddingVertical: spacing[2],
     paddingHorizontal: spacing[4],
+    gap: spacing[2],
   },
 
-  // Speech bubble
+  // Owl Lottie container - taille doublée
+  owl: {
+    width: 200,
+    height: 200,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  lottie: {
+    width: 200,
+    height: 200,
+  },
+
+  // Speech bubble - à droite du hibou
   speechBubble: {
     backgroundColor: '#FFFFFF',
     borderRadius: borderRadius.xl,
     padding: spacing[5],
-    paddingBottom: spacing[4],
-    maxWidth: 320,
-    minWidth: 280,
-    minHeight: 80,
+    paddingLeft: spacing[6],
+    maxWidth: 450,
+    minWidth: 350,
+    minHeight: 90,
     ...shadows.lg,
-    marginBottom: spacing[3],
+    position: 'relative',
   },
   bubbleName: {
-    ...textStyles.caption,
+    fontSize: 14,
+    fontFamily: 'Fredoka_600SemiBold',
     fontWeight: '700',
     marginBottom: spacing[1],
   },
   bubbleText: {
-    ...textStyles.body,
+    fontSize: 18,
+    fontFamily: 'Fredoka_500Medium',
     color: '#4A4A4A',
-    lineHeight: 22,
+    lineHeight: 26,
   },
-  bubbleArrow: {
+  bubbleArrowLeft: {
     position: 'absolute',
-    bottom: -10,
-    left: '50%',
-    marginLeft: -12,
+    left: -10,
+    top: '50%',
+    marginTop: -12,
     width: 0,
     height: 0,
-    borderLeftWidth: 12,
-    borderRightWidth: 12,
     borderTopWidth: 12,
-    borderLeftColor: 'transparent',
-    borderRightColor: 'transparent',
-    borderTopColor: '#FFFFFF',
-  },
-
-  // Owl body
-  owl: {
-    width: 80,
-    height: 90,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  body: {
-    width: 80,
-    height: 90,
-    backgroundColor: OWL_COLORS.body[0],
-    borderTopLeftRadius: 40,
-    borderTopRightRadius: 40,
-    borderBottomLeftRadius: 36,
-    borderBottomRightRadius: 36,
-    alignItems: 'center',
-    justifyContent: 'flex-start',
-    paddingTop: 15,
-  },
-
-  // Eyes
-  eye: {
-    position: 'absolute',
-    top: 20,
-    width: 24,
-    height: 24,
-    backgroundColor: OWL_COLORS.eye,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  eyeLeft: {
-    left: 12,
-  },
-  eyeRight: {
-    right: 12,
-  },
-  pupil: {
-    width: 12,
-    height: 12,
-    backgroundColor: OWL_COLORS.pupil,
-    borderRadius: 6,
-  },
-
-  // Beak
-  beak: {
-    position: 'absolute',
-    top: 45,
-    width: 0,
-    height: 0,
-    borderLeftWidth: 10,
-    borderRightWidth: 10,
-    borderTopWidth: 15,
-    borderLeftColor: 'transparent',
-    borderRightColor: 'transparent',
-    borderTopColor: OWL_COLORS.beak,
-  },
-
-  // Wings
-  wing: {
-    position: 'absolute',
-    top: 50,
-    width: 25,
-    height: 35,
-    backgroundColor: OWL_COLORS.wing,
-    borderRadius: 12,
-  },
-  wingLeft: {
-    left: -15,
-    transform: [{ rotate: '-10deg' }],
-  },
-  wingRight: {
-    right: -15,
-    transform: [{ rotate: '10deg' }],
+    borderBottomWidth: 12,
+    borderRightWidth: 12,
+    borderTopColor: 'transparent',
+    borderBottomColor: 'transparent',
+    borderRightColor: '#FFFFFF',
   },
 });

@@ -23,4 +23,4 @@ export { GameModal } from './GameModal';
 export type { GameModalProps, GameModalVariant } from './GameModal';
 
 export { VictoryCard } from './VictoryCard';
-export type { VictoryCardProps, VictoryStats } from './VictoryCard';
+export type { VictoryCardProps, VictoryStats, VictoryBadge, CustomStat } from './VictoryCard';

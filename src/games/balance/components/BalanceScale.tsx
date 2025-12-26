@@ -483,7 +483,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.6)',
     paddingHorizontal: spacing[2],
     paddingVertical: spacing[1],
-    borderRadius: borderRadius.full,
+    borderRadius: borderRadius.round,
   },
   weightText: {
     color: colors.text.inverse,
@@ -515,7 +515,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.feedback.success,
     paddingHorizontal: spacing[4],
     paddingVertical: spacing[2],
-    borderRadius: borderRadius.full,
+    borderRadius: borderRadius.round,
     shadowColor: colors.feedback.success,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.4,

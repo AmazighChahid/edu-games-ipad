@@ -1,9 +1,14 @@
 /**
  * Typography system for EduGames
  * Child-friendly fonts with large, readable sizes
+ *
+ * Includes dyslexia-friendly alternatives:
+ * - Lexend: Designed for readability, especially for dyslexic readers
+ * - OpenDyslexic: Alternative if Lexend unavailable
  */
 
 export const fontFamily = {
+  // Standard fonts
   regular: 'Nunito_400Regular',      // Main font for body text
   medium: 'Nunito_600SemiBold',
   semiBold: 'Nunito_600SemiBold',
@@ -11,6 +16,20 @@ export const fontFamily = {
   extraBold: 'Nunito_800ExtraBold',
   display: 'Fredoka_600SemiBold',    // For titles, buttons, and playful elements
   displayBold: 'Fredoka_700Bold',
+} as const;
+
+/**
+ * Dyslexia-friendly font alternatives
+ * Uses Lexend font family - designed for improved readability
+ */
+export const fontFamilyDyslexic = {
+  regular: 'Lexend_400Regular',
+  medium: 'Lexend_500Medium',
+  semiBold: 'Lexend_600SemiBold',
+  bold: 'Lexend_700Bold',
+  extraBold: 'Lexend_800ExtraBold',
+  display: 'Lexend_600SemiBold',
+  displayBold: 'Lexend_700Bold',
 } as const;
 
 // Font sizes - larger than typical for children (based on home-redesign.html)

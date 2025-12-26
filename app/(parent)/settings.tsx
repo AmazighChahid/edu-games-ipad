@@ -21,7 +21,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 
 import { colors, spacing, borderRadius, shadows } from '@/theme';
-import { useAppSettings, useActiveProfile, useStore } from '@/store/useStore';
+import { useAppSettings, useActiveProfile, useStore } from '@/store';
 
 const AVATAR_OPTIONS = ['👦', '👧', '🧒', '👶', '🦸', '🧙', '🐻', '🦊', '🐰', '🦁', '🐼', '🐨'];
 

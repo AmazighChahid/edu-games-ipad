@@ -51,7 +51,7 @@ export interface CollectionDataV9 {
 
 export type MedalType = 'none' | 'bronze' | 'silver' | 'gold' | 'diamond';
 export type BadgeType = 'new' | 'hot' | 'soon';
-export type GameColor = 'blue' | 'purple' | 'green' | 'orange' | 'teal' | 'pink' | 'indigo' | 'red';
+export type GameColor = 'blue' | 'purple' | 'green' | 'orange' | 'teal' | 'pink' | 'indigo' | 'red' | 'amber' | 'cyan';
 
 export interface GameV9 {
   id: string;

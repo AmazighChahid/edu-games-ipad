@@ -9,7 +9,7 @@
  * - Parent zone integration
  */
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { View, Text, StyleSheet, Pressable, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -30,6 +30,23 @@ import { SudokuGrid, SymbolSelector } from '../components';
 import { useSudokuGame } from '../hooks/useSudokuGame';
 import type { SudokuSize, SudokuTheme, SudokuDifficulty, SudokuConfig } from '../types';
 import { ParentZone, type GameMode } from '@/components/parent/ParentZone';
+import { VictoryCard, type VictoryBadge } from '@/components/common';
+import { CardUnlockScreen } from '@/components/collection';
+import { useCardUnlock } from '@/hooks/useCardUnlock';
+import { useCollection } from '@/store';
+
+// Fonction pour calculer le badge non-compétitif du Sudoku
+const getSudokuBadge = (errorCount: number, hintsUsed: number, size: number): VictoryBadge => {
+  if (errorCount === 0 && hintsUsed === 0) {
+    return { icon: '🧩', label: 'Maître Puzzle' };
+  } else if (errorCount <= 2 && hintsUsed <= 1) {
+    return { icon: '⭐', label: 'Perspicace' };
+  } else if (hintsUsed >= 3) {
+    return { icon: '💪', label: 'Persévérant' };
+  } else {
+    return { icon: '🌟', label: 'Explorateur' };
+  }
+};
 
 const THEMES: { id: SudokuTheme; label: string; emoji: string; color: string }[] = [
   { id: 'fruits', label: 'Fruits', emoji: '🍎', color: '#FF6B6B' },
@@ -329,6 +346,9 @@ function SudokuGameScreen({
   gameMode: GameMode;
   onBack: () => void;
 }) {
+  const router = useRouter();
+  const { getUnlockedCardsCount } = useCollection();
+
   const {
     gameState,
     selectedSymbol,
@@ -351,6 +371,63 @@ function SudokuGameScreen({
     (config.size * config.size);
 
   const owlState = getOwlMessage(true, gameState.isComplete, errorCount, progress);
+
+  // Calculer le niveau basé sur la taille de la grille
+  const levelNumber = config.size === 4 ? 1 : config.size === 6 ? 2 : 3;
+  const isOptimal = errorCount === 0 && gameState.hintsUsed === 0;
+
+  // Système de déblocage de cartes
+  const {
+    unlockedCard,
+    showUnlockAnimation,
+    checkAndUnlockCard,
+    dismissUnlockAnimation,
+  } = useCardUnlock({
+    gameId: 'sudoku',
+    levelId: `level_${config.size}`,
+    levelNumber: levelNumber,
+    isOptimal,
+  });
+
+  // Check pour déblocage de carte quand le jeu est terminé
+  const [hasCheckedUnlock, setHasCheckedUnlock] = useState(false);
+
+  useEffect(() => {
+    if (gameState.isComplete && !hasCheckedUnlock) {
+      const timer = setTimeout(() => {
+        checkAndUnlockCard();
+        setHasCheckedUnlock(true);
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [gameState.isComplete, hasCheckedUnlock, checkAndUnlockCard]);
+
+  // Reset le check quand on recommence
+  const handleResetWithUnlock = () => {
+    setHasCheckedUnlock(false);
+    handleReset();
+  };
+
+  const handleViewCollection = () => {
+    dismissUnlockAnimation();
+    router.push('/(games)/collection');
+  };
+
+  const handleContinueAfterUnlock = () => {
+    dismissUnlockAnimation();
+  };
+
+  // Afficher l'écran de déblocage de carte si une carte a été débloquée
+  if (showUnlockAnimation && unlockedCard) {
+    return (
+      <CardUnlockScreen
+        card={unlockedCard}
+        unlockedCount={getUnlockedCardsCount()}
+        onViewCollection={handleViewCollection}
+        onContinue={handleContinueAfterUnlock}
+      />
+    );
+  }
 
   return (
     <View style={styles.gameContent}>
@@ -399,28 +476,28 @@ function SudokuGameScreen({
         theme={config.theme}
       />
 
-      {/* Victory overlay */}
+      {/* Victory overlay avec VictoryCard unifié */}
       {gameState.isComplete && (
-        <Animated.View entering={FadeIn} style={styles.victoryOverlay}>
-          <View style={styles.victoryCard}>
-            <Text style={styles.victoryTitle}>🎉 Bravo !</Text>
-            <Text style={styles.victoryText}>
-              Tu as complété la grille {config.size}×{config.size} !
-            </Text>
-            <Text style={styles.victoryStats}>
-              Indices utilisés: {gameState.hintsUsed}
-            </Text>
-            <Text style={styles.victoryStats}>
-              Erreurs: {errorCount}
-            </Text>
-            <Pressable onPress={handleReset} style={styles.playAgainButton}>
-              <Text style={styles.playAgainText}>Rejouer</Text>
-            </Pressable>
-            <Pressable onPress={onBack} style={styles.menuButton}>
-              <Text style={styles.menuButtonText}>Menu</Text>
-            </Pressable>
-          </View>
-        </Animated.View>
+        <VictoryCard
+          variant="overlay"
+          title="Bravo !"
+          message={`Tu as complété la grille ${config.size}×${config.size} !`}
+          mascot={{
+            emoji: '🦊',
+            message: errorCount === 0 ? 'Parfait ! Aucune erreur !' : 'Super travail !',
+          }}
+          stats={{
+            hintsUsed: gameState.hintsUsed,
+            customStats: [
+              { label: 'Erreurs', value: errorCount, icon: '❌' },
+            ],
+          }}
+          badge={getSudokuBadge(errorCount, gameState.hintsUsed, config.size)}
+          onReplay={handleResetWithUnlock}
+          onHome={onBack}
+          onCollection={handleViewCollection}
+          hasNextLevel={false}
+        />
       )}
 
       {/* Floating action buttons */}
@@ -450,7 +527,7 @@ const styles = StyleSheet.create({
   headerButton: {
     width: touchTargets.medium,
     height: touchTargets.medium,
-    borderRadius: borderRadius.full,
+    borderRadius: borderRadius.round,
     backgroundColor: colors.background.card,
     alignItems: 'center',
     justifyContent: 'center',
@@ -646,7 +723,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary.main,
     paddingVertical: spacing[4],
     paddingHorizontal: spacing[6],
-    borderRadius: borderRadius.full,
+    borderRadius: borderRadius.round,
     marginTop: spacing[4],
     ...shadows.lg,
   },
@@ -722,53 +799,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingVertical: spacing[2],
-  },
-  victoryOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  victoryCard: {
-    backgroundColor: colors.background.card,
-    padding: spacing[6],
-    borderRadius: borderRadius.xl,
-    alignItems: 'center',
-    maxWidth: '80%',
-    ...shadows.lg,
-  },
-  victoryTitle: {
-    fontSize: 48,
-    marginBottom: spacing[4],
-  },
-  victoryText: {
-    ...textStyles.h2,
-    textAlign: 'center',
-    marginBottom: spacing[4],
-  },
-  victoryStats: {
-    ...textStyles.body,
-    color: colors.text.secondary,
-    marginBottom: spacing[2],
-  },
-  playAgainButton: {
-    backgroundColor: colors.primary.main,
-    paddingHorizontal: spacing[6],
-    paddingVertical: spacing[4],
-    borderRadius: borderRadius.md,
-    marginTop: spacing[4],
-  },
-  playAgainText: {
-    ...textStyles.button,
-    color: colors.primary.contrast,
-  },
-  menuButton: {
-    paddingVertical: spacing[3],
-    marginTop: spacing[3],
-  },
-  menuButtonText: {
-    ...textStyles.button,
-    color: colors.primary.main,
   },
   floatingButtons: {
     position: 'absolute',

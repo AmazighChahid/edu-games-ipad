@@ -13,7 +13,7 @@ import {
   FlatList,
 } from 'react-native';
 import { colors, spacing, borderRadius, shadows } from '@/theme';
-import { useStore, useActiveProfile, useProfiles } from '@/store/useStore';
+import { useStore, useActiveProfile, useProfiles } from '@/store';
 import type { ChildProfile } from '@/types';
 
 interface ChildSelectorProps {

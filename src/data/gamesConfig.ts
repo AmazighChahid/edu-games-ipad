@@ -92,8 +92,33 @@ export const GAMES_DEFINITIONS: GameDefinition[] = [
     icon: '📝',
     color: 'red',
     categoryId: 'words',
-    badge: 'soon',
-    isLocked: true,
+  },
+  {
+    id: 'conteur-curieux',
+    name: 'Conteur Curieux',
+    icon: '📚',
+    color: 'purple',
+    categoryId: 'words',
+    badge: 'new',
+  },
+
+  // Équilibre
+  {
+    id: 'balance',
+    name: 'Balance Logique',
+    icon: '⚖️',
+    color: 'amber',
+    categoryId: 'logic',
+  },
+
+  // Matrices
+  {
+    id: 'matrices-magiques',
+    name: 'Matrices Magiques',
+    icon: '🔮',
+    color: 'cyan',
+    categoryId: 'logic',
+    badge: 'new',
   },
 ];
 

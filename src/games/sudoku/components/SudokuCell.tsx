@@ -16,7 +16,7 @@ import * as Haptics from 'expo-haptics';
 import { useEffect } from 'react';
 
 import { colors, spacing, textStyles, borderRadius } from '@/theme';
-import { useStore } from '@/store/useStore';
+import { useStore } from '@/store';
 import type { SudokuCell as CellType, SudokuValue } from '../types';
 
 interface SudokuCellProps {

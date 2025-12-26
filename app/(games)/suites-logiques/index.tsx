@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { SuitesLogiquesGame } from '../../../src/games/suites-logiques';
 import type { SessionStats } from '../../../src/games/suites-logiques';
 
@@ -10,12 +10,22 @@ import type { SessionStats } from '../../../src/games/suites-logiques';
 
 export default function SuitesLogiquesScreen() {
   const router = useRouter();
+  const params = useLocalSearchParams<{ level?: string }>();
+  const initialLevel = parseInt(params.level ?? '1', 10);
 
   const handleSessionEnd = (stats: SessionStats) => {
     console.log('Session terminée:', stats);
-    // TODO: Sauvegarder les statistiques
-    // TODO: Afficher un écran de résumé
-    router.back();
+    // Naviguer vers l'écran de victoire avec les statistiques
+    router.replace({
+      pathname: '/(games)/suites-logiques/victory',
+      params: {
+        completed: stats.completed.toString(),
+        correctFirstTry: stats.correctFirstTry.toString(),
+        maxStreak: stats.maxStreak.toString(),
+        totalTime: stats.totalTime.toString(),
+        level: initialLevel.toString(),
+      },
+    });
   };
 
   const handleExit = () => {
@@ -26,7 +36,7 @@ export default function SuitesLogiquesScreen() {
     <View style={styles.container}>
       <SuitesLogiquesGame
         theme="shapes" // Thème par défaut
-        initialLevel={1}
+        initialLevel={initialLevel}
         onSessionEnd={handleSessionEnd}
         onExit={handleExit}
       />

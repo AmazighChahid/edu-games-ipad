@@ -78,10 +78,10 @@ export function MathIntroScreen() {
 
           const difficultyColor =
             level.difficulty === 'easy'
-              ? colors.feedback.success
+              ? theme.colors.feedback.success
               : level.difficulty === 'medium'
-              ? colors.feedback.warning
-              : colors.feedback.error;
+              ? theme.colors.feedback.warning
+              : theme.colors.feedback.error;
 
           return (
             <Pressable
@@ -185,7 +185,7 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     paddingVertical: theme.spacing[2],
     paddingHorizontal: theme.spacing[3],
-    borderRadius: theme.borderRadius.full,
+    borderRadius: theme.borderRadius.round,
     marginBottom: theme.spacing[2],
   },
   levelBadgeText: {

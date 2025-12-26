@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Matrices Magiques - Puzzle</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    :root {
+      --primary: #6C5CE7;
+      --primary-light: #A29BFE;
+      --secondary: #FF9F43;
+      --success: #00D2A0;
+      --error: #FFB347;
+      --background: #F8F4FF;
+      --surface: #FFFFFF;
+      --text-dark: #2D3436;
+      --text-medium: #636E72;
+      
+      /* Space theme colors */
+      --space-primary: #5B8DEE;
+      --space-secondary: #9B59B6;
+      --space-bg: #1A1A2E;
+      --space-surface: #2D2D44;
+    }
+    
+    body {
+      font-family: 'Nunito', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: #0D0D1A;
+      padding: 20px;
+    }
+    
+    .ipad-frame {
+      width: 1194px;
+      height: 834px;
+      background: linear-gradient(180deg, #1A1A2E 0%, #16162A 50%, #0D0D1A 100%);
+      border-radius: 24px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 25px 80px rgba(0,0,0,0.6);
+    }
+    
+    /* ========== SPACE BACKGROUND ========== */
+    .space-bg {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    
+    /* Stars */
+    .star {
+      position: absolute;
+      background: white;
+      border-radius: 50%;
+      animation: twinkle 2s ease-in-out infinite;
+    }
+    .star.small { width: 2px; height: 2px; }
+    .star.medium { width: 3px; height: 3px; }
+    .star.large { width: 4px; height: 4px; }
+    
+    .star:nth-child(1) { top: 10%; left: 5%; animation-delay: 0s; }
+    .star:nth-child(2) { top: 20%; left: 15%; animation-delay: 0.3s; }
+    .star:nth-child(3) { top: 5%; left: 25%; animation-delay: 0.6s; }
+    .star:nth-child(4) { top: 15%; left: 40%; animation-delay: 0.9s; }
+    .star:nth-child(5) { top: 8%; left: 55%; animation-delay: 0.2s; }
+    .star:nth-child(6) { top: 25%; left: 70%; animation-delay: 0.5s; }
+    .star:nth-child(7) { top: 12%; left: 85%; animation-delay: 0.8s; }
+    .star:nth-child(8) { top: 30%; left: 10%; animation-delay: 0.4s; }
+    .star:nth-child(9) { top: 35%; left: 92%; animation-delay: 0.7s; }
+    .star:nth-child(10) { top: 45%; left: 3%; animation-delay: 0.1s; }
+    .star:nth-child(11) { top: 60%; left: 8%; animation-delay: 0.35s; }
+    .star:nth-child(12) { top: 70%; left: 95%; animation-delay: 0.65s; }
+    .star:nth-child(13) { top: 80%; left: 12%; animation-delay: 0.95s; }
+    .star:nth-child(14) { top: 85%; left: 88%; animation-delay: 0.25s; }
+    .star:nth-child(15) { top: 90%; left: 50%; animation-delay: 0.55s; }
+    
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 1; }
+    }
+    
+    /* Planet decoration */
+    .planet {
+      position: absolute;
+      border-radius: 50%;
+    }
+    .planet-1 {
+      top: 60px;
+      right: 80px;
+      width: 60px;
+      height: 60px;
+      background: radial-gradient(circle at 30% 30%, #FFD93D, #F39C12);
+      box-shadow: 0 0 40px rgba(255,217,61,0.3);
+    }
+    .planet-2 {
+      bottom: 100px;
+      left: 60px;
+      width: 40px;
+      height: 40px;
+      background: radial-gradient(circle at 30% 30%, #A29BFE, #6C5CE7);
+      box-shadow: 0 0 30px rgba(162,155,254,0.3);
+    }
+    
+    /* ========== HEADER ========== */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 32px;
+      position: relative;
+      z-index: 10;
+    }
+    
+    .back-button {
+      width: 56px;
+      height: 56px;
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      color: white;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .back-button:hover {
+      background: rgba(255,255,255,0.15);
+      transform: translateY(-2px);
+    }
+    
+    .header-center {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+    .world-title {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 24px;
+      font-weight: 600;
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .puzzle-progress {
+      display: flex;
+      gap: 8px;
+    }
+    .progress-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      transition: all 0.3s;
+    }
+    .progress-dot.completed {
+      background: var(--success);
+      box-shadow: 0 0 8px rgba(0,210,160,0.5);
+    }
+    .progress-dot.current {
+      background: var(--space-primary);
+      box-shadow: 0 0 8px rgba(91,141,238,0.5);
+      transform: scale(1.2);
+    }
+    
+    .header-right {
+      display: flex;
+      gap: 12px;
+    }
+    .stars-display {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(10px);
+      padding: 10px 16px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .stars-display span:first-child { font-size: 20px; }
+    .stars-display span:last-child {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: white;
+    }
+    
+    .hint-button {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: linear-gradient(135deg, #FF9F43, #E67E22);
+      padding: 10px 20px;
+      border-radius: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 4px 12px rgba(255,159,67,0.3);
+    }
+    .hint-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(255,159,67,0.4);
+    }
+    .hint-button span:first-child { font-size: 20px; }
+    .hint-button span:last-child {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      color: white;
+    }
+    .hint-count {
+      background: rgba(255,255,255,0.3);
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 13px;
+    }
+    
+    /* ========== MAIN CONTENT ========== */
+    .main-content {
+      display: flex;
+      padding: 0 32px;
+      gap: 40px;
+      height: calc(100% - 120px);
+      align-items: center;
+    }
+    
+    /* ========== MATRIX SECTION ========== */
+    .matrix-section {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    
+    .matrix-container {
+      background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(10px);
+      border-radius: 32px;
+      padding: 32px;
+      border: 2px solid rgba(255,255,255,0.1);
+    }
+    
+    .matrix-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+    
+    .matrix-cell {
+      width: 140px;
+      height: 140px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 64px;
+      border: 3px solid rgba(255,255,255,0.1);
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+    .matrix-cell:hover {
+      background: rgba(255,255,255,0.12);
+      border-color: rgba(255,255,255,0.2);
+    }
+    .matrix-cell.highlighted {
+      border-color: var(--space-primary);
+      box-shadow: 0 0 20px rgba(91,141,238,0.3);
+    }
+    
+    .matrix-cell.target {
+      background: linear-gradient(135deg, rgba(91,141,238,0.2), rgba(155,89,182,0.2));
+      border: 3px dashed var(--space-primary);
+      position: relative;
+    }
+    .matrix-cell.target::after {
+      content: '?';
+      font-family: 'Fredoka', sans-serif;
+      font-size: 56px;
+      color: var(--space-primary);
+      animation: pulse-question 2s ease-in-out infinite;
+    }
+    
+    @keyframes pulse-question {
+      0%, 100% { opacity: 0.5; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.1); }
+    }
+    
+    /* When answer is placed */
+    .matrix-cell.target.filled {
+      border-style: solid;
+      border-color: var(--success);
+      background: rgba(0,210,160,0.15);
+    }
+    .matrix-cell.target.filled::after {
+      display: none;
+    }
+    
+    /* ========== CHOICES SECTION ========== */
+    .choices-section {
+      margin-top: 32px;
+    }
+    
+    .choices-label {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 16px;
+      color: rgba(255,255,255,0.6);
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    
+    .choices-grid {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+    }
+    
+    .choice-button {
+      width: 100px;
+      height: 100px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 48px;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 3px solid transparent;
+    }
+    .choice-button:hover {
+      background: rgba(255,255,255,0.15);
+      transform: translateY(-4px);
+    }
+    .choice-button.selected {
+      border-color: var(--space-primary);
+      background: rgba(91,141,238,0.2);
+      box-shadow: 0 0 20px rgba(91,141,238,0.3);
+    }
+    .choice-button.correct {
+      border-color: var(--success);
+      background: rgba(0,210,160,0.2);
+      animation: correct-pulse 0.5s ease;
+    }
+    .choice-button.incorrect {
+      border-color: var(--error);
+      animation: shake 0.4s ease;
+    }
+    
+    @keyframes correct-pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+    
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-8px); }
+      40% { transform: translateX(8px); }
+      60% { transform: translateX(-8px); }
+      80% { transform: translateX(8px); }
+    }
+    
+    /* Validate button */
+    .validate-button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 24px;
+      padding: 16px 48px;
+      background: linear-gradient(135deg, var(--space-primary), var(--space-secondary));
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 6px 20px rgba(91,141,238,0.3);
+    }
+    .validate-button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 28px rgba(91,141,238,0.4);
+    }
+    .validate-button.disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .validate-button.disabled:hover {
+      transform: none;
+      box-shadow: 0 6px 20px rgba(91,141,238,0.3);
+    }
+    .validate-button span {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 20px;
+      font-weight: 600;
+      color: white;
+    }
+    
+    /* ========== MASCOT SECTION ========== */
+    .mascot-section {
+      width: 300px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    
+    .pixel-mascot {
+      position: relative;
+      animation: mascot-float 3s ease-in-out infinite;
+    }
+    
+    @keyframes mascot-float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-15px); }
+    }
+    
+    .pixel-body {
+      width: 140px;
+      height: 160px;
+      position: relative;
+    }
+    
+    /* Same fox as intro but smaller */
+    .fox-head {
+      width: 120px;
+      height: 110px;
+      background: linear-gradient(180deg, #FF9F43 0%, #E67E22 100%);
+      border-radius: 50% 50% 45% 45%;
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    .fox-ear {
+      position: absolute;
+      top: -18px;
+      width: 0;
+      height: 0;
+      border-left: 18px solid transparent;
+      border-right: 18px solid transparent;
+      border-bottom: 35px solid #FF9F43;
+    }
+    .fox-ear.left { left: 8px; transform: rotate(-15deg); }
+    .fox-ear.right { right: 8px; transform: rotate(15deg); }
+    .fox-ear::after {
+      content: '';
+      position: absolute;
+      top: 16px;
+      left: -8px;
+      width: 0;
+      height: 0;
+      border-left: 8px solid transparent;
+      border-right: 8px solid transparent;
+      border-bottom: 16px solid #FFEAA7;
+    }
+    .fox-face {
+      position: absolute;
+      top: 35px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 85px;
+    }
+    .fox-glasses {
+      position: absolute;
+      top: -3px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 95px;
+      height: 35px;
+    }
+    .glasses-lens {
+      position: absolute;
+      width: 30px;
+      height: 30px;
+      border: 3px solid #6C5CE7;
+      border-radius: 50%;
+      background: rgba(108, 92, 231, 0.15);
+    }
+    .glasses-lens.left { left: 5px; }
+    .glasses-lens.right { right: 5px; }
+    .glasses-bridge {
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 18px;
+      height: 3px;
+      background: #6C5CE7;
+    }
+    .fox-eyes {
+      display: flex;
+      justify-content: space-between;
+      padding: 0 3px;
+    }
+    .fox-eye {
+      width: 24px;
+      height: 24px;
+      background: white;
+      border-radius: 50%;
+      position: relative;
+    }
+    .fox-eye::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-30%, -50%);
+      width: 12px;
+      height: 12px;
+      background: #2D3436;
+      border-radius: 50%;
+    }
+    .fox-eye::before {
+      content: '';
+      position: absolute;
+      top: 5px;
+      left: 5px;
+      width: 5px;
+      height: 5px;
+      background: white;
+      border-radius: 50%;
+      z-index: 1;
+    }
+    /* Happy eyes - semicircle */
+    .fox-eye.happy {
+      background: none;
+      border-bottom: 4px solid #2D3436;
+      border-radius: 0 0 50% 50%;
+      height: 12px;
+    }
+    .fox-eye.happy::after,
+    .fox-eye.happy::before { display: none; }
+    
+    .fox-nose {
+      width: 15px;
+      height: 10px;
+      background: #2D3436;
+      border-radius: 50%;
+      margin: 12px auto 4px;
+    }
+    .fox-mouth {
+      width: 26px;
+      height: 12px;
+      border-bottom: 3px solid #2D3436;
+      border-radius: 0 0 50% 50%;
+      margin: 0 auto;
+    }
+    .fox-body-main {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 85px;
+      height: 60px;
+      background: linear-gradient(180deg, #FF9F43 0%, #E67E22 100%);
+      border-radius: 40% 40% 45% 45%;
+    }
+    .fox-belly {
+      position: absolute;
+      bottom: 5px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 50px;
+      height: 35px;
+      background: #FFEAA7;
+      border-radius: 50%;
+    }
+    .fox-tail {
+      position: absolute;
+      bottom: 15px;
+      right: -25px;
+      width: 50px;
+      height: 25px;
+      background: linear-gradient(90deg, #E67E22, #FF9F43);
+      border-radius: 0 50% 50% 0;
+      transform-origin: left center;
+      animation: tail-wag 0.8s ease-in-out infinite;
+    }
+    .fox-tail::after {
+      content: '';
+      position: absolute;
+      right: 0;
+      top: 4px;
+      width: 16px;
+      height: 16px;
+      background: #FFEAA7;
+      border-radius: 50%;
+    }
+    @keyframes tail-wag {
+      0%, 100% { transform: rotate(-10deg); }
+      50% { transform: rotate(10deg); }
+    }
+    
+    /* Space suit accessories */
+    .space-helmet {
+      position: absolute;
+      top: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 130px;
+      height: 120px;
+      border: 4px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      background: transparent;
+    }
+    
+    /* Speech bubble */
+    .speech-bubble {
+      background: rgba(255,255,255,0.95);
+      padding: 16px 20px;
+      border-radius: 20px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+      margin-top: 20px;
+      max-width: 280px;
+      position: relative;
+    }
+    .speech-bubble::before {
+      content: '';
+      position: absolute;
+      top: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-left: 12px solid transparent;
+      border-right: 12px solid transparent;
+      border-bottom: 12px solid rgba(255,255,255,0.95);
+    }
+    .speech-bubble p {
+      font-size: 15px;
+      color: var(--text-dark);
+      line-height: 1.5;
+      text-align: center;
+    }
+    .speech-bubble p strong {
+      color: var(--primary);
+    }
+    
+    /* Attempts indicator */
+    .attempts-display {
+      margin-top: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+    .attempts-label {
+      font-size: 14px;
+      color: rgba(255,255,255,0.5);
+    }
+    .attempts-dots {
+      display: flex;
+      gap: 8px;
+    }
+    .attempt-dot {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      border: 2px solid rgba(255,255,255,0.3);
+    }
+    .attempt-dot.used {
+      background: var(--error);
+      border-color: var(--error);
+    }
+    .attempt-dot.success {
+      background: var(--success);
+      border-color: var(--success);
+    }
+    
+    /* ========== FEEDBACK OVERLAY ========== */
+    .feedback-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    .feedback-overlay.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    
+    .feedback-card {
+      background: white;
+      border-radius: 32px;
+      padding: 40px 48px;
+      text-align: center;
+      max-width: 400px;
+      transform: scale(0.8);
+      transition: transform 0.3s ease;
+    }
+    .feedback-overlay.visible .feedback-card {
+      transform: scale(1);
+    }
+    
+    .feedback-icon {
+      font-size: 64px;
+      margin-bottom: 16px;
+    }
+    .feedback-title {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin-bottom: 12px;
+    }
+    .feedback-message {
+      font-size: 16px;
+      color: var(--text-medium);
+      margin-bottom: 24px;
+      line-height: 1.5;
+    }
+    .feedback-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 32px;
+      background: linear-gradient(135deg, var(--space-primary), var(--space-secondary));
+      border-radius: 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .feedback-button:hover {
+      transform: translateY(-2px);
+    }
+    .feedback-button span {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 18px;
+      font-weight: 600;
+      color: white;
+    }
+    
+    /* Success specific */
+    .feedback-card.success .feedback-title { color: var(--success); }
+    
+    /* ========== HINT POPUP ========== */
+    .hint-popup {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.9);
+      background: white;
+      border-radius: 24px;
+      padding: 32px;
+      max-width: 450px;
+      z-index: 90;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.3s;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    .hint-popup.visible {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translate(-50%, -50%) scale(1);
+    }
+    
+    .hint-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .hint-header span:first-child { font-size: 32px; }
+    .hint-header h3 {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--secondary);
+    }
+    
+    .hint-content {
+      background: #FFF9F0;
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    .hint-content p {
+      font-size: 16px;
+      color: var(--text-dark);
+      line-height: 1.6;
+    }
+    
+    .hint-close {
+      display: flex;
+      justify-content: center;
+    }
+    .hint-close button {
+      padding: 12px 32px;
+      background: var(--secondary);
+      border: none;
+      border-radius: 14px;
+      font-family: 'Fredoka', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      color: white;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .hint-close button:hover {
+      transform: translateY(-2px);
+    }
+  </style>
+</head>
+<body>
+  <div class="ipad-frame">
+    <!-- Space background -->
+    <div class="space-bg">
+      <div class="star small" style="top: 10%; left: 5%;"></div>
+      <div class="star medium" style="top: 20%; left: 15%;"></div>
+      <div class="star small" style="top: 5%; left: 25%;"></div>
+      <div class="star large" style="top: 15%; left: 40%;"></div>
+      <div class="star small" style="top: 8%; left: 55%;"></div>
+      <div class="star medium" style="top: 25%; left: 70%;"></div>
+      <div class="star small" style="top: 12%; left: 85%;"></div>
+      <div class="star medium" style="top: 30%; left: 10%;"></div>
+      <div class="star small" style="top: 35%; left: 92%;"></div>
+      <div class="star large" style="top: 45%; left: 3%;"></div>
+      <div class="star small" style="top: 60%; left: 8%;"></div>
+      <div class="star medium" style="top: 70%; left: 95%;"></div>
+      <div class="star small" style="top: 80%; left: 12%;"></div>
+      <div class="star medium" style="top: 85%; left: 88%;"></div>
+      <div class="star large" style="top: 90%; left: 50%;"></div>
+      
+      <div class="planet planet-1"></div>
+      <div class="planet planet-2"></div>
+    </div>
+    
+    <!-- Header -->
+    <header class="header">
+      <div class="back-button">←</div>
+      
+      <div class="header-center">
+        <div class="world-title">
+          <span>🚀</span>
+          <span>Station Spatiale</span>
+        </div>
+        <div class="puzzle-progress">
+          <div class="progress-dot completed"></div>
+          <div class="progress-dot completed"></div>
+          <div class="progress-dot completed"></div>
+          <div class="progress-dot current"></div>
+          <div class="progress-dot"></div>
+          <div class="progress-dot"></div>
+          <div class="progress-dot"></div>
+          <div class="progress-dot"></div>
+        </div>
+      </div>
+      
+      <div class="header-right">
+        <div class="stars-display">
+          <span>⭐</span>
+          <span>127</span>
+        </div>
+        <div class="hint-button">
+          <span>💡</span>
+          <span>Indice</span>
+          <span class="hint-count">●●●</span>
+        </div>
+      </div>
+    </header>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+      <!-- Matrix Section -->
+      <div class="matrix-section">
+        <div class="matrix-container">
+          <div class="matrix-grid">
+            <!-- Row 1 -->
+            <div class="matrix-cell">🔴</div>
+            <div class="matrix-cell">🔵</div>
+            <div class="matrix-cell">🟢</div>
+            <!-- Row 2 -->
+            <div class="matrix-cell">🔵</div>
+            <div class="matrix-cell">🟢</div>
+            <div class="matrix-cell">🔴</div>
+            <!-- Row 3 -->
+            <div class="matrix-cell">🟢</div>
+            <div class="matrix-cell">🔴</div>
+            <div class="matrix-cell target"></div>
+          </div>
+        </div>
+        
+        <!-- Choices -->
+        <div class="choices-section">
+          <div class="choices-label">Choisis la pièce manquante :</div>
+          <div class="choices-grid">
+            <div class="choice-button">🔴</div>
+            <div class="choice-button selected">🔵</div>
+            <div class="choice-button">🟢</div>
+            <div class="choice-button">🟡</div>
+            <div class="choice-button">🟣</div>
+            <div class="choice-button">🟠</div>
+          </div>
+          
+          <div class="validate-button">
+            <span>✓</span>
+            <span>Valider</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Mascot Section -->
+      <div class="mascot-section">
+        <div class="pixel-mascot">
+          <div class="pixel-body">
+            <div class="fox-head">
+              <div class="fox-ear left"></div>
+              <div class="fox-ear right"></div>
+              <div class="fox-face">
+                <div class="fox-glasses">
+                  <div class="glasses-lens left"></div>
+                  <div class="glasses-lens right"></div>
+                  <div class="glasses-bridge"></div>
+                </div>
+                <div class="fox-eyes">
+                  <div class="fox-eye"></div>
+                  <div class="fox-eye"></div>
+                </div>
+                <div class="fox-nose"></div>
+                <div class="fox-mouth"></div>
+              </div>
+            </div>
+            <div class="fox-body-main">
+              <div class="fox-belly"></div>
+            </div>
+            <div class="fox-tail"></div>
+          </div>
+        </div>
+        
+        <div class="speech-bubble">
+          <p>Observe bien chaque <strong>ligne</strong> et chaque <strong>colonne</strong>. Qu'est-ce qui se répète ? 🔍</p>
+        </div>
+        
+        <div class="attempts-display">
+          <div class="attempts-label">Essais restants</div>
+          <div class="attempts-dots">
+            <div class="attempt-dot"></div>
+            <div class="attempt-dot"></div>
+            <div class="attempt-dot"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Hint Popup (hidden by default) -->
+    <div class="hint-popup">
+      <div class="hint-header">
+        <span>💡</span>
+        <h3>Indice niveau 1</h3>
+      </div>
+      <div class="hint-content">
+        <p>Regarde bien chaque <strong>ligne</strong> de la grille. Chaque couleur apparaît exactement <strong>une fois</strong> par ligne. Quelle couleur manque dans la dernière ligne ?</p>
+      </div>
+      <div class="hint-close">
+        <button>J'ai compris !</button>
+      </div>
+    </div>
+    
+    <!-- Feedback Overlay (hidden by default) -->
+    <div class="feedback-overlay">
+      <div class="feedback-card success">
+        <div class="feedback-icon">⭐</div>
+        <div class="feedback-title">Bravo !</div>
+        <div class="feedback-message">Tu as trouvé la règle : chaque couleur apparaît une fois par ligne ET par colonne !</div>
+        <div class="feedback-button">
+          <span>🚀</span>
+          <span>Puzzle suivant</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

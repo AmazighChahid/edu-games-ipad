@@ -20,6 +20,7 @@ import {
   Animated,
   PanResponder,
   TouchableWithoutFeedback,
+  Modal,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
@@ -28,8 +29,8 @@ import { shadows } from '@/theme';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
-// Drawer height
-const DRAWER_HEIGHT = 450;
+// Drawer height - 90% of screen height
+const DRAWER_HEIGHT = SCREEN_HEIGHT * 0.9;
 
 // Tab types
 type TabType = 'objectif' | 'competences' | 'questions' | 'quotidien' | 'progression';
@@ -102,16 +103,12 @@ export function ParentDrawer({
   const translateY = useRef(new Animated.Value(SCREEN_HEIGHT)).current;
   const backdropOpacity = useRef(new Animated.Value(0)).current;
 
-  // Track if component has been shown at least once
-  const [hasBeenVisible, setHasBeenVisible] = useState(false);
-
   // Calculate success rate
   const successRate = totalGames > 0 ? Math.round((successfulGames / totalGames) * 100) : 0;
 
   // Open/close drawer based on visibility
   useEffect(() => {
     if (isVisible) {
-      setHasBeenVisible(true);
       // Animate both backdrop and drawer
       Animated.parallel([
         Animated.timing(backdropOpacity, {
@@ -126,7 +123,7 @@ export function ParentDrawer({
           useNativeDriver: true,
         }),
       ]).start();
-    } else if (hasBeenVisible) {
+    } else {
       Animated.parallel([
         Animated.timing(backdropOpacity, {
           toValue: 0,
@@ -140,7 +137,7 @@ export function ParentDrawer({
         }),
       ]).start();
     }
-  }, [isVisible, hasBeenVisible]);
+  }, [isVisible]);
 
   // Pan responder for swipe to close
   const panResponder = useRef(
@@ -517,92 +514,96 @@ export function ParentDrawer({
     }
   };
 
-  // Don't render if never been visible
-  if (!isVisible && !hasBeenVisible) return null;
-
   return (
-    <View style={styles.overlay} pointerEvents={isVisible ? 'auto' : 'none'}>
-      {/* Backdrop - click to close */}
-      <TouchableWithoutFeedback onPress={onClose}>
+    <Modal
+      visible={isVisible}
+      transparent
+      animationType="none"
+      statusBarTranslucent
+      onRequestClose={onClose}
+    >
+      <View style={styles.overlay}>
+        {/* Backdrop - click to close */}
+        <TouchableWithoutFeedback onPress={onClose}>
+          <Animated.View
+            style={[
+              styles.backdrop,
+              { opacity: backdropOpacity }
+            ]}
+          />
+        </TouchableWithoutFeedback>
+
+        {/* Drawer */}
         <Animated.View
           style={[
-            styles.backdrop,
-            { opacity: backdropOpacity }
+            styles.container,
+            {
+              transform: [{ translateY }],
+              height: DRAWER_HEIGHT,
+            },
           ]}
-        />
-      </TouchableWithoutFeedback>
-
-      {/* Drawer */}
-      <Animated.View
-        style={[
-          styles.container,
-          {
-            transform: [{ translateY }],
-            height: DRAWER_HEIGHT,
-          },
-        ]}
-      >
-        {/* Drag Handle */}
-        <View {...panResponder.panHandlers} style={styles.handleContainer}>
-          <View style={styles.handle} />
-        </View>
-
-        {/* Header */}
-        <View style={styles.header}>
-          <View style={styles.headerTitle}>
-            <Text style={styles.headerIcon}>👨‍👩‍👧</Text>
-            <Text style={styles.headerText}>Guide Parent</Text>
-            <View style={styles.headerBadge}>
-              <Text style={styles.headerBadgeText}>Tour de Hanoï</Text>
-            </View>
+        >
+          {/* Drag Handle */}
+          <View {...panResponder.panHandlers} style={styles.handleContainer}>
+            <View style={styles.handle} />
           </View>
-          <Pressable onPress={onClose} style={styles.closeButton}>
-            <Text style={styles.closeButtonText}>✕</Text>
-          </Pressable>
-        </View>
 
-        {/* Tabs */}
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={styles.tabsContainer}
-          contentContainerStyle={styles.tabsContent}
-        >
-          {tabs.map((tab) => (
-            <Pressable
-              key={tab.id}
-              style={[styles.tab, activeTab === tab.id && styles.tabActive]}
-              onPress={() => {
-                setActiveTab(tab.id);
-                triggerHaptic('light');
-              }}
-            >
-              <Text style={styles.tabEmoji}>{tab.emoji}</Text>
-              <Text style={[styles.tabLabel, activeTab === tab.id && styles.tabLabelActive]}>
-                {tab.label}
-              </Text>
+          {/* Header */}
+          <View style={styles.header}>
+            <View style={styles.headerTitle}>
+              <Text style={styles.headerIcon}>👨‍👩‍👧</Text>
+              <Text style={styles.headerText}>Guide Parent</Text>
+              <View style={styles.headerBadge}>
+                <Text style={styles.headerBadgeText}>Tour de Hanoï</Text>
+              </View>
+            </View>
+            <Pressable onPress={onClose} style={styles.closeButton}>
+              <Text style={styles.closeButtonText}>✕</Text>
             </Pressable>
-          ))}
-        </ScrollView>
+          </View>
 
-        {/* Content */}
-        <ScrollView
-          style={styles.contentScroll}
-          showsVerticalScrollIndicator={false}
-          bounces={true}
-        >
-          {renderTabContent()}
-          <View style={{ height: 40 + insets.bottom }} />
-        </ScrollView>
-      </Animated.View>
-    </View>
+          {/* Tabs */}
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={styles.tabsContainer}
+            contentContainerStyle={styles.tabsContent}
+          >
+            {tabs.map((tab) => (
+              <Pressable
+                key={tab.id}
+                style={[styles.tab, activeTab === tab.id && styles.tabActive]}
+                onPress={() => {
+                  setActiveTab(tab.id);
+                  triggerHaptic('light');
+                }}
+              >
+                <Text style={styles.tabEmoji}>{tab.emoji}</Text>
+                <Text style={[styles.tabLabel, activeTab === tab.id && styles.tabLabelActive]}>
+                  {tab.label}
+                </Text>
+              </Pressable>
+            ))}
+          </ScrollView>
+
+          {/* Content */}
+          <ScrollView
+            style={styles.contentScroll}
+            showsVerticalScrollIndicator={false}
+            bounces={true}
+          >
+            {renderTabContent()}
+            <View style={{ height: 40 + insets.bottom }} />
+          </ScrollView>
+        </Animated.View>
+      </View>
+    </Modal>
   );
 }
 
 const styles = StyleSheet.create({
   overlay: {
-    ...StyleSheet.absoluteFillObject,
-    zIndex: 1000,
+    flex: 1,
   },
   backdrop: {
     ...StyleSheet.absoluteFillObject,

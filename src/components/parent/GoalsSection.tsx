@@ -7,7 +7,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Modal } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 import { colors, spacing, borderRadius, shadows } from '@/theme';
-import { useStore, useActiveProfile } from '@/store/useStore';
+import { useStore, useActiveProfile } from '@/store';
 import type { ParentGoal, GoalStatus } from '@/types';
 import { GoalEditor } from './GoalEditor';
 

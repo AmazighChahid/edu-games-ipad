@@ -7,7 +7,7 @@ import { Pressable, StyleSheet, ViewStyle } from 'react-native';
 import * as Haptics from 'expo-haptics';
 
 import { colors, borderRadius, shadows, touchTargets } from '@/theme';
-import { useStore } from '@/store/useStore';
+import { useStore } from '@/store';
 
 type IconButtonVariant = 'primary' | 'secondary' | 'ghost';
 type IconButtonSize = 'small' | 'medium' | 'large';
@@ -59,7 +59,7 @@ export function IconButton({
 
 const styles = StyleSheet.create({
   button: {
-    borderRadius: borderRadius.full,
+    borderRadius: borderRadius.round,
     alignItems: 'center',
     justifyContent: 'center',
   },

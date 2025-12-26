@@ -28,9 +28,17 @@ export type CognitiveSkill =
   | 'deductive_reasoning'
   | 'patience'
   | 'systematic_thinking'
-  | 'spatial_reasoning'   // NEW - for tangram, labyrinthe
-  | 'vocabulary'          // NEW - for mots-croises
-  | 'spelling';           // NEW - for mots-croises
+  | 'spatial_reasoning'      // for tangram, labyrinthe
+  | 'vocabulary'             // for mots-croises
+  | 'spelling'               // for mots-croises
+  | 'quantitative_reasoning' // for balance
+  | 'equivalence'            // for balance
+  | 'pre_algebra'            // for balance
+  | 'reading_comprehension'  // for conteur-curieux
+  | 'memory'                 // for conteur-curieux
+  | 'inference'              // for conteur-curieux
+  | 'visual_reasoning'       // for matrices-magiques
+  | 'logical_thinking';      // for matrices-magiques
 
 // ============================================
 // GAME METADATA

@@ -6,7 +6,7 @@
 import React, { useMemo } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { colors, spacing, borderRadius, shadows } from '@/theme';
-import { useStore } from '@/store/useStore';
+import { useStore } from '@/store';
 import { analyzeStrengthsWeaknesses } from '@/utils/analytics';
 import type { StrengthLevel, StrengthItem } from '@/types';
 

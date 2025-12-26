@@ -149,7 +149,7 @@ const styles = StyleSheet.create({
     right: theme.spacing[3],
     width: theme.touchTargets.child,
     height: theme.touchTargets.child,
-    borderRadius: theme.borderRadius.full,
+    borderRadius: theme.borderRadius.round,
     backgroundColor: theme.colors.background.secondary,
     alignItems: 'center',
     justifyContent: 'center',

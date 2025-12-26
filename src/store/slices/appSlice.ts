@@ -4,6 +4,7 @@
  */
 
 import { StateCreator } from 'zustand';
+import type { DaltonismMode } from '@/theme/daltonismModes';
 
 export interface AppState {
   // Settings
@@ -11,6 +12,11 @@ export interface AppState {
   musicEnabled: boolean;
   hapticEnabled: boolean;
   language: 'fr' | 'en';
+
+  // Accessibility settings
+  dyslexicFontEnabled: boolean;
+  daltonismMode: DaltonismMode;
+  highContrastEnabled: boolean;
 
   // App lifecycle
   hasCompletedOnboarding: boolean;
@@ -28,6 +34,12 @@ export interface AppActions {
   setMusicEnabled: (enabled: boolean) => void;
   setHapticEnabled: (enabled: boolean) => void;
   setLanguage: (lang: 'fr' | 'en') => void;
+
+  // Accessibility actions
+  setDyslexicFontEnabled: (enabled: boolean) => void;
+  setDaltonismMode: (mode: DaltonismMode) => void;
+  setHighContrastEnabled: (enabled: boolean) => void;
+
   completeOnboarding: () => void;
   updateLastOpened: () => void;
   setHasHydrated: (hydrated: boolean) => void;
@@ -41,6 +53,12 @@ export const initialAppState: AppState = {
   musicEnabled: true,
   hapticEnabled: true,
   language: 'fr',
+
+  // Accessibility defaults
+  dyslexicFontEnabled: false,
+  daltonismMode: 'normal',
+  highContrastEnabled: false,
+
   hasCompletedOnboarding: false,
   lastOpenedAt: null,
   hasSeenHanoiTutorial: false,
@@ -54,6 +72,12 @@ export const createAppSlice: StateCreator<AppSlice, [], [], AppSlice> = (set) =>
   setMusicEnabled: (enabled) => set({ musicEnabled: enabled }),
   setHapticEnabled: (enabled) => set({ hapticEnabled: enabled }),
   setLanguage: (lang) => set({ language: lang }),
+
+  // Accessibility setters
+  setDyslexicFontEnabled: (enabled) => set({ dyslexicFontEnabled: enabled }),
+  setDaltonismMode: (mode) => set({ daltonismMode: mode }),
+  setHighContrastEnabled: (enabled) => set({ highContrastEnabled: enabled }),
+
   completeOnboarding: () => set({ hasCompletedOnboarding: true }),
   updateLastOpened: () => set({ lastOpenedAt: Date.now() }),
   setHasHydrated: (hydrated) => set({ hasHydrated: hydrated }),

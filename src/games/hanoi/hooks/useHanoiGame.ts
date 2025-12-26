@@ -6,7 +6,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import * as Haptics from 'expo-haptics';
 
-import { useStore } from '@/store/useStore';
+import { useStore } from '@/store';
 import { useSound } from '../../../hooks/useSound';
 import type { HanoiGameState, HanoiLevelConfig, TowerId } from '../types';
 import {

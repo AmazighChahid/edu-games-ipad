@@ -3,6 +3,7 @@ import { View, StyleSheet, Dimensions, Pressable, Text } from 'react-native';
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 import { runOnJS } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
+import { useRouter } from 'expo-router';
 
 import { MazeGrid } from './components/MazeGrid';
 import { Avatar } from './components/Avatar';
@@ -16,6 +17,9 @@ import { useMazeGame } from './hooks/useMazeGame';
 import { useAvatarMovement } from './hooks/useAvatarMovement';
 
 import { LevelConfig, Direction, SessionStats } from './types';
+import { CardUnlockScreen } from '@/components/collection';
+import { useCardUnlock } from '@/hooks/useCardUnlock';
+import { useCollection } from '@/store';
 
 interface Props {
   level: LevelConfig;
@@ -32,6 +36,8 @@ const STATS_HEIGHT = 50;
 const PADDING = 32;
 
 export const LabyrintheGame: React.FC<Props> = ({ level, onComplete, onExit }) => {
+  const router = useRouter();
+  const { getUnlockedCardsCount } = useCollection();
   const { mazeState, gameStatus, moveAvatar, requestHint, resetLevel } = useMazeGame(level);
 
   const { animatedPosition, animateMove, animateBlocked, setInitialPosition } =
@@ -40,6 +46,51 @@ export const LabyrintheGame: React.FC<Props> = ({ level, onComplete, onExit }) =
   const [mascotMessage, setMascotMessage] = useState<string>('');
   const [showMascot, setShowMascot] = useState(true);
   const [showVictory, setShowVictory] = useState(false);
+  const [hasCheckedUnlock, setHasCheckedUnlock] = useState(false);
+
+  // Calculer si la performance est optimale (3 étoiles)
+  const isOptimal = mazeState.stats.stars === 3 && mazeState.hintsUsed === 0;
+
+  // Système de déblocage de cartes
+  const {
+    unlockedCard,
+    showUnlockAnimation,
+    checkAndUnlockCard,
+    dismissUnlockAnimation,
+  } = useCardUnlock({
+    gameId: 'labyrinthe',
+    levelId: `level_${level.id}`,
+    levelNumber: level.id,
+    isOptimal,
+  });
+
+  // Check pour déblocage de carte après victoire
+  useEffect(() => {
+    if (showVictory && !hasCheckedUnlock) {
+      const timer = setTimeout(() => {
+        checkAndUnlockCard();
+        setHasCheckedUnlock(true);
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [showVictory, hasCheckedUnlock, checkAndUnlockCard]);
+
+  // Reset l'état quand on recommence
+  useEffect(() => {
+    if (!showVictory) {
+      setHasCheckedUnlock(false);
+    }
+  }, [showVictory]);
+
+  // Handlers pour le déblocage de cartes
+  const handleViewCollection = useCallback(() => {
+    dismissUnlockAnimation();
+    router.push('/(games)/collection');
+  }, [dismissUnlockAnimation, router]);
+
+  const handleContinueAfterUnlock = useCallback(() => {
+    dismissUnlockAnimation();
+  }, [dismissUnlockAnimation]);
 
   // Calcul de la taille des cellules - adapter à l'espace disponible
   const availableWidth = SCREEN_WIDTH - PADDING * 2;
@@ -79,7 +130,25 @@ export const LabyrintheGame: React.FC<Props> = ({ level, onComplete, onExit }) =
     }
   }, [gameStatus]);
 
-  // Geste de swipe pour déplacement
+  // Gestion du déplacement (doit être défini AVANT le geste qui l'utilise)
+  const handleMove = useCallback(
+    (direction: Direction) => {
+      const result = moveAvatar(direction);
+
+      if (result.success) {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        animateMove(result.newPosition!, cellSize);
+
+        // Vérifier les interactions
+        if (result.collectedItem) {
+          handleItemCollection(result.collectedItem);
+        }
+      }
+    },
+    [moveAvatar, cellSize]
+  );
+
+  // Geste de swipe pour déplacement (après handleMove)
   const swipeGesture = Gesture.Pan().onEnd((event) => {
     const { translationX, translationY } = event;
     const threshold = 30;
@@ -98,24 +167,6 @@ export const LabyrintheGame: React.FC<Props> = ({ level, onComplete, onExit }) =
       runOnJS(handleMove)(direction);
     }
   });
-
-  // Gestion du déplacement
-  const handleMove = useCallback(
-    (direction: Direction) => {
-      const result = moveAvatar(direction);
-
-      if (result.success) {
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-        animateMove(result.newPosition!, cellSize);
-
-        // Vérifier les interactions
-        if (result.collectedItem) {
-          handleItemCollection(result.collectedItem);
-        }
-      }
-    },
-    [moveAvatar, cellSize]
-  );
 
   // Collecte d'objet
   const handleItemCollection = useCallback((item: any) => {
@@ -143,6 +194,18 @@ export const LabyrintheGame: React.FC<Props> = ({ level, onComplete, onExit }) =
     }
   }, [requestHint]);
 
+  // Afficher l'écran de déblocage de carte si une carte a été débloquée
+  if (showUnlockAnimation && unlockedCard) {
+    return (
+      <CardUnlockScreen
+        card={unlockedCard}
+        unlockedCount={getUnlockedCardsCount()}
+        onViewCollection={handleViewCollection}
+        onContinue={handleContinueAfterUnlock}
+      />
+    );
+  }
+
   if (showVictory) {
     return (
       <VictoryScreen
@@ -150,6 +213,7 @@ export const LabyrintheGame: React.FC<Props> = ({ level, onComplete, onExit }) =
         onReplay={() => {
           resetLevel();
           setShowVictory(false);
+          setHasCheckedUnlock(false);
           setMascotMessage("On recommence ? Super !");
         }}
         onNext={() => onComplete(mazeState.stats)}
