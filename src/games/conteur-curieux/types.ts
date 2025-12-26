@@ -210,6 +210,8 @@ export interface StoryQuestion {
   emoji?: string;
   /** Passage lié dans l'histoire (pour relecture ciblée) */
   relatedParagraph?: number;
+  /** Extrait du texte de référence (pour l'indice texte) */
+  textReference?: string;
   /** Explication après réponse */
   explanation?: string;
 }

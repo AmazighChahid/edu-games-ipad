@@ -24,8 +24,9 @@ import {
   RotationAngle,
   FillStyle,
   ShapeRendererProps,
+  SHAPE_COLORS,
 } from '../../types';
-import { SHAPE_COLORS, SHAPE_METADATA, getPatternForColor } from '../../data';
+import { SHAPE_METADATA, getPatternForColor } from '../../data';
 import { renderBasicShape } from './BasicShapes';
 import { renderForestShape } from './ForestShapes';
 import { renderSpaceShape } from './SpaceShapes';

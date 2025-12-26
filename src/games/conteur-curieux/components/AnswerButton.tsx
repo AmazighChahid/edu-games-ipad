@@ -90,7 +90,7 @@ export function AnswerButton({
     onPress();
   }, [disabled, onPress]);
 
-  // Animation quand encourage (shake léger)
+  // Animation quand encourage (shake léger) - désactivé pour correct
   React.useEffect(() => {
     if (state === 'encourage') {
       shake.value = withSequence(
@@ -100,13 +100,8 @@ export function AnswerButton({
         withTiming(2, { duration: 50 }),
         withTiming(0, { duration: 50 })
       );
-    } else if (state === 'correct') {
-      // Petit rebond pour correct
-      scale.value = withSequence(
-        withSpring(1.05, { damping: 10 }),
-        withSpring(1, { damping: 12 })
-      );
     }
+    // Pas d'animation de clignotement pour la bonne réponse
   }, [state]);
 
   const animatedStyle = useAnimatedStyle(() => ({

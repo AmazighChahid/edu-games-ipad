@@ -28,6 +28,7 @@ import { colors, spacing, textStyles, borderRadius, shadows, touchTargets } from
 import { SudokuBackground } from '../components/SudokuBackground';
 import { SudokuGrid, SymbolSelector } from '../components';
 import { useSudokuGame } from '../hooks/useSudokuGame';
+import { getUsedSymbolsInZone } from '../logic/validation';
 import type { SudokuSize, SudokuTheme, SudokuDifficulty, SudokuConfig } from '../types';
 import { ParentZone, type GameMode } from '@/components/parent/ParentZone';
 import { VictoryCard, type VictoryBadge } from '@/components/common';
@@ -370,6 +371,16 @@ function SudokuGameScreen({
   const progress = gameState.grid.cells.flat().filter(c => c.value !== null).length /
     (config.size * config.size);
 
+  // Calculer les symboles déjà utilisés dans la zone de la case sélectionnée
+  const usedSymbols = useMemo(() => {
+    if (!gameState.selectedCell) return new Set();
+    return getUsedSymbolsInZone(
+      gameState.grid,
+      gameState.selectedCell.row,
+      gameState.selectedCell.col
+    );
+  }, [gameState.selectedCell, gameState.grid]);
+
   const owlState = getOwlMessage(true, gameState.isComplete, errorCount, progress);
 
   // Calculer le niveau basé sur la taille de la grille
@@ -474,6 +485,7 @@ function SudokuGameScreen({
         selectedSymbol={selectedSymbol}
         onClear={handleClearCell}
         theme={config.theme}
+        usedSymbols={usedSymbols}
       />
 
       {/* Victory overlay avec VictoryCard unifié */}

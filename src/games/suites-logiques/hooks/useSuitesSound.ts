@@ -104,9 +104,14 @@ export function useSuitesSound() {
       ambientLoopRef.current = null;
     }
 
-    const ambientPlayerInstance = playersRef.current.get('ambient');
-    if (ambientPlayerInstance) {
-      ambientPlayerInstance.pause();
+    try {
+      const ambientPlayerInstance = playersRef.current.get('ambient');
+      if (ambientPlayerInstance && ambientPlayerInstance.playing) {
+        ambientPlayerInstance.pause();
+      }
+    } catch (error) {
+      // Le player peut avoir été libéré lors du démontage du composant
+      console.debug('Audio player already released');
     }
   }, []);
 

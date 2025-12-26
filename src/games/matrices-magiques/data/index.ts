@@ -5,6 +5,8 @@
 // Worlds
 export {
   WORLDS,
+  WORLDS_ARRAY,
+  WORLD_ORDER,
   FOREST_WORLD,
   SPACE_WORLD,
   CASTLE_WORLD,
@@ -36,6 +38,7 @@ export type { ShapeMetadata, PatternType } from './shapes';
 
 // Dialogues
 export {
+  PIXEL_DIALOGUES,
   INTRO_DIALOGUES,
   PUZZLE_START_DIALOGUES,
   HINT_DIALOGUES,

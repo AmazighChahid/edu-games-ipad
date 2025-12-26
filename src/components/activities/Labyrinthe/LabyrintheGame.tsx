@@ -1,7 +1,5 @@
-import React, { useEffect, useCallback, useState } from 'react';
+import React, { useEffect, useCallback, useState, useRef } from 'react';
 import { View, StyleSheet, Dimensions, Pressable, Text } from 'react-native';
-import { GestureDetector, Gesture } from 'react-native-gesture-handler';
-import { runOnJS } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
 
@@ -9,9 +7,10 @@ import { MazeGrid } from './components/MazeGrid';
 import { Avatar } from './components/Avatar';
 import { PathTrail } from './components/PathTrail';
 import { Inventory } from './components/Inventory';
-import { DirectionalControls } from './components/DirectionalControls';
 import { VictoryScreen } from './components/VictoryScreen';
 import { MascotBubble } from './components/MascotBubble';
+import { InstructionQueue, Instruction } from './components/InstructionQueue';
+import { ProgrammingControls } from './components/ProgrammingControls';
 
 import { useMazeGame } from './hooks/useMazeGame';
 import { useAvatarMovement } from './hooks/useAvatarMovement';
@@ -47,6 +46,12 @@ export const LabyrintheGame: React.FC<Props> = ({ level, onComplete, onExit }) =
   const [showMascot, setShowMascot] = useState(true);
   const [showVictory, setShowVictory] = useState(false);
   const [hasCheckedUnlock, setHasCheckedUnlock] = useState(false);
+
+  // État du système de programmation
+  const [instructions, setInstructions] = useState<Instruction[]>([]);
+  const [isExecuting, setIsExecuting] = useState(false);
+  const [currentInstructionIndex, setCurrentInstructionIndex] = useState(-1);
+  const executionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Calculer si la performance est optimale (3 étoiles)
   const isOptimal = mazeState.stats.stars === 3 && mazeState.hintsUsed === 0;
@@ -103,8 +108,17 @@ export const LabyrintheGame: React.FC<Props> = ({ level, onComplete, onExit }) =
 
   // Initialisation
   useEffect(() => {
-    setMascotMessage("On y va ! Glisse ton doigt pour me guider !");
+    setMascotMessage("Crée ton programme avec les flèches, puis appuie sur Lancer !");
     setInitialPosition(mazeState.grid.start, cellSize);
+  }, []);
+
+  // Nettoyage des timeouts
+  useEffect(() => {
+    return () => {
+      if (executionTimeoutRef.current) {
+        clearTimeout(executionTimeoutRef.current);
+      }
+    };
   }, []);
 
   // Gestion du feedback selon le statut du jeu
@@ -130,9 +144,9 @@ export const LabyrintheGame: React.FC<Props> = ({ level, onComplete, onExit }) =
     }
   }, [gameStatus]);
 
-  // Gestion du déplacement (doit être défini AVANT le geste qui l'utilise)
+  // Gestion du déplacement (exécute un mouvement unique)
   const handleMove = useCallback(
-    (direction: Direction) => {
+    (direction: Direction): boolean => {
       const result = moveAvatar(direction);
 
       if (result.success) {
@@ -143,30 +157,127 @@ export const LabyrintheGame: React.FC<Props> = ({ level, onComplete, onExit }) =
         if (result.collectedItem) {
           handleItemCollection(result.collectedItem);
         }
+        return true;
       }
+      return false;
     },
     [moveAvatar, cellSize]
   );
 
-  // Geste de swipe pour déplacement (après handleMove)
-  const swipeGesture = Gesture.Pan().onEnd((event) => {
-    const { translationX, translationY } = event;
-    const threshold = 30;
-
-    let direction: Direction | null = null;
-
-    if (Math.abs(translationX) > Math.abs(translationY)) {
-      if (translationX > threshold) direction = 'right';
-      else if (translationX < -threshold) direction = 'left';
-    } else {
-      if (translationY > threshold) direction = 'down';
-      else if (translationY < -threshold) direction = 'up';
+  // Ajouter une instruction au programme
+  const handleAddInstruction = useCallback((direction: Direction) => {
+    if (instructions.length >= 20) {
+      setMascotMessage("Programme complet ! Appuie sur Lancer pour tester.");
+      return;
     }
 
-    if (direction) {
-      runOnJS(handleMove)(direction);
+    const newInstruction: Instruction = {
+      id: `${Date.now()}-${Math.random()}`,
+      direction,
+      executed: false,
+      current: false,
+    };
+
+    setInstructions(prev => [...prev, newInstruction]);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+  }, [instructions.length]);
+
+  // Supprimer une instruction
+  const handleRemoveInstruction = useCallback((id: string) => {
+    setInstructions(prev => prev.filter(inst => inst.id !== id));
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+  }, []);
+
+  // Effacer toutes les instructions
+  const handleClearInstructions = useCallback(() => {
+    setInstructions([]);
+    setMascotMessage("Programme effacé ! Recommence...");
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+  }, []);
+
+  // Exécuter le programme
+  const executeProgram = useCallback(() => {
+    if (instructions.length === 0 || isExecuting) return;
+
+    setIsExecuting(true);
+    setCurrentInstructionIndex(0);
+    setMascotMessage("C'est parti ! Voyons si ton programme fonctionne...");
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+
+    // Marquer la première instruction comme courante
+    setInstructions(prev => prev.map((inst, idx) => ({
+      ...inst,
+      current: idx === 0,
+      executed: false,
+    })));
+  }, [instructions.length, isExecuting]);
+
+  // Exécution séquentielle des instructions
+  useEffect(() => {
+    if (!isExecuting || currentInstructionIndex < 0) return;
+
+    if (currentInstructionIndex >= instructions.length) {
+      // Programme terminé
+      setIsExecuting(false);
+      setCurrentInstructionIndex(-1);
+      if (gameStatus !== 'victory') {
+        setMascotMessage("Programme terminé ! Modifie-le et réessaie.");
+      }
+      return;
     }
-  });
+
+    const currentInstruction = instructions[currentInstructionIndex];
+
+    // Exécuter l'instruction courante après un délai
+    executionTimeoutRef.current = setTimeout(() => {
+      const success = handleMove(currentInstruction.direction);
+
+      // Mettre à jour l'état des instructions
+      setInstructions(prev => prev.map((inst, idx) => ({
+        ...inst,
+        executed: idx <= currentInstructionIndex,
+        current: idx === currentInstructionIndex + 1,
+      })));
+
+      if (!success) {
+        // Mouvement bloqué - arrêter l'exécution
+        setIsExecuting(false);
+        setCurrentInstructionIndex(-1);
+        setMascotMessage("Oups ! Bloqué ici. Modifie ton programme.");
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+        return;
+      }
+
+      // Passer à l'instruction suivante
+      setCurrentInstructionIndex(prev => prev + 1);
+    }, 600); // 600ms entre chaque instruction
+
+  }, [isExecuting, currentInstructionIndex, instructions, handleMove, gameStatus]);
+
+  // Arrêter l'exécution en cas de victoire
+  useEffect(() => {
+    if (gameStatus === 'victory' && isExecuting) {
+      setIsExecuting(false);
+      setCurrentInstructionIndex(-1);
+      if (executionTimeoutRef.current) {
+        clearTimeout(executionTimeoutRef.current);
+      }
+    }
+  }, [gameStatus, isExecuting]);
+
+  // Réinitialiser le niveau et le programme
+  const handleReset = useCallback(() => {
+    if (executionTimeoutRef.current) {
+      clearTimeout(executionTimeoutRef.current);
+    }
+    resetLevel();
+    setInstructions([]);
+    setIsExecuting(false);
+    setCurrentInstructionIndex(-1);
+    setInitialPosition(mazeState.grid.start, cellSize);
+    setMascotMessage("On recommence ! Crée un nouveau programme.");
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+  }, [resetLevel, mazeState.grid.start, cellSize, setInitialPosition]);
 
   // Collecte d'objet
   const handleItemCollection = useCallback((item: any) => {
@@ -211,7 +322,7 @@ export const LabyrintheGame: React.FC<Props> = ({ level, onComplete, onExit }) =
       <VictoryScreen
         stats={mazeState.stats}
         onReplay={() => {
-          resetLevel();
+          handleReset();
           setShowVictory(false);
           setHasCheckedUnlock(false);
           setMascotMessage("On recommence ? Super !");
@@ -258,25 +369,32 @@ export const LabyrintheGame: React.FC<Props> = ({ level, onComplete, onExit }) =
       <MascotBubble message={mascotMessage} visible={showMascot} position="top" />
 
       {/* Zone de jeu */}
-      <GestureDetector gesture={swipeGesture}>
-        <View style={styles.gameArea}>
-          {/* Grille du labyrinthe */}
-          <MazeGrid grid={mazeState.grid} cellSize={cellSize} theme={level.theme}>
-            {/* Fil d'Ariane */}
-            {level.showPathTrail && (
-              <PathTrail path={mazeState.pathHistory} cellSize={cellSize} />
-            )}
+      <View style={styles.gameArea}>
+        {/* Grille du labyrinthe avec lignes de grille visibles */}
+        <MazeGrid grid={mazeState.grid} cellSize={cellSize} theme={level.theme} showGridLines={true}>
+          {/* Fil d'Ariane */}
+          {level.showPathTrail && (
+            <PathTrail path={mazeState.pathHistory} cellSize={cellSize} />
+          )}
 
-            {/* Avatar */}
-            <Avatar
-              animatedPosition={animatedPosition}
-              direction={mazeState.avatarDirection}
-              cellSize={cellSize}
-              status={gameStatus}
-            />
-          </MazeGrid>
-        </View>
-      </GestureDetector>
+          {/* Avatar */}
+          <Avatar
+            animatedPosition={animatedPosition}
+            direction={mazeState.avatarDirection}
+            cellSize={cellSize}
+            status={gameStatus}
+          />
+        </MazeGrid>
+      </View>
+
+      {/* File d'instructions (Programme) */}
+      <InstructionQueue
+        instructions={instructions}
+        onRemoveInstruction={handleRemoveInstruction}
+        onClear={handleClearInstructions}
+        isExecuting={isExecuting}
+        maxInstructions={20}
+      />
 
       {/* Inventaire */}
       {mazeState.inventory.length > 0 && (
@@ -285,10 +403,15 @@ export const LabyrintheGame: React.FC<Props> = ({ level, onComplete, onExit }) =
         </View>
       )}
 
-      {/* Contrôles (si mode boutons) */}
-      {level.controlMode === 'buttons' && (
-        <DirectionalControls onMove={handleMove} />
-      )}
+      {/* Contrôles de programmation */}
+      <ProgrammingControls
+        onAddInstruction={handleAddInstruction}
+        onExecute={executeProgram}
+        onReset={handleReset}
+        canExecute={instructions.length > 0}
+        canReset={instructions.length > 0 || mazeState.pathHistory.length > 1}
+        isExecuting={isExecuting}
+      />
 
       {/* Stats rapides */}
       <View style={styles.statsBar}>

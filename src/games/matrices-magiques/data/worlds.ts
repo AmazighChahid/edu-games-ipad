@@ -137,8 +137,17 @@ export const MYSTERY_WORLD: WorldConfig = {
   difficultyRange: ['expert', 'expert'],
 };
 
-/** All worlds in order */
-export const WORLDS: WorldConfig[] = [
+/** World order (IDs only) */
+export const WORLD_ORDER: WorldTheme[] = [
+  'forest',
+  'space',
+  'castle',
+  'art',
+  'mystery',
+];
+
+/** All worlds in order (as array) */
+export const WORLDS_ARRAY: WorldConfig[] = [
   FOREST_WORLD,
   SPACE_WORLD,
   CASTLE_WORLD,
@@ -146,16 +155,25 @@ export const WORLDS: WorldConfig[] = [
   MYSTERY_WORLD,
 ];
 
+/** All worlds by ID (for quick access) */
+export const WORLDS: Record<WorldTheme, WorldConfig> = {
+  forest: FOREST_WORLD,
+  space: SPACE_WORLD,
+  castle: CASTLE_WORLD,
+  art: ART_WORLD,
+  mystery: MYSTERY_WORLD,
+};
+
 /** Get world by ID */
 export function getWorldById(id: WorldTheme): WorldConfig | undefined {
-  return WORLDS.find((w) => w.id === id);
+  return WORLDS[id];
 }
 
 /** Get next world after current */
 export function getNextWorld(currentId: WorldTheme): WorldConfig | undefined {
-  const currentIndex = WORLDS.findIndex((w) => w.id === currentId);
-  if (currentIndex >= 0 && currentIndex < WORLDS.length - 1) {
-    return WORLDS[currentIndex + 1];
+  const currentIndex = WORLD_ORDER.indexOf(currentId);
+  if (currentIndex >= 0 && currentIndex < WORLD_ORDER.length - 1) {
+    return WORLDS[WORLD_ORDER[currentIndex + 1]];
   }
   return undefined;
 }
@@ -175,8 +193,8 @@ export function isWorldUnlocked(
       return completedWorlds.includes(world.unlockCondition.worldId!);
     case 'complete_all':
       // All worlds except mystery must be completed
-      return WORLDS.filter((w) => w.id !== 'mystery').every((w) =>
-        completedWorlds.includes(w.id)
+      return WORLD_ORDER.filter((id) => id !== 'mystery').every((id) =>
+        completedWorlds.includes(id)
       );
     default:
       return false;

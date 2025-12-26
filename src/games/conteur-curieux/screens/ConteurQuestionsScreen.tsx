@@ -96,6 +96,7 @@ export function ConteurQuestionsScreen({
   const [playerAnswers, setPlayerAnswers] = useState<PlayerAnswer[]>([]);
   const [hintsUsed, setHintsUsed] = useState(0);
   const [showHint, setShowHint] = useState(false);
+  const [showTextHint, setShowTextHint] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
   const [feedbackMessage, setFeedbackMessage] = useState('');
   const [currentAttempts, setCurrentAttempts] = useState(0);
@@ -111,6 +112,21 @@ export function ConteurQuestionsScreen({
   const currentQuestion = questions[currentQuestionIndex];
   const progressPercent = totalQuestions > 0 ? ((currentQuestionIndex + 1) / totalQuestions) * 100 : 0;
   const hintsRemaining = (level?.hintsAvailable || 3) - hintsUsed;
+
+  // Mélanger les options de réponse aléatoirement
+  const shuffledOptions = useMemo(() => {
+    if (!currentQuestion?.options) return [];
+    // Fonction de mélange Fisher-Yates
+    const shuffleArray = <T,>(array: T[]): T[] => {
+      const shuffled = [...array];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      return shuffled;
+    };
+    return shuffleArray(currentQuestion.options);
+  }, [currentQuestionIndex, currentQuestion?.options]);
 
   // Message de Plume basé sur l'état
   const plumeData = useMemo((): { message: string; expression: PlumeExpression } => {
@@ -149,9 +165,16 @@ export function ConteurQuestionsScreen({
     setSelectedOptionId(null);
     setAnswerState('selecting');
     setShowHint(false);
+    setShowTextHint(false);
     setCurrentAttempts(0);
     setQuestionStartTime(Date.now());
   }, [currentQuestionIndex]);
+
+  // Handler pour afficher/masquer le texte de l'histoire correspondant
+  const handleToggleTextHint = useCallback(() => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    setShowTextHint((prev) => !prev);
+  }, []);
 
   // Handlers
   const handleBack = useCallback(() => {
@@ -222,8 +245,9 @@ export function ConteurQuestionsScreen({
           const scorePercent = Math.round((correctAnswers / totalQuestions) * 100);
           const stars = scorePercent >= 80 ? (hintsUsed === 0 ? 5 : 4) : scorePercent >= 60 ? 3 : scorePercent >= 40 ? 2 : 1;
 
+          // Aller vers l'écran d'enregistrement au lieu de la victoire
           router.push({
-            pathname: '/(games)/conteur-curieux/victory',
+            pathname: '/(games)/conteur-curieux/recording',
             params: {
               levelId: resolvedLevelId,
               stars: stars.toString(),
@@ -348,10 +372,34 @@ export function ConteurQuestionsScreen({
           <Animated.View
             key={currentQuestionIndex}
             entering={shouldAnimate ? SlideInRight.duration(getDuration(300)) : undefined}
+            style={styles.questionContainer}
           >
-            <Text style={styles.questionEmoji}>{currentQuestion.emoji || '❓'}</Text>
             <Text style={styles.questionText}>{currentQuestion.text}</Text>
+
+            {/* Bouton indice texte (style Tour d'Hanoi) */}
+            {currentQuestion.textReference && (
+              <Pressable
+                style={[styles.textHintButton, showTextHint && styles.textHintButtonActive]}
+                onPress={handleToggleTextHint}
+              >
+                <Text style={styles.textHintIcon}>📖</Text>
+                <Text style={styles.textHintLabel}>
+                  {showTextHint ? 'Masquer le texte' : 'Voir le texte'}
+                </Text>
+              </Pressable>
+            )}
           </Animated.View>
+
+          {/* Texte de référence de l'histoire */}
+          {showTextHint && currentQuestion.textReference && (
+            <Animated.View
+              style={styles.textReferenceBubble}
+              entering={FadeInUp.duration(getDuration(200))}
+            >
+              <Text style={styles.textReferenceLabel}>📖 Extrait de l'histoire</Text>
+              <Text style={styles.textReferenceText}>« {currentQuestion.textReference} »</Text>
+            </Animated.View>
+          )}
 
           {/* Hint bubble */}
           {showHint && currentQuestion.hint && (
@@ -363,9 +411,9 @@ export function ConteurQuestionsScreen({
             </Animated.View>
           )}
 
-          {/* Answer options */}
+          {/* Answer options (mélangées aléatoirement) */}
           <View style={styles.optionsContainer}>
-            {currentQuestion.options.map((option, index) => {
+            {shuffledOptions.map((option, index) => {
               let state: 'default' | 'selected' | 'correct' | 'encourage' = 'default';
 
               if (selectedOptionId === option.id) {
@@ -588,18 +636,68 @@ const styles = StyleSheet.create({
   },
 
   // Question
-  questionEmoji: {
-    fontSize: 48,
-    textAlign: 'center',
-    marginBottom: spacing[2],
+  questionContainer: {
+    marginBottom: spacing[4],
   },
   questionText: {
     fontSize: 22,
     fontFamily: fontFamily.displayBold,
     color: '#2D3748',
     textAlign: 'center',
-    marginBottom: spacing[4],
+    marginBottom: spacing[3],
     lineHeight: 32,
+  },
+
+  // Bouton indice texte (style Tour d'Hanoi)
+  textHintButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    alignSelf: 'center',
+    backgroundColor: '#FFB347',
+    paddingHorizontal: spacing[4],
+    paddingVertical: spacing[2],
+    borderRadius: borderRadius.round,
+    gap: spacing[2],
+    ...shadows.md,
+    shadowColor: '#FFB347',
+  },
+  textHintButtonActive: {
+    backgroundColor: '#9B59B6',
+    shadowColor: '#9B59B6',
+  },
+  textHintIcon: {
+    fontSize: 18,
+  },
+  textHintLabel: {
+    fontSize: 14,
+    fontFamily: fontFamily.medium,
+    color: '#FFFFFF',
+  },
+
+  // Texte de référence de l'histoire
+  textReferenceBubble: {
+    backgroundColor: '#F0E6F5',
+    borderRadius: borderRadius.lg,
+    padding: spacing[4],
+    marginBottom: spacing[4],
+    borderLeftWidth: 4,
+    borderLeftColor: '#9B59B6',
+  },
+  textReferenceLabel: {
+    fontSize: 12,
+    fontFamily: fontFamily.bold,
+    color: '#9B59B6',
+    marginBottom: spacing[2],
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+  },
+  textReferenceText: {
+    fontSize: 16,
+    fontFamily: fontFamily.regular,
+    color: '#2D3748',
+    lineHeight: 24,
+    fontStyle: 'italic',
   },
 
   // Hint

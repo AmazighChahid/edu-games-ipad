@@ -138,6 +138,50 @@ export function getPossibleValues(
 }
 
 /**
+ * Gets symbols already used in the row, column, and box of a cell
+ * Used to show which symbols are unavailable in the selector
+ */
+export function getUsedSymbolsInZone(
+  grid: SudokuGrid,
+  row: number,
+  col: number
+): Set<SudokuValue> {
+  const used = new Set<SudokuValue>();
+
+  // Get values in the same row
+  for (let c = 0; c < grid.size; c++) {
+    const value = grid.cells[row][c].value;
+    if (value !== null) {
+      used.add(value);
+    }
+  }
+
+  // Get values in the same column
+  for (let r = 0; r < grid.size; r++) {
+    const value = grid.cells[r][col].value;
+    if (value !== null) {
+      used.add(value);
+    }
+  }
+
+  // Get values in the same box
+  const box = getBoxDimensions(grid.size);
+  const boxRow = Math.floor(row / box.rows) * box.rows;
+  const boxCol = Math.floor(col / box.cols) * box.cols;
+
+  for (let r = boxRow; r < boxRow + box.rows; r++) {
+    for (let c = boxCol; c < boxCol + box.cols; c++) {
+      const value = grid.cells[r][c].value;
+      if (value !== null) {
+        used.add(value);
+      }
+    }
+  }
+
+  return used;
+}
+
+/**
  * Finds the easiest cell to solve (with fewest possibilities)
  * Useful for hints
  */

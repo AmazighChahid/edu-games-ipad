@@ -8,14 +8,9 @@ import { View, StyleSheet, Dimensions } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
-  withTiming,
   withSpring,
-  withDelay,
-  withSequence,
-  Easing,
   FadeIn,
   FadeInUp,
-  SlideInDown,
 } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 
@@ -73,24 +68,18 @@ function MatrixGridComponent({
   const cellSize = Math.floor(availableWidth / gridDimension);
 
   // Animation values
-  const containerScale = useSharedValue(0.95);
-  const containerOpacity = useSharedValue(0);
+  const containerScale = useSharedValue(animated ? 0.95 : 1);
 
   useEffect(() => {
     if (animated) {
-      containerOpacity.value = withTiming(1, { duration: 300 });
       containerScale.value = withSpring(1, {
         damping: 12,
         stiffness: 100,
       });
-    } else {
-      containerOpacity.value = 1;
-      containerScale.value = 1;
     }
   }, [animated]);
 
   const containerAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: containerOpacity.value,
     transform: [{ scale: containerScale.value }],
   }));
 
@@ -109,7 +98,11 @@ function MatrixGridComponent({
   };
 
   return (
-    <Animated.View style={[styles.container, containerAnimatedStyle]}>
+    <Animated.View
+      style={styles.container}
+      entering={animated ? FadeIn.duration(300) : undefined}
+    >
+      <Animated.View style={containerAnimatedStyle}>
       {/* Outer frame with gradient */}
       <LinearGradient
         colors={[world.gradientColors[0] + '40', world.gradientColors[1] + '30']}
@@ -200,6 +193,7 @@ function MatrixGridComponent({
       <CornerAccent position="topRight" color={world.primaryColor} />
       <CornerAccent position="bottomLeft" color={world.primaryColor} />
       <CornerAccent position="bottomRight" color={world.primaryColor} />
+      </Animated.View>
     </Animated.View>
   );
 }

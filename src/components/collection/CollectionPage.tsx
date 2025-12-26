@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { View, Text, StyleSheet, Pressable } from 'react-native';
+import { View, Text, StyleSheet, Pressable, ScrollView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Card, CardCategory, CATEGORY_CONFIG } from '../../data/cards';
 import CollectionCard from './CollectionCard';
@@ -78,7 +78,11 @@ export const CollectionPage: React.FC<CollectionPageProps> = ({
       </View>
 
       {/* Cards grid */}
-      <View style={styles.cardsGrid}>
+      <ScrollView
+        style={styles.cardsScrollView}
+        contentContainerStyle={styles.cardsGrid}
+        showsVerticalScrollIndicator={false}
+      >
         {cards.map((card, index) => (
           <CollectionCard
             key={card.id}
@@ -95,7 +99,7 @@ export const CollectionPage: React.FC<CollectionPageProps> = ({
             <Text style={styles.emptySlotIcon}>?</Text>
           </View>
         ))}
-      </View>
+      </ScrollView>
 
       {/* Navigation */}
       {isLeftPage ? (
@@ -230,13 +234,16 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#8B5A2B',
   },
-  cardsGrid: {
+  cardsScrollView: {
     flex: 1,
+  },
+  cardsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 12,
     justifyContent: 'flex-start',
     alignContent: 'flex-start',
+    paddingBottom: 50,
   },
   emptySlot: {
     width: '30%',

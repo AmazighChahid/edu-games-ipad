@@ -241,6 +241,9 @@ export function getLevelForPuzzle(puzzleId: string): TangramLevel | undefined {
 // EXPORTS
 // ============================================================================
 
+// TANGRAM_PUZZLES - Tous les puzzles combinés
+export const TANGRAM_PUZZLES: TangramPuzzle[] = [...animalPuzzles, ...objectPuzzles, ...peoplePuzzles];
+
 export {
   animalPuzzles as TANGRAM_ANIMAL_PUZZLES,
   objectPuzzles as TANGRAM_OBJECT_PUZZLES,

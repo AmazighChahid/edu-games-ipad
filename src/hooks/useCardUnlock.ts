@@ -5,6 +5,7 @@
 
 import { useCallback, useState } from 'react';
 import { useStore } from '@/store';
+import { useShallow } from 'zustand/shallow';
 import { Card, getCardById } from '@/data/cards';
 
 interface UseCardUnlockOptions {
@@ -33,13 +34,15 @@ export function useCardUnlock(options: UseCardUnlockOptions): UseCardUnlockResul
     pendingUnlockCard,
     setPendingUnlockCard,
     getAllCategoryStats,
-  } = useStore((state) => ({
-    tryRandomUnlock: state.tryRandomUnlock,
-    checkLegendaryUnlocks: state.checkLegendaryUnlocks,
-    pendingUnlockCard: state.pendingUnlockCard,
-    setPendingUnlockCard: state.setPendingUnlockCard,
-    getAllCategoryStats: state.getAllCategoryStats,
-  }));
+  } = useStore(
+    useShallow((state) => ({
+      tryRandomUnlock: state.tryRandomUnlock,
+      checkLegendaryUnlocks: state.checkLegendaryUnlocks,
+      pendingUnlockCard: state.pendingUnlockCard,
+      setPendingUnlockCard: state.setPendingUnlockCard,
+      getAllCategoryStats: state.getAllCategoryStats,
+    }))
+  );
 
   const checkAndUnlockCard = useCallback((): Card | null => {
     // Get category stats for milestone checks

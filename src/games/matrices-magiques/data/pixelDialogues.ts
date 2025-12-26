@@ -453,3 +453,26 @@ export function getDialogueForContext(
       return getRandomDialogue(ENCOURAGEMENT_DIALOGUES);
   }
 }
+
+// ============================================================================
+// SIMPLIFIED DIALOGUES OBJECT (for hooks)
+// ============================================================================
+
+/**
+ * Simple string arrays for each context (used by hooks)
+ */
+export const PIXEL_DIALOGUES = {
+  intro: INTRO_DIALOGUES.map((d) => d.message),
+  puzzle_start: PUZZLE_START_DIALOGUES.forest.map((d) => d.message),
+  hint_1: HINT_DIALOGUES[1].map((d) => d.message),
+  hint_2: HINT_DIALOGUES[2].map((d) => d.message),
+  hint_3: HINT_DIALOGUES[3].map((d) => d.message),
+  hint_4: HINT_DIALOGUES[4].map((d) => d.message),
+  correct: CORRECT_DIALOGUES.map((d) => d.message),
+  incorrect: INCORRECT_DIALOGUES.map((d) => d.message),
+  reveal: REVEAL_DIALOGUES.map((d) => d.message),
+  world_complete: WORLD_COMPLETE_DIALOGUES.forest.map((d) => d.message),
+  badge_earned: BADGE_EARNED_DIALOGUES.map((d) => d.message),
+  card_unlocked: CARD_UNLOCKED_DIALOGUES.map((d) => d.message),
+  encouragement: ENCOURAGEMENT_DIALOGUES.map((d) => d.message),
+};

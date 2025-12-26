@@ -5,17 +5,11 @@
  * S'affiche quand l'enfant tape sur un mot souligné
  */
 
-import React, { useEffect, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import { View, Text, StyleSheet, Pressable, Modal } from 'react-native';
 import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withSpring,
-  withTiming,
   FadeIn,
   FadeOut,
-  SlideInDown,
-  SlideOutDown,
 } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 
@@ -29,34 +23,17 @@ interface VocabularyBubbleProps {
   visible: boolean;
   /** Callback de fermeture */
   onClose: () => void;
-  /** Position (pour le placement de la flèche) */
-  position?: { x: number; y: number };
 }
-
-const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 export function VocabularyBubble({
   word,
   visible,
   onClose,
-  position,
 }: VocabularyBubbleProps) {
-  const scale = useSharedValue(0.9);
-
-  useEffect(() => {
-    if (visible) {
-      scale.value = withSpring(1, { damping: 12, stiffness: 150 });
-    }
-  }, [visible]);
-
   const handleClose = useCallback(() => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     onClose();
   }, [onClose]);
-
-  const bubbleStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }],
-  }));
 
   if (!word) return null;
 
@@ -64,7 +41,7 @@ export function VocabularyBubble({
     <Modal
       visible={visible}
       transparent
-      animationType="none"
+      animationType="fade"
       onRequestClose={onClose}
     >
       <Pressable style={styles.backdrop} onPress={handleClose}>
@@ -76,11 +53,7 @@ export function VocabularyBubble({
       </Pressable>
 
       <View style={styles.container} pointerEvents="box-none">
-        <Animated.View
-          style={[styles.bubble, bubbleStyle]}
-          entering={SlideInDown.springify().damping(15)}
-          exiting={SlideOutDown.duration(200)}
-        >
+        <View style={styles.bubble}>
           {/* Header avec emoji et mot */}
           <View style={styles.header}>
             <Text style={styles.emoji}>{word.emoji || '📖'}</Text>
@@ -102,18 +75,18 @@ export function VocabularyBubble({
           )}
 
           {/* Bouton fermer */}
-          <AnimatedPressable
+          <Pressable
             style={styles.closeButton}
             onPress={handleClose}
             accessibilityLabel="Fermer"
             accessibilityRole="button"
           >
             <Text style={styles.closeButtonText}>J'ai compris !</Text>
-          </AnimatedPressable>
+          </Pressable>
 
           {/* Flèche décorative en bas */}
           <View style={styles.arrow} />
-        </Animated.View>
+        </View>
       </View>
     </Modal>
   );

@@ -8,7 +8,7 @@
  * - Popup de vocabulaire au tap
  */
 
-import React, { useState, useCallback, useMemo, useEffect } from 'react';
+import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -17,6 +17,9 @@ import {
   ScrollView,
   useWindowDimensions,
   Alert,
+  FlatList,
+  NativeSyntheticEvent,
+  NativeScrollEvent,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -74,12 +77,18 @@ export function ConteurStoryScreen({ levelId, mode, onFinish }: ConteurStoryScre
   const resolvedMode = (mode || params.mode || 'mixed') as ReadingMode;
   const level = useMemo(() => getLevelById(resolvedLevelId || ''), [resolvedLevelId]);
 
+  // Ref pour le FlatList horizontal
+  const flatListRef = useRef<FlatList>(null);
+
   // État
   const [currentParagraph, setCurrentParagraph] = useState(0);
   const [vocabularyPopup, setVocabularyPopup] = useState<VocabularyWord | null>(null);
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
   const [audioPosition, setAudioPosition] = useState(0);
   const [readingStartTime] = useState(Date.now());
+
+  // Largeur de la page pour le scroll horizontal
+  const pageWidth = width - spacing[4] * 2;
 
   // Responsive
   const isTablet = width >= 768;
@@ -149,14 +158,28 @@ export function ConteurStoryScreen({ levelId, mode, onFinish }: ConteurStoryScre
   const handlePreviousParagraph = useCallback(() => {
     if (isFirstParagraph) return;
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    setCurrentParagraph((prev) => prev - 1);
-  }, [isFirstParagraph]);
+    const newIndex = currentParagraph - 1;
+    setCurrentParagraph(newIndex);
+    flatListRef.current?.scrollToIndex({ index: newIndex, animated: true });
+  }, [isFirstParagraph, currentParagraph]);
 
   const handleNextParagraph = useCallback(() => {
     if (isLastParagraph) return;
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    setCurrentParagraph((prev) => prev + 1);
-  }, [isLastParagraph]);
+    const newIndex = currentParagraph + 1;
+    setCurrentParagraph(newIndex);
+    flatListRef.current?.scrollToIndex({ index: newIndex, animated: true });
+  }, [isLastParagraph, currentParagraph]);
+
+  // Handler pour le scroll horizontal manuel
+  const handleScrollEnd = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const offsetX = event.nativeEvent.contentOffset.x;
+    const newIndex = Math.round(offsetX / width);
+    if (newIndex !== currentParagraph && newIndex >= 0 && newIndex < totalParagraphs) {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      setCurrentParagraph(newIndex);
+    }
+  }, [currentParagraph, totalParagraphs, width]);
 
   const handleFinishReading = useCallback(() => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -302,32 +325,98 @@ export function ConteurStoryScreen({ levelId, mode, onFinish }: ConteurStoryScre
             </Animated.View>
           )}
 
-          {/* Paragraph text */}
-          <ScrollView
-            style={styles.textScrollView}
-            contentContainerStyle={styles.textContent}
-            showsVerticalScrollIndicator={false}
-          >
-            <Animated.View
-              key={currentParagraph}
-              entering={
-                shouldAnimate
-                  ? currentParagraph > 0
-                    ? SlideInRight.duration(getDuration(300))
-                    : FadeIn.duration(getDuration(300))
-                  : undefined
-              }
+          {/* Paragraph text avec scroll horizontal */}
+          <View style={styles.paragraphContainer}>
+            {/* Chevron gauche */}
+            <Pressable
+              style={[styles.chevronButton, styles.chevronLeft, isFirstParagraph && styles.chevronDisabled]}
+              onPress={handlePreviousParagraph}
+              disabled={isFirstParagraph}
             >
-              {renderTextWithVocabulary()}
-            </Animated.View>
+              <Text style={[styles.chevronText, isFirstParagraph && styles.chevronTextDisabled]}>‹</Text>
+            </Pressable>
 
-            {/* Vocabulary hint */}
-            {vocabularyInParagraph.length > 0 && (
-              <Text style={styles.vocabularyHint}>
-                💡 Tape sur les mots soulignés pour voir leur définition
-              </Text>
-            )}
-          </ScrollView>
+            {/* FlatList horizontal */}
+            <FlatList
+              ref={flatListRef}
+              data={level.story.paragraphs}
+              horizontal
+              pagingEnabled
+              showsHorizontalScrollIndicator={false}
+              onMomentumScrollEnd={handleScrollEnd}
+              initialScrollIndex={currentParagraph}
+              getItemLayout={(_, index) => ({
+                length: width,
+                offset: width * index,
+                index,
+              })}
+              keyExtractor={(_, index) => `paragraph-${index}`}
+              renderItem={({ item: paragraphText, index }) => {
+                // Mots de vocabulaire dans ce paragraphe
+                const vocabInThisParagraph = level?.story.vocabulary?.filter((v) =>
+                  paragraphText.toLowerCase().includes(v.word.toLowerCase())
+                ) || [];
+
+                // Rendu du texte avec vocabulaire
+                const renderParagraphText = () => {
+                  if (vocabInThisParagraph.length === 0) {
+                    return <Text style={styles.paragraphText}>{paragraphText}</Text>;
+                  }
+
+                  const vocabWords = vocabInThisParagraph.map((v) => v.word);
+                  const regex = new RegExp(`(${vocabWords.join('|')})`, 'gi');
+                  const parts = paragraphText.split(regex);
+
+                  return (
+                    <Text style={styles.paragraphText}>
+                      {parts.map((part, partIndex) => {
+                        const vocabWord = vocabInThisParagraph.find(
+                          (v) => v.word.toLowerCase() === part.toLowerCase()
+                        );
+                        if (vocabWord) {
+                          return (
+                            <Text
+                              key={partIndex}
+                              style={styles.vocabularyWord}
+                              onPress={() => handleVocabularyTap(vocabWord)}
+                            >
+                              {part}
+                            </Text>
+                          );
+                        }
+                        return <Text key={partIndex}>{part}</Text>;
+                      })}
+                    </Text>
+                  );
+                };
+
+                return (
+                  <ScrollView
+                    style={[styles.textScrollView, { width }]}
+                    contentContainerStyle={styles.textContent}
+                    showsVerticalScrollIndicator={false}
+                  >
+                    {renderParagraphText()}
+                    {/* Vocabulary hint */}
+                    {vocabInThisParagraph.length > 0 && (
+                      <Text style={styles.vocabularyHint}>
+                        Tape sur les mots soulignés pour voir leur définition
+                      </Text>
+                    )}
+                  </ScrollView>
+                );
+              }}
+            />
+
+            {/* Chevron droite */}
+            <Pressable
+              style={[styles.chevronButton, styles.chevronRight, isLastParagraph && styles.chevronDisabled]}
+              onPress={handleNextParagraph}
+              disabled={isLastParagraph}
+            >
+              <Text style={[styles.chevronText, isLastParagraph && styles.chevronTextDisabled]}>›</Text>
+            </Pressable>
+          </View>
 
           {/* Audio player (if mode includes audio) */}
           {(resolvedMode === 'listen' || resolvedMode === 'mixed') && level.story.audioUrl && (
@@ -354,26 +443,24 @@ export function ConteurStoryScreen({ levelId, mode, onFinish }: ConteurStoryScre
         </View>
       </View>
 
-      {/* Navigation buttons */}
+      {/* Navigation buttons - Bouton terminer */}
       <View style={styles.navigation}>
-        <Pressable
-          style={[styles.navButton, isFirstParagraph && styles.navButtonDisabled]}
-          onPress={handlePreviousParagraph}
-          disabled={isFirstParagraph}
-        >
-          <Text style={[styles.navButtonText, isFirstParagraph && styles.navButtonTextDisabled]}>
-            {'<'} Précédent
-          </Text>
-        </Pressable>
-
         {isLastParagraph ? (
           <Pressable style={styles.finishButton} onPress={handleFinishReading}>
             <Text style={styles.finishButtonText}>Questions ! 🎯</Text>
           </Pressable>
         ) : (
-          <Pressable style={styles.nextButton} onPress={handleNextParagraph}>
-            <Text style={styles.nextButtonText}>Suivant {'>'}</Text>
-          </Pressable>
+          <View style={styles.pageIndicatorContainer}>
+            {level.story.paragraphs.map((_, index) => (
+              <View
+                key={index}
+                style={[
+                  styles.pageIndicatorDot,
+                  index === currentParagraph && styles.pageIndicatorDotActive,
+                ]}
+              />
+            ))}
+          </View>
         )}
       </View>
 
@@ -479,13 +566,14 @@ const styles = StyleSheet.create({
   // Text section
   textSection: {
     flex: 1,
-    padding: spacing[4],
+    paddingTop: spacing[4],
   },
   titleRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing[3],
     marginBottom: spacing[4],
+    paddingHorizontal: spacing[4],
   },
   storyEmoji: {
     fontSize: 36,
@@ -496,17 +584,56 @@ const styles = StyleSheet.create({
     fontFamily: fontFamily.displayBold,
     color: '#2D3748',
   },
+
+  // Paragraph container avec chevrons
+  paragraphContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  chevronButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...shadows.md,
+    zIndex: 10,
+  },
+  chevronLeft: {
+    position: 'absolute',
+    left: spacing[2],
+  },
+  chevronRight: {
+    position: 'absolute',
+    right: spacing[2],
+  },
+  chevronDisabled: {
+    opacity: 0.3,
+  },
+  chevronText: {
+    fontSize: 32,
+    fontWeight: '300',
+    color: '#9B59B6',
+    marginTop: -2,
+  },
+  chevronTextDisabled: {
+    color: '#A0AEC0',
+  },
+
   textScrollView: {
     flex: 1,
   },
   textContent: {
     paddingBottom: spacing[4],
+    paddingHorizontal: spacing[6],
   },
   paragraphText: {
-    fontSize: 20,
-    fontFamily: fontFamily.regular,
+    fontSize: 24,
+    fontFamily: fontFamily.displayBold,
     color: '#2D3748',
-    lineHeight: 32,
+    lineHeight: 38,
   },
   vocabularyWord: {
     color: '#9B59B6',
@@ -589,6 +716,25 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontFamily: fontFamily.bold,
     color: '#FFFFFF',
+  },
+
+  // Page indicators
+  pageIndicatorContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: spacing[2],
+  },
+  pageIndicatorDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: '#E8E8E8',
+  },
+  pageIndicatorDotActive: {
+    backgroundColor: '#9B59B6',
+    transform: [{ scale: 1.2 }],
   },
 
   // Error state

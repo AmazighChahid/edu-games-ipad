@@ -9,9 +9,10 @@ interface Props {
   cellSize: number;
   theme: ThemeType;
   children?: React.ReactNode;
+  showGridLines?: boolean;
 }
 
-export const MazeGrid: React.FC<Props> = ({ grid, cellSize, theme, children }) => {
+export const MazeGrid: React.FC<Props> = ({ grid, cellSize, theme, children, showGridLines = true }) => {
   const themeConfig = THEMES[theme];
 
   const gridStyle = useMemo(
@@ -25,6 +26,34 @@ export const MazeGrid: React.FC<Props> = ({ grid, cellSize, theme, children }) =
 
   return (
     <View style={[styles.container, gridStyle]}>
+      {/* Lignes de grille verticales */}
+      {showGridLines && Array.from({ length: grid.width + 1 }).map((_, i) => (
+        <View
+          key={`v-${i}`}
+          style={[
+            styles.gridLineVertical,
+            {
+              left: i * cellSize,
+              height: grid.height * cellSize,
+            },
+          ]}
+        />
+      ))}
+
+      {/* Lignes de grille horizontales */}
+      {showGridLines && Array.from({ length: grid.height + 1 }).map((_, i) => (
+        <View
+          key={`h-${i}`}
+          style={[
+            styles.gridLineHorizontal,
+            {
+              top: i * cellSize,
+              width: grid.width * cellSize,
+            },
+          ]}
+        />
+      ))}
+
       {grid.cells.map((row, y) =>
         row.map((cell, x) => (
           <MazeCell key={`${x}-${y}`} cell={cell} cellSize={cellSize} theme={themeConfig} />
@@ -45,5 +74,17 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     shadowRadius: 8,
     elevation: 5,
+  },
+  gridLineVertical: {
+    position: 'absolute',
+    width: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.15)',
+    zIndex: 1,
+  },
+  gridLineHorizontal: {
+    position: 'absolute',
+    height: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.15)',
+    zIndex: 1,
   },
 });

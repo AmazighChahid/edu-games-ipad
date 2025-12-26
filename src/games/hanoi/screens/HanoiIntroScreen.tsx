@@ -116,6 +116,8 @@ export function HanoiIntroScreen() {
   // Animation values
   const selectorY = useSharedValue(0);
   const selectorOpacity = useSharedValue(1);
+  const progressPanelOpacity = useSharedValue(0);
+  const mascotY = useSharedValue(0);
   const playButtonScale = useSharedValue(1);
 
   // Demo animation values
@@ -190,38 +192,56 @@ export function HanoiIntroScreen() {
     reset();
   };
 
+  // Track previous level to avoid unnecessary resets
+  const previousLevelIdRef = useRef(currentLevelId);
+
   // Update game when level selection changes (only in selection mode)
   useEffect(() => {
-    if (!isPlaying) {
+    if (!isPlaying && selectedLevel.id !== currentLevelId) {
       setCurrentLevelId(selectedLevel.id);
     }
-  }, [selectedLevel, isPlaying]);
+  }, [selectedLevel.id, isPlaying, currentLevelId]);
 
-  // Reset game when currentLevelId changes
+  // Reset game when currentLevelId actually changes
   useEffect(() => {
-    reset();
-  }, [currentLevelId]);
+    if (previousLevelIdRef.current !== currentLevelId) {
+      previousLevelIdRef.current = currentLevelId;
+      reset();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentLevelId]); // Intentionally exclude reset to avoid loops
 
   // Function to transition to play mode
   const transitionToPlayMode = useCallback(() => {
     if (isPlaying) return;
 
-    // Slide selector down and fade out
-    selectorY.value = withTiming(150, { duration: 400, easing: Easing.out(Easing.quad) });
+    // View 1: Slide selector up and fade out
+    selectorY.value = withTiming(-150, { duration: 400, easing: Easing.out(Easing.quad) });
     selectorOpacity.value = withTiming(0, { duration: 300 });
+
+    // View 2: Fade in progress panel
+    progressPanelOpacity.value = withDelay(200, withTiming(1, { duration: 300 }));
+
+    // Mascot moves up to where level selector was
+    mascotY.value = withTiming(-180, { duration: 400, easing: Easing.out(Easing.quad) });
 
     // Start playing after animation
     setTimeout(() => {
       setIsPlaying(true);
     }, 300);
-  }, [isPlaying, selectorY, selectorOpacity]);
+  }, [isPlaying, selectorY, selectorOpacity, progressPanelOpacity, mascotY]);
 
   const handleBack = () => {
     if (isPlaying) {
       // Return to level selection with animation
       setIsPlaying(false);
+      // Show level selector
       selectorY.value = withSpring(0, { damping: 15 });
       selectorOpacity.value = withTiming(1, { duration: 300 });
+      // Hide progress panel
+      progressPanelOpacity.value = withTiming(0, { duration: 200 });
+      // Reset mascot position
+      mascotY.value = withSpring(0, { damping: 15 });
       reset();
     } else {
       router.back();
@@ -352,6 +372,14 @@ export function HanoiIntroScreen() {
     opacity: selectorOpacity.value,
   }));
 
+  const progressPanelStyle = useAnimatedStyle(() => ({
+    opacity: progressPanelOpacity.value,
+  }));
+
+  const mascotStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: mascotY.value }],
+  }));
+
   const fingerStyle = useAnimatedStyle(() => ({
     transform: [
       { translateX: fingerX.value },
@@ -420,75 +448,75 @@ export function HanoiIntroScreen() {
           </View>
         </View>
 
-        {/* Progress Panel - always visible */}
-        <ProgressPanel
-          currentMoves={moveCount}
-          optimalMoves={level.optimalMoves ?? 7}
-          progress={progress}
-          bestMoves={71}
-          visible={!isVictory}
-        />
-
-      {/* Level Selector - At top, slides down when playing */}
-      <Animated.View style={[styles.selectorContainer, selectorStyle]} pointerEvents={isPlaying ? 'none' : 'auto'}>
-        <View style={styles.levelButtons}>
-          {hanoiLevels.slice(0, 5).map((lvl) => {
-            const isSelected = selectedLevel.id === lvl.id;
-            return (
-              <Pressable
-                key={lvl.id}
-                onPress={() => {
-                  setSelectedLevel(lvl);
-                  // Don't auto-start - wait for first disk move
-                }}
-                style={[
-                  styles.levelCard,
-                  isSelected && styles.levelCardSelected,
-                ]}
-              >
-                {/* Mini disk stack preview - smallest on top, largest at bottom */}
-                <View style={styles.miniDisksStack}>
-                  {Array.from({ length: lvl.diskCount }).map((_, i) => {
-                    // i=0 → top → smallest disk (narrowest)
-                    // i=diskCount-1 → bottom → largest disk (widest)
-                    const width = 20 + (i + 1) * 8;
-                    // Color: top disk = disk1 color, bottom = diskN color
-                    const colorIndex = ((lvl.diskCount - 1 - i) % 5) + 1;
-                    return (
-                      <View
-                        key={i}
-                        style={[
-                          styles.miniDisk,
-                          {
-                            width: width,
-                            backgroundColor: colors.game[`disk${colorIndex}` as keyof typeof colors.game],
-                          },
-                        ]}
-                      />
-                    );
-                  })}
-                </View>
-
-                <Text
+        {/* === VIEW 1: Level Selection (visible when NOT playing) === */}
+        {/* Level Selector - slides up and fades out when playing */}
+        <Animated.View style={[styles.selectorContainer, selectorStyle]} pointerEvents={isPlaying ? 'none' : 'auto'}>
+          <View style={styles.levelButtons}>
+            {hanoiLevels.slice(0, 5).map((lvl) => {
+              const isSelected = selectedLevel.id === lvl.id;
+              return (
+                <Pressable
+                  key={lvl.id}
+                  onPress={() => {
+                    setSelectedLevel(lvl);
+                  }}
                   style={[
-                    styles.levelCardNumber,
-                    isSelected && styles.levelCardNumberSelected,
+                    styles.levelCard,
+                    isSelected && styles.levelCardSelected,
                   ]}
                 >
-                  {lvl.diskCount}
-                </Text>
-              </Pressable>
-            );
-          })}
-        </View>
-      </Animated.View>
+                  <View style={styles.miniDisksStack}>
+                    {Array.from({ length: lvl.diskCount }).map((_, i) => {
+                      const width = 20 + (i + 1) * 8;
+                      const colorIndex = ((lvl.diskCount - 1 - i) % 5) + 1;
+                      return (
+                        <View
+                          key={i}
+                          style={[
+                            styles.miniDisk,
+                            {
+                              width: width,
+                              backgroundColor: colors.game[`disk${colorIndex}` as keyof typeof colors.game],
+                            },
+                          ]}
+                        />
+                      );
+                    })}
+                  </View>
+                  <Text
+                    style={[
+                      styles.levelCardNumber,
+                      isSelected && styles.levelCardNumberSelected,
+                    ]}
+                  >
+                    {lvl.diskCount}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
+        </Animated.View>
 
-      {/* Mascot Owl - shows contextual messages between level selector and game board */}
-      <MascotOwl
-        message={owlState.message}
-        messageType={owlState.type}
-        visible={!isVictory}
-      />
+        {/* === VIEW 2: Game Playing (visible when playing) === */}
+        {/* Progress Panel - fades in when playing */}
+        <Animated.View style={[styles.progressPanelContainer, progressPanelStyle]} pointerEvents={isPlaying ? 'auto' : 'none'}>
+          <ProgressPanel
+            currentMoves={moveCount}
+            optimalMoves={level.optimalMoves ?? 7}
+            progress={progress}
+            bestMoves={71}
+            visible={!isVictory}
+          />
+        </Animated.View>
+
+        {/* Mascot Owl - moves up when playing */}
+        <Animated.View style={[styles.mascotContainer, mascotStyle]} pointerEvents="box-none">
+          <MascotOwl
+            message={owlState.message}
+            messageType={owlState.type}
+            visible={!isVictory}
+          />
+        </Animated.View>
 
 
       {/* Game Board - Always visible, takes most of the space */}
@@ -540,6 +568,8 @@ export function HanoiIntroScreen() {
             setIsPlaying(false);
             selectorY.value = withSpring(0, { damping: 15 });
             selectorOpacity.value = withTiming(1, { duration: 300 });
+            progressPanelOpacity.value = withTiming(0, { duration: 200 });
+            mascotY.value = withSpring(0, { damping: 15 });
           }
         }}
         onReplay={() => {
@@ -547,6 +577,8 @@ export function HanoiIntroScreen() {
           setIsPlaying(false);
           selectorY.value = withSpring(0, { damping: 15 });
           selectorOpacity.value = withTiming(1, { duration: 300 });
+          progressPanelOpacity.value = withTiming(0, { duration: 200 });
+          mascotY.value = withSpring(0, { damping: 15 });
         }}
         onHome={() => router.back()}
       />
@@ -812,6 +844,16 @@ const styles = StyleSheet.create({
   },
   levelCardNumberSelected: {
     color: colors.primary.main,
+  },
+  progressPanelContainer: {
+    position: 'absolute',
+    top: 80,
+    left: 0,
+    right: 0,
+    zIndex: 50,
+  },
+  mascotContainer: {
+    zIndex: 40,
   },
   boardContainer: {
     flex: 1,

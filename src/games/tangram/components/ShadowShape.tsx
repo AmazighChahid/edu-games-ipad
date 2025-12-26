@@ -46,6 +46,9 @@ function pointsToSvgString(points: Point[], scale: number): string {
  * Vérifie si c'est un tableau de polygones
  */
 function isMultiPolygon(silhouette: Point[] | Point[][]): silhouette is Point[][] {
+  if (!silhouette || silhouette.length === 0) {
+    return false;
+  }
   return Array.isArray(silhouette[0]) && Array.isArray((silhouette[0] as Point[])[0]);
 }
 
@@ -62,6 +65,11 @@ export function ShadowShape({
   opacity = 0.3,
   showOutline = true,
 }: ShadowShapeProps) {
+  // Vérifier que la silhouette existe
+  if (!silhouette || silhouette.length === 0) {
+    return null;
+  }
+
   // Normaliser en tableau de polygones
   const polygons: Point[][] = isMultiPolygon(silhouette)
     ? silhouette

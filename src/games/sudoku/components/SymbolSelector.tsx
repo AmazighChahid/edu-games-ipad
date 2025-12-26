@@ -22,6 +22,7 @@ interface SymbolSelectorProps {
   selectedSymbol?: SudokuValue;
   onClear?: () => void;
   theme: string;
+  usedSymbols?: Set<SudokuValue>;
 }
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
@@ -32,26 +33,31 @@ export function SymbolSelector({
   selectedSymbol,
   onClear,
   theme,
+  usedSymbols,
 }: SymbolSelectorProps) {
   const hapticEnabled = useStore((state) => state.hapticEnabled);
 
   return (
     <View style={styles.container}>
       <View style={styles.symbolsRow}>
-        {symbols.map((symbol, index) => (
-          <SymbolButton
-            key={index}
-            symbol={symbol}
-            isSelected={selectedSymbol === symbol}
-            onPress={() => {
-              if (hapticEnabled) {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-              }
-              onSymbolSelect(symbol);
-            }}
-            theme={theme}
-          />
-        ))}
+        {symbols.map((symbol, index) => {
+          const isUsed = usedSymbols?.has(symbol) ?? false;
+          return (
+            <SymbolButton
+              key={index}
+              symbol={symbol}
+              isSelected={selectedSymbol === symbol}
+              isUsed={isUsed}
+              onPress={() => {
+                if (hapticEnabled) {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                }
+                onSymbolSelect(symbol);
+              }}
+              theme={theme}
+            />
+          );
+        })}
 
         {onClear && (
           <SymbolButton
@@ -75,6 +81,7 @@ export function SymbolSelector({
 interface SymbolButtonProps {
   symbol: SudokuValue;
   isSelected: boolean;
+  isUsed?: boolean;
   onPress: () => void;
   theme: string;
   isClearButton?: boolean;
@@ -83,6 +90,7 @@ interface SymbolButtonProps {
 function SymbolButton({
   symbol,
   isSelected,
+  isUsed = false,
   onPress,
   theme,
   isClearButton = false,
@@ -110,6 +118,7 @@ function SymbolButton({
         styles.symbolButton,
         isSelected && styles.symbolButtonSelected,
         isClearButton && styles.clearButton,
+        isUsed && styles.symbolButtonUsed,
         animatedStyle,
       ]}
     >
@@ -119,10 +128,14 @@ function SymbolButton({
           isNumberTheme && styles.numberText,
           isClearButton && styles.clearText,
           isSelected && styles.symbolTextSelected,
+          isUsed && styles.symbolTextUsed,
         ]}
       >
         {symbol}
       </Text>
+      {isUsed && (
+        <View style={styles.strikethrough} />
+      )}
     </AnimatedPressable>
   );
 }
@@ -179,5 +192,21 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: '700',
     color: colors.secondary.dark,
+  },
+  symbolButtonUsed: {
+    backgroundColor: colors.background.secondary,
+    borderColor: colors.ui.border,
+    opacity: 0.6,
+  },
+  symbolTextUsed: {
+    opacity: 0.4,
+  },
+  strikethrough: {
+    position: 'absolute',
+    width: '80%',
+    height: 3,
+    backgroundColor: colors.feedback.error,
+    borderRadius: 2,
+    transform: [{ rotate: '-45deg' }],
   },
 });
