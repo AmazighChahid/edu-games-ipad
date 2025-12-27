@@ -12,7 +12,7 @@
 
 import { useEffect, useRef, useCallback } from 'react';
 import { useAudioPlayer, AudioSource } from 'expo-audio';
-import { useAppSettings } from '@/store';
+import { useAppSettings } from '../../../store';
 
 type TimeoutRef = ReturnType<typeof setTimeout> | null;
 

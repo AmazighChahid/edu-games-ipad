@@ -297,8 +297,7 @@ const styles = StyleSheet.create({
     position: 'relative',
     alignItems: 'center',
     backgroundColor: 'transparent',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.15)',
   },
   disk: {
     flex: 1,

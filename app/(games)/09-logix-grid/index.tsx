@@ -9,8 +9,8 @@ import { View, Text, StyleSheet, Pressable, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 
-import { colors, spacing, borderRadius, shadows, fontFamily } from '@/theme';
-import { useLogixGridGame, getFirstLogixPuzzle, GameBoard } from '@/games/09-logix-grid';
+import { colors, spacing, borderRadius, shadows, fontFamily } from '../../../src/theme';
+import { useLogixGridGame, getFirstLogixPuzzle, GameBoard } from '../../../src/games/09-logix-grid';
 
 export default function LogixGridScreen() {
   const router = useRouter();

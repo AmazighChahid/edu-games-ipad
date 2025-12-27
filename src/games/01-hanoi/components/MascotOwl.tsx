@@ -14,7 +14,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import LottieView from 'lottie-react-native';
 
-import { spacing, borderRadius, shadows } from '@/theme';
+import { spacing, borderRadius, shadows } from '../../../theme';
 
 type MessageType = 'intro' | 'hint' | 'error' | 'encourage' | 'victory';
 

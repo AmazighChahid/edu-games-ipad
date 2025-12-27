@@ -26,7 +26,7 @@ import { useMemo } from 'react';
 import { View, Text, StyleSheet, ViewStyle } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
-import { colors, spacing, borderRadius, fontFamily } from '@/theme';
+import { colors, spacing, borderRadius, fontFamily } from '../../theme';
 
 // Types
 type PerformanceType = 'moves' | 'time' | 'score' | 'custom';

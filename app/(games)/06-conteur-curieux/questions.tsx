@@ -5,7 +5,7 @@
  */
 
 import React from 'react';
-import { ConteurQuestionsScreen } from '@/games/06-conteur-curieux/screens';
+import { ConteurQuestionsScreen } from '../../../src/games/06-conteur-curieux/screens';
 
 export default function QuestionsRoute() {
   return <ConteurQuestionsScreen />;

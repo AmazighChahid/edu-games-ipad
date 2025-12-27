@@ -13,7 +13,7 @@ import Animated, {
   Extrapolate,
 } from 'react-native-reanimated';
 
-import { spacing } from '@/theme';
+import { spacing } from '../../theme';
 
 const PANEL_HEIGHT = 380;
 const COLLAPSED_HEIGHT = 0;
@@ -269,10 +269,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
+    boxShadow: '0px -4px 8px rgba(0, 0, 0, 0.15)',
     elevation: 10,
   },
   header: {
@@ -315,10 +312,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: spacing[3],
     marginBottom: spacing[3],
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
+    boxShadow: '0px 1px 2px rgba(0, 0, 0, 0.05)',
     elevation: 1,
   },
   methodNumber: {

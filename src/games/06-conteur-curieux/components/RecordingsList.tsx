@@ -19,7 +19,7 @@ import { Audio } from 'expo-av';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 
-import { colors, spacing, borderRadius, shadows, fontFamily } from '@/theme';
+import { colors, spacing, borderRadius, shadows, fontFamily } from '../../../theme';
 import type { ChildRecording } from '../types';
 
 interface RecordingsListProps {

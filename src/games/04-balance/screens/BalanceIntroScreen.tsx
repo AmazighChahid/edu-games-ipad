@@ -22,7 +22,7 @@ import Animated, {
   withRepeat,
   ZoomIn,
 } from 'react-native-reanimated';
-import { colors, spacing, borderRadius, shadows } from '@/theme';
+import { colors, spacing, borderRadius, shadows } from '../../../theme';
 import { DrHibou } from '../components/DrHibou';
 import { BalanceScale } from '../components/BalanceScale';
 import { createInitialState, addObjectToPlate } from '../logic/balanceEngine';

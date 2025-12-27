@@ -2,7 +2,7 @@
  * Move validation for Tower of Hanoi
  */
 
-import type { MoveValidation } from '@/types';
+import type { MoveValidation } from '../../../types';
 import type { HanoiGameState, TowerId } from '../types';
 import { getTopDisk } from './hanoiEngine';
 

@@ -21,7 +21,7 @@ import Animated, {
   useAnimatedStyle,
   withSpring,
 } from 'react-native-reanimated';
-import { colors, spacing, borderRadius, shadows } from '@/theme';
+import { colors, spacing, borderRadius, shadows } from '../../../theme';
 import type { WeightObject, Equivalence, ObjectCategory } from '../types';
 import { OBJECTS_LIBRARY, SANDBOX_OBJECTS, createObject } from '../data/objects';
 import { BalanceScale } from './BalanceScale';

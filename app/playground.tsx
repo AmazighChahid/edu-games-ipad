@@ -23,282 +23,282 @@ import Svg, { Path } from 'react-native-svg';
 // ============================================================
 // IMPORTS - Background Components
 // ============================================================
-import { Flowers } from '@/components/background/Flowers';
-import { Hills as BackgroundHills } from '@/components/background/Hills';
-import { AnimatedClouds } from '@/components/background/AnimatedCloud';
-import { Mountains as BackgroundMountains } from '@/components/background/Mountains';
-import { Trees as BackgroundTrees } from '@/components/background/Trees';
-import { ForestBackground } from '@/components/background/ForestBackground';
-import { Sun as BackgroundSun } from '@/components/background/Sun';
+import { Flowers } from '../src/components/background/Flowers';
+import { Hills as BackgroundHills } from '../src/components/background/Hills';
+import { AnimatedClouds } from '../src/components/background/AnimatedCloud';
+import { Mountains as BackgroundMountains } from '../src/components/background/Mountains';
+import { Trees as BackgroundTrees } from '../src/components/background/Trees';
+import { ForestBackground } from '../src/components/background/ForestBackground';
+import { Sun as BackgroundSun } from '../src/components/background/Sun';
 
 // Background Animals
-import { Dragonfly } from '@/components/background/animals/Dragonfly';
-import { Rabbit as BackgroundRabbit } from '@/components/background/animals/Rabbit';
-import { Butterflies as BackgroundButterflies } from '@/components/background/animals/Butterfly';
-import { Bee as BackgroundBee } from '@/components/background/animals/Bee';
-import { Ladybug as BackgroundLadybug } from '@/components/background/animals/Ladybug';
-import { Birds as BackgroundBirds } from '@/components/background/animals/Bird';
-import { Squirrel as BackgroundSquirrel } from '@/components/background/animals/Squirrel';
+import { Dragonfly } from '../src/components/background/animals/Dragonfly';
+import { Rabbit as BackgroundRabbit } from '../src/components/background/animals/Rabbit';
+import { Butterflies as BackgroundButterflies } from '../src/components/background/animals/Butterfly';
+import { Bee as BackgroundBee } from '../src/components/background/animals/Bee';
+import { Ladybug as BackgroundLadybug } from '../src/components/background/animals/Ladybug';
+import { Birds as BackgroundBirds } from '../src/components/background/animals/Bird';
+import { Squirrel as BackgroundSquirrel } from '../src/components/background/animals/Squirrel';
 
 // ============================================================
 // IMPORTS - Common Components
 // ============================================================
-import { BackButton } from '@/components/common/BackButton';
-import { Button } from '@/components/common/Button';
-import { Confetti } from '@/components/common/Confetti';
-import { GameActionButtons } from '@/components/common/GameActionButtons';
-import { VictoryCard } from '@/components/common/VictoryCard';
-import { SpeechBubble } from '@/components/common/SpeechBubble';
-import { PageContainer } from '@/components/common/PageContainer';
-import { GameModal } from '@/components/common/GameModal';
-import { ScreenHeader } from '@/components/common/ScreenHeader';
-import { ParentGate } from '@/components/common/ParentGate';
-import { CardFlip } from '@/components/common/CardFlip';
-import { HintButton } from '@/components/common/HintButton';
-import { ScreenBackground } from '@/components/common/ScreenBackground';
-import { IconButton } from '@/components/common/IconButton';
-import { ProgressIndicator } from '@/components/common/ProgressIndicator';
-import { VictoryOverlayBase } from '@/components/common/VictoryOverlayBase';
-import { PerformanceStats } from '@/components/common/PerformanceStats';
+import { BackButton } from '../src/components/common/BackButton';
+import { Button } from '../src/components/common/Button';
+import { Confetti } from '../src/components/common/Confetti';
+import { GameActionButtons } from '../src/components/common/GameActionButtons';
+import { VictoryCard } from '../src/components/common/VictoryCard';
+import { SpeechBubble } from '../src/components/common/SpeechBubble';
+import { PageContainer } from '../src/components/common/PageContainer';
+import { GameModal } from '../src/components/common/GameModal';
+import { ScreenHeader } from '../src/components/common/ScreenHeader';
+import { ParentGate } from '../src/components/common/ParentGate';
+import { CardFlip } from '../src/components/common/CardFlip';
+import { HintButton } from '../src/components/common/HintButton';
+import { ScreenBackground } from '../src/components/common/ScreenBackground';
+import { IconButton } from '../src/components/common/IconButton';
+import { ProgressIndicator } from '../src/components/common/ProgressIndicator';
+import { VictoryOverlayBase } from '../src/components/common/VictoryOverlayBase';
+import { PerformanceStats } from '../src/components/common/PerformanceStats';
 
 // ============================================================
 // IMPORTS - Home V10 Components
 // ============================================================
-import { GameCardV10 } from '@/components/home-v10/GameCardV10';
-import { PiouFloating } from '@/components/home-v10/PiouFloating';
-import { CollectionFloating } from '@/components/home-v10/CollectionFloating';
-import { HomeHeaderV10 } from '@/components/home-v10/HomeHeaderV10';
-import { ForestBackgroundV10 } from '@/components/home-v10/ForestBackgroundV10';
+import { GameCardV10 } from '../src/components/home-v10/GameCardV10';
+import { PiouFloating } from '../src/components/home-v10/PiouFloating';
+import { CollectionFloating } from '../src/components/home-v10/CollectionFloating';
+import { HomeHeaderV10 } from '../src/components/home-v10/HomeHeaderV10';
+import { ForestBackgroundV10 } from '../src/components/home-v10/ForestBackgroundV10';
 
 // Home V10 Layers
-import { Hills as LayerHills } from '@/components/home-v10/layers/Hills';
-import { Clouds } from '@/components/home-v10/layers/Clouds';
-import { MountainsFar as LayerMountains } from '@/components/home-v10/layers/Mountains';
-import { Sky } from '@/components/home-v10/layers/Sky';
-import { Garden } from '@/components/home-v10/layers/Garden';
-import { Trees as LayerTrees } from '@/components/home-v10/layers/Trees';
-import { Bushes } from '@/components/home-v10/layers/Bushes';
-import { Sun as LayerSun } from '@/components/home-v10/layers/Sun';
+import { Hills as LayerHills } from '../src/components/home-v10/layers/Hills';
+import { Clouds } from '../src/components/home-v10/layers/Clouds';
+import { MountainsFar as LayerMountains } from '../src/components/home-v10/layers/Mountains';
+import { Sky } from '../src/components/home-v10/layers/Sky';
+import { Garden } from '../src/components/home-v10/layers/Garden';
+import { Trees as LayerTrees } from '../src/components/home-v10/layers/Trees';
+import { Bushes } from '../src/components/home-v10/layers/Bushes';
+import { Sun as LayerSun } from '../src/components/home-v10/layers/Sun';
 
 // Home V10 Animals
-import { Butterflies } from '@/components/home-v10/animals/Butterflies';
-import { Rabbit as HomeRabbit } from '@/components/home-v10/animals/Rabbit';
-import { Bee as HomeBee } from '@/components/home-v10/animals/Bee';
-import { Ladybug as HomeLadybug } from '@/components/home-v10/animals/Ladybug';
-import { Squirrel as HomeSquirrel } from '@/components/home-v10/animals/Squirrel';
-import { Birds } from '@/components/home-v10/animals/Birds';
+import { Butterflies } from '../src/components/home-v10/animals/Butterflies';
+import { Rabbit as HomeRabbit } from '../src/components/home-v10/animals/Rabbit';
+import { Bee as HomeBee } from '../src/components/home-v10/animals/Bee';
+import { Ladybug as HomeLadybug } from '../src/components/home-v10/animals/Ladybug';
+import { Squirrel as HomeSquirrel } from '../src/components/home-v10/animals/Squirrel';
+import { Birds } from '../src/components/home-v10/animals/Birds';
 
 // ============================================================
 // IMPORTS - Decorations
 // ============================================================
-import { FloatingFlowers } from '@/components/decorations/FloatingFlowers';
-import { Hills as DecoHills } from '@/components/decorations/Hills';
-import { AnimatedCloud as DecoAnimatedCloud } from '@/components/decorations/AnimatedCloud';
-import { AnimatedSun } from '@/components/decorations/AnimatedSun';
-import { AnimatedButterfly } from '@/components/decorations/AnimatedButterfly';
-import { AnimatedTree } from '@/components/decorations/AnimatedTree';
+import { FloatingFlowers } from '../src/components/decorations/FloatingFlowers';
+import { Hills as DecoHills } from '../src/components/decorations/Hills';
+import { AnimatedCloud as DecoAnimatedCloud } from '../src/components/decorations/AnimatedCloud';
+import { AnimatedSun } from '../src/components/decorations/AnimatedSun';
+import { AnimatedButterfly } from '../src/components/decorations/AnimatedButterfly';
+import { AnimatedTree } from '../src/components/decorations/AnimatedTree';
 
 // ============================================================
 // IMPORTS - Layout
 // ============================================================
-import { GameContainer } from '@/components/layout/GameContainer';
+import { GameContainer } from '../src/components/layout/GameContainer';
 
 // ============================================================
 // IMPORTS - Collection
 // ============================================================
-import { CollectionCard } from '@/components/collection/CollectionCard';
-import { CollectionBook } from '@/components/collection/CollectionBook';
-import { CategoryTabs } from '@/components/collection/CategoryTabs';
-import { CollectionPage } from '@/components/collection/CollectionPage';
-import { CardDetailModal } from '@/components/collection/CardDetailModal';
-import { CardUnlockScreen } from '@/components/collection/CardUnlockScreen';
+import { CollectionCard } from '../src/components/collection/CollectionCard';
+import { CollectionBook } from '../src/components/collection/CollectionBook';
+import { CategoryTabs } from '../src/components/collection/CategoryTabs';
+import { CollectionPage } from '../src/components/collection/CollectionPage';
+import { CardDetailModal } from '../src/components/collection/CardDetailModal';
+import { CardUnlockScreen } from '../src/components/collection/CardUnlockScreen';
 
 // ============================================================
 // IMPORTS - Assistant
 // ============================================================
-import { AssistantBubble } from '@/components/assistant/AssistantBubble';
+import { AssistantBubble } from '../src/components/assistant/AssistantBubble';
 
 // ============================================================
 // IMPORTS - Parent Components
 // ============================================================
-import { SkillsRadar } from '@/components/parent/SkillsRadar';
-import { StrengthsCard } from '@/components/parent/StrengthsCard';
-import { BehaviorInsights } from '@/components/parent/BehaviorInsights';
-import { ParentDrawer } from '@/components/parent/ParentDrawer';
-import { ScreenTimeCard } from '@/components/parent/ScreenTimeCard';
-import { ProgressChart } from '@/components/parent/ProgressChart';
-import { SkillsRadarV2 } from '@/components/parent/SkillsRadarV2';
-import { ParentZone } from '@/components/parent/ParentZone';
-import { BadgesGallery } from '@/components/parent/BadgesGallery';
-import { RecommendationsCard } from '@/components/parent/RecommendationsCard';
-import { GoalEditor } from '@/components/parent/GoalEditor';
-import { ChildSelector } from '@/components/parent/ChildSelector';
-import { ParentTabs } from '@/components/parent/ParentTabs';
-import { ActivityTimeline } from '@/components/parent/ActivityTimeline';
-import { WeeklyChart } from '@/components/parent/WeeklyChart';
-import { ParentDashboard } from '@/components/parent/ParentDashboard';
-import { GoalsSection } from '@/components/parent/GoalsSection';
+import { SkillsRadar } from '../src/components/parent/SkillsRadar';
+import { StrengthsCard } from '../src/components/parent/StrengthsCard';
+import { BehaviorInsights } from '../src/components/parent/BehaviorInsights';
+import { ParentDrawer } from '../src/components/parent/ParentDrawer';
+import { ScreenTimeCard } from '../src/components/parent/ScreenTimeCard';
+import { ProgressChart } from '../src/components/parent/ProgressChart';
+import { SkillsRadarV2 } from '../src/components/parent/SkillsRadarV2';
+import { ParentZone } from '../src/components/parent/ParentZone';
+import { BadgesGallery } from '../src/components/parent/BadgesGallery';
+import { RecommendationsCard } from '../src/components/parent/RecommendationsCard';
+import { GoalEditor } from '../src/components/parent/GoalEditor';
+import { ChildSelector } from '../src/components/parent/ChildSelector';
+import { ParentTabs } from '../src/components/parent/ParentTabs';
+import { ActivityTimeline } from '../src/components/parent/ActivityTimeline';
+import { WeeklyChart } from '../src/components/parent/WeeklyChart';
+import { ParentDashboard } from '../src/components/parent/ParentDashboard';
+import { GoalsSection } from '../src/components/parent/GoalsSection';
 
 // ============================================================
 // IMPORTS - Hanoi Game
 // ============================================================
-import { GameBoard } from '@/games/01-hanoi/components/GameBoard';
-import { GameBackground as HanoiBackground } from '@/games/01-hanoi/components/GameBackground';
-import { Tower } from '@/games/01-hanoi/components/Tower';
-import { Disk } from '@/games/01-hanoi/components/Disk';
-import { TowerLabel } from '@/games/01-hanoi/components/TowerLabel';
-import { ProgressPanel } from '@/games/01-hanoi/components/ProgressPanel';
-import { FloatingButtons } from '@/games/01-hanoi/components/FloatingButtons';
-import { MascotOwl } from '@/games/01-hanoi/components/MascotOwl';
-import { WoodenBase } from '@/games/01-hanoi/components/WoodenBase';
-import { VictoryCelebration } from '@/games/01-hanoi/components/VictoryCelebration';
+import { GameBoard } from '../src/games/01-hanoi/components/GameBoard';
+import { GameBackground as HanoiBackground } from '../src/games/01-hanoi/components/GameBackground';
+import { Tower } from '../src/games/01-hanoi/components/Tower';
+import { Disk } from '../src/games/01-hanoi/components/Disk';
+import { TowerLabel } from '../src/games/01-hanoi/components/TowerLabel';
+import { ProgressPanel } from '../src/games/01-hanoi/components/ProgressPanel';
+import { FloatingButtons } from '../src/games/01-hanoi/components/FloatingButtons';
+import { MascotOwl } from '../src/games/01-hanoi/components/MascotOwl';
+import { WoodenBase } from '../src/games/01-hanoi/components/WoodenBase';
+import { VictoryCelebration } from '../src/games/01-hanoi/components/VictoryCelebration';
 
 // Hanoi Feedback
-import { CollectionProgress } from '@/games/01-hanoi/components/feedback/CollectionProgress';
-import { VictoryPopup } from '@/games/01-hanoi/components/feedback/VictoryPopup';
-import { VictoryOverlay } from '@/games/01-hanoi/components/feedback/VictoryOverlay';
-import { VictoryMascot } from '@/games/01-hanoi/components/feedback/VictoryMascot';
-import { CollectibleCardFlip } from '@/games/01-hanoi/components/feedback/CollectibleCardFlip';
-import { PopupHeader } from '@/games/01-hanoi/components/feedback/PopupHeader';
-import { StatsSection } from '@/games/01-hanoi/components/feedback/StatsSection';
-import { MascotCelebration } from '@/games/01-hanoi/components/feedback/MascotCelebration';
-import { CardFront } from '@/games/01-hanoi/components/feedback/CardFront';
-import { CardBack } from '@/games/01-hanoi/components/feedback/CardBack';
+import { CollectionProgress } from '../src/games/01-hanoi/components/feedback/CollectionProgress';
+import { VictoryPopup } from '../src/games/01-hanoi/components/feedback/VictoryPopup';
+import { VictoryOverlay } from '../src/games/01-hanoi/components/feedback/VictoryOverlay';
+import { VictoryMascot } from '../src/games/01-hanoi/components/feedback/VictoryMascot';
+import { CollectibleCardFlip } from '../src/games/01-hanoi/components/feedback/CollectibleCardFlip';
+import { PopupHeader } from '../src/games/01-hanoi/components/feedback/PopupHeader';
+import { StatsSection } from '../src/games/01-hanoi/components/feedback/StatsSection';
+import { MascotCelebration } from '../src/games/01-hanoi/components/feedback/MascotCelebration';
+import { CardFront } from '../src/games/01-hanoi/components/feedback/CardFront';
+import { CardBack } from '../src/games/01-hanoi/components/feedback/CardBack';
 
 // ============================================================
 // IMPORTS - Memory Game
 // ============================================================
-import { GameBoard as MemoryGameBoard } from '@/games/07-memory/components/GameBoard';
-import { MemoryGrid } from '@/games/07-memory/components/MemoryGrid';
-import { MemoryCard } from '@/games/07-memory/components/MemoryCard';
+import { GameBoard as MemoryGameBoard } from '../src/games/07-memory/components/GameBoard';
+import { MemoryGrid } from '../src/games/07-memory/components/MemoryGrid';
+import { MemoryCard } from '../src/games/07-memory/components/MemoryCard';
 
 // ============================================================
 // IMPORTS - Math Blocks Game
 // ============================================================
-import { ScoreDisplay } from '@/games/11-math-blocks/components/ScoreDisplay';
-import { MathBlock } from '@/games/11-math-blocks/components/MathBlock';
-import { GameGrid } from '@/games/11-math-blocks/components/GameGrid';
+import { ScoreDisplay } from '../src/games/11-math-blocks/components/ScoreDisplay';
+import { MathBlock } from '../src/games/11-math-blocks/components/MathBlock';
+import { GameGrid } from '../src/games/11-math-blocks/components/GameGrid';
 
 // ============================================================
 // IMPORTS - Conteur Curieux Game
 // ============================================================
-import { PlumeMascot } from '@/games/06-conteur-curieux/components/PlumeMascot';
-import { AudioPlayer } from '@/games/06-conteur-curieux/components/AudioPlayer';
-import { QuestionCard } from '@/games/06-conteur-curieux/components/QuestionCard';
-import { SkillBadge } from '@/games/06-conteur-curieux/components/SkillBadge';
-import { CollectibleCard } from '@/games/06-conteur-curieux/components/CollectibleCard';
-import { FeedbackOverlay } from '@/games/06-conteur-curieux/components/FeedbackOverlay';
-import { LibraryBackground } from '@/games/06-conteur-curieux/components/LibraryBackground';
-import { ModeSelectionModal } from '@/games/06-conteur-curieux/components/ModeSelectionModal';
-import { StoryCard } from '@/games/06-conteur-curieux/components/StoryCard';
-import { VocabularyBubble } from '@/games/06-conteur-curieux/components/VocabularyBubble';
-import { AnswerButton } from '@/games/06-conteur-curieux/components/AnswerButton';
-import { RaysEffect } from '@/games/06-conteur-curieux/components/RaysEffect';
-import { FilterTabs } from '@/games/06-conteur-curieux/components/FilterTabs';
-import { StoryReader } from '@/games/06-conteur-curieux/components/StoryReader';
-import { StoryIllustration } from '@/games/06-conteur-curieux/components/StoryIllustration';
-import { StarsRow } from '@/games/06-conteur-curieux/components/StarsRow';
-import { RadarChart } from '@/games/06-conteur-curieux/components/RadarChart';
-import { RecordingsList } from '@/games/06-conteur-curieux/components/RecordingsList';
+import { PlumeMascot } from '../src/games/06-conteur-curieux/components/PlumeMascot';
+import { AudioPlayer } from '../src/games/06-conteur-curieux/components/AudioPlayer';
+import { QuestionCard } from '../src/games/06-conteur-curieux/components/QuestionCard';
+import { SkillBadge } from '../src/games/06-conteur-curieux/components/SkillBadge';
+import { CollectibleCard } from '../src/games/06-conteur-curieux/components/CollectibleCard';
+import { FeedbackOverlay } from '../src/games/06-conteur-curieux/components/FeedbackOverlay';
+import { LibraryBackground } from '../src/games/06-conteur-curieux/components/LibraryBackground';
+import { ModeSelectionModal } from '../src/games/06-conteur-curieux/components/ModeSelectionModal';
+import { StoryCard } from '../src/games/06-conteur-curieux/components/StoryCard';
+import { VocabularyBubble } from '../src/games/06-conteur-curieux/components/VocabularyBubble';
+import { AnswerButton } from '../src/games/06-conteur-curieux/components/AnswerButton';
+import { RaysEffect } from '../src/games/06-conteur-curieux/components/RaysEffect';
+import { FilterTabs } from '../src/games/06-conteur-curieux/components/FilterTabs';
+import { StoryReader } from '../src/games/06-conteur-curieux/components/StoryReader';
+import { StoryIllustration } from '../src/games/06-conteur-curieux/components/StoryIllustration';
+import { StarsRow } from '../src/games/06-conteur-curieux/components/StarsRow';
+import { RadarChart } from '../src/games/06-conteur-curieux/components/RadarChart';
+import { RecordingsList } from '../src/games/06-conteur-curieux/components/RecordingsList';
 
 // Conteur Illustrations
-import { ForestScene } from '@/games/06-conteur-curieux/assets/illustrations/ForestScene';
-import { FamilyScene } from '@/games/06-conteur-curieux/assets/illustrations/FamilyScene';
-import { FriendshipScene } from '@/games/06-conteur-curieux/assets/illustrations/FriendshipScene';
-import { MagicScene } from '@/games/06-conteur-curieux/assets/illustrations/MagicScene';
-import { AdventureScene } from '@/games/06-conteur-curieux/assets/illustrations/AdventureScene';
+import { ForestScene } from '../src/games/06-conteur-curieux/assets/illustrations/ForestScene';
+import { FamilyScene } from '../src/games/06-conteur-curieux/assets/illustrations/FamilyScene';
+import { FriendshipScene } from '../src/games/06-conteur-curieux/assets/illustrations/FriendshipScene';
+import { MagicScene } from '../src/games/06-conteur-curieux/assets/illustrations/MagicScene';
+import { AdventureScene } from '../src/games/06-conteur-curieux/assets/illustrations/AdventureScene';
 
 // ============================================================
 // IMPORTS - Mots Croisés Game
 // ============================================================
-import { CrosswordCell } from '@/games/10-mots-croises/components/CrosswordCell';
-import { GameBoard as CrosswordGameBoard } from '@/games/10-mots-croises/components/GameBoard';
-import { ClueList } from '@/games/10-mots-croises/components/ClueList';
-import { Keyboard } from '@/games/10-mots-croises/components/Keyboard';
-import { CrosswordGrid } from '@/games/10-mots-croises/components/CrosswordGrid';
+import { CrosswordCell } from '../src/games/10-mots-croises/components/CrosswordCell';
+import { GameBoard as CrosswordGameBoard } from '../src/games/10-mots-croises/components/GameBoard';
+import { ClueList } from '../src/games/10-mots-croises/components/ClueList';
+import { Keyboard } from '../src/games/10-mots-croises/components/Keyboard';
+import { CrosswordGrid } from '../src/games/10-mots-croises/components/CrosswordGrid';
 
 // ============================================================
 // IMPORTS - Sudoku Game
 // ============================================================
-import { SudokuBackground } from '@/games/05-sudoku/components/SudokuBackground';
-import { GameTimer } from '@/games/05-sudoku/components/GameTimer';
-import { SymbolSelector } from '@/games/05-sudoku/components/SymbolSelector';
-import { LibraryDecoration } from '@/games/05-sudoku/components/LibraryDecoration';
-import { StatsPanel } from '@/games/05-sudoku/components/StatsPanel';
-import { SudokuGrid } from '@/games/05-sudoku/components/SudokuGrid';
-import { ProgressBar } from '@/games/05-sudoku/components/ProgressBar';
-import { SudokuCell } from '@/games/05-sudoku/components/SudokuCell';
-import { ProfessorHooMascot } from '@/games/05-sudoku/components/ProfessorHooMascot';
-import { FelixMascot } from '@/games/05-sudoku/components/FelixMascot';
-import { FloatingActionButtons } from '@/games/05-sudoku/components/FloatingActionButtons';
+import { SudokuBackground } from '../src/games/05-sudoku/components/SudokuBackground';
+import { GameTimer } from '../src/games/05-sudoku/components/GameTimer';
+import { SymbolSelector } from '../src/games/05-sudoku/components/SymbolSelector';
+import { LibraryDecoration } from '../src/games/05-sudoku/components/LibraryDecoration';
+import { StatsPanel } from '../src/games/05-sudoku/components/StatsPanel';
+import { SudokuGrid } from '../src/games/05-sudoku/components/SudokuGrid';
+import { ProgressBar } from '../src/games/05-sudoku/components/ProgressBar';
+import { SudokuCell } from '../src/games/05-sudoku/components/SudokuCell';
+import { ProfessorHooMascot } from '../src/games/05-sudoku/components/ProfessorHooMascot';
+import { FelixMascot } from '../src/games/05-sudoku/components/FelixMascot';
+import { FloatingActionButtons } from '../src/games/05-sudoku/components/FloatingActionButtons';
 
 // ============================================================
 // IMPORTS - Balance Game
 // ============================================================
-import { EquivalenceJournal } from '@/games/04-balance/components/EquivalenceJournal';
-import { WeightObject } from '@/games/04-balance/components/WeightObject';
-import { SandboxMode } from '@/games/04-balance/components/SandboxMode';
-import { DrHibou } from '@/games/04-balance/components/DrHibou';
-import { LevelSelector } from '@/games/04-balance/components/LevelSelector';
-import { BalanceScale } from '@/games/04-balance/components/BalanceScale';
+import { EquivalenceJournal } from '../src/games/04-balance/components/EquivalenceJournal';
+import { WeightObject } from '../src/games/04-balance/components/WeightObject';
+import { SandboxMode } from '../src/games/04-balance/components/SandboxMode';
+import { DrHibou } from '../src/games/04-balance/components/DrHibou';
+import { LevelSelector } from '../src/games/04-balance/components/LevelSelector';
+import { BalanceScale } from '../src/games/04-balance/components/BalanceScale';
 
 // ============================================================
 // IMPORTS - Matrices Magiques Game
 // ============================================================
-import { ValidateButton } from '@/games/12-matrices-magiques/components/ui/ValidateButton';
-import { ProgressDots } from '@/games/12-matrices-magiques/components/ui/ProgressDots';
-import { AttemptsDisplay } from '@/games/12-matrices-magiques/components/ui/AttemptsDisplay';
-import { ChoiceButton } from '@/games/12-matrices-magiques/components/choices/ChoiceButton';
-import { ChoicePanel } from '@/games/12-matrices-magiques/components/choices/ChoicePanel';
-import { WorldSelector } from '@/games/12-matrices-magiques/components/world/WorldSelector';
-import { WorldCard } from '@/games/12-matrices-magiques/components/world/WorldCard';
-import { ShapeRenderer } from '@/games/12-matrices-magiques/components/shapes/ShapeRenderer';
-import { SpeechBubble as MatrixSpeechBubble } from '@/games/12-matrices-magiques/components/mascot/SpeechBubble';
-import { PixelWithBubble } from '@/games/12-matrices-magiques/components/mascot/PixelWithBubble';
-import { PixelMascot } from '@/games/12-matrices-magiques/components/mascot/PixelMascot';
-import { MatrixCell } from '@/games/12-matrices-magiques/components/grid/MatrixCell';
-import { MatrixGrid } from '@/games/12-matrices-magiques/components/grid/MatrixGrid';
+import { ValidateButton } from '../src/games/12-matrices-magiques/components/ui/ValidateButton';
+import { ProgressDots } from '../src/games/12-matrices-magiques/components/ui/ProgressDots';
+import { AttemptsDisplay } from '../src/games/12-matrices-magiques/components/ui/AttemptsDisplay';
+import { ChoiceButton } from '../src/games/12-matrices-magiques/components/choices/ChoiceButton';
+import { ChoicePanel } from '../src/games/12-matrices-magiques/components/choices/ChoicePanel';
+import { WorldSelector } from '../src/games/12-matrices-magiques/components/world/WorldSelector';
+import { WorldCard } from '../src/games/12-matrices-magiques/components/world/WorldCard';
+import { ShapeRenderer } from '../src/games/12-matrices-magiques/components/shapes/ShapeRenderer';
+import { SpeechBubble as MatrixSpeechBubble } from '../src/games/12-matrices-magiques/components/mascot/SpeechBubble';
+import { PixelWithBubble } from '../src/games/12-matrices-magiques/components/mascot/PixelWithBubble';
+import { PixelMascot } from '../src/games/12-matrices-magiques/components/mascot/PixelMascot';
+import { MatrixCell } from '../src/games/12-matrices-magiques/components/grid/MatrixCell';
+import { MatrixGrid } from '../src/games/12-matrices-magiques/components/grid/MatrixGrid';
 
 // ============================================================
 // IMPORTS - Suites Logiques Game
 // ============================================================
-import { SequenceDisplay } from '@/games/02-suites-logiques/components/SequenceDisplay';
-import { SequenceElement } from '@/games/02-suites-logiques/components/SequenceElement';
-import { ChoicePanel as SuitesChoicePanel } from '@/games/02-suites-logiques/components/ChoicePanel';
-import { SuitesLogiquesGame } from '@/games/02-suites-logiques/components/SuitesLogiquesGame';
-import { MascotRobot } from '@/games/02-suites-logiques/components/MascotRobot';
-import { MissingSlot } from '@/games/02-suites-logiques/components/MissingSlot';
+import { SequenceDisplay } from '../src/games/02-suites-logiques/components/SequenceDisplay';
+import { SequenceElement } from '../src/games/02-suites-logiques/components/SequenceElement';
+import { ChoicePanel as SuitesChoicePanel } from '../src/games/02-suites-logiques/components/ChoicePanel';
+import { SuitesLogiquesGame } from '../src/games/02-suites-logiques/components/SuitesLogiquesGame';
+import { MascotRobot } from '../src/games/02-suites-logiques/components/MascotRobot';
+import { MissingSlot } from '../src/games/02-suites-logiques/components/MissingSlot';
 
 // ============================================================
 // IMPORTS - Labyrinthe Game
 // ============================================================
-import { VictoryScreen as LabyVictoryScreen } from '@/games/03-labyrinthe/components/VictoryScreen';
-import { InteractiveElement } from '@/games/03-labyrinthe/components/InteractiveElement';
-import { InstructionQueue } from '@/games/03-labyrinthe/components/InstructionQueue';
-import { Inventory } from '@/games/03-labyrinthe/components/Inventory';
-import { PathTrail } from '@/games/03-labyrinthe/components/PathTrail';
-import { MazeGrid } from '@/games/03-labyrinthe/components/MazeGrid';
-import { MascotBubble } from '@/games/03-labyrinthe/components/MascotBubble';
-import { Avatar } from '@/games/03-labyrinthe/components/Avatar';
-import { ProgrammingControls } from '@/games/03-labyrinthe/components/ProgrammingControls';
-import { DirectionalControls } from '@/games/03-labyrinthe/components/DirectionalControls';
-import { MazeCell } from '@/games/03-labyrinthe/components/MazeCell';
-import { LabyrintheGame } from '@/games/03-labyrinthe/LabyrintheGame';
+import { VictoryScreen as LabyVictoryScreen } from '../src/games/03-labyrinthe/components/VictoryScreen';
+import { InteractiveElement } from '../src/games/03-labyrinthe/components/InteractiveElement';
+import { InstructionQueue } from '../src/games/03-labyrinthe/components/InstructionQueue';
+import { Inventory } from '../src/games/03-labyrinthe/components/Inventory';
+import { PathTrail } from '../src/games/03-labyrinthe/components/PathTrail';
+import { MazeGrid } from '../src/games/03-labyrinthe/components/MazeGrid';
+import { MascotBubble } from '../src/games/03-labyrinthe/components/MascotBubble';
+import { Avatar } from '../src/games/03-labyrinthe/components/Avatar';
+import { ProgrammingControls } from '../src/games/03-labyrinthe/components/ProgrammingControls';
+import { DirectionalControls } from '../src/games/03-labyrinthe/components/DirectionalControls';
+import { MazeCell } from '../src/games/03-labyrinthe/components/MazeCell';
+import { LabyrintheGame } from '../src/games/03-labyrinthe/LabyrintheGame';
 
 // ============================================================
 // IMPORTS - Logix Grid Game
 // ============================================================
-import { GameBoard as LogixGameBoard } from '@/games/09-logix-grid/components/GameBoard';
-import { CluePanel } from '@/games/09-logix-grid/components/CluePanel';
-import { LogixGrid } from '@/games/09-logix-grid/components/LogixGrid';
-import { GridCell } from '@/games/09-logix-grid/components/GridCell';
+import { GameBoard as LogixGameBoard } from '../src/games/09-logix-grid/components/GameBoard';
+import { CluePanel } from '../src/games/09-logix-grid/components/CluePanel';
+import { LogixGrid } from '../src/games/09-logix-grid/components/LogixGrid';
+import { GridCell } from '../src/games/09-logix-grid/components/GridCell';
 
 // ============================================================
 // IMPORTS - Tangram Game
 // ============================================================
-import { TangramPiece } from '@/games/08-tangram/components/TangramPiece';
-import { TangramBoard } from '@/games/08-tangram/components/TangramBoard';
-import { ShadowShape } from '@/games/08-tangram/components/ShadowShape';
+import { TangramPiece } from '../src/games/08-tangram/components/TangramPiece';
+import { TangramBoard } from '../src/games/08-tangram/components/TangramBoard';
+import { ShadowShape } from '../src/games/08-tangram/components/ShadowShape';
 
 // Type pour un composant du registre
 interface PlaygroundComponent {
@@ -318,6 +318,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'flowers',
     name: 'Flowers',
     category: 'Background',
+    filePath: 'src/components/background/Flowers.tsx',
     component: Flowers,
     defaultProps: {},
     description: 'Fleurs animées du décor',
@@ -326,6 +327,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'background-hills',
     name: 'Hills',
     category: 'Background',
+    filePath: 'src/components/background/Hills.tsx',
     component: BackgroundHills,
     defaultProps: {},
     description: 'Collines du fond',
@@ -334,6 +336,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'animated-clouds',
     name: 'AnimatedClouds',
     category: 'Background',
+    filePath: 'src/components/background/AnimatedCloud.tsx',
     component: AnimatedClouds,
     defaultProps: {},
     description: 'Nuages animés',
@@ -342,6 +345,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'background-mountains',
     name: 'Mountains',
     category: 'Background',
+    filePath: 'src/components/background/Mountains.tsx',
     component: BackgroundMountains,
     defaultProps: {},
     description: 'Montagnes du fond',
@@ -350,6 +354,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'background-trees',
     name: 'Trees',
     category: 'Background',
+    filePath: 'src/components/background/Trees.tsx',
     component: BackgroundTrees,
     defaultProps: {},
     description: 'Arbres du décor',
@@ -358,6 +363,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'forest-background',
     name: 'ForestBackground',
     category: 'Background',
+    filePath: 'src/components/background/ForestBackground.tsx',
     component: ForestBackground,
     defaultProps: {},
     description: 'Fond de forêt complet',
@@ -366,6 +372,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'background-sun',
     name: 'Sun',
     category: 'Background',
+    filePath: 'src/components/background/Sun.tsx',
     component: BackgroundSun,
     defaultProps: {},
     description: 'Soleil animé',
@@ -376,6 +383,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'dragonfly',
     name: 'Dragonfly',
     category: 'Background Animals',
+    filePath: 'src/components/background/animals/Dragonfly.tsx',
     component: Dragonfly,
     defaultProps: {},
     description: 'Libellule animée',
@@ -384,6 +392,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'background-rabbit',
     name: 'Rabbit',
     category: 'Background Animals',
+    filePath: 'src/components/background/animals/Rabbit.tsx',
     component: BackgroundRabbit,
     defaultProps: {},
     description: 'Lapin du décor',
@@ -392,6 +401,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'background-butterflies',
     name: 'Butterflies',
     category: 'Background Animals',
+    filePath: 'src/components/background/animals/Butterfly.tsx',
     component: BackgroundButterflies,
     defaultProps: {},
     description: 'Papillons animés',
@@ -400,6 +410,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'background-bee',
     name: 'Bee',
     category: 'Background Animals',
+    filePath: 'src/components/background/animals/Bee.tsx',
     component: BackgroundBee,
     defaultProps: {},
     description: 'Abeille du décor',
@@ -408,6 +419,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'background-ladybug',
     name: 'Ladybug',
     category: 'Background Animals',
+    filePath: 'src/components/background/animals/Ladybug.tsx',
     component: BackgroundLadybug,
     defaultProps: {},
     description: 'Coccinelle du décor',
@@ -416,6 +428,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'background-birds',
     name: 'Birds',
     category: 'Background Animals',
+    filePath: 'src/components/background/animals/Bird.tsx',
     component: BackgroundBirds,
     defaultProps: {},
     description: 'Oiseaux animés',
@@ -424,6 +437,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'background-squirrel',
     name: 'Squirrel',
     category: 'Background Animals',
+    filePath: 'src/components/background/animals/Squirrel.tsx',
     component: BackgroundSquirrel,
     defaultProps: {},
     description: 'Écureuil du décor',
@@ -434,6 +448,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'back-button',
     name: 'BackButton',
     category: 'Common',
+    filePath: 'src/components/common/BackButton.tsx',
     component: BackButton,
     defaultProps: {
       onPress: () => console.log('Back pressed'),
@@ -444,6 +459,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'button',
     name: 'Button',
     category: 'Common',
+    filePath: 'src/components/common/Button.tsx',
     component: Button,
     defaultProps: {
       title: 'Cliquez-moi',
@@ -455,6 +471,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'confetti',
     name: 'Confetti',
     category: 'Common',
+    filePath: 'src/components/common/Confetti.tsx',
     component: Confetti,
     defaultProps: {
       type: 'emoji',
@@ -466,6 +483,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'game-action-buttons',
     name: 'GameActionButtons',
     category: 'Common',
+    filePath: 'src/components/common/GameActionButtons.tsx',
     component: GameActionButtons,
     defaultProps: {
       onHint: () => console.log('Hint'),
@@ -478,6 +496,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'victory-card',
     name: 'VictoryCard',
     category: 'Common',
+    filePath: 'src/components/common/VictoryCard.tsx',
     component: VictoryCard,
     defaultProps: {
       title: 'Bravo!',
@@ -489,6 +508,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'speech-bubble',
     name: 'SpeechBubble',
     category: 'Common',
+    filePath: 'src/components/common/SpeechBubble.tsx',
     component: SpeechBubble,
     defaultProps: {
       message: 'Bonjour!',
@@ -499,6 +519,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'screen-header',
     name: 'ScreenHeader',
     category: 'Common',
+    filePath: 'src/components/common/ScreenHeader.tsx',
     component: ScreenHeader,
     defaultProps: {
       title: 'Mon écran',
@@ -509,6 +530,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'hint-button',
     name: 'HintButton',
     category: 'Common',
+    filePath: 'src/components/common/HintButton.tsx',
     component: HintButton,
     defaultProps: {
       onPress: () => console.log('Hint'),
@@ -519,6 +541,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'icon-button',
     name: 'IconButton',
     category: 'Common',
+    filePath: 'src/components/common/IconButton.tsx',
     component: IconButton,
     defaultProps: {
       icon: '⭐',
@@ -530,6 +553,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'progress-indicator',
     name: 'ProgressIndicator',
     category: 'Common',
+    filePath: 'src/components/common/ProgressIndicator.tsx',
     component: ProgressIndicator,
     defaultProps: {
       current: 3,
@@ -541,6 +565,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'performance-stats',
     name: 'PerformanceStats',
     category: 'Common',
+    filePath: 'src/components/common/PerformanceStats.tsx',
     component: PerformanceStats,
     defaultProps: {},
     description: 'Stats de performance',
@@ -551,6 +576,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'game-card-v10',
     name: 'GameCardV10',
     category: 'Home V10',
+    filePath: 'src/components/home-v10/GameCardV10.tsx',
     component: GameCardV10,
     defaultProps: {
       id: 'demo',
@@ -568,6 +594,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'piou-floating',
     name: 'PiouFloating',
     category: 'Home V10',
+    filePath: 'src/components/home-v10/PiouFloating.tsx',
     component: PiouFloating,
     defaultProps: {
       message: 'Essaie le jeu ',
@@ -581,6 +608,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'collection-floating',
     name: 'CollectionFloating',
     category: 'Home V10',
+    filePath: 'src/components/home-v10/CollectionFloating.tsx',
     component: CollectionFloating,
     defaultProps: {
       cardCount: 12,
@@ -592,6 +620,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'home-header-v10',
     name: 'HomeHeaderV10',
     category: 'Home V10',
+    filePath: 'src/components/home-v10/HomeHeaderV10.tsx',
     component: HomeHeaderV10,
     defaultProps: {
       profile: {
@@ -609,6 +638,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'forest-background-v10',
     name: 'ForestBackgroundV10',
     category: 'Home V10',
+    filePath: 'src/components/home-v10/ForestBackgroundV10.tsx',
     component: ForestBackgroundV10,
     defaultProps: {},
     description: 'Fond de forêt V10',
@@ -619,6 +649,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'layer-hills',
     name: 'Hills (Layer)',
     category: 'Home V10 Layers',
+    filePath: 'src/components/home-v10/layers/Hills.tsx',
     component: LayerHills,
     defaultProps: {},
     description: 'Layer de collines',
@@ -627,6 +658,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'clouds',
     name: 'Clouds',
     category: 'Home V10 Layers',
+    filePath: 'src/components/home-v10/layers/Clouds.tsx',
     component: Clouds,
     defaultProps: {},
     description: 'Layer de nuages',
@@ -635,6 +667,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'layer-mountains',
     name: 'Mountains (Layer)',
     category: 'Home V10 Layers',
+    filePath: 'src/components/home-v10/layers/Mountains.tsx',
     component: LayerMountains,
     defaultProps: {},
     description: 'Layer de montagnes',
@@ -643,6 +676,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'sky',
     name: 'Sky',
     category: 'Home V10 Layers',
+    filePath: 'src/components/home-v10/layers/Sky.tsx',
     component: Sky,
     defaultProps: {},
     description: 'Layer du ciel',
@@ -651,6 +685,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'garden',
     name: 'Garden',
     category: 'Home V10 Layers',
+    filePath: 'src/components/home-v10/layers/Garden.tsx',
     component: Garden,
     defaultProps: {},
     description: 'Layer du jardin',
@@ -659,6 +694,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'layer-trees',
     name: 'Trees (Layer)',
     category: 'Home V10 Layers',
+    filePath: 'src/components/home-v10/layers/Trees.tsx',
     component: LayerTrees,
     defaultProps: {},
     description: 'Layer d\'arbres',
@@ -667,6 +703,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'bushes',
     name: 'Bushes',
     category: 'Home V10 Layers',
+    filePath: 'src/components/home-v10/layers/Bushes.tsx',
     component: Bushes,
     defaultProps: {},
     description: 'Layer de buissons',
@@ -675,6 +712,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'layer-sun',
     name: 'Sun (Layer)',
     category: 'Home V10 Layers',
+    filePath: 'src/components/home-v10/layers/Sun.tsx',
     component: LayerSun,
     defaultProps: {},
     description: 'Layer du soleil',
@@ -685,6 +723,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'butterflies',
     name: 'Butterflies',
     category: 'Home V10 Animals',
+    filePath: 'src/components/home-v10/animals/Butterflies.tsx',
     component: Butterflies,
     defaultProps: {},
     description: 'Papillons animés',
@@ -693,6 +732,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'home-rabbit',
     name: 'Rabbit (Home)',
     category: 'Home V10 Animals',
+    filePath: 'src/components/home-v10/animals/Rabbit.tsx',
     component: HomeRabbit,
     defaultProps: {},
     description: 'Lapin de la home',
@@ -701,6 +741,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'home-bee',
     name: 'Bee (Home)',
     category: 'Home V10 Animals',
+    filePath: 'src/components/home-v10/animals/Bee.tsx',
     component: HomeBee,
     defaultProps: {},
     description: 'Abeille de la home',
@@ -709,6 +750,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'home-ladybug',
     name: 'Ladybug (Home)',
     category: 'Home V10 Animals',
+    filePath: 'src/components/home-v10/animals/Ladybug.tsx',
     component: HomeLadybug,
     defaultProps: {},
     description: 'Coccinelle de la home',
@@ -717,6 +759,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'home-squirrel',
     name: 'Squirrel (Home)',
     category: 'Home V10 Animals',
+    filePath: 'src/components/home-v10/animals/Squirrel.tsx',
     component: HomeSquirrel,
     defaultProps: {},
     description: 'Écureuil de la home',
@@ -725,6 +768,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'birds',
     name: 'Birds',
     category: 'Home V10 Animals',
+    filePath: 'src/components/home-v10/animals/Birds.tsx',
     component: Birds,
     defaultProps: {},
     description: 'Oiseaux animés',
@@ -735,6 +779,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'floating-flowers',
     name: 'FloatingFlowers',
     category: 'Decorations',
+    filePath: 'src/components/decorations/FloatingFlowers.tsx',
     component: FloatingFlowers,
     defaultProps: {},
     description: 'Fleurs flottantes',
@@ -743,6 +788,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'deco-hills',
     name: 'Hills (Deco)',
     category: 'Decorations',
+    filePath: 'src/components/decorations/Hills.tsx',
     component: DecoHills,
     defaultProps: {},
     description: 'Collines décoratives',
@@ -751,6 +797,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'deco-animated-cloud',
     name: 'AnimatedCloud (Deco)',
     category: 'Decorations',
+    filePath: 'src/components/decorations/AnimatedCloud.tsx',
     component: DecoAnimatedCloud,
     defaultProps: {},
     description: 'Nuage animé décoratif',
@@ -759,6 +806,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'animated-sun',
     name: 'AnimatedSun',
     category: 'Decorations',
+    filePath: 'src/components/decorations/AnimatedSun.tsx',
     component: AnimatedSun,
     defaultProps: {},
     description: 'Soleil animé',
@@ -767,6 +815,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'animated-butterfly',
     name: 'AnimatedButterfly',
     category: 'Decorations',
+    filePath: 'src/components/decorations/AnimatedButterfly.tsx',
     component: AnimatedButterfly,
     defaultProps: {},
     description: 'Papillon animé',
@@ -775,6 +824,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'animated-tree',
     name: 'AnimatedTree',
     category: 'Decorations',
+    filePath: 'src/components/decorations/AnimatedTree.tsx',
     component: AnimatedTree,
     defaultProps: {},
     description: 'Arbre animé',
@@ -785,6 +835,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'collection-card',
     name: 'CollectionCard',
     category: 'Collection',
+    filePath: 'src/components/collection/CollectionCard.tsx',
     component: CollectionCard,
     defaultProps: {
       card: { id: '1', name: 'Carte test', rarity: 'common', unlocked: true },
@@ -795,6 +846,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'category-tabs',
     name: 'CategoryTabs',
     category: 'Collection',
+    filePath: 'src/components/collection/CategoryTabs.tsx',
     component: CategoryTabs,
     defaultProps: {
       categories: ['Tous', 'Animaux', 'Nature'],
@@ -809,6 +861,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'assistant-bubble',
     name: 'AssistantBubble',
     category: 'Assistant',
+    filePath: 'src/components/assistant/AssistantBubble.tsx',
     component: AssistantBubble,
     defaultProps: {
       message: 'Je suis là pour t\'aider!',
@@ -821,6 +874,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'skills-radar',
     name: 'SkillsRadar',
     category: 'Parent',
+    filePath: 'src/components/parent/SkillsRadar.tsx',
     component: SkillsRadar,
     defaultProps: {
       skills: [
@@ -835,6 +889,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'strengths-card',
     name: 'StrengthsCard',
     category: 'Parent',
+    filePath: 'src/components/parent/StrengthsCard.tsx',
     component: StrengthsCard,
     defaultProps: {},
     description: 'Carte des forces',
@@ -843,6 +898,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'screen-time-card',
     name: 'ScreenTimeCard',
     category: 'Parent',
+    filePath: 'src/components/parent/ScreenTimeCard.tsx',
     component: ScreenTimeCard,
     defaultProps: {
       minutes: 45,
@@ -853,6 +909,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'weekly-chart',
     name: 'WeeklyChart',
     category: 'Parent',
+    filePath: 'src/components/parent/WeeklyChart.tsx',
     component: WeeklyChart,
     defaultProps: {},
     description: 'Graphique hebdomadaire',
@@ -863,13 +920,14 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'game-board',
     name: 'GameBoard',
     category: 'Hanoi',
+    filePath: 'src/games/01-hanoi/components/GameBoard.tsx',
     component: GameBoard,
     defaultProps: {
       gameState: {
         towers: [
-          [{ id: 1, size: 3 }, { id: 2, size: 2 }, { id: 3, size: 1 }],
-          [],
-          [],
+          { disks: [{ id: 1, size: 3, color: '#FF6B6B' }, { id: 2, size: 2, color: '#4ECDC4' }, { id: 3, size: 1, color: '#FFE66D' }] },
+          { disks: [] },
+          { disks: [] },
         ],
         selectedDisk: null,
         sourceTower: null,
@@ -884,6 +942,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'hanoi-background',
     name: 'GameBackground',
     category: 'Hanoi',
+    filePath: 'src/games/01-hanoi/components/GameBackground.tsx',
     component: HanoiBackground,
     defaultProps: {},
     description: 'Fond du jeu Hanoi',
@@ -892,10 +951,11 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'tower',
     name: 'Tower',
     category: 'Hanoi',
+    filePath: 'src/games/01-hanoi/components/Tower.tsx',
     component: Tower,
     defaultProps: {
       towerId: 0,
-      tower: [{ id: 1, size: 3 }, { id: 2, size: 2 }],
+      tower: { disks: [{ id: 1, size: 3, color: '#FF6B6B' }, { id: 2, size: 2, color: '#4ECDC4' }] },
       selectedDiskId: null,
       isValidTarget: false,
       isSourceTower: false,
@@ -912,9 +972,10 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'disk',
     name: 'Disk',
     category: 'Hanoi',
+    filePath: 'src/games/01-hanoi/components/Disk.tsx',
     component: Disk,
     defaultProps: {
-      disk: { id: 1, size: 3 },
+      disk: { id: 1, size: 3, color: '#FF6B6B' },
       width: 120,
       height: 35,
       isSelected: false,
@@ -926,6 +987,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'tower-label',
     name: 'TowerLabel',
     category: 'Hanoi',
+    filePath: 'src/games/01-hanoi/components/TowerLabel.tsx',
     component: TowerLabel,
     defaultProps: {
       label: 'A',
@@ -936,6 +998,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'progress-panel',
     name: 'ProgressPanel',
     category: 'Hanoi',
+    filePath: 'src/games/01-hanoi/components/ProgressPanel.tsx',
     component: ProgressPanel,
     defaultProps: {
       moves: 5,
@@ -947,6 +1010,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'floating-buttons',
     name: 'FloatingButtons',
     category: 'Hanoi',
+    filePath: 'src/games/01-hanoi/components/FloatingButtons.tsx',
     component: FloatingButtons,
     defaultProps: {
       onHint: () => console.log('Hint'),
@@ -959,6 +1023,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'mascot-owl',
     name: 'MascotOwl',
     category: 'Hanoi',
+    filePath: 'src/games/01-hanoi/components/MascotOwl.tsx',
     component: MascotOwl,
     defaultProps: {
       message: 'Bien joué!',
@@ -969,6 +1034,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'wooden-base',
     name: 'WoodenBase',
     category: 'Hanoi',
+    filePath: 'src/games/01-hanoi/components/WoodenBase.tsx',
     component: WoodenBase,
     defaultProps: {},
     description: 'Base en bois',
@@ -977,6 +1043,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'victory-celebration',
     name: 'VictoryCelebration',
     category: 'Hanoi',
+    filePath: 'src/games/01-hanoi/components/VictoryCelebration.tsx',
     component: VictoryCelebration,
     defaultProps: {},
     description: 'Célébration de victoire',
@@ -987,6 +1054,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'collection-progress',
     name: 'CollectionProgress',
     category: 'Hanoi Feedback',
+    filePath: 'src/games/01-hanoi/components/feedback/CollectionProgress.tsx',
     component: CollectionProgress,
     defaultProps: {
       collected: 5,
@@ -998,6 +1066,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'victory-popup',
     name: 'VictoryPopup',
     category: 'Hanoi Feedback',
+    filePath: 'src/games/01-hanoi/components/feedback/VictoryPopup.tsx',
     component: VictoryPopup,
     defaultProps: {
       visible: true,
@@ -1009,6 +1078,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'victory-overlay',
     name: 'VictoryOverlay',
     category: 'Hanoi Feedback',
+    filePath: 'src/games/01-hanoi/components/feedback/VictoryOverlay.tsx',
     component: VictoryOverlay,
     defaultProps: {
       visible: true,
@@ -1019,6 +1089,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'victory-mascot',
     name: 'VictoryMascot',
     category: 'Hanoi Feedback',
+    filePath: 'src/games/01-hanoi/components/feedback/VictoryMascot.tsx',
     component: VictoryMascot,
     defaultProps: {},
     description: 'Mascotte victoire',
@@ -1027,6 +1098,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'popup-header',
     name: 'PopupHeader',
     category: 'Hanoi Feedback',
+    filePath: 'src/games/01-hanoi/components/feedback/PopupHeader.tsx',
     component: PopupHeader,
     defaultProps: {
       title: 'Bravo!',
@@ -1037,6 +1109,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'stats-section',
     name: 'StatsSection',
     category: 'Hanoi Feedback',
+    filePath: 'src/games/01-hanoi/components/feedback/StatsSection.tsx',
     component: StatsSection,
     defaultProps: {
       moves: 10,
@@ -1048,6 +1121,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'mascot-celebration',
     name: 'MascotCelebration',
     category: 'Hanoi Feedback',
+    filePath: 'src/games/01-hanoi/components/feedback/MascotCelebration.tsx',
     component: MascotCelebration,
     defaultProps: {},
     description: 'Célébration mascotte',
@@ -1058,6 +1132,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'memory-game-board',
     name: 'GameBoard (Memory)',
     category: 'Memory',
+    filePath: 'src/games/02-memory/components/GameBoard.tsx',
     component: MemoryGameBoard,
     defaultProps: {},
     description: 'Plateau du jeu Memory',
@@ -1066,6 +1141,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'memory-grid',
     name: 'MemoryGrid',
     category: 'Memory',
+    filePath: 'src/games/02-memory/components/MemoryGrid.tsx',
     component: MemoryGrid,
     defaultProps: {
       cards: [],
@@ -1077,6 +1153,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'memory-card',
     name: 'MemoryCard',
     category: 'Memory',
+    filePath: 'src/games/02-memory/components/MemoryCard.tsx',
     component: MemoryCard,
     defaultProps: {
       card: { id: '1', emoji: '🎮', isFlipped: false, isMatched: false },
@@ -1090,6 +1167,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'score-display',
     name: 'ScoreDisplay',
     category: 'Math Blocks',
+    filePath: 'src/games/03-math-blocks/components/ScoreDisplay.tsx',
     component: ScoreDisplay,
     defaultProps: {
       score: 1250,
@@ -1100,6 +1178,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'math-block',
     name: 'MathBlock',
     category: 'Math Blocks',
+    filePath: 'src/games/03-math-blocks/components/MathBlock.tsx',
     component: MathBlock,
     defaultProps: {
       value: 5,
@@ -1111,6 +1190,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'game-grid',
     name: 'GameGrid',
     category: 'Math Blocks',
+    filePath: 'src/games/03-math-blocks/components/GameGrid.tsx',
     component: GameGrid,
     defaultProps: {},
     description: 'Grille de jeu Math',
@@ -1121,6 +1201,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'plume-mascot',
     name: 'PlumeMascot',
     category: 'Conteur Curieux',
+    filePath: 'src/games/04-conteur-curieux/components/PlumeMascot.tsx',
     component: PlumeMascot,
     defaultProps: {},
     description: 'Mascotte Plume',
@@ -1129,6 +1210,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'audio-player',
     name: 'AudioPlayer',
     category: 'Conteur Curieux',
+    filePath: 'src/games/04-conteur-curieux/components/AudioPlayer.tsx',
     component: AudioPlayer,
     defaultProps: {
       isPlaying: false,
@@ -1140,6 +1222,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'question-card',
     name: 'QuestionCard',
     category: 'Conteur Curieux',
+    filePath: 'src/games/04-conteur-curieux/components/QuestionCard.tsx',
     component: QuestionCard,
     defaultProps: {
       question: 'Quel est le personnage principal?',
@@ -1150,6 +1233,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'skill-badge',
     name: 'SkillBadge',
     category: 'Conteur Curieux',
+    filePath: 'src/games/04-conteur-curieux/components/SkillBadge.tsx',
     component: SkillBadge,
     defaultProps: {
       skill: 'Compréhension',
@@ -1161,6 +1245,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'story-card',
     name: 'StoryCard',
     category: 'Conteur Curieux',
+    filePath: 'src/games/04-conteur-curieux/components/StoryCard.tsx',
     component: StoryCard,
     defaultProps: {
       story: { id: '1', title: 'Le petit chaperon rouge', theme: 'forest' },
@@ -1171,6 +1256,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'vocabulary-bubble',
     name: 'VocabularyBubble',
     category: 'Conteur Curieux',
+    filePath: 'src/games/04-conteur-curieux/components/VocabularyBubble.tsx',
     component: VocabularyBubble,
     defaultProps: {
       word: 'Aventure',
@@ -1182,6 +1268,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'answer-button',
     name: 'AnswerButton',
     category: 'Conteur Curieux',
+    filePath: 'src/games/04-conteur-curieux/components/AnswerButton.tsx',
     component: AnswerButton,
     defaultProps: {
       text: 'Réponse A',
@@ -1193,6 +1280,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'rays-effect',
     name: 'RaysEffect',
     category: 'Conteur Curieux',
+    filePath: 'src/games/04-conteur-curieux/components/RaysEffect.tsx',
     component: RaysEffect,
     defaultProps: {},
     description: 'Effet de rayons',
@@ -1201,6 +1289,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'filter-tabs',
     name: 'FilterTabs',
     category: 'Conteur Curieux',
+    filePath: 'src/games/04-conteur-curieux/components/FilterTabs.tsx',
     component: FilterTabs,
     defaultProps: {
       tabs: ['Tous', 'Aventure', 'Magie'],
@@ -1213,6 +1302,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'stars-row',
     name: 'StarsRow',
     category: 'Conteur Curieux',
+    filePath: 'src/games/04-conteur-curieux/components/StarsRow.tsx',
     component: StarsRow,
     defaultProps: {
       count: 3,
@@ -1224,6 +1314,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'radar-chart',
     name: 'RadarChart',
     category: 'Conteur Curieux',
+    filePath: 'src/games/04-conteur-curieux/components/RadarChart.tsx',
     component: RadarChart,
     defaultProps: {},
     description: 'Graphique radar',
@@ -1234,6 +1325,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'forest-scene',
     name: 'ForestScene',
     category: 'Conteur Illustrations',
+    filePath: 'src/games/04-conteur-curieux/components/illustrations/ForestScene.tsx',
     component: ForestScene,
     defaultProps: {},
     description: 'Scène de forêt',
@@ -1242,6 +1334,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'family-scene',
     name: 'FamilyScene',
     category: 'Conteur Illustrations',
+    filePath: 'src/games/04-conteur-curieux/components/illustrations/FamilyScene.tsx',
     component: FamilyScene,
     defaultProps: {},
     description: 'Scène de famille',
@@ -1250,6 +1343,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'friendship-scene',
     name: 'FriendshipScene',
     category: 'Conteur Illustrations',
+    filePath: 'src/games/04-conteur-curieux/components/illustrations/FriendshipScene.tsx',
     component: FriendshipScene,
     defaultProps: {},
     description: 'Scène d\'amitié',
@@ -1258,6 +1352,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'magic-scene',
     name: 'MagicScene',
     category: 'Conteur Illustrations',
+    filePath: 'src/games/04-conteur-curieux/components/illustrations/MagicScene.tsx',
     component: MagicScene,
     defaultProps: {},
     description: 'Scène magique',
@@ -1266,6 +1361,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'adventure-scene',
     name: 'AdventureScene',
     category: 'Conteur Illustrations',
+    filePath: 'src/games/04-conteur-curieux/components/illustrations/AdventureScene.tsx',
     component: AdventureScene,
     defaultProps: {},
     description: 'Scène d\'aventure',
@@ -1276,6 +1372,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'crossword-cell',
     name: 'CrosswordCell',
     category: 'Mots Croisés',
+    filePath: 'src/games/05-mots-croises/components/CrosswordCell.tsx',
     component: CrosswordCell,
     defaultProps: {
       letter: 'A',
@@ -1287,6 +1384,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'crossword-game-board',
     name: 'GameBoard (Crossword)',
     category: 'Mots Croisés',
+    filePath: 'src/games/05-mots-croises/components/GameBoard.tsx',
     component: CrosswordGameBoard,
     defaultProps: {},
     description: 'Plateau mots croisés',
@@ -1295,6 +1393,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'clue-list',
     name: 'ClueList',
     category: 'Mots Croisés',
+    filePath: 'src/games/05-mots-croises/components/ClueList.tsx',
     component: ClueList,
     defaultProps: {
       clues: [{ id: 1, text: 'Animal domestique' }],
@@ -1305,6 +1404,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'keyboard',
     name: 'Keyboard',
     category: 'Mots Croisés',
+    filePath: 'src/games/05-mots-croises/components/Keyboard.tsx',
     component: Keyboard,
     defaultProps: {
       onKeyPress: () => {},
@@ -1315,6 +1415,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'crossword-grid',
     name: 'CrosswordGrid',
     category: 'Mots Croisés',
+    filePath: 'src/games/05-mots-croises/components/CrosswordGrid.tsx',
     component: CrosswordGrid,
     defaultProps: {},
     description: 'Grille mots croisés',
@@ -1325,6 +1426,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'sudoku-background',
     name: 'SudokuBackground',
     category: 'Sudoku',
+    filePath: 'src/games/06-sudoku/components/SudokuBackground.tsx',
     component: SudokuBackground,
     defaultProps: {},
     description: 'Fond Sudoku',
@@ -1333,6 +1435,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'game-timer',
     name: 'GameTimer',
     category: 'Sudoku',
+    filePath: 'src/games/06-sudoku/components/GameTimer.tsx',
     component: GameTimer,
     defaultProps: {
       seconds: 125,
@@ -1343,6 +1446,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'symbol-selector',
     name: 'SymbolSelector',
     category: 'Sudoku',
+    filePath: 'src/games/06-sudoku/components/SymbolSelector.tsx',
     component: SymbolSelector,
     defaultProps: {
       symbols: ['🍎', '🍊', '🍋', '🍇'],
@@ -1354,6 +1458,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'sudoku-grid',
     name: 'SudokuGrid',
     category: 'Sudoku',
+    filePath: 'src/games/06-sudoku/components/SudokuGrid.tsx',
     component: SudokuGrid,
     defaultProps: {},
     description: 'Grille Sudoku',
@@ -1362,6 +1467,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'sudoku-cell',
     name: 'SudokuCell',
     category: 'Sudoku',
+    filePath: 'src/games/06-sudoku/components/SudokuCell.tsx',
     component: SudokuCell,
     defaultProps: {
       value: '🍎',
@@ -1373,6 +1479,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'professor-hoo-mascot',
     name: 'ProfessorHooMascot',
     category: 'Sudoku',
+    filePath: 'src/games/06-sudoku/components/ProfessorHooMascot.tsx',
     component: ProfessorHooMascot,
     defaultProps: {},
     description: 'Mascotte Prof. Hoo',
@@ -1381,6 +1488,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'felix-mascot',
     name: 'FelixMascot',
     category: 'Sudoku',
+    filePath: 'src/games/06-sudoku/components/FelixMascot.tsx',
     component: FelixMascot,
     defaultProps: {},
     description: 'Mascotte Felix',
@@ -1391,6 +1499,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'weight-object',
     name: 'WeightObject',
     category: 'Balance',
+    filePath: 'src/games/07-balance/components/WeightObject.tsx',
     component: WeightObject,
     defaultProps: {
       weight: 5,
@@ -1402,6 +1511,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'dr-hibou',
     name: 'DrHibou',
     category: 'Balance',
+    filePath: 'src/games/07-balance/components/DrHibou.tsx',
     component: DrHibou,
     defaultProps: {},
     description: 'Mascotte Dr Hibou',
@@ -1410,6 +1520,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'level-selector',
     name: 'LevelSelector',
     category: 'Balance',
+    filePath: 'src/games/07-balance/components/LevelSelector.tsx',
     component: LevelSelector,
     defaultProps: {
       levels: [1, 2, 3, 4, 5],
@@ -1422,6 +1533,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'balance-scale',
     name: 'BalanceScale',
     category: 'Balance',
+    filePath: 'src/games/07-balance/components/BalanceScale.tsx',
     component: BalanceScale,
     defaultProps: {
       leftWeight: 5,
@@ -1435,6 +1547,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'validate-button',
     name: 'ValidateButton',
     category: 'Matrices Magiques',
+    filePath: 'src/games/09-matrices-magiques/components/ValidateButton.tsx',
     component: ValidateButton,
     defaultProps: {
       onPress: () => console.log('Validate'),
@@ -1445,6 +1558,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'progress-dots',
     name: 'ProgressDots',
     category: 'Matrices Magiques',
+    filePath: 'src/games/09-matrices-magiques/components/ProgressDots.tsx',
     component: ProgressDots,
     defaultProps: {
       total: 5,
@@ -1456,6 +1570,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'attempts-display',
     name: 'AttemptsDisplay',
     category: 'Matrices Magiques',
+    filePath: 'src/games/09-matrices-magiques/components/AttemptsDisplay.tsx',
     component: AttemptsDisplay,
     defaultProps: {
       attempts: 3,
@@ -1467,6 +1582,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'choice-button',
     name: 'ChoiceButton',
     category: 'Matrices Magiques',
+    filePath: 'src/games/09-matrices-magiques/components/ChoiceButton.tsx',
     component: ChoiceButton,
     defaultProps: {
       onPress: () => console.log('Choice'),
@@ -1477,6 +1593,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'choice-panel',
     name: 'ChoicePanel',
     category: 'Matrices Magiques',
+    filePath: 'src/games/09-matrices-magiques/components/ChoicePanel.tsx',
     component: ChoicePanel,
     defaultProps: {},
     description: 'Panneau de choix',
@@ -1485,6 +1602,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'world-selector',
     name: 'WorldSelector',
     category: 'Matrices Magiques',
+    filePath: 'src/games/09-matrices-magiques/components/WorldSelector.tsx',
     component: WorldSelector,
     defaultProps: {},
     description: 'Sélecteur de monde',
@@ -1493,6 +1611,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'world-card',
     name: 'WorldCard',
     category: 'Matrices Magiques',
+    filePath: 'src/games/09-matrices-magiques/components/WorldCard.tsx',
     component: WorldCard,
     defaultProps: {
       world: { id: 'forest', name: 'Forêt', icon: '🌲' },
@@ -1503,6 +1622,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'shape-renderer',
     name: 'ShapeRenderer',
     category: 'Matrices Magiques',
+    filePath: 'src/games/09-matrices-magiques/components/ShapeRenderer.tsx',
     component: ShapeRenderer,
     defaultProps: {
       shape: 'circle',
@@ -1514,6 +1634,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'pixel-mascot',
     name: 'PixelMascot',
     category: 'Matrices Magiques',
+    filePath: 'src/games/09-matrices-magiques/components/PixelMascot.tsx',
     component: PixelMascot,
     defaultProps: {},
     description: 'Mascotte Pixel',
@@ -1522,6 +1643,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'pixel-with-bubble',
     name: 'PixelWithBubble',
     category: 'Matrices Magiques',
+    filePath: 'src/games/09-matrices-magiques/components/PixelWithBubble.tsx',
     component: PixelWithBubble,
     defaultProps: {
       message: 'Trouve le pattern!',
@@ -1532,6 +1654,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'matrix-cell',
     name: 'MatrixCell',
     category: 'Matrices Magiques',
+    filePath: 'src/games/09-matrices-magiques/components/MatrixCell.tsx',
     component: MatrixCell,
     defaultProps: {},
     description: 'Cellule de matrice',
@@ -1540,6 +1663,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'matrix-grid',
     name: 'MatrixGrid',
     category: 'Matrices Magiques',
+    filePath: 'src/games/09-matrices-magiques/components/MatrixGrid.tsx',
     component: MatrixGrid,
     defaultProps: {},
     description: 'Grille de matrices',
@@ -1550,6 +1674,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'sequence-display',
     name: 'SequenceDisplay',
     category: 'Suites Logiques',
+    filePath: 'src/games/10-suites-logiques/components/SequenceDisplay.tsx',
     component: SequenceDisplay,
     defaultProps: {},
     description: 'Affichage de séquence',
@@ -1558,6 +1683,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'sequence-element',
     name: 'SequenceElement',
     category: 'Suites Logiques',
+    filePath: 'src/games/10-suites-logiques/components/SequenceElement.tsx',
     component: SequenceElement,
     defaultProps: {
       element: { type: 'shape', value: 'circle' },
@@ -1568,6 +1694,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'suites-choice-panel',
     name: 'ChoicePanel (Suites)',
     category: 'Suites Logiques',
+    filePath: 'src/games/10-suites-logiques/components/ChoicePanel.tsx',
     component: SuitesChoicePanel,
     defaultProps: {},
     description: 'Panneau de choix Suites',
@@ -1576,6 +1703,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'mascot-robot',
     name: 'MascotRobot',
     category: 'Suites Logiques',
+    filePath: 'src/games/10-suites-logiques/components/MascotRobot.tsx',
     component: MascotRobot,
     defaultProps: {},
     description: 'Mascotte Robot',
@@ -1584,6 +1712,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'missing-slot',
     name: 'MissingSlot',
     category: 'Suites Logiques',
+    filePath: 'src/games/10-suites-logiques/components/MissingSlot.tsx',
     component: MissingSlot,
     defaultProps: {},
     description: 'Emplacement manquant',
@@ -1594,6 +1723,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'laby-victory-screen',
     name: 'VictoryScreen (Laby)',
     category: 'Labyrinthe',
+    filePath: 'src/games/11-labyrinthe/components/VictoryScreen.tsx',
     component: LabyVictoryScreen,
     defaultProps: {},
     description: 'Écran victoire Laby',
@@ -1602,6 +1732,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'interactive-element',
     name: 'InteractiveElement',
     category: 'Labyrinthe',
+    filePath: 'src/games/11-labyrinthe/components/InteractiveElement.tsx',
     component: InteractiveElement,
     defaultProps: {},
     description: 'Élément interactif',
@@ -1610,6 +1741,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'instruction-queue',
     name: 'InstructionQueue',
     category: 'Labyrinthe',
+    filePath: 'src/games/11-labyrinthe/components/InstructionQueue.tsx',
     component: InstructionQueue,
     defaultProps: {
       instructions: ['→', '↑', '→'],
@@ -1620,6 +1752,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'inventory',
     name: 'Inventory',
     category: 'Labyrinthe',
+    filePath: 'src/games/11-labyrinthe/components/Inventory.tsx',
     component: Inventory,
     defaultProps: {
       items: [],
@@ -1630,6 +1763,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'path-trail',
     name: 'PathTrail',
     category: 'Labyrinthe',
+    filePath: 'src/games/11-labyrinthe/components/PathTrail.tsx',
     component: PathTrail,
     defaultProps: {},
     description: 'Trace du chemin',
@@ -1638,6 +1772,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'maze-grid',
     name: 'MazeGrid',
     category: 'Labyrinthe',
+    filePath: 'src/games/11-labyrinthe/components/MazeGrid.tsx',
     component: MazeGrid,
     defaultProps: {},
     description: 'Grille du labyrinthe',
@@ -1646,6 +1781,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'mascot-bubble',
     name: 'MascotBubble',
     category: 'Labyrinthe',
+    filePath: 'src/games/11-labyrinthe/components/MascotBubble.tsx',
     component: MascotBubble,
     defaultProps: {
       message: 'Trouve la sortie!',
@@ -1656,6 +1792,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'avatar',
     name: 'Avatar',
     category: 'Labyrinthe',
+    filePath: 'src/games/11-labyrinthe/components/Avatar.tsx',
     component: Avatar,
     defaultProps: {},
     description: 'Avatar du joueur',
@@ -1664,6 +1801,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'programming-controls',
     name: 'ProgrammingControls',
     category: 'Labyrinthe',
+    filePath: 'src/games/11-labyrinthe/components/ProgrammingControls.tsx',
     component: ProgrammingControls,
     defaultProps: {},
     description: 'Contrôles programmation',
@@ -1672,6 +1810,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'directional-controls',
     name: 'DirectionalControls',
     category: 'Labyrinthe',
+    filePath: 'src/games/11-labyrinthe/components/DirectionalControls.tsx',
     component: DirectionalControls,
     defaultProps: {
       onDirection: () => {},
@@ -1682,6 +1821,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'maze-cell',
     name: 'MazeCell',
     category: 'Labyrinthe',
+    filePath: 'src/games/11-labyrinthe/components/MazeCell.tsx',
     component: MazeCell,
     defaultProps: {
       cell: { type: 'path' },
@@ -1694,6 +1834,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'logix-game-board',
     name: 'GameBoard (Logix)',
     category: 'Logix Grid',
+    filePath: 'src/games/12-logix-grid/components/GameBoard.tsx',
     component: LogixGameBoard,
     defaultProps: {},
     description: 'Plateau Logix Grid',
@@ -1702,6 +1843,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'clue-panel',
     name: 'CluePanel',
     category: 'Logix Grid',
+    filePath: 'src/games/12-logix-grid/components/CluePanel.tsx',
     component: CluePanel,
     defaultProps: {
       clues: [],
@@ -1712,6 +1854,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'logix-grid',
     name: 'LogixGrid',
     category: 'Logix Grid',
+    filePath: 'src/games/12-logix-grid/components/LogixGrid.tsx',
     component: LogixGrid,
     defaultProps: {},
     description: 'Grille Logix',
@@ -1720,6 +1863,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'grid-cell',
     name: 'GridCell',
     category: 'Logix Grid',
+    filePath: 'src/games/12-logix-grid/components/GridCell.tsx',
     component: GridCell,
     defaultProps: {},
     description: 'Cellule de grille',
@@ -1730,6 +1874,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'tangram-piece',
     name: 'TangramPiece',
     category: 'Tangram',
+    filePath: 'src/games/08-tangram/components/TangramPiece.tsx',
     component: TangramPiece,
     defaultProps: {
       piece: { type: 'triangle', color: '#5B8DEE' },
@@ -1740,6 +1885,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'tangram-board',
     name: 'TangramBoard',
     category: 'Tangram',
+    filePath: 'src/games/08-tangram/components/TangramBoard.tsx',
     component: TangramBoard,
     defaultProps: {},
     description: 'Plateau Tangram',
@@ -1748,6 +1894,7 @@ const COMPONENT_REGISTRY: PlaygroundComponent[] = [
     id: 'shadow-shape',
     name: 'ShadowShape',
     category: 'Tangram',
+    filePath: 'src/games/08-tangram/components/ShadowShape.tsx',
     component: ShadowShape,
     defaultProps: {},
     description: 'Forme d\'ombre',

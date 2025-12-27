@@ -6,7 +6,7 @@
 import React, { memo } from 'react';
 import { StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { skyGradient, HomeV10ZIndex } from '@/theme/home-v10-colors';
+import { skyGradient, HomeV10ZIndex } from '../../../theme/home-v10-colors';
 
 export const Sky = memo(() => {
   return (

@@ -24,17 +24,17 @@ import Animated, {
   Easing,
 } from 'react-native-reanimated';
 
-import { colors, spacing, textStyles, borderRadius, shadows, touchTargets } from '@/theme';
+import { colors, spacing, textStyles, borderRadius, shadows, touchTargets } from '../../../theme';
 import { SudokuBackground } from '../components/SudokuBackground';
 import { SudokuGrid, SymbolSelector } from '../components';
 import { useSudokuGame } from '../hooks/useSudokuGame';
 import { getUsedSymbolsInZone } from '../logic/validation';
 import type { SudokuSize, SudokuTheme, SudokuDifficulty, SudokuConfig, SudokuValue } from '../types';
-import { ParentZone, type GameMode } from '@/components/parent/ParentZone';
-import { VictoryCard, type VictoryBadge } from '@/components/common';
-import { CardUnlockScreen } from '@/components/collection';
-import { useCardUnlock } from '@/hooks/useCardUnlock';
-import { useCollection } from '@/store';
+import { ParentZone, type GameMode } from '../../../components/parent/ParentZone';
+import { VictoryCard, type VictoryBadge } from '../../../components/common';
+import { CardUnlockScreen } from '../../../components/collection';
+import { useCardUnlock } from '../../../hooks/useCardUnlock';
+import { useCollection } from '../../../store';
 
 // Fonction pour calculer le badge non-compétitif du Sudoku
 const getSudokuBadge = (errorCount: number, hintsUsed: number, size: number): VictoryBadge => {

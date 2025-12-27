@@ -38,7 +38,7 @@ import Animated, {
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 
-import { colors, shadows, spacing, borderRadius, fontFamily } from '@/theme';
+import { colors, shadows, spacing, borderRadius, fontFamily } from '../../theme';
 
 // Types
 type ButtonVariant = 'victory' | 'floating' | 'pause';
@@ -348,10 +348,7 @@ const styles = StyleSheet.create({
   primaryButton: {
     borderRadius: borderRadius.xl,
     overflow: 'hidden',
-    shadowColor: COLORS.primary.shadow,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.3,
-    shadowRadius: 12,
+    boxShadow: '0px 6px 12px rgba(91, 141, 238, 0.3)',
     elevation: 6,
     minHeight: BUTTON_SIZE,
   },

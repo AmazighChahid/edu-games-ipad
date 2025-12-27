@@ -9,7 +9,7 @@ import React from 'react';
 import { StyleSheet, View, Text, Pressable } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { colors, spacing, borderRadius, shadows, fontFamily } from '@/theme';
+import { colors, spacing, borderRadius, shadows, fontFamily } from '../../../theme';
 import { MemoryGrid } from './MemoryGrid';
 import type { MemoryGameState } from '../types';
 

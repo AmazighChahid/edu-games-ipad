@@ -14,7 +14,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useEffect } from 'react';
 
-import { colors, borderRadius, spacing } from '@/theme';
+import { colors, borderRadius, spacing } from '../../../theme';
 
 interface ScoreDisplayProps {
   score: number;

@@ -19,7 +19,7 @@ import Animated, {
   useAnimatedStyle,
   withSpring,
 } from 'react-native-reanimated';
-import { theme } from '@/theme';
+import { theme } from '../../theme';
 
 // Types
 export type ScreenHeaderVariant = 'home' | 'game' | 'parent';
@@ -314,10 +314,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderWidth: 5,
     borderColor: theme.colors.background.card,
-    shadowColor: theme.colors.primary.main,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.3,
-    shadowRadius: 20,
+    boxShadow: '0px 6px 20px rgba(91, 141, 238, 0.3)',
     elevation: 8,
   },
   avatarEmoji: {
@@ -373,10 +370,7 @@ const styles = StyleSheet.create({
     paddingVertical: theme.spacing[2],
     paddingHorizontal: theme.spacing[3],
     borderRadius: theme.borderRadius.round,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
+    boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.08)',
     elevation: 2,
   },
   statIcon: {
@@ -396,10 +390,7 @@ const styles = StyleSheet.create({
     paddingVertical: theme.spacing[3],
     paddingHorizontal: theme.spacing[4],
     borderRadius: theme.borderRadius.lg,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 15,
+    boxShadow: '0px 4px 15px rgba(0, 0, 0, 0.08)',
     elevation: 4,
   },
   parentIcon: {

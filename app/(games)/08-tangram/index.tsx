@@ -9,8 +9,8 @@ import { View, Text, StyleSheet, Pressable, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 
-import { colors, spacing, borderRadius, shadows, fontFamily } from '@/theme';
-import { useTangramGame, getFirstTangramLevel, TangramBoard } from '@/games/08-tangram';
+import { colors, spacing, borderRadius, shadows, fontFamily } from '../../../src/theme';
+import { useTangramGame, getFirstTangramLevel, TangramBoard } from '../../../src/games/08-tangram';
 
 export default function TangramScreen() {
   const router = useRouter();

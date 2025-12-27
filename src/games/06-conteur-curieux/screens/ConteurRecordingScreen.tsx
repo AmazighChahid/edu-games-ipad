@@ -33,8 +33,8 @@ import Animated, {
 import { Audio } from 'expo-av';
 import * as Haptics from 'expo-haptics';
 
-import { colors, spacing, borderRadius, shadows, fontFamily } from '@/theme';
-import { useAccessibilityAnimations } from '@/hooks';
+import { colors, spacing, borderRadius, shadows, fontFamily } from '../../../theme';
+import { useAccessibilityAnimations } from '../../../hooks';
 
 import { PlumeMascot } from '../components/PlumeMascot';
 import { getLevelById } from '../data/stories';
@@ -492,12 +492,12 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.round,
     marginBottom: spacing[4],
     gap: spacing[2],
-    ...shadows.md,
-    shadowColor: '#FFB347',
+    boxShadow: '0px 2px 4px rgba(255, 179, 71, 0.25)',
+    elevation: 3,
   },
   summaryButtonActive: {
     backgroundColor: '#9B59B6',
-    shadowColor: '#9B59B6',
+    boxShadow: '0px 2px 4px rgba(155, 89, 182, 0.25)',
   },
   summaryButtonIcon: {
     fontSize: 18,
@@ -583,12 +583,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#9B59B6',
     alignItems: 'center',
     justifyContent: 'center',
-    ...shadows.lg,
-    shadowColor: '#9B59B6',
+    boxShadow: '0px 4px 8px rgba(155, 89, 182, 0.3)',
+    elevation: 5,
   },
   micButtonRecording: {
     backgroundColor: '#E74C3C',
-    shadowColor: '#E74C3C',
+    boxShadow: '0px 4px 8px rgba(231, 76, 60, 0.3)',
   },
   micIcon: {
     fontSize: 40,
@@ -610,8 +610,8 @@ const styles = StyleSheet.create({
     paddingVertical: spacing[4],
     borderRadius: borderRadius.xl,
     alignItems: 'center',
-    ...shadows.md,
-    shadowColor: '#7BC74D',
+    boxShadow: '0px 2px 4px rgba(123, 199, 77, 0.25)',
+    elevation: 3,
   },
   continueButtonText: {
     fontSize: 18,

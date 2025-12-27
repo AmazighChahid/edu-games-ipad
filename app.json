@@ -29,7 +29,6 @@
       "edgeToEdgeEnabled": true
     },
     "web": {
-      "output": "static",
       "favicon": "./assets/images/favicon.png",
       "bundler": "metro"
     },
@@ -52,7 +51,8 @@
       ]
     ],
     "experiments": {
-      "typedRoutes": true
+      "typedRoutes": true,
+      "tsconfigPaths": false
     }
   }
 }

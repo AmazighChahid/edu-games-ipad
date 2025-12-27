@@ -8,8 +8,8 @@ import React from 'react';
 import { View, StyleSheet, Dimensions } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 
-import { colors, spacing, borderRadius, shadows } from '@/theme';
-import { useAccessibilityAnimations } from '@/hooks';
+import { colors, spacing, borderRadius, shadows } from '../../../theme';
+import { useAccessibilityAnimations } from '../../../hooks';
 import type { CrosswordGameState, CrosswordCell as CellType } from '../types';
 import { CrosswordCell } from './CrosswordCell';
 

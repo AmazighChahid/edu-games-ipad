@@ -2,7 +2,7 @@
  * Assistant scripts for MathBlocks
  */
 
-import type { AssistantScript, AssistantContext } from '@/types';
+import type { AssistantScript, AssistantContext } from '../../../types';
 
 export const mathBlocksScripts: AssistantScript[] = [
   {

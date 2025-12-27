@@ -5,10 +5,10 @@
 
 import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
-import { colors, spacing, borderRadius, shadows } from '@/theme';
-import { useStore } from '@/store';
-import { getAllBadges } from '@/utils/analytics';
-import type { Badge } from '@/types';
+import { colors, spacing, borderRadius, shadows } from '../../theme';
+import { useStore } from '../../store';
+import { getAllBadges } from '../../utils/analytics';
+import type { Badge } from '../../types';
 
 const formatDate = (timestamp: number): string => {
   return new Date(timestamp).toLocaleDateString('fr-FR', {

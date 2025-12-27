@@ -4,9 +4,9 @@
  */
 
 import { useCallback, useState } from 'react';
-import { useStore } from '@/store';
+import { useStore } from '../store';
 import { useShallow } from 'zustand/shallow';
-import { Card, getCardById } from '@/data/cards';
+import { Card, getCardById } from '../data/cards';
 
 interface UseCardUnlockOptions {
   gameId: string;

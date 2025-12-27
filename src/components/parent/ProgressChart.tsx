@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { colors, spacing, textStyles, borderRadius } from '@/theme';
+import { colors, spacing, textStyles, borderRadius } from '../../theme';
 
 interface ProgressChartProps {
   data: {

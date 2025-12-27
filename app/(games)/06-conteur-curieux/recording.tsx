@@ -5,7 +5,7 @@
  */
 
 import React from 'react';
-import { ConteurRecordingScreen } from '@/games/06-conteur-curieux/screens';
+import { ConteurRecordingScreen } from '../../../src/games/06-conteur-curieux/screens';
 
 export default function RecordingRoute() {
   return <ConteurRecordingScreen />;

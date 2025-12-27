@@ -17,7 +17,7 @@ import Svg, { Polygon } from 'react-native-svg';
 
 import type { TangramPiece as TangramPieceType, Point } from '../types';
 import { PIECE_COLORS } from '../types';
-import { useAccessibilityAnimations } from '@/hooks';
+import { useAccessibilityAnimations } from '../../../hooks';
 
 // ============================================================================
 // TYPES

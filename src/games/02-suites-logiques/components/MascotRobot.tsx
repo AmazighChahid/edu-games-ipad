@@ -27,7 +27,7 @@ import Svg, {
   Stop
 } from 'react-native-svg';
 
-import { spacing, borderRadius, shadows } from '@/theme';
+import { spacing, borderRadius, shadows } from '../../../theme';
 
 type EmotionType = 'neutral' | 'happy' | 'thinking' | 'excited' | 'encouraging';
 

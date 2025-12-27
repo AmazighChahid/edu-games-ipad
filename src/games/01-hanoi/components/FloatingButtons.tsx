@@ -18,7 +18,7 @@ import Animated, {
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 
-import { shadows } from '@/theme';
+import { shadows } from '../../../theme';
 
 interface FloatingButtonsProps {
   onReset: () => void;

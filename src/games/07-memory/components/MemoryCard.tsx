@@ -16,8 +16,8 @@ import Animated, {
   Easing,
 } from 'react-native-reanimated';
 
-import { colors, borderRadius, shadows } from '@/theme';
-import { useAccessibilityAnimations } from '@/hooks/useAccessibilityAnimations';
+import { colors, borderRadius, shadows } from '../../../theme';
+import { useAccessibilityAnimations } from '../../../hooks/useAccessibilityAnimations';
 import type { MemoryCard as MemoryCardType } from '../types';
 
 // ============================================================================

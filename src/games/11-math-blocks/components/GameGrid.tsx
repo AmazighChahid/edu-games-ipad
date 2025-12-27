@@ -5,7 +5,7 @@
 
 import { View, StyleSheet, useWindowDimensions } from 'react-native';
 
-import { colors, spacing, borderRadius } from '@/theme';
+import { colors, spacing, borderRadius } from '../../../theme';
 import type { GameGrid as GameGridType, MathBlock as MathBlockType } from '../types';
 import { MathBlock } from './MathBlock';
 
@@ -74,10 +74,7 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.xl,
     padding: spacing[2],
     // Shadow
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
+    boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.15)',
     elevation: 5,
   },
   row: {

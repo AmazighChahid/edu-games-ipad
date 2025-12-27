@@ -8,7 +8,7 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 
-import { spacing, borderRadius, shadows, fontFamily } from '@/theme';
+import { spacing, borderRadius, shadows, fontFamily } from '../../../theme';
 import type { StoryTheme } from '../types';
 
 import {

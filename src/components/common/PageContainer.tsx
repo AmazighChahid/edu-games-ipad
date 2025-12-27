@@ -17,7 +17,7 @@ import React from 'react';
 import { View, ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView, Edge } from 'react-native-safe-area-context';
 import { ScreenBackground, ScreenBackgroundVariant } from './ScreenBackground';
-import { theme } from '@/theme';
+import { theme } from '../../theme';
 
 export interface PageContainerProps {
   children: React.ReactNode;

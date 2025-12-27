@@ -3,7 +3,7 @@
  * Maps games to categories with visual properties
  */
 
-import { GameCategoryV9, GameV9, GameColor, MedalType } from '@/types/home.types';
+import { GameCategoryV9, GameV9, GameColor, MedalType } from '../types/home.types';
 
 // ============ GAME DEFINITIONS ============
 

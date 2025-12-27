@@ -14,7 +14,7 @@ import Animated, {
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import * as Haptics from 'expo-haptics';
 
-import { colors, touchTargets, shadows, borderRadius } from '@/theme';
+import { colors, touchTargets, shadows, borderRadius } from '../../../theme';
 import type { WeightObject as WeightObjectType } from '../types';
 
 interface WeightObjectProps {

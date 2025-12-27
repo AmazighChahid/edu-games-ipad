@@ -28,12 +28,12 @@ import Animated, {
   Easing,
 } from 'react-native-reanimated';
 
-import { colors, spacing, textStyles, borderRadius, shadows } from '@/theme';
-import { Button } from '@/components/common';
-import { useStore, useCollection } from '@/store';
+import { colors, spacing, textStyles, borderRadius, shadows } from '../../../theme';
+import { Button } from '../../../components/common';
+import { useStore, useCollection } from '../../../store';
 import { hanoiLevels } from '../data/levels';
-import { CardUnlockScreen } from '@/components/collection';
-import { useCardUnlock } from '@/hooks/useCardUnlock';
+import { CardUnlockScreen } from '../../../components/collection';
+import { useCardUnlock } from '../../../hooks/useCardUnlock';
 
 // Badges non-compétitifs (spec 05-parent-space.md)
 const getBadge = (moveCount: number, optimalMoves: number, hintsUsed: number): { icon: string; label: string } => {

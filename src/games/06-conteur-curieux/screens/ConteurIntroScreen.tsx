@@ -22,8 +22,8 @@ import { useRouter } from 'expo-router';
 import Animated, { FadeIn, FadeInUp, FadeInRight } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 
-import { colors, spacing, borderRadius, shadows, fontFamily } from '@/theme';
-import { useAccessibilityAnimations } from '@/hooks';
+import { colors, spacing, borderRadius, shadows, fontFamily } from '../../../theme';
+import { useAccessibilityAnimations } from '../../../hooks';
 
 import { PlumeMascot } from '../components/PlumeMascot';
 import { StoryCard } from '../components/StoryCard';

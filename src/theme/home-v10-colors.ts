@@ -191,7 +191,7 @@ export const HomeV10Animations = {
 // Palettes de couleurs pour les widgets style Edoki
 // ========================================
 
-export type EdokiThemeKey = 'barres' | 'fuseaux' | 'chiffres' | 'plage' | 'numberland' | 'nouveaux';
+export type EdokiThemeKey = 'barres' | 'fuseaux' | 'chiffres' | 'plage' | 'numberland' | 'nouveaux' | 'hanoi' | 'video';
 
 export interface EdokiWidgetTheme {
   background: string;
@@ -238,6 +238,20 @@ export const edokiWidgetThemes: Record<EdokiThemeKey, EdokiWidgetTheme> = {
   nouveaux: {
     background: '#66BB6A',
     gradient: ['#66BB6A', '#43A047'] as const,
+    titleColor: 'light',
+  },
+
+  // Tour de Hanoi - Tons bois/naturels
+  hanoi: {
+    background: '#D4C4A8',
+    gradient: ['#D4C4A8', '#C9B896'] as const,
+    titleColor: 'dark',
+  },
+
+  // Video Background - Test
+  video: {
+    background: '#1a1a2e',
+    gradient: ['#1a1a2e', '#16213e'] as const,
     titleColor: 'light',
   },
 };

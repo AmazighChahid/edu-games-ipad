@@ -15,7 +15,7 @@ import Animated, {
   Easing,
   useReducedMotion,
 } from 'react-native-reanimated';
-import { HomeV10Colors, HomeV10ZIndex, HomeV10Animations } from '@/theme/home-v10-colors';
+import { HomeV10Colors, HomeV10ZIndex, HomeV10Animations } from '../../../theme/home-v10-colors';
 
 const gardenFlowers = ['🌸', '🌻', '🌷', '🌺', '🌼', '🌹', '🪻'];
 

@@ -4,7 +4,7 @@
  */
 
 import { useMemo } from 'react';
-import { useStore, useActiveProfile, useCollection, useGameProgress } from '@/store';
+import { useStore, useActiveProfile, useCollection, useGameProgress } from '../store';
 import {
   UserProfileV9,
   PiouAdvice,
@@ -15,9 +15,9 @@ import {
   GameCategoryV9,
   MedalType,
   FlowerType,
-} from '@/types/home.types';
-import { buildGameCategories, FLOWER_EMOJIS, WEEK_DAYS_CONFIG } from '@/data/gamesConfig';
-import { ALL_CARDS, getCardById } from '@/data/cards';
+} from '../types/home.types';
+import { buildGameCategories, FLOWER_EMOJIS, WEEK_DAYS_CONFIG } from '../data/gamesConfig';
+import { ALL_CARDS, getCardById } from '../data/cards';
 
 // ============ HELPER FUNCTIONS ============
 

@@ -9,7 +9,7 @@ import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { LinearGradient } from 'expo-linear-gradient';
 
-import { colors, spacing, borderRadius } from '@/theme';
+import { colors, spacing, borderRadius } from '../../theme';
 
 interface GameContainerProps {
   children: React.ReactNode;
@@ -226,10 +226,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     flexDirection: 'row',
     gap: spacing[1],
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 3,
+    boxShadow: '0px 2px 3px rgba(0, 0, 0, 0.15)',
     elevation: 3,
   },
   parentButtonIcon: {

@@ -6,7 +6,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import * as Haptics from 'expo-haptics';
 
-import { useStore } from '@/store';
+import { useStore } from '../../../store';
 import type { MathGameState, MathBlock } from '../types';
 import { SCORE_VALUES } from '../types';
 import { createInitialState } from '../logic/mathEngine';

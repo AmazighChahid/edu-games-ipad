@@ -4,7 +4,7 @@
  */
 
 import { StateCreator } from 'zustand';
-import type { GameProgress, LevelCompletion, CompletedSession } from '@/types';
+import type { GameProgress, LevelCompletion, CompletedSession } from '../../types';
 
 export interface ProgressState {
   gameProgress: Record<string, GameProgress>;

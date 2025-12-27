@@ -13,8 +13,8 @@ import Animated, {
 } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 
-import { spacing, shadows } from '@/theme';
-import { useStore } from '@/store';
+import { spacing, shadows } from '../../../theme';
+import { useStore } from '../../../store';
 
 interface FloatingActionButtonsProps {
   onHint: () => void;

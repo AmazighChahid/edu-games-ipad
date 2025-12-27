@@ -5,7 +5,7 @@
  */
 
 import React from 'react';
-import { ConteurParentScreen } from '@/games/06-conteur-curieux/screens/ConteurParentScreen';
+import { ConteurParentScreen } from '../../../src/games/06-conteur-curieux/screens/ConteurParentScreen';
 
 export default function ParentRoute() {
   return <ConteurParentScreen />;

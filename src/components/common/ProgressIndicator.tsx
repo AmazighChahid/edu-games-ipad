@@ -39,7 +39,7 @@ import Animated, {
   Easing,
 } from 'react-native-reanimated';
 
-import { colors, spacing, borderRadius, fontFamily } from '@/theme';
+import { colors, spacing, borderRadius, fontFamily } from '../../theme';
 
 // Types
 type IndicatorType = 'progress' | 'timer' | 'stats';

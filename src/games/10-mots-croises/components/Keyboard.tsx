@@ -13,8 +13,8 @@ import Animated, {
   withSequence,
 } from 'react-native-reanimated';
 
-import { colors, spacing, borderRadius, shadows, fontFamily } from '@/theme';
-import { useAccessibilityAnimations } from '@/hooks';
+import { colors, spacing, borderRadius, shadows, fontFamily } from '../../../theme';
+import { useAccessibilityAnimations } from '../../../hooks';
 
 // ============================================================================
 // TYPES

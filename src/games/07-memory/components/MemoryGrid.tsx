@@ -8,7 +8,7 @@
 import React, { useMemo } from 'react';
 import { StyleSheet, View, useWindowDimensions } from 'react-native';
 
-import { spacing } from '@/theme';
+import { spacing } from '../../../theme';
 import { MemoryCard } from './MemoryCard';
 import { getGridDimensions } from '../logic/memoryEngine';
 import type { MemoryCard as MemoryCardType } from '../types';

@@ -92,10 +92,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#5B8DEE',
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#5B8DEE',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
+    boxShadow: '0px 4px 8px rgba(91, 141, 238, 0.3)',
     elevation: 4,
   },
   icon: {

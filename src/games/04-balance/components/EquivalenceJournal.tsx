@@ -25,7 +25,7 @@ import Animated, {
   withSequence,
   withTiming,
 } from 'react-native-reanimated';
-import { colors, spacing, borderRadius, shadows } from '@/theme';
+import { colors, spacing, borderRadius, shadows } from '../../../theme';
 import type { Equivalence, Phase } from '../types';
 import { OBJECTS_LIBRARY } from '../data/objects';
 

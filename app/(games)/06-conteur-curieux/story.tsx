@@ -5,7 +5,7 @@
  */
 
 import React from 'react';
-import { ConteurStoryScreen } from '@/games/06-conteur-curieux/screens';
+import { ConteurStoryScreen } from '../../../src/games/06-conteur-curieux/screens';
 
 export default function StoryRoute() {
   return <ConteurStoryScreen />;

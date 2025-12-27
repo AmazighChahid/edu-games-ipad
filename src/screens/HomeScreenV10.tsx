@@ -7,8 +7,8 @@ import React from 'react';
 import { View, ScrollView, StyleSheet, Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { ForestBackgroundV10 } from '@/components/home-v10';
-import { HomeV10Layout } from '@/theme/home-v10-colors';
+import { ForestBackgroundV10 } from '../components/home-v10';
+import { HomeV10Layout } from '../theme/home-v10-colors';
 
 export const HomeScreenV10: React.FC = () => {
   const insets = useSafeAreaInsets();

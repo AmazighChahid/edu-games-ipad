@@ -20,8 +20,8 @@ import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 
-import { colors, spacing, borderRadius, shadows } from '@/theme';
-import { useAppSettings, useActiveProfile, useStore } from '@/store';
+import { colors, spacing, borderRadius, shadows } from '../../src/theme';
+import { useAppSettings, useActiveProfile, useStore } from '../../src/store';
 
 const AVATAR_OPTIONS = ['👦', '👧', '🧒', '👶', '🦸', '🧙', '🐻', '🦊', '🐰', '🦁', '🐼', '🐨'];
 

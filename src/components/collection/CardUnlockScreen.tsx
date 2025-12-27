@@ -26,8 +26,8 @@ import Animated, {
   cancelAnimation,
 } from 'react-native-reanimated';
 import { router } from 'expo-router';
-import { Card, RARITY_CONFIG, getTotalCardsCount } from '@/data/cards';
-import { COLORS } from '@/constants/colors';
+import { Card, RARITY_CONFIG, getTotalCardsCount } from '../../data/cards';
+import { colors } from '../../theme';
 
 interface CardUnlockScreenProps {
   card: Card;
@@ -241,7 +241,7 @@ export const CardUnlockScreen: React.FC<CardUnlockScreenProps> = ({
           {/* Card back */}
           <Animated.View style={[styles.cardFace, styles.cardBack, cardBackStyle]}>
             <LinearGradient
-              colors={[COLORS.primary, COLORS.accent]}
+              colors={[colors.home.categories.logic, colors.home.categories.spatial]}
               style={styles.cardBackGradient}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
@@ -298,7 +298,7 @@ export const CardUnlockScreen: React.FC<CardUnlockScreenProps> = ({
             <View style={styles.progressBar}>
               <Animated.View style={[styles.progressFill, progressStyle]}>
                 <LinearGradient
-                  colors={[COLORS.primary, COLORS.accent]}
+                  colors={[colors.home.categories.logic, colors.home.categories.spatial]}
                   style={StyleSheet.absoluteFill}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 0 }}
@@ -315,7 +315,7 @@ export const CardUnlockScreen: React.FC<CardUnlockScreenProps> = ({
         <Animated.View style={[styles.buttonsContainer, buttonsStyle]}>
           <Pressable style={styles.buttonPrimary} onPress={onViewCollection}>
             <LinearGradient
-              colors={[COLORS.primary, COLORS.primaryDark]}
+              colors={[colors.home.categories.logic, colors.home.categories.logicLight]}
               style={styles.buttonGradient}
             >
               <Text style={styles.buttonIcon}>📚</Text>
@@ -452,9 +452,7 @@ const styles = StyleSheet.create({
     fontSize: 42,
     color: '#FFD700',
     textAlign: 'center',
-    textShadowColor: 'rgba(255, 215, 0, 0.5)',
-    textShadowOffset: { width: 0, height: 4 },
-    textShadowRadius: 20,
+    textShadow: '0px 4px 20px rgba(255, 215, 0, 0.5)',
     marginBottom: 10,
   },
   subtitle: {
@@ -514,10 +512,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     transform: [{ rotate: '-15deg' }],
     zIndex: 10,
-    shadowColor: '#FF6B6B',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.4,
-    shadowRadius: 10,
+    boxShadow: '0px 4px 10px rgba(255, 107, 107, 0.4)',
     elevation: 5,
   },
   newBadgeText: {
@@ -532,10 +527,7 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     borderWidth: 5,
     overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 20 },
-    shadowOpacity: 0.4,
-    shadowRadius: 50,
+    boxShadow: '0px 20px 50px rgba(0, 0, 0, 0.4)',
     elevation: 10,
   },
   cardHeader: {
@@ -576,9 +568,7 @@ const styles = StyleSheet.create({
   },
   cardEmoji: {
     fontSize: 100,
-    textShadowColor: 'rgba(0,0,0,0.15)',
-    textShadowOffset: { width: 0, height: 6 },
-    textShadowRadius: 15,
+    textShadow: '0px 6px 15px rgba(0,0,0,0.15)',
   },
   cardName: {
     fontFamily: 'Fredoka_700Bold',
@@ -590,7 +580,7 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontFamily: 'Fredoka_600SemiBold',
     fontSize: 13,
-    color: COLORS.accent,
+    color: colors.home.categories.spatial,
     marginTop: 4,
   },
   traitBadge: {
@@ -605,7 +595,7 @@ const styles = StyleSheet.create({
   traitText: {
     fontFamily: 'Fredoka_700Bold',
     fontSize: 12,
-    color: COLORS.primary,
+    color: colors.home.categories.logic,
   },
   infoContainer: {
     alignItems: 'center',
@@ -653,10 +643,7 @@ const styles = StyleSheet.create({
   buttonPrimary: {
     borderRadius: 16,
     overflow: 'hidden',
-    shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.4,
-    shadowRadius: 20,
+    boxShadow: '0px 6px 20px rgba(91, 141, 238, 0.4)',
     elevation: 6,
   },
   buttonGradient: {

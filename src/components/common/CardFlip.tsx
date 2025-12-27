@@ -34,7 +34,7 @@ import Animated, {
   runOnJS,
 } from 'react-native-reanimated';
 
-import { shadows, borderRadius } from '@/theme';
+import { shadows, borderRadius } from '../../theme';
 
 // Types
 type CardSize = 'small' | 'medium' | 'large' | 'custom';
@@ -219,10 +219,7 @@ const styles = StyleSheet.create({
   },
   cardShadow: {
     ...shadows.lg,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.25,
-    shadowRadius: 16,
+    boxShadow: '0px 8px 16px rgba(0, 0, 0, 0.25)',
     elevation: 8,
   },
 });

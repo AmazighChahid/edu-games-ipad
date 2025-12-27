@@ -5,8 +5,8 @@
 
 import React, { useMemo } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { colors, spacing, borderRadius, shadows } from '@/theme';
-import { useStore } from '@/store';
+import { colors, spacing, borderRadius, shadows } from '../../theme';
+import { useStore } from '../../store';
 
 export function ScreenTimeCard() {
   const dailyRecords = useStore((state) => state.dailyRecords);

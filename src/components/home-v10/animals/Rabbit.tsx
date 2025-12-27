@@ -14,7 +14,7 @@ import Animated, {
   Easing,
   useReducedMotion,
 } from 'react-native-reanimated';
-import { HomeV10ZIndex, HomeV10Animations } from '@/theme/home-v10-colors';
+import { HomeV10ZIndex, HomeV10Animations } from '../../../theme/home-v10-colors';
 
 export const Rabbit = memo(() => {
   const { width } = useWindowDimensions();

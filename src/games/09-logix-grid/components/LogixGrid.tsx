@@ -8,8 +8,8 @@ import React from 'react';
 import { View, Text, StyleSheet, ScrollView, Dimensions } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 
-import { colors, spacing, borderRadius, fontFamily } from '@/theme';
-import { useAccessibilityAnimations } from '@/hooks';
+import { colors, spacing, borderRadius, fontFamily } from '../../../theme';
+import { useAccessibilityAnimations } from '../../../hooks';
 import type { LogixGameState, Category, CellState } from '../types';
 import { GridCell } from './GridCell';
 

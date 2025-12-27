@@ -8,7 +8,7 @@ import { View, StyleSheet, useWindowDimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useReducedMotion } from 'react-native-reanimated';
 
-import { FOREST_COLORS } from '@/types/home.types';
+import { FOREST_COLORS } from '../../types/home.types';
 import { Mountains } from './Mountains';
 import { Hills } from './Hills';
 import { Trees } from './Trees';

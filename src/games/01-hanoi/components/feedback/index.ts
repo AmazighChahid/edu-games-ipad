@@ -2,9 +2,9 @@
  * Feedback components barrel export
  *
  * Note: ConfettiLayer, ActionButtons, and PerformanceAnalysis have been factorized to @/components/common
- * - Use Confetti from '@/components/common' instead of ConfettiLayer
- * - Use GameActionButtons from '@/components/common' instead of ActionButtons
- * - Use PerformanceStats from '@/components/common' instead of PerformanceAnalysis
+ * - Use Confetti from '../../../../components/common' instead of ConfettiLayer
+ * - Use GameActionButtons from '../../../../components/common' instead of ActionButtons
+ * - Use PerformanceStats from '../../../../components/common' instead of PerformanceAnalysis
  */
 
 export { VictoryOverlay } from './VictoryOverlay';
@@ -24,4 +24,4 @@ export {
   Confetti as ConfettiLayer,
   GameActionButtons as ActionButtons,
   PerformanceStats as PerformanceAnalysis,
-} from '@/components/common';
+} from '../../../../components/common';

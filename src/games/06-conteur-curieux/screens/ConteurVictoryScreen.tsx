@@ -32,10 +32,10 @@ import Animated, {
 } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 
-import { colors, spacing, borderRadius, shadows, fontFamily } from '@/theme';
-import { useAccessibilityAnimations } from '@/hooks';
+import { colors, spacing, borderRadius, shadows, fontFamily } from '../../../theme';
+import { useAccessibilityAnimations } from '../../../hooks';
 
-import { Confetti } from '@/components/common';
+import { Confetti } from '../../../components/common';
 import { PlumeMascot } from '../components/PlumeMascot';
 import { CollectibleCard } from '../components/CollectibleCard';
 import { StarsRow } from '../components/StarsRow';
@@ -374,9 +374,7 @@ const styles = StyleSheet.create({
     fontSize: 48,
     fontFamily: fontFamily.displayBold,
     color: '#FFFFFF',
-    textShadowColor: 'rgba(0,0,0,0.2)',
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 4,
+    textShadow: '0px 2px 4px rgba(0,0,0,0.2)',
   },
   subtitle: {
     fontSize: 20,

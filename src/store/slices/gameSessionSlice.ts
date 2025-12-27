@@ -4,7 +4,7 @@
  */
 
 import { StateCreator } from 'zustand';
-import type { GameSession, GameStatus, CompletedSession } from '@/types';
+import type { GameSession, GameStatus, CompletedSession } from '../../types';
 
 export interface GameSessionState {
   currentSession: GameSession | null;

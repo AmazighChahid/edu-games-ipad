@@ -10,15 +10,15 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useReducedMotion } from 'react-native-reanimated';
 
 // Import animated components from home background
-import { AnimatedClouds } from '@/components/background/AnimatedCloud';
-import { Trees } from '@/components/background/Trees';
-import { Flowers } from '@/components/background/Flowers';
+import { AnimatedClouds } from '../../../components/background/AnimatedCloud';
+import { Trees } from '../../../components/background/Trees';
+import { Flowers } from '../../../components/background/Flowers';
 import {
   Butterflies,
   Birds,
   Bee,
   Ladybug,
-} from '@/components/background/animals';
+} from '../../../components/background/animals';
 
 interface GameBackgroundProps {
   children: React.ReactNode;

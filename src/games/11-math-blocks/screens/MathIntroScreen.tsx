@@ -11,8 +11,8 @@
 import { View, StyleSheet, Text, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 
-import { theme } from '@/theme';
-import { PageContainer, ScreenHeader } from '@/components/common';
+import { theme } from '../../../theme';
+import { PageContainer, ScreenHeader } from '../../../components/common';
 import { mathLevels } from '../data/levels';
 import { OPERATION_SYMBOLS } from '../types';
 

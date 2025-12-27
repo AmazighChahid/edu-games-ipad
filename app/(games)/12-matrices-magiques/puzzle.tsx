@@ -3,7 +3,7 @@
  * Main gameplay screen
  */
 
-import { MatricesPuzzleScreen } from '@/games/12-matrices-magiques/screens';
+import { MatricesPuzzleScreen } from '../../../src/games/12-matrices-magiques/screens';
 
 export default function MatricesPuzzle() {
   return <MatricesPuzzleScreen />;

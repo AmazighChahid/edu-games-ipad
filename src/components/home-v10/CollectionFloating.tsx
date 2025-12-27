@@ -20,7 +20,7 @@ import {
   HomeV10Layout,
   HomeV10ZIndex,
   HomeV10Animations,
-} from '@/theme/home-v10-colors';
+} from '../../theme/home-v10-colors';
 
 interface CollectionFloatingProps {
   cardCount: number;
@@ -261,10 +261,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     borderWidth: 4,
     borderColor: '#fff',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.25,
-    shadowRadius: 25,
+    boxShadow: '0px 8px 25px rgba(0, 0, 0, 0.25)',
     elevation: 8,
     overflow: 'hidden',
   },
@@ -306,10 +303,7 @@ const styles = StyleSheet.create({
     borderWidth: 4,
     borderColor: '#fff',
     overflow: 'hidden',
-    shadowColor: '#9B59B6',
-    shadowOffset: { width: 0, height: 5 },
-    shadowOpacity: 0.5,
-    shadowRadius: 18,
+    boxShadow: '0px 5px 18px rgba(155, 89, 182, 0.5)',
     elevation: 10,
     zIndex: 10,
   },

@@ -16,7 +16,7 @@ import Animated, {
   useReducedMotion,
   interpolate,
 } from 'react-native-reanimated';
-import { ANIMATION_DURATIONS } from '@/types/home.types';
+import { ANIMATION_DURATIONS } from '../../../types/home.types';
 
 export const Squirrel = memo(() => {
   const progress = useSharedValue(0);

@@ -8,8 +8,8 @@ import React from 'react';
 import { View, Text, StyleSheet, Pressable, ScrollView } from 'react-native';
 import Animated, { FadeIn, SlideInRight, SlideInLeft } from 'react-native-reanimated';
 
-import { colors, spacing, borderRadius, shadows, fontFamily } from '@/theme';
-import { useAccessibilityAnimations } from '@/hooks';
+import { colors, spacing, borderRadius, shadows, fontFamily } from '../../../theme';
+import { useAccessibilityAnimations } from '../../../hooks';
 
 // ============================================================================
 // TYPES

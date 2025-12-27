@@ -34,7 +34,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
-import { spacing, borderRadius, shadows, fontFamily, colors } from '@/theme';
+import { spacing, borderRadius, shadows, fontFamily, colors } from '../../theme';
 
 // Types
 type TailPosition = 'bottom' | 'bottom-left' | 'bottom-right' | 'left' | 'right' | 'top';

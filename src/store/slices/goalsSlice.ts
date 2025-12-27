@@ -4,7 +4,7 @@
  */
 
 import { StateCreator } from 'zustand';
-import type { ParentGoal, GoalType, GoalStatus, GoalTemplate } from '@/types';
+import type { ParentGoal, GoalType, GoalStatus, GoalTemplate } from '../../types';
 
 export interface GoalsState {
   goals: ParentGoal[];

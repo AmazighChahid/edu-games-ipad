@@ -16,9 +16,9 @@ import { useMazeGame } from './hooks/useMazeGame';
 import { useAvatarMovement } from './hooks/useAvatarMovement';
 
 import { LevelConfig, Direction, SessionStats } from './types';
-import { CardUnlockScreen } from '@/components/collection';
-import { useCardUnlock } from '@/hooks/useCardUnlock';
-import { useCollection } from '@/store';
+import { CardUnlockScreen } from '../../components/collection';
+import { useCardUnlock } from '../../hooks/useCardUnlock';
+import { useCollection } from '../../store';
 
 interface Props {
   level: LevelConfig;
@@ -451,10 +451,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF',
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
     elevation: 3,
     position: 'relative',
   },

@@ -9,7 +9,7 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import Animated, { FadeInUp, ZoomIn } from 'react-native-reanimated';
 
-import { spacing, borderRadius, fontFamily } from '@/theme';
+import { spacing, borderRadius, fontFamily } from '../../../theme';
 
 interface SkillBadgeProps {
   emoji: string;

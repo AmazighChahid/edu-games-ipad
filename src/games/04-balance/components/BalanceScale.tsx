@@ -19,7 +19,7 @@ import Animated, {
   ZoomIn,
 } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
-import { colors, spacing, borderRadius } from '@/theme';
+import { colors, spacing, borderRadius } from '../../../theme';
 import type { BalanceState, PlacedObject, WeightObject } from '../types';
 import { useBalancePhysics, useVictoryCelebration } from '../hooks/useBalancePhysics';
 
@@ -336,10 +336,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius: FULCRUM_SIZE / 2,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 3,
+    boxShadow: '0px 2px 3px rgba(0, 0, 0, 0.2)',
     elevation: 4,
   },
   fulcrumInner: {
@@ -359,10 +356,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 100,
     zIndex: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 5,
+    boxShadow: '0px 4px 5px rgba(0, 0, 0, 0.3)',
     elevation: 6,
   },
   beamInner: {
@@ -444,18 +438,13 @@ const styles = StyleSheet.create({
     backgroundColor: BALANCE_COLORS.plate.background,
     borderWidth: 5,
     borderColor: BALANCE_COLORS.plate.border,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 6,
+    boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.25)',
     elevation: 5,
     overflow: 'hidden',
   },
   plateBalanced: {
     borderColor: BALANCE_COLORS.plate.balanced,
-    shadowColor: BALANCE_COLORS.plate.balanced,
-    shadowOpacity: 0.6,
-    shadowRadius: 15,
+    boxShadow: '0px 0px 15px rgba(72, 187, 120, 0.6)',
     elevation: 10,
   },
   plateInner: {
@@ -516,10 +505,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing[4],
     paddingVertical: spacing[2],
     borderRadius: borderRadius.round,
-    shadowColor: colors.feedback.success,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.4,
-    shadowRadius: 8,
+    boxShadow: '0px 4px 8px rgba(72, 187, 120, 0.4)',
     elevation: 6,
   },
   balancedText: {

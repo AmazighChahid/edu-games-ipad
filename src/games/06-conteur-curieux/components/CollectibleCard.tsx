@@ -20,7 +20,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 
-import { spacing, borderRadius, shadows, fontFamily } from '@/theme';
+import { spacing, borderRadius, shadows, fontFamily } from '../../../theme';
 import type { StoryCollectible, CardRarity } from '../types';
 
 interface CollectibleCardProps {

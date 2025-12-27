@@ -25,7 +25,7 @@ import {
   HomeV10Colors,
   HomeV10Layout,
   HomeV10Animations,
-} from '@/theme/home-v10-colors';
+} from '../../theme/home-v10-colors';
 
 interface PiouFloatingProps {
   message: string;
@@ -203,10 +203,7 @@ const styles = StyleSheet.create({
     paddingRight: 32,
     borderRadius: 28,
     width: HomeV10Layout.bubbleWidth,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.1,
-    shadowRadius: 40,
+    boxShadow: '0px 10px 40px rgba(0, 0, 0, 0.1)',
     elevation: 10,
   },
   bubbleArrow: {
@@ -237,10 +234,7 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     borderRadius: 18,
     overflow: 'hidden',
-    shadowColor: '#5B8DEE',
-    shadowOffset: { width: 0, height: 5 },
-    shadowOpacity: 0.3,
-    shadowRadius: 20,
+    boxShadow: '0px 5px 20px rgba(91, 141, 238, 0.3)',
     elevation: 5,
   },
   bubbleButtonPressed: {

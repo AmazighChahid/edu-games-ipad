@@ -3,7 +3,7 @@
  * Pure logic - no React dependencies
  */
 
-import { colors } from '@/theme';
+import { colors } from '../../../theme';
 import type { HanoiGameState, HanoiLevelConfig, TowerId, Disk, TowerState } from '../types';
 
 const DISK_COLORS = [

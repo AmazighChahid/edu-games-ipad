@@ -19,7 +19,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 
-import { spacing, borderRadius, shadows, fontFamily } from '@/theme';
+import { spacing, borderRadius, shadows, fontFamily } from '../../../theme';
 import type { ReadingMode, ConteurLevel } from '../types';
 
 interface ModeSelectionModalProps {
@@ -324,8 +324,8 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.xl,
     alignItems: 'center',
     justifyContent: 'center',
-    ...shadows.md,
-    shadowColor: '#9B59B6',
+    boxShadow: '0px 2px 4px rgba(155, 89, 182, 0.25)',
+    elevation: 3,
   },
   startButtonText: {
     fontFamily: fontFamily.displayBold,

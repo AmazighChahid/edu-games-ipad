@@ -13,8 +13,8 @@ import Animated, {
   withSequence,
 } from 'react-native-reanimated';
 
-import { colors, borderRadius, fontFamily } from '@/theme';
-import { useAccessibilityAnimations } from '@/hooks';
+import { colors, borderRadius, fontFamily } from '../../../theme';
+import { useAccessibilityAnimations } from '../../../hooks';
 import type { CrosswordCell as CellType } from '../types';
 
 // ============================================================================

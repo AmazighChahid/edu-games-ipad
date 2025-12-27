@@ -32,8 +32,8 @@ import Animated, {
 } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 
-import { colors, spacing, borderRadius, shadows, fontFamily } from '@/theme';
-import { useAccessibilityAnimations } from '@/hooks';
+import { colors, spacing, borderRadius, shadows, fontFamily } from '../../../theme';
+import { useAccessibilityAnimations } from '../../../hooks';
 
 import { PlumeMascot } from '../components/PlumeMascot';
 import { AudioPlayer } from '../components/AudioPlayer';
@@ -681,8 +681,8 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.xl,
     backgroundColor: '#9B59B6',
     alignItems: 'center',
-    ...shadows.md,
-    shadowColor: '#9B59B6',
+    boxShadow: '0px 2px 4px rgba(155, 89, 182, 0.25)',
+    elevation: 3,
   },
   nextButtonText: {
     fontSize: 18,
@@ -695,8 +695,8 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.xl,
     backgroundColor: '#7BC74D',
     alignItems: 'center',
-    ...shadows.md,
-    shadowColor: '#7BC74D',
+    boxShadow: '0px 2px 4px rgba(123, 199, 77, 0.25)',
+    elevation: 3,
   },
   finishButtonText: {
     fontSize: 18,

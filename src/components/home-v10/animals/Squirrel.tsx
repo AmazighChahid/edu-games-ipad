@@ -14,7 +14,7 @@ import Animated, {
   useReducedMotion,
   runOnJS,
 } from 'react-native-reanimated';
-import { HomeV10ZIndex, HomeV10Animations } from '@/theme/home-v10-colors';
+import { HomeV10ZIndex, HomeV10Animations } from '../../../theme/home-v10-colors';
 
 export const Squirrel = memo(() => {
   const translateX = useSharedValue(0);

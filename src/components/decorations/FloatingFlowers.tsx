@@ -8,7 +8,7 @@ import Animated, {
   withTiming,
   Easing,
 } from 'react-native-reanimated';
-import { theme } from '@/theme';
+import { theme } from '../../theme';
 
 interface FloatingFlowersProps {
   position: 'left' | 'right';

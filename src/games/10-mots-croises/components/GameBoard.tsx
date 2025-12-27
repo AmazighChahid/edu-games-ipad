@@ -9,8 +9,8 @@ import { View, Text, StyleSheet, Pressable, Dimensions, ScrollView } from 'react
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, { FadeIn, FadeInUp } from 'react-native-reanimated';
 
-import { colors, spacing, borderRadius, shadows, fontFamily } from '@/theme';
-import { useAccessibilityAnimations } from '@/hooks';
+import { colors, spacing, borderRadius, shadows, fontFamily } from '../../../theme';
+import { useAccessibilityAnimations } from '../../../hooks';
 import type { CrosswordGameState } from '../types';
 import { CrosswordGrid } from './CrosswordGrid';
 import { ClueList } from './ClueList';

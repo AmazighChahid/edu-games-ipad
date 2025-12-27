@@ -14,7 +14,7 @@ import Animated, {
   Easing,
   useReducedMotion,
 } from 'react-native-reanimated';
-import { ANIMATION_DURATIONS } from '@/types/home.types';
+import { ANIMATION_DURATIONS } from '../../types/home.types';
 
 interface FlowerProps {
   emoji: string;

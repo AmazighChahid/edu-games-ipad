@@ -77,10 +77,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     marginBottom: 12,
     maxWidth: 200,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 15,
+    boxShadow: '0px 4px 15px rgba(0, 0, 0, 0.1)',
     elevation: 5,
   },
   speechTail: {

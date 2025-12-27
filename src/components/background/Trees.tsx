@@ -6,7 +6,7 @@
 import React, { memo } from 'react';
 import { View, StyleSheet, useWindowDimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { FOREST_COLORS } from '@/types/home.types';
+import { FOREST_COLORS } from '../../types/home.types';
 
 interface TreeProps {
   position: 'far-left' | 'left' | 'right' | 'far-right';

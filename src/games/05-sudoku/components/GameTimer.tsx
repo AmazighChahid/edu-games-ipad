@@ -6,7 +6,7 @@
 
 import { useEffect, useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { colors, spacing, borderRadius, shadows } from '@/theme';
+import { colors, spacing, borderRadius, shadows } from '../../../theme';
 
 interface GameTimerProps {
   startTime: Date;

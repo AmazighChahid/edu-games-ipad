@@ -5,7 +5,7 @@
  * Ton amical et encourageant, accent sur la découverte de patterns
  */
 
-import type { AssistantScript } from '@/core/types/core.types';
+import type { AssistantScript } from '../../../core/types/core.types';
 
 // ============================================================================
 // SCRIPTS D'ACCUEIL

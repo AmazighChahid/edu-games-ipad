@@ -13,8 +13,8 @@ import Animated, {
   runOnJS,
 } from 'react-native-reanimated';
 
-import { colors, spacing, textStyles, borderRadius, shadows } from '@/theme';
-import type { AssistantMessage, AssistantMood } from '@/types';
+import { colors, spacing, textStyles, borderRadius, shadows } from '../../theme';
+import type { AssistantMessage, AssistantMood } from '../../types';
 
 interface AssistantBubbleProps {
   message: AssistantMessage;

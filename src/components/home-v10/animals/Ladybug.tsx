@@ -13,7 +13,7 @@ import Animated, {
   Easing,
   useReducedMotion,
 } from 'react-native-reanimated';
-import { HomeV10ZIndex } from '@/theme/home-v10-colors';
+import { HomeV10ZIndex } from '../../../theme/home-v10-colors';
 
 export const Ladybug = memo(() => {
   const translateX = useSharedValue(0);

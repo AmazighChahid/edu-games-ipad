@@ -154,10 +154,7 @@ const styles = StyleSheet.create({
     top: 0,
     left: 5,
     // Shadow for depth
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
+    boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.15)',
     elevation: 3,
   },
   foxEar: {
@@ -295,10 +292,7 @@ const styles = StyleSheet.create({
     maxWidth: 280,
     position: 'relative',
     // Shadow for bubble depth
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
+    boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
     elevation: 5,
   },
   bubbleArrow: {

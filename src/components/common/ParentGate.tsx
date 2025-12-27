@@ -9,7 +9,7 @@ import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { colors, spacing, textStyles, borderRadius, shadows, touchTargets } from '@/theme';
+import { colors, spacing, textStyles, borderRadius, shadows, touchTargets } from '../../theme';
 
 interface ParentGateProps {
   onUnlock: () => void;

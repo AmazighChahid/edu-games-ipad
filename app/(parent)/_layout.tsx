@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Stack } from 'expo-router';
-import { colors } from '@/theme';
-import { ParentGate } from '@/components/common/ParentGate';
+import { colors } from '../../src/theme';
+import { ParentGate } from '../../src/components/common/ParentGate';
 
 export default function ParentLayout() {
   const [isUnlocked, setIsUnlocked] = useState(false);

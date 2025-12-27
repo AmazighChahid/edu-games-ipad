@@ -4,7 +4,7 @@
  */
 
 import { StateCreator } from 'zustand';
-import type { AssistantMessage, AssistantMood } from '@/types';
+import type { AssistantMessage, AssistantMood } from '../../types';
 
 export interface AssistantState {
   isVisible: boolean;

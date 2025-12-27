@@ -4,7 +4,7 @@
  */
 
 import { StateCreator } from 'zustand';
-import type { DailyScreenTime, SessionRecord, ScreenTimeSettings } from '@/types';
+import type { DailyScreenTime, SessionRecord, ScreenTimeSettings } from '../../types';
 
 export interface ScreenTimeState {
   dailyRecords: Record<string, DailyScreenTime>; // Key: YYYY-MM-DD

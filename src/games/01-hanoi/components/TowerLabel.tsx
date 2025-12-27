@@ -7,7 +7,7 @@
 import { View, Text, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
-import { textStyles, spacing, borderRadius, shadows } from '@/theme';
+import { textStyles, spacing, borderRadius, shadows } from '../../../theme';
 
 type TowerType = 'start' | 'middle' | 'end';
 

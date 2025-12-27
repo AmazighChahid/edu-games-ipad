@@ -16,7 +16,7 @@ import Animated, {
   Easing,
 } from 'react-native-reanimated';
 import { Card, RARITY_CONFIG, CATEGORY_CONFIG } from '../../data/cards';
-import { COLORS } from '@/constants/colors';
+import { colors } from '../../theme';
 
 interface CollectionCardProps {
   card: Card;
@@ -171,10 +171,7 @@ const styles = StyleSheet.create({
     borderColor: '#CBD5E0',
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 15,
+    boxShadow: '0px 4px 15px rgba(0, 0, 0, 0.08)',
     elevation: 2,
   },
   lockedContent: {
@@ -210,10 +207,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     borderWidth: 4,
     overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.12,
-    shadowRadius: 20,
+    boxShadow: '0px 6px 20px rgba(0, 0, 0, 0.12)',
     elevation: 4,
   },
   newBadge: {
@@ -226,10 +220,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     transform: [{ rotate: '-15deg' }],
     zIndex: 10,
-    shadowColor: '#FF6B6B',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.4,
-    shadowRadius: 8,
+    boxShadow: '0px 3px 8px rgba(255, 107, 107, 0.4)',
     elevation: 3,
   },
   newBadgeText: {
@@ -267,9 +258,7 @@ const styles = StyleSheet.create({
   cardEmoji: {
     fontSize: 52,
     marginBottom: 8,
-    textShadowColor: 'rgba(0,0,0,0.1)',
-    textShadowOffset: { width: 0, height: 4 },
-    textShadowRadius: 8,
+    textShadow: '0px 4px 8px rgba(0,0,0,0.1)',
   },
   cardName: {
     fontFamily: 'Fredoka_600SemiBold',
@@ -294,7 +283,7 @@ const styles = StyleSheet.create({
   traitText: {
     fontSize: 10,
     fontFamily: 'Fredoka_600SemiBold',
-    color: COLORS.primary,
+    color: colors.home.categories.logic,
   },
 });
 

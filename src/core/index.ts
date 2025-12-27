@@ -8,7 +8,7 @@
  *
  * Usage :
  * ```typescript
- * import { ChildAssistant, getFeedbackMessage, adaptDifficulty } from '@/core';
+ * import { ChildAssistant, getFeedbackMessage, adaptDifficulty } from './';
  * ```
  */
 

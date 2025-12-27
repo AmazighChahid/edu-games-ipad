@@ -5,7 +5,7 @@
 
 import React, { memo } from 'react';
 import { View, StyleSheet, useWindowDimensions } from 'react-native';
-import { FOREST_COLORS } from '@/types/home.types';
+import { FOREST_COLORS } from '../../types/home.types';
 
 interface MountainProps {
   position: 'left' | 'center-left' | 'center-right' | 'right';

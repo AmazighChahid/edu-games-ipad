@@ -25,15 +25,15 @@ import { useCollection } from '../../../src/store';
 import {
   CollectionBook,
   CardDetailModal,
-} from '@/components/collection';
+} from '../../../src/components/collection';
 import {
   Card,
   CardCategory,
   ALL_CARDS,
   getCardsByCategory,
   RARITY_CONFIG,
-} from '@/data/cards';
-import { COLORS } from '@/constants/colors';
+} from '../../../src/data/cards';
+import { COLORS } from '../../../src/constants/colors';
 
 // Decorative elements
 const CloudDecoration: React.FC<{ style: object }> = ({ style }) => (

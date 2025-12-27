@@ -110,10 +110,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 12,
     borderBottomRightRadius: 12,
     overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 2, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 10,
+    boxShadow: '2px 2px 10px rgba(0, 0, 0, 0.2)',
     elevation: 4,
   },
   tabGradient: {

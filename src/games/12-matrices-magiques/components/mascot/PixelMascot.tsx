@@ -562,10 +562,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 0,
     backgroundColor: COLORS.fur,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
+    boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.15)',
     elevation: 3,
   },
   ear: {

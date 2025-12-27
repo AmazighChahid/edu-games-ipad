@@ -9,8 +9,8 @@ import { View, Text, StyleSheet, Pressable, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 
-import { colors, spacing, borderRadius, shadows, fontFamily } from '@/theme';
-import { useMotsCroisesGame, getFirstCrosswordLevel, GameBoard } from '@/games/10-mots-croises';
+import { colors, spacing, borderRadius, shadows, fontFamily } from '../../../src/theme';
+import { useMotsCroisesGame, getFirstCrosswordLevel, GameBoard } from '../../../src/games/10-mots-croises';
 
 export default function MotsCroisesScreen() {
   const router = useRouter();

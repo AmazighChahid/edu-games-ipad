@@ -3,7 +3,7 @@
  * Celebration and results screen
  */
 
-import { MatricesVictoryScreen } from '@/games/12-matrices-magiques/screens';
+import { MatricesVictoryScreen } from '../../../src/games/12-matrices-magiques/screens';
 
 export default function MatricesVictory() {
   return <MatricesVictoryScreen />;

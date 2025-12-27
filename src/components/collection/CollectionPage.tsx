@@ -144,10 +144,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF9F0',
     borderRadius: 8,
     padding: 24,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 20,
+    boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.15)',
     elevation: 4,
   },
   leftPage: {

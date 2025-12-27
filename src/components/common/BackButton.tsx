@@ -18,7 +18,7 @@ import Animated, {
   useAnimatedStyle,
   withSpring,
 } from 'react-native-reanimated';
-import { theme } from '@/theme';
+import { theme } from '../../theme';
 
 export interface BackButtonProps {
   onPress: () => void;

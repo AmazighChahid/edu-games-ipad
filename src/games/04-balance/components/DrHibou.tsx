@@ -21,7 +21,7 @@ import Animated, {
   SlideOutDown,
   ZoomIn,
 } from 'react-native-reanimated';
-import { colors, spacing, borderRadius, shadows } from '@/theme';
+import { colors, spacing, borderRadius, shadows } from '../../../theme';
 import type { DialogueContext, MascotMood, Phase } from '../types';
 
 // ============================================

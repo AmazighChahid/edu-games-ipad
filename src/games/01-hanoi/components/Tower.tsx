@@ -9,7 +9,7 @@ import Animated, {
   withSpring,
 } from 'react-native-reanimated';
 
-import { colors, spacing, borderRadius } from '@/theme';
+import { colors, spacing, borderRadius } from '../../../theme';
 import type { TowerState, TowerId } from '../types';
 import { Disk } from './Disk';
 

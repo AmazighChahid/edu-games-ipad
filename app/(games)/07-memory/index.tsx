@@ -9,12 +9,12 @@ import { View, Text, StyleSheet, Pressable, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 
-import { colors, spacing, borderRadius, shadows, fontFamily } from '@/theme';
-import { useMemoryGame, getFirstMemoryLevel, GameBoard } from '@/games/07-memory';
-import { VictoryCard, type VictoryBadge } from '@/components/common';
-import { CardUnlockScreen } from '@/components/collection';
-import { useCardUnlock } from '@/hooks/useCardUnlock';
-import { useCollection } from '@/store';
+import { colors, spacing, borderRadius, shadows, fontFamily } from '../../../src/theme';
+import { useMemoryGame, getFirstMemoryLevel, GameBoard } from '../../../src/games/07-memory';
+import { VictoryCard, type VictoryBadge } from '../../../src/components/common';
+import { CardUnlockScreen } from '../../../src/components/collection';
+import { useCardUnlock } from '../../../src/hooks/useCardUnlock';
+import { useCollection } from '../../../src/store';
 
 // Fonction pour calculer le badge non-compétitif du Memory
 const getMemoryBadge = (attempts: number, stars: number): VictoryBadge => {

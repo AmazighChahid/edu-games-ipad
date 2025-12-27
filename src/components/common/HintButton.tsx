@@ -44,7 +44,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 
-import { colors, spacing, borderRadius, shadows, fontFamily } from '@/theme';
+import { colors, spacing, borderRadius, shadows, fontFamily } from '../../theme';
 
 // ============================================================================
 // TYPES

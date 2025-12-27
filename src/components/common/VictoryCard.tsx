@@ -25,7 +25,7 @@ import Animated, {
   withDelay,
   Easing,
 } from 'react-native-reanimated';
-import { theme } from '@/theme';
+import { theme } from '../../theme';
 
 // Badge non-compétitif
 export interface VictoryBadge {

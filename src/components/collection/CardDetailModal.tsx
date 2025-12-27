@@ -32,9 +32,9 @@ import {
   RARITY_CONFIG,
   CATEGORY_CONFIG,
   getTotalCardsCount,
-} from '@/data/cards';
-import { COLORS } from '@/constants/colors';
-import { UnlockedCardData } from '@/store/slices/collectionSlice';
+} from '../../data/cards';
+import { colors } from '../../theme';
+import { UnlockedCardData } from '../../store/slices/collectionSlice';
 
 interface CardDetailModalProps {
   visible: boolean;
@@ -391,10 +391,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 100,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 15,
+    boxShadow: '0px 4px 15px rgba(0, 0, 0, 0.2)',
     elevation: 5,
   },
   closeButtonText: {
@@ -425,10 +422,7 @@ const styles = StyleSheet.create({
     borderRadius: 28,
     borderWidth: 6,
     overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 25 },
-    shadowOpacity: 0.4,
-    shadowRadius: 60,
+    boxShadow: '0px 25px 60px rgba(0, 0, 0, 0.4)',
     elevation: 10,
   },
   shine: {
@@ -480,9 +474,7 @@ const styles = StyleSheet.create({
   },
   cardEmoji: {
     fontSize: 120,
-    textShadowColor: 'rgba(0,0,0,0.15)',
-    textShadowOffset: { width: 0, height: 8 },
-    textShadowRadius: 20,
+    textShadow: '0px 8px 20px rgba(0,0,0,0.15)',
   },
   cardName: {
     fontFamily: 'Fredoka_700Bold',
@@ -494,7 +486,7 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontFamily: 'Fredoka_600SemiBold',
     fontSize: 14,
-    color: COLORS.accent,
+    color: colors.home.categories.spatial,
     marginTop: 5,
   },
   traitsContainer: {
@@ -513,7 +505,7 @@ const styles = StyleSheet.create({
   traitText: {
     fontSize: 12,
     fontFamily: 'Fredoka_700Bold',
-    color: COLORS.primary,
+    color: colors.home.categories.logic,
   },
   cardFooter: {
     backgroundColor: 'rgba(139, 90, 43, 0.1)',
@@ -528,7 +520,7 @@ const styles = StyleSheet.create({
   },
   unlockDate: {
     fontFamily: 'Nunito_700Bold',
-    color: COLORS.primary,
+    color: colors.home.categories.logic,
   },
   infoPanel: {
     backgroundColor: 'rgba(255,255,255,0.95)',
@@ -536,10 +528,7 @@ const styles = StyleSheet.create({
     padding: 35,
     width: 400,
     maxHeight: 500,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 20 },
-    shadowOpacity: 0.3,
-    shadowRadius: 50,
+    boxShadow: '0px 20px 50px rgba(0, 0, 0, 0.3)',
     elevation: 8,
   },
   infoPanelHeader: {
@@ -607,7 +596,7 @@ const styles = StyleSheet.create({
   statValue: {
     fontFamily: 'Fredoka_700Bold',
     fontSize: 24,
-    color: COLORS.primary,
+    color: colors.home.categories.logic,
   },
   statLabel: {
     fontFamily: 'Nunito_400Regular',
@@ -666,7 +655,7 @@ const styles = StyleSheet.create({
   },
   positionHighlight: {
     fontFamily: 'Nunito_700Bold',
-    color: COLORS.accent,
+    color: colors.home.categories.spatial,
   },
   navCards: {
     flexDirection: 'row',

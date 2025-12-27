@@ -5,7 +5,7 @@
 
 import { View, StyleSheet, Dimensions } from 'react-native';
 
-import { colors, spacing } from '@/theme';
+import { colors, spacing } from '../../../theme';
 import type { SudokuGrid as GridType } from '../types';
 import { SudokuCell } from './SudokuCell';
 
@@ -99,10 +99,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background.card,
     padding: GRID_PADDING,
     borderRadius: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
+    boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
     elevation: 5,
   },
   row: {

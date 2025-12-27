@@ -154,9 +154,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#fff',
     textAlign: 'center',
-    textShadowColor: 'rgba(0, 0, 0, 0.2)',
-    textShadowOffset: { width: 0, height: 4 },
-    textShadowRadius: 15,
+    textShadow: '0px 4px 15px rgba(0, 0, 0, 0.2)',
   },
   subtitle: {
     fontSize: 20,

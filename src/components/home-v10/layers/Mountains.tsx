@@ -5,7 +5,7 @@
 
 import React, { memo, useMemo } from 'react';
 import { View, StyleSheet, useWindowDimensions } from 'react-native';
-import { HomeV10Colors, HomeV10ZIndex } from '@/theme/home-v10-colors';
+import { HomeV10Colors, HomeV10ZIndex } from '../../../theme/home-v10-colors';
 
 interface MountainProps {
   left?: number;

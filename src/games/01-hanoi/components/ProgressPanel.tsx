@@ -12,7 +12,7 @@ import Animated, {
   useSharedValue,
 } from 'react-native-reanimated';
 
-import { textStyles, spacing, borderRadius, shadows } from '@/theme';
+import { textStyles, spacing, borderRadius, shadows } from '../../../theme';
 
 interface ProgressPanelProps {
   currentMoves: number;

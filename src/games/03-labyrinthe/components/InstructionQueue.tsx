@@ -173,10 +173,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 12,
     marginHorizontal: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
+    boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.1)',
     elevation: 3,
   },
   header: {
@@ -232,10 +229,7 @@ const styles = StyleSheet.create({
   currentInstruction: {
     borderColor: '#5B8DEE',
     borderWidth: 3,
-    shadowColor: '#5B8DEE',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.4,
-    shadowRadius: 8,
+    boxShadow: '0px 0px 8px rgba(91, 141, 238, 0.4)',
     elevation: 5,
   },
   executedInstruction: {

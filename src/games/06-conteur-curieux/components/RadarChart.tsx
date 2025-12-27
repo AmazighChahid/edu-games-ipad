@@ -10,7 +10,7 @@ import { View, Text, StyleSheet, useWindowDimensions } from 'react-native';
 import Svg, { Polygon, Line, Circle, Text as SvgText, G } from 'react-native-svg';
 import Animated, { FadeIn } from 'react-native-reanimated';
 
-import { fontFamily, spacing } from '@/theme';
+import { fontFamily, spacing } from '../../../theme';
 import type { CompetencyScores } from '../types';
 
 interface RadarChartProps {

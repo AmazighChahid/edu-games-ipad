@@ -251,9 +251,7 @@ const styles = StyleSheet.create({
     color: '#5B8DEE',
     textAlign: 'center',
     fontFamily: 'Fredoka-Bold',
-    textShadowColor: 'rgba(91, 141, 238, 0.2)',
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 4,
+    textShadow: '0px 2px 4px rgba(91, 141, 238, 0.2)',
   },
   subtitle: {
     fontSize: 16,
@@ -273,10 +271,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     paddingVertical: 12,
     paddingHorizontal: 24,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
+    boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.08)',
     elevation: 3,
   },
   statItem: {

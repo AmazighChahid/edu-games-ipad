@@ -17,7 +17,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 
-import { colors, spacing } from '@/theme';
+import { colors, spacing } from '../../../theme';
 import type { TowerState, TowerId, Disk as DiskType } from '../types';
 import { DraggableDiskEnhanced } from './DraggableDiskEnhanced';
 

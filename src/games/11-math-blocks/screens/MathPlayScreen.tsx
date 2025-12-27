@@ -7,9 +7,9 @@ import { useState, useCallback } from 'react';
 import { View, StyleSheet, Text, Pressable, Modal, Switch } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 
-import { colors, spacing, borderRadius, shadows, textStyles } from '@/theme';
-import { ProgressIndicator } from '@/components/common';
-import { useAppSettings } from '@/store';
+import { colors, spacing, borderRadius, shadows, textStyles } from '../../../theme';
+import { ProgressIndicator } from '../../../components/common';
+import { useAppSettings } from '../../../store';
 import { GameGrid, ScoreDisplay } from '../components';
 import { useMathGame } from '../hooks/useMathGame';
 import { OPERATION_SYMBOLS } from '../types';

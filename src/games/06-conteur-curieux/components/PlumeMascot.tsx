@@ -27,8 +27,8 @@ import Animated, {
   Easing,
 } from 'react-native-reanimated';
 
-import { spacing } from '@/theme';
-import { SpeechBubble } from '@/components/common';
+import { spacing } from '../../../theme';
+import { SpeechBubble } from '../../../components/common';
 import type { PlumeExpression } from '../types';
 
 type PlumeSize = 'small' | 'medium' | 'large';

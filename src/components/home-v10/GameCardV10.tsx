@@ -12,12 +12,13 @@ import Animated, {
   withSpring,
 } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
-import Svg, { Path } from 'react-native-svg';
-import { edokiWidgetThemes } from '@/theme/home-v10-colors';
-import { fontFamily } from '@/theme/typography';
+import { Video, ResizeMode } from 'expo-av';
+import Svg, { Path, Rect, Defs, LinearGradient as SvgLinearGradient, Stop } from 'react-native-svg';
+import { edokiWidgetThemes } from '../../theme/home-v10-colors';
+import { fontFamily } from '../../theme/typography';
 
 // Types pour les thèmes de widget Edoki
-export type EdokiTheme = 'barres' | 'fuseaux' | 'chiffres' | 'plage' | 'numberland' | 'nouveaux';
+export type EdokiTheme = 'barres' | 'fuseaux' | 'chiffres' | 'plage' | 'numberland' | 'nouveaux' | 'hanoi' | 'video';
 
 interface GameCardV10Props {
   id: string;
@@ -259,6 +260,93 @@ const NouveauxIllustration = memo(() => (
 ));
 NouveauxIllustration.displayName = 'NouveauxIllustration';
 
+// Tour de Hanoi - Illustration vectorielle SVG
+const HanoiIllustration = memo(() => (
+  <View style={styles.hanoiContainer}>
+    <Svg width={400} height={280} viewBox="0 0 400 280">
+      <Defs>
+        {/* Gradient pour les tours en bois */}
+        <SvgLinearGradient id="towerWoodGradient" x1="0" y1="0" x2="1" y2="0">
+          <Stop offset="0" stopColor="#8B5A2B" stopOpacity="1" />
+          <Stop offset="0.5" stopColor="#A0522D" stopOpacity="1" />
+          <Stop offset="1" stopColor="#8B5A2B" stopOpacity="1" />
+        </SvgLinearGradient>
+        {/* Gradient pour la base en bois */}
+        <SvgLinearGradient id="baseWoodGradient" x1="0" y1="0" x2="0" y2="1">
+          <Stop offset="0" stopColor="#A0522D" stopOpacity="1" />
+          <Stop offset="1" stopColor="#6B3D1E" stopOpacity="1" />
+        </SvgLinearGradient>
+        {/* Gradients pour les disques */}
+        <SvgLinearGradient id="diskRedGradient" x1="0" y1="0" x2="0" y2="1">
+          <Stop offset="0" stopColor="#E74C3C" stopOpacity="1" />
+          <Stop offset="1" stopColor="#C0392B" stopOpacity="1" />
+        </SvgLinearGradient>
+        <SvgLinearGradient id="diskBlueGradient" x1="0" y1="0" x2="0" y2="1">
+          <Stop offset="0" stopColor="#3498DB" stopOpacity="1" />
+          <Stop offset="1" stopColor="#2980B9" stopOpacity="1" />
+        </SvgLinearGradient>
+        <SvgLinearGradient id="diskGreenGradient" x1="0" y1="0" x2="0" y2="1">
+          <Stop offset="0" stopColor="#27AE60" stopOpacity="1" />
+          <Stop offset="1" stopColor="#1E8449" stopOpacity="1" />
+        </SvgLinearGradient>
+        <SvgLinearGradient id="diskOrangeGradient" x1="0" y1="0" x2="0" y2="1">
+          <Stop offset="0" stopColor="#F39C12" stopOpacity="1" />
+          <Stop offset="1" stopColor="#D68910" stopOpacity="1" />
+        </SvgLinearGradient>
+      </Defs>
+
+      {/* Base plateau 3D - surface supérieure */}
+      <Rect x="40" y="215" width="320" height="28" rx="6" fill="url(#baseWoodGradient)" />
+      {/* Base plateau 3D - face avant (profondeur) */}
+      <Rect x="45" y="243" width="310" height="14" rx="3" fill="#5D3A1E" />
+      {/* Reflet subtil sur la base */}
+      <Rect x="50" y="218" width="300" height="4" rx="2" fill="rgba(255,255,255,0.15)" />
+
+      {/* Tour 1 (gauche) */}
+      <Rect x="94" y="95" width="12" height="120" rx="6" fill="url(#towerWoodGradient)" />
+      {/* Tour 2 (centre) */}
+      <Rect x="194" y="95" width="12" height="120" rx="6" fill="url(#towerWoodGradient)" />
+      {/* Tour 3 (droite) */}
+      <Rect x="294" y="95" width="12" height="120" rx="6" fill="url(#towerWoodGradient)" />
+
+      {/* Disques sur la tour 1 (empilés du plus grand au plus petit) */}
+      {/* Grand disque orange (bas) */}
+      <Rect x="50" y="185" width="100" height="26" rx="13" fill="url(#diskOrangeGradient)" />
+      {/* Reflet sur disque orange */}
+      <Rect x="55" y="188" width="90" height="6" rx="3" fill="rgba(255,255,255,0.25)" />
+
+      {/* Disque rouge */}
+      <Rect x="60" y="157" width="80" height="26" rx="13" fill="url(#diskRedGradient)" />
+      {/* Reflet sur disque rouge */}
+      <Rect x="65" y="160" width="70" height="6" rx="3" fill="rgba(255,255,255,0.25)" />
+
+      {/* Disque bleu */}
+      <Rect x="70" y="129" width="60" height="26" rx="13" fill="url(#diskBlueGradient)" />
+      {/* Reflet sur disque bleu */}
+      <Rect x="75" y="132" width="50" height="6" rx="3" fill="rgba(255,255,255,0.25)" />
+
+      {/* Petit disque vert (haut) */}
+      <Rect x="80" y="101" width="40" height="26" rx="13" fill="url(#diskGreenGradient)" />
+      {/* Reflet sur disque vert */}
+      <Rect x="85" y="104" width="30" height="6" rx="3" fill="rgba(255,255,255,0.25)" />
+    </Svg>
+  </View>
+));
+HanoiIllustration.displayName = 'HanoiIllustration';
+
+// Video Background Test
+const VideoIllustration = memo(() => (
+  <Video
+    source={require('../../../assets/videos/test-background.mp4')}
+    style={styles.videoBackground}
+    resizeMode={ResizeMode.COVER}
+    shouldPlay
+    isLooping
+    isMuted
+  />
+));
+VideoIllustration.displayName = 'VideoIllustration';
+
 // Map des illustrations
 const illustrations: Record<EdokiTheme, React.ComponentType> = {
   barres: BarresIllustration,
@@ -267,6 +355,8 @@ const illustrations: Record<EdokiTheme, React.ComponentType> = {
   plage: PlageIllustration,
   numberland: NumberlandIllustration,
   nouveaux: NouveauxIllustration,
+  hanoi: HanoiIllustration,
+  video: VideoIllustration,
 };
 
 // ========================================
@@ -384,10 +474,7 @@ const styles = StyleSheet.create({
     height: 380,
     borderRadius: 28,
     overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.12,
-    shadowRadius: 32,
+    boxShadow: '0px 8px 32px rgba(0, 0, 0, 0.12)',
     elevation: 8,
   },
   background: {
@@ -415,16 +502,14 @@ const styles = StyleSheet.create({
     fontSize: 28,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 4,
   },
   titleLight: {
     color: '#FFFFFF',
-    textShadowColor: 'rgba(0, 0, 0, 0.2)',
+    textShadow: '0px 2px 4px rgba(0, 0, 0, 0.2)',
   },
   titleDark: {
     color: '#333333',
-    textShadowColor: 'rgba(255, 255, 255, 0.3)',
+    textShadow: '0px 2px 4px rgba(255, 255, 255, 0.3)',
   },
 
   // Progress bar
@@ -471,10 +556,7 @@ const styles = StyleSheet.create({
     borderRadius: 26,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 16,
+    boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.15)',
     elevation: 4,
   },
 
@@ -511,10 +593,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
+    boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.15)',
     elevation: 4,
   },
   barNumberText: {
@@ -529,10 +608,7 @@ const styles = StyleSheet.create({
     width: 48,
     height: 36,
     borderRadius: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 3, height: 3 },
-    shadowOpacity: 0.2,
-    shadowRadius: 6,
+    boxShadow: '3px 3px 6px rgba(0, 0, 0, 0.2)',
     elevation: 3,
   },
 
@@ -556,10 +632,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: 'center',
     paddingTop: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.12,
-    shadowRadius: 16,
+    boxShadow: '0px 6px 16px rgba(0, 0, 0, 0.12)',
     elevation: 4,
     overflow: 'hidden',
   },
@@ -619,10 +692,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.25,
-    shadowRadius: 24,
+    boxShadow: '0px 8px 24px rgba(0, 0, 0, 0.25)',
     elevation: 8,
   },
   numberCardText: {
@@ -660,10 +730,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.2,
-    shadowRadius: 24,
+    boxShadow: '0px 8px 24px rgba(0, 0, 0, 0.2)',
     elevation: 8,
   },
   greenCardText: {
@@ -712,9 +779,7 @@ const styles = StyleSheet.create({
     fontFamily: fontFamily.title,
     fontSize: 170,
     color: '#E91E63',
-    textShadowColor: 'rgba(0, 0, 0, 0.2)',
-    textShadowOffset: { width: 6, height: 6 },
-    textShadowRadius: 12,
+    textShadow: '6px 6px 12px rgba(0, 0, 0, 0.2)',
     lineHeight: 170,
   },
   tree: {
@@ -753,10 +818,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 50,
     paddingRight: 60,
     transform: [{ rotate: '-5deg' }],
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 12,
+    boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.2)',
     elevation: 4,
   },
   badgeText: {
@@ -788,14 +850,29 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderWidth: 7,
     borderColor: '#FFECB3',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.15,
-    shadowRadius: 20,
+    boxShadow: '0px 6px 20px rgba(0, 0, 0, 0.15)',
     elevation: 4,
   },
   previewEmoji: {
     fontSize: 44,
+  },
+
+  // ========================================
+  // ILLUSTRATIONS - Tour de Hanoi
+  // ========================================
+  hanoiContainer: {
+    position: 'absolute',
+    top: 50,
+    left: 60,
+    right: 0,
+    bottom: 0,
+  },
+
+  // ========================================
+  // ILLUSTRATIONS - Video Background
+  // ========================================
+  videoBackground: {
+    ...StyleSheet.absoluteFillObject,
   },
 });
 

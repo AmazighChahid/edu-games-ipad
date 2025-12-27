@@ -17,20 +17,20 @@ import {
   CollectionFloating,
   HomeHeaderV10,
   GameCardV10,
-} from '@/components/home-v10';
-import { HomeV10Layout, EdokiWidgetLayout } from '@/theme/home-v10-colors';
-import type { EdokiTheme } from '@/components/home-v10/GameCardV10';
+} from '../src/components/home-v10';
+import { HomeV10Layout, EdokiWidgetLayout } from '../src/theme/home-v10-colors';
+import type { EdokiTheme } from '../src/components/home-v10/GameCardV10';
 
 // Hooks
-import { useHomeData } from '@/hooks/useHomeData';
+import { useHomeData } from '../src/hooks/useHomeData';
 
 // Parent dashboard (full-screen modal)
-import { ParentDashboard } from '@/components/parent/ParentDashboard';
-import { useStore } from '@/store';
+import { ParentDashboard } from '../src/components/parent/ParentDashboard';
+import { useStore } from '../src/store';
 
 // Mapping des jeux vers les thèmes Edoki
 const GAME_THEME_MAPPING: Record<string, EdokiTheme> = {
-  hanoi: 'barres',
+  hanoi: 'hanoi',
   'suites-logiques': 'fuseaux',
   'logix-grid': 'chiffres',
   'math-blocks': 'barres',
@@ -150,6 +150,15 @@ export default function HomeScreen() {
       progress: number; // 0-4 segments
       isFavorite: boolean;
     }> = [];
+
+    // Carte fictive pour tester la vidéo en arrière-plan
+    games.push({
+      id: 'video-demo',
+      title: 'Video Demo',
+      theme: 'video' as EdokiTheme,
+      progress: 0,
+      isFavorite: false,
+    });
 
     gameCategories.forEach((category) => {
       category.games.forEach((game) => {

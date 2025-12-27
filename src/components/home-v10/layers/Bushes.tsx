@@ -6,7 +6,7 @@
 import React, { memo, useMemo } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { HomeV10Colors, HomeV10ZIndex } from '@/theme/home-v10-colors';
+import { HomeV10Colors, HomeV10ZIndex } from '../../../theme/home-v10-colors';
 
 interface BushProps {
   left?: number;

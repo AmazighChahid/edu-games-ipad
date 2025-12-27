@@ -15,7 +15,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 
-import { spacing, borderRadius, fontFamily } from '@/theme';
+import { spacing, borderRadius, fontFamily } from '../../../theme';
 import type { StoryTheme, ThemeConfig } from '../types';
 
 type FilterValue = StoryTheme | 'all';

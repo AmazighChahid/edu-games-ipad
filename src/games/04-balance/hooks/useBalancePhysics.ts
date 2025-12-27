@@ -307,11 +307,14 @@ export function usePlateHoverAnimation() {
     hoverGlow.value = withTiming(0, { duration: 200 });
   }, []);
 
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: hoverScale.value }],
-    shadowOpacity: interpolate(hoverGlow.value, [0, 1], [0, 0.4]),
-    shadowRadius: interpolate(hoverGlow.value, [0, 1], [0, 12]),
-  }));
+  const animatedStyle = useAnimatedStyle(() => {
+    const opacity = interpolate(hoverGlow.value, [0, 1], [0, 0.4]);
+    const radius = interpolate(hoverGlow.value, [0, 1], [0, 12]);
+    return {
+      transform: [{ scale: hoverScale.value }],
+      boxShadow: `0px 0px ${radius}px rgba(0, 0, 0, ${opacity})`,
+    };
+  });
 
   return {
     startHover,

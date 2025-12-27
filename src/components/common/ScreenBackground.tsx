@@ -16,15 +16,15 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { theme } from '@/theme';
+import { theme } from '../../theme';
 
 // Décorations (optionnel, uniquement pour variant playful)
-import { AnimatedSun } from '@/components/decorations/AnimatedSun';
-import { AnimatedCloud } from '@/components/decorations/AnimatedCloud';
-import { AnimatedTree } from '@/components/decorations/AnimatedTree';
-import { AnimatedButterfly } from '@/components/decorations/AnimatedButterfly';
-import { FloatingFlowers } from '@/components/decorations/FloatingFlowers';
-import { Hills } from '@/components/decorations/Hills';
+import { AnimatedSun } from '../decorations/AnimatedSun';
+import { AnimatedCloud } from '../decorations/AnimatedCloud';
+import { AnimatedTree } from '../decorations/AnimatedTree';
+import { AnimatedButterfly } from '../decorations/AnimatedButterfly';
+import { FloatingFlowers } from '../decorations/FloatingFlowers';
+import { Hills } from '../decorations/Hills';
 
 export type ScreenBackgroundVariant = 'playful' | 'neutral' | 'parent' | 'transparent';
 

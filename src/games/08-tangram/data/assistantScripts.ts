@@ -5,7 +5,7 @@
  * Ton bienveillant et encourageant, accent sur les formes géométriques
  */
 
-import type { AssistantScript } from '@/core/types/core.types';
+import type { AssistantScript } from '../../../core/types/core.types';
 
 // ============================================================================
 // SCRIPTS D'ACCUEIL

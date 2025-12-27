@@ -27,8 +27,8 @@ import Animated, {
 } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 
-import { colors, spacing, borderRadius, shadows, fontFamily } from '@/theme';
-import { useAccessibilityAnimations } from '@/hooks';
+import { colors, spacing, borderRadius, shadows, fontFamily } from '../../../theme';
+import { useAccessibilityAnimations } from '../../../hooks';
 
 import { PlumeMascot } from '../components/PlumeMascot';
 import { AnswerButton } from '../components/AnswerButton';
@@ -713,12 +713,12 @@ const styles = StyleSheet.create({
     paddingVertical: spacing[2],
     borderRadius: borderRadius.round,
     gap: spacing[2],
-    ...shadows.md,
-    shadowColor: '#FFB347',
+    boxShadow: '0px 2px 4px rgba(255, 179, 71, 0.25)',
+    elevation: 3,
   },
   textHintButtonActive: {
     backgroundColor: '#9B59B6',
-    shadowColor: '#9B59B6',
+    boxShadow: '0px 2px 4px rgba(155, 89, 182, 0.25)',
   },
   textHintIcon: {
     fontSize: 18,
@@ -781,8 +781,8 @@ const styles = StyleSheet.create({
     paddingVertical: spacing[4],
     borderRadius: borderRadius.xl,
     alignItems: 'center',
-    ...shadows.md,
-    shadowColor: '#9B59B6',
+    boxShadow: '0px 2px 4px rgba(155, 89, 182, 0.25)',
+    elevation: 3,
   },
   validateButtonDisabled: {
     opacity: 0.5,

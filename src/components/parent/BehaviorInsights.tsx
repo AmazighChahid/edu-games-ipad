@@ -5,9 +5,9 @@
 
 import React, { useMemo } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { colors, spacing, borderRadius, shadows } from '@/theme';
-import { useStore } from '@/store';
-import { generateBehaviorInsights } from '@/utils/analytics';
+import { colors, spacing, borderRadius, shadows } from '../../theme';
+import { useStore } from '../../store';
+import { generateBehaviorInsights } from '../../utils/analytics';
 
 interface InsightCard {
   icon: string;

@@ -15,8 +15,8 @@ import type {
   DailyStats,
   ActivityItem,
   Badge,
-} from '@/types';
-import { gameRegistry } from '@/games/registry';
+} from '../types';
+import { gameRegistry } from '../games/registry';
 
 // ============================================
 // DATE HELPERS

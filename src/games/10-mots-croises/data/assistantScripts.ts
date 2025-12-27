@@ -5,7 +5,7 @@
  * Mascotte: Lexie la Lettre 📝
  */
 
-import type { AssistantScript } from '@/core/types';
+import type { AssistantScript } from '../../../core/types';
 
 // ============================================================================
 // SCRIPTS

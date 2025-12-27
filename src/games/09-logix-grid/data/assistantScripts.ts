@@ -5,7 +5,7 @@
  * Mascotte: Sherlock le Détective 🔍
  */
 
-import type { AssistantScript } from '@/core/types';
+import type { AssistantScript } from '../../../core/types';
 
 // ============================================================================
 // SCRIPTS

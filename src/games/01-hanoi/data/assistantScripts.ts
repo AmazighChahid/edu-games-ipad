@@ -6,7 +6,7 @@
  * - Aide progressive: Question → Indice 1 coup → Micro-démo 2 coups
  */
 
-import type { AssistantScript, AssistantContext } from '@/types';
+import type { AssistantScript, AssistantContext } from '../../../types';
 
 export const hanoiScripts: AssistantScript[] = [
   // === INTRO ===

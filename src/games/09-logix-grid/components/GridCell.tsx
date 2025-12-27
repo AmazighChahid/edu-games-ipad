@@ -14,8 +14,8 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
-import { colors, borderRadius } from '@/theme';
-import { useAccessibilityAnimations } from '@/hooks';
+import { colors, borderRadius } from '../../../theme';
+import { useAccessibilityAnimations } from '../../../hooks';
 import type { CellState } from '../types';
 
 // ============================================================================

@@ -4,7 +4,7 @@
  */
 
 import { StateCreator } from 'zustand';
-import type { DaltonismMode } from '@/theme/daltonismModes';
+import type { DaltonismMode } from '../../theme/daltonismModes';
 
 export interface AppState {
   // Settings

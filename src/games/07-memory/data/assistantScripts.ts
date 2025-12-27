@@ -5,7 +5,7 @@
  * Ton bienveillant et encourageant, accent sur la mémoire
  */
 
-import type { AssistantScript } from '@/core/types/core.types';
+import type { AssistantScript } from '../../../core/types/core.types';
 
 // ============================================================================
 // SCRIPTS D'ACCUEIL

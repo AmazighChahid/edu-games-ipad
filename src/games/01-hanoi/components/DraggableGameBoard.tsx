@@ -7,7 +7,7 @@ import { useState, useCallback, useRef } from 'react';
 import { View, StyleSheet, useWindowDimensions, LayoutChangeEvent, Platform } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
-import { spacing, borderRadius } from '@/theme';
+import { spacing, borderRadius } from '../../../theme';
 import type { HanoiGameState, TowerId, Disk } from '../types';
 import { DraggableTower } from './DraggableTower';
 import { WoodenBase } from './WoodenBase';

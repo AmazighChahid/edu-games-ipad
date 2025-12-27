@@ -16,7 +16,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, Pressable, Modal } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
-import { theme } from '@/theme';
+import { theme } from '../../theme';
 
 export type GameModalVariant = 'info' | 'choice' | 'demo';
 

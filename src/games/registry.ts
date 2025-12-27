@@ -3,7 +3,7 @@
  * Central catalog of all available games
  */
 
-import type { GameMetadata } from '@/types';
+import type { GameMetadata } from '../types';
 
 export const gameRegistry: GameMetadata[] = [
   {

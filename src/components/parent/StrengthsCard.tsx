@@ -5,10 +5,10 @@
 
 import React, { useMemo } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { colors, spacing, borderRadius, shadows } from '@/theme';
-import { useStore } from '@/store';
-import { analyzeStrengthsWeaknesses } from '@/utils/analytics';
-import type { StrengthLevel, StrengthItem } from '@/types';
+import { colors, spacing, borderRadius, shadows } from '../../theme';
+import { useStore } from '../../store';
+import { analyzeStrengthsWeaknesses } from '../../utils/analytics';
+import type { StrengthLevel, StrengthItem } from '../../types';
 
 const LEVEL_CONFIG: Record<StrengthLevel, { bg: string; text: string; label: string }> = {
   excellent: {

@@ -2,7 +2,7 @@
  * Exports groupés des constantes
  *
  * Usage:
- * import { COLORS, SPACING, TYPOGRAPHY } from '@/constants';
+ * import { COLORS, SPACING, TYPOGRAPHY } from './';
  */
 
 export { COLORS } from './colors';

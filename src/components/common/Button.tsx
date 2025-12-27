@@ -6,8 +6,8 @@
 import { Pressable, Text, StyleSheet, ViewStyle, TextStyle } from 'react-native';
 import * as Haptics from 'expo-haptics';
 
-import { colors, spacing, textStyles, borderRadius, shadows, touchTargets } from '@/theme';
-import { useStore } from '@/store';
+import { colors, spacing, textStyles, borderRadius, shadows, touchTargets } from '../../theme';
+import { useStore } from '../../store';
 
 type ButtonVariant = 'primary' | 'secondary' | 'ghost';
 type ButtonSize = 'small' | 'medium' | 'large';

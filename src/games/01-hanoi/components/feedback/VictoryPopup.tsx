@@ -7,7 +7,7 @@ import { useEffect } from 'react';
 import { View, Text, StyleSheet, Dimensions } from 'react-native';
 import Animated, { FadeInDown, ZoomIn } from 'react-native-reanimated';
 import type { CollectibleCard } from '../../data/collectibleCards';
-import { GameActionButtons, PerformanceStats } from '@/components/common';
+import { GameActionButtons, PerformanceStats } from '../../../../components/common';
 import { PopupHeader } from './PopupHeader';
 import { CollectibleCardFlip } from './CollectibleCardFlip';
 import { CollectionProgress } from './CollectionProgress';
@@ -111,10 +111,7 @@ const styles = StyleSheet.create({
     maxWidth: Math.min(420, SCREEN_WIDTH * 0.85),
     width: '85%',
     overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 20 },
-    shadowOpacity: 0.35,
-    shadowRadius: 60,
+    boxShadow: '0px 20px 60px rgba(0, 0, 0, 0.35)',
     elevation: 20,
   },
   cardSection: {

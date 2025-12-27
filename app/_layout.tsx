@@ -23,9 +23,9 @@ import {
 const FredokaOneRegular = require('../assets/fonts/FredokaOne-Regular.otf');
 import 'react-native-reanimated';
 
-import '@/i18n';
-import { useStore } from '@/store';
-import { colors } from '@/theme';
+import '../src/i18n';
+import { useStore } from '../src/store';
+import { colors } from '../src/theme';
 
 SplashScreen.preventAutoHideAsync();
 

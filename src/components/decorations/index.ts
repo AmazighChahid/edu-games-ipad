@@ -2,7 +2,7 @@
  * Exports groupés des composants décoratifs
  *
  * Usage:
- * import { AnimatedSun, AnimatedCloud, Hills } from '@/components/decorations';
+ * import { AnimatedSun, AnimatedCloud, Hills } from './';
  */
 
 export { AnimatedSun } from './AnimatedSun';

@@ -6,11 +6,11 @@
 import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
-import { colors, spacing, borderRadius, shadows } from '@/theme';
-import { useStore } from '@/store';
-import { generateRecommendations } from '@/utils/analytics';
-import { gameRegistry } from '@/games/registry';
-import type { GameRecommendation } from '@/types';
+import { colors, spacing, borderRadius, shadows } from '../../theme';
+import { useStore } from '../../store';
+import { generateRecommendations } from '../../utils/analytics';
+import { gameRegistry } from '../../games/registry';
+import type { GameRecommendation } from '../../types';
 
 export function RecommendationsCard() {
   const router = useRouter();

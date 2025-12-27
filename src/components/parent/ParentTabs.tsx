@@ -5,8 +5,8 @@
 
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
-import { colors, spacing, borderRadius } from '@/theme';
-import type { ParentTabId } from '@/types';
+import { colors, spacing, borderRadius } from '../../theme';
+import type { ParentTabId } from '../../types';
 
 interface Tab {
   id: ParentTabId;

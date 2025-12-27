@@ -17,7 +17,7 @@ import Animated, {
   runOnJS,
 } from 'react-native-reanimated';
 
-import { colors, borderRadius, spacing } from '@/theme';
+import { colors, borderRadius, spacing } from '../../../theme';
 import type { MathBlock as MathBlockType } from '../types';
 
 interface MathBlockProps {
@@ -253,9 +253,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 3,
     // Shadow
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
+    boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
     elevation: 3,
     overflow: 'hidden',
   },

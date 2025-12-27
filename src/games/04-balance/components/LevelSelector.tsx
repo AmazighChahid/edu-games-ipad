@@ -23,7 +23,7 @@ import Animated, {
   withTiming,
   interpolate,
 } from 'react-native-reanimated';
-import { colors, spacing, borderRadius, shadows } from '@/theme';
+import { colors, spacing, borderRadius, shadows } from '../../../theme';
 import type { Phase, Puzzle, PlayerProgress } from '../types';
 import { PHASE_INFO } from '../types';
 import { getPuzzlesByPhase, getPhaseProgress, getAllPuzzles } from '../data/puzzles';

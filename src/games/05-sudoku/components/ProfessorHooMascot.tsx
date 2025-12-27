@@ -109,10 +109,7 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 32,
     position: 'relative',
     // Add shadow for depth
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
+    boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.15)',
     elevation: 3,
   },
   owlEye: {
@@ -123,10 +120,7 @@ const styles = StyleSheet.create({
     borderRadius: 11,
     top: 18,
     // Shadow for eye depth
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
+    boxShadow: '0px 1px 2px rgba(0, 0, 0, 0.1)',
   },
   owlEyeLeft: {
     left: 10,
@@ -190,10 +184,7 @@ const styles = StyleSheet.create({
     maxWidth: 280,
     position: 'relative',
     // Shadow for bubble depth
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
+    boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
     elevation: 5,
   },
   bubbleArrow: {

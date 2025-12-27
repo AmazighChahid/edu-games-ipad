@@ -22,7 +22,7 @@ import {
   ALL_CARDS,
   getCardsByCategory,
   CATEGORY_CONFIG,
-} from '@/data/cards';
+} from '../../data/cards';
 import CollectionPage from './CollectionPage';
 import CategoryTabs from './CategoryTabs';
 
@@ -218,10 +218,7 @@ const styles = StyleSheet.create({
     width: 30,
     marginLeft: -15,
     zIndex: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.3,
-    shadowRadius: 20,
+    boxShadow: '0px 0px 20px rgba(0, 0, 0, 0.3)',
     elevation: 6,
   },
   spineGradient: {

@@ -14,12 +14,12 @@
  */
 
 import { useMemo } from 'react';
-import { useAppStore } from '@/store';
+import { useAppStore } from '../store';
 import {
   fontFamily as standardFontFamily,
   fontFamilyDyslexic,
   textStyles,
-} from '@/theme/typography';
+} from '../theme/typography';
 
 // ============================================================================
 // TYPES

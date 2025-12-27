@@ -8,7 +8,7 @@ import { useState, useEffect } from 'react';
 import { View, StyleSheet, Platform } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
-import { useStore } from '@/store';
+import { useStore } from '../../../../store';
 import type { CollectibleCard } from '../../data/collectibleCards';
 import {
   determineAwardedCard,
@@ -16,10 +16,10 @@ import {
   isPerfectRun,
   getMascotMessage,
 } from '../../logic/cardAwardEngine';
-import { Confetti } from '@/components/common';
+import { Confetti } from '../../../../components/common';
 import { VictoryPopup } from './VictoryPopup';
 import { VictoryMascot } from './VictoryMascot';
-import { useSound } from '@/hooks/useSound';
+import { useSound } from '../../../../hooks/useSound';
 
 export interface VictoryOverlayProps {
   visible: boolean;

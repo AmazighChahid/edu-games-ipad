@@ -29,7 +29,7 @@ import Animated, {
   Easing,
 } from 'react-native-reanimated';
 
-import { colors, spacing, textStyles, borderRadius, shadows } from '@/theme';
+import { colors, spacing, textStyles, borderRadius, shadows } from '../../../theme';
 import {
   DraggableGameBoard,
   VictoryOverlay,
@@ -40,8 +40,8 @@ import {
 } from '../components';
 import { useHanoiGame } from '../hooks/useHanoiGame';
 import { hanoiLevels } from '../data/levels';
-import { ParentDrawer, type GameMode } from '@/components/parent/ParentDrawer';
-import { useStore } from '@/store';
+import { ParentDrawer, type GameMode } from '../../../components/parent/ParentDrawer';
+import { useStore } from '../../../store';
 import type { HanoiLevelConfig, TowerId } from '../types';
 
 // Owl messages based on game state
@@ -790,8 +790,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFB347',
     alignItems: 'center',
     justifyContent: 'center',
-    ...shadows.md,
-    shadowColor: 'rgba(255, 179, 71, 0.4)',
+    boxShadow: '0px 2px 4px rgba(255, 179, 71, 0.4)',
+    elevation: 2,
   },
   helpButtonText: {
     fontSize: 18,

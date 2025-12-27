@@ -16,7 +16,7 @@ import Animated, {
   ZoomIn,
 } from 'react-native-reanimated';
 
-import { colors, spacing, textStyles, touchTargets, shadows, borderRadius } from '@/theme';
+import { colors, spacing, textStyles, touchTargets, shadows, borderRadius } from '../../../theme';
 import { BalanceScale } from '../components/BalanceScale';
 import { WeightObject } from '../components/WeightObject';
 import { DrHibou } from '../components/DrHibou';
@@ -36,10 +36,10 @@ import type {
   DialogueContext,
 } from '../types';
 import { PHASE_INFO } from '../types';
-import { VictoryCard, type VictoryBadge } from '@/components/common';
-import { CardUnlockScreen } from '@/components/collection';
-import { useCardUnlock } from '@/hooks/useCardUnlock';
-import { useCollection } from '@/store';
+import { VictoryCard, type VictoryBadge } from '../../../components/common';
+import { CardUnlockScreen } from '../../../components/collection';
+import { useCardUnlock } from '../../../hooks/useCardUnlock';
+import { useCollection } from '../../../store';
 
 // Fonction pour calculer le badge non-compétitif de Balance
 const getBalanceBadge = (attempts: number, hintsUsed: number, stars: number): VictoryBadge => {

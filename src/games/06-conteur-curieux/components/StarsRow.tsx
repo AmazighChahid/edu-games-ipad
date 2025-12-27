@@ -17,7 +17,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 
-import { spacing } from '@/theme';
+import { spacing } from '../../../theme';
 
 interface StarsRowProps {
   /** Nombre d'étoiles (1-5) */

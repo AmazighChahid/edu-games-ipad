@@ -4,7 +4,7 @@
  */
 
 import { StateCreator } from 'zustand';
-import type { ChildProfile } from '@/types';
+import type { ChildProfile } from '../../types';
 
 export interface ProfileState {
   profiles: ChildProfile[];

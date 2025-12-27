@@ -5,7 +5,7 @@
  */
 
 import React from 'react';
-import { ConteurVictoryScreen } from '@/games/06-conteur-curieux/screens';
+import { ConteurVictoryScreen } from '../../../src/games/06-conteur-curieux/screens';
 
 export default function VictoryRoute() {
   return <ConteurVictoryScreen />;

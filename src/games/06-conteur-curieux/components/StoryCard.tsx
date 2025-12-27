@@ -16,7 +16,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 
-import { spacing, borderRadius, shadows, fontFamily } from '@/theme';
+import { spacing, borderRadius, shadows, fontFamily } from '../../../theme';
 import type { ConteurLevel, StoryTheme } from '../types';
 
 interface StoryCardProps {
@@ -176,8 +176,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderRadius: borderRadius.xl,
     overflow: 'hidden',
-    ...shadows.lg,
-    shadowColor: '#9B59B6',
+    boxShadow: '0px 4px 8px rgba(155, 89, 182, 0.15)',
+    elevation: 5,
   },
 
   // Cover

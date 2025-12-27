@@ -2,8 +2,8 @@
  * Conteur Curieux Components Index
  *
  * Note: SpeechBubble and ConfettiAnimation have been factorized to @/components/common
- * - Use SpeechBubble from '@/components/common' with colorScheme="conteur"
- * - Use Confetti from '@/components/common' with type="shapes"
+ * - Use SpeechBubble from '../../../components/common' with colorScheme="conteur"
+ * - Use Confetti from '../../../components/common' with type="shapes"
  */
 
 // Existing components
@@ -41,4 +41,4 @@ export { LibraryBackground } from './LibraryBackground';
 export { StoryIllustration } from './StoryIllustration';
 
 // Re-export from common for backward compatibility
-export { SpeechBubble, Confetti as ConfettiAnimation } from '@/components/common';
+export { SpeechBubble, Confetti as ConfettiAnimation } from '../../../components/common';

@@ -12,7 +12,7 @@ import Svg, { Path } from 'react-native-svg';
 import {
   HomeV10Colors,
   HomeV10Layout,
-} from '@/theme/home-v10-colors';
+} from '../../theme/home-v10-colors';
 
 interface HomeHeaderV10Props {
   profile: {
@@ -204,10 +204,7 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     paddingHorizontal: 24,
     borderRadius: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 18,
+    boxShadow: '0px 4px 18px rgba(0, 0, 0, 0.1)',
     elevation: 5,
   },
   parentButtonPressed: {
@@ -251,10 +248,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderWidth: 4,
     borderColor: '#fff',
-    shadowColor: '#5B8DEE',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.3,
-    shadowRadius: 20,
+    boxShadow: '0px 6px 20px rgba(91, 141, 238, 0.3)',
     elevation: 8,
   },
   avatarEmoji: {
@@ -310,10 +304,7 @@ const styles = StyleSheet.create({
     paddingVertical: HomeV10Layout.statPaddingV,
     paddingHorizontal: HomeV10Layout.statPaddingH,
     borderRadius: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 15,
+    boxShadow: '0px 4px 15px rgba(0, 0, 0, 0.08)',
     elevation: 3,
   },
   statIcon: {
@@ -331,10 +322,7 @@ const styles = StyleSheet.create({
     height: 44,
     borderRadius: 12,
     overflow: 'hidden',
-    shadowColor: '#10B981',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
+    boxShadow: '0px 4px 8px rgba(16, 185, 129, 0.3)',
     elevation: 4,
   },
   playgroundButtonPressed: {

@@ -8,11 +8,11 @@ import { View, StyleSheet } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { colors, spacing } from '@/theme';
-import { VictoryCard, type VictoryBadge } from '@/components/common';
-import { CardUnlockScreen } from '@/components/collection';
-import { useCardUnlock } from '@/hooks';
-import { useCollection } from '@/store';
+import { colors, spacing } from '../../../src/theme';
+import { VictoryCard, type VictoryBadge } from '../../../src/components/common';
+import { CardUnlockScreen } from '../../../src/components/collection';
+import { useCardUnlock } from '../../../src/hooks';
+import { useCollection } from '../../../src/store';
 
 // ============================================
 // BADGES NON-COMPÉTITIFS

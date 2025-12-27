@@ -10,11 +10,11 @@ import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 
-import { colors, spacing, borderRadius, shadows } from '@/theme';
-import { ScreenHeader } from '@/components/common';
-import { useStore, useActiveProfile } from '@/store';
-import { gameRegistry } from '@/games/registry';
-import type { ParentTabId } from '@/types';
+import { colors, spacing, borderRadius, shadows } from '../../src/theme';
+import { ScreenHeader } from '../../src/components/common';
+import { useStore, useActiveProfile } from '../../src/store';
+import { gameRegistry } from '../../src/games/registry';
+import type { ParentTabId } from '../../src/types';
 
 // Import all parent dashboard components
 import {
@@ -30,7 +30,7 @@ import {
   ScreenTimeCard,
   ChildSelector,
   ProgressChart,
-} from '@/components/parent';
+} from '../../src/components/parent';
 
 export default function ParentDashboard() {
   const router = useRouter();

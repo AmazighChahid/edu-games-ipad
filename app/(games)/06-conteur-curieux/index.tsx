@@ -6,7 +6,7 @@
  */
 
 import React from 'react';
-import { ConteurIntroScreen } from '@/games/06-conteur-curieux/screens';
+import { ConteurIntroScreen } from '../../../src/games/06-conteur-curieux/screens';
 
 export default function ConteurCurieuxIndexScreen() {
   return <ConteurIntroScreen />;

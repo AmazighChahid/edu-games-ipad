@@ -1,5 +1,5 @@
 import { Stack } from 'expo-router';
-import { colors } from '@/theme';
+import { colors } from '../../../src/theme';
 
 export default function HanoiLayout() {
   return (

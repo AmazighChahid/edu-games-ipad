@@ -5,7 +5,7 @@
  * Ton bienveillant et pédagogique sur les concepts d'équilibre et d'égalité
  */
 
-import type { AssistantScript } from '@/core/types/core.types';
+import type { AssistantScript } from '../../../core/types/core.types';
 
 // ============================================================================
 // SCRIPTS D'ACCUEIL

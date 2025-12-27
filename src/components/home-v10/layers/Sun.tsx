@@ -18,7 +18,7 @@ import {
   HomeV10Colors,
   HomeV10ZIndex,
   HomeV10Animations,
-} from '@/theme/home-v10-colors';
+} from '../../../theme/home-v10-colors';
 
 export const Sun = memo(() => {
   const { width } = useWindowDimensions();
@@ -125,10 +125,7 @@ const styles = StyleSheet.create({
     backgroundColor: HomeV10Colors.sunCore,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: HomeV10Colors.sunCore,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.8,
-    shadowRadius: 30,
+    boxShadow: '0px 0px 30px rgba(255, 224, 102, 0.8)',
     elevation: 10,
   },
   sunInner: {

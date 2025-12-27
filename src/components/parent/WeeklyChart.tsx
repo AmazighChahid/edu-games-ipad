@@ -5,10 +5,10 @@
 
 import React, { useMemo } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { colors, spacing, borderRadius, shadows } from '@/theme';
-import { useStore } from '@/store';
-import { generateWeeklyStats } from '@/utils/analytics';
-import type { DailyStats } from '@/types';
+import { colors, spacing, borderRadius, shadows } from '../../theme';
+import { useStore } from '../../store';
+import { generateWeeklyStats } from '../../utils/analytics';
+import type { DailyStats } from '../../types';
 
 const DAY_LABELS = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
 const MAX_BAR_HEIGHT = 120;

@@ -17,7 +17,7 @@
  */
 
 import { useMemo, useCallback } from 'react';
-import { useAppStore } from '@/store';
+import { useAppStore } from '../store';
 import {
   type DaltonismMode,
   type DaltonismPalette,
@@ -27,7 +27,7 @@ import {
   getFeedbackColors,
   getSudokuColors,
   getCategoryColor as getRawCategoryColor,
-} from '@/theme/daltonismModes';
+} from '../theme/daltonismModes';
 
 // ============================================================================
 // TYPES

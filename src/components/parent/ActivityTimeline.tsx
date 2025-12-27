@@ -5,10 +5,10 @@
 
 import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { colors, spacing, borderRadius, shadows } from '@/theme';
-import { useStore } from '@/store';
-import { generateActivityTimeline } from '@/utils/analytics';
-import type { ActivityItem } from '@/types';
+import { colors, spacing, borderRadius, shadows } from '../../theme';
+import { useStore } from '../../store';
+import { generateActivityTimeline } from '../../utils/analytics';
+import type { ActivityItem } from '../../types';
 
 const formatTime = (timestamp: number): string => {
   const date = new Date(timestamp);

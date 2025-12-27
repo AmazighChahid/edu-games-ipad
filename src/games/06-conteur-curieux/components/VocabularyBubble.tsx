@@ -13,7 +13,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 
-import { spacing, borderRadius, shadows, fontFamily } from '@/theme';
+import { spacing, borderRadius, shadows, fontFamily } from '../../../theme';
 import type { VocabularyWord } from '../types';
 
 interface VocabularyBubbleProps {
@@ -183,8 +183,8 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.xl,
     paddingVertical: spacing[3],
     alignItems: 'center',
-    ...shadows.md,
-    shadowColor: '#9B59B6',
+    boxShadow: '0px 2px 4px rgba(155, 89, 182, 0.25)',
+    elevation: 3,
   },
   closeButtonText: {
     fontSize: 16,

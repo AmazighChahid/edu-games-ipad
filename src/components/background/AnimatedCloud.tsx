@@ -13,7 +13,7 @@ import Animated, {
   Easing,
   useReducedMotion,
 } from 'react-native-reanimated';
-import { FOREST_COLORS, ANIMATION_DURATIONS } from '@/types/home.types';
+import { FOREST_COLORS, ANIMATION_DURATIONS } from '../../types/home.types';
 
 interface CloudProps {
   size: 'small' | 'medium' | 'large';

@@ -9,4 +9,4 @@ export { AttemptsDisplay } from './AttemptsDisplay';
 export { ValidateButton } from './ValidateButton';
 
 // Re-export from common for backward compatibility
-export { HintButton } from '@/components/common';
+export { HintButton } from '../../../../components/common';

@@ -20,7 +20,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 
-import { spacing, borderRadius, shadows, fontFamily } from '@/theme';
+import { spacing, borderRadius, shadows, fontFamily } from '../../../theme';
 
 interface AudioPlayerProps {
   /** Durée totale en secondes */
@@ -194,8 +194,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#9B59B6',
     alignItems: 'center',
     justifyContent: 'center',
-    ...shadows.md,
-    shadowColor: '#9B59B6',
+    boxShadow: '0px 2px 4px rgba(155, 89, 182, 0.25)',
+    elevation: 3,
   },
   playIconContainer: {
     width: 48,

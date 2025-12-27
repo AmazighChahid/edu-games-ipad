@@ -10,7 +10,7 @@ import { useSuitesGame } from '../hooks/useSuitesGame';
 import { useSuitesSound } from '../hooks/useSuitesSound';
 import { ThemeType, SessionStats, SequenceElement } from '../types';
 import { PIXEL_MESSAGES } from '../constants/gameConfig';
-import { colors, spacing, textStyles, touchTargets, borderRadius, shadows } from '@/theme';
+import { colors, spacing, textStyles, touchTargets, borderRadius, shadows } from '../../../theme';
 
 type EmotionType = 'neutral' | 'happy' | 'thinking' | 'excited' | 'encouraging';
 

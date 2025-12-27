@@ -1,7 +1,7 @@
 import React from 'react';
 import { useRouter } from 'expo-router';
 import { SessionStats } from '../types';
-import { VictoryCard, type VictoryBadge } from '@/components/common';
+import { VictoryCard, type VictoryBadge } from '../../../components/common';
 
 interface Props {
   stats: SessionStats;

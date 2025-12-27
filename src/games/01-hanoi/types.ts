@@ -2,7 +2,7 @@
  * Tower of Hanoi types
  */
 
-import type { LevelConfig } from '@/types';
+import type { LevelConfig } from '../../types';
 
 export type TowerId = 0 | 1 | 2;
 

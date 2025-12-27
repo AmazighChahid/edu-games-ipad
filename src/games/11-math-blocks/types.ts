@@ -3,7 +3,7 @@
  * A math matching game where players pair calculations with results
  */
 
-import type { LevelConfig } from '@/types/game.types';
+import type { LevelConfig } from '../../types/game.types';
 
 // Math operation types
 export type MathOperation = 'add' | 'subtract' | 'multiply' | 'divide';

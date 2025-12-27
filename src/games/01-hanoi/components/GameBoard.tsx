@@ -5,7 +5,7 @@
 
 import { View, StyleSheet, useWindowDimensions } from 'react-native';
 
-import { colors, spacing, borderRadius } from '@/theme';
+import { colors, spacing, borderRadius } from '../../../theme';
 import type { HanoiGameState, TowerId } from '../types';
 import { Tower } from './Tower';
 
@@ -123,10 +123,7 @@ const styles = StyleSheet.create({
     bottom: 20,
     overflow: 'hidden',
     // Subtle shadow on top
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    boxShadow: '0px -2px 4px rgba(0, 0, 0, 0.1)',
   },
   woodGrain: {
     position: 'absolute',

@@ -14,7 +14,7 @@ import Animated, {
   Easing,
   useReducedMotion,
 } from 'react-native-reanimated';
-import { FOREST_COLORS, ANIMATION_DURATIONS } from '@/types/home.types';
+import { FOREST_COLORS, ANIMATION_DURATIONS } from '../../types/home.types';
 
 export const Sun = memo(() => {
   const { width } = useWindowDimensions();
@@ -114,10 +114,7 @@ const styles = StyleSheet.create({
     backgroundColor: FOREST_COLORS.sun.core,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: FOREST_COLORS.sun.core,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.8,
-    shadowRadius: 30,
+    boxShadow: '0px 0px 30px rgba(255, 217, 61, 0.8)',
     elevation: 10,
   },
   sunCore: {

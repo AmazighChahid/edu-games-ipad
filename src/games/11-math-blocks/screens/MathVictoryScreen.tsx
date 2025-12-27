@@ -8,11 +8,11 @@ import { View, StyleSheet } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { colors, spacing } from '@/theme';
-import { useStore, useCollection } from '@/store';
-import { VictoryCard, type VictoryBadge } from '@/components/common';
-import { CardUnlockScreen } from '@/components/collection';
-import { useCardUnlock } from '@/hooks/useCardUnlock';
+import { colors, spacing } from '../../../theme';
+import { useStore, useCollection } from '../../../store';
+import { VictoryCard, type VictoryBadge } from '../../../components/common';
+import { CardUnlockScreen } from '../../../components/collection';
+import { useCardUnlock } from '../../../hooks/useCardUnlock';
 
 // Fonction pour calculer le badge non-compétitif de Math-Blocks
 const getMathBlocksBadge = (pairsFound: number, isVictory: boolean): VictoryBadge => {

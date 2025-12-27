@@ -12,10 +12,10 @@ import {
   TextInput,
   ScrollView,
 } from 'react-native';
-import { colors, spacing, borderRadius, shadows } from '@/theme';
-import { useStore, useActiveProfile } from '@/store';
-import { GOAL_TEMPLATES } from '@/store/slices/goalsSlice';
-import type { ParentGoal, GoalType } from '@/types';
+import { colors, spacing, borderRadius, shadows } from '../../theme';
+import { useStore, useActiveProfile } from '../../store';
+import { GOAL_TEMPLATES } from '../../store/slices/goalsSlice';
+import type { ParentGoal, GoalType } from '../../types';
 
 interface GoalEditorProps {
   goal: ParentGoal | null;
