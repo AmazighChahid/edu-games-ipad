@@ -7,12 +7,11 @@ import { useEffect } from 'react';
 import { View, Text, StyleSheet, Dimensions } from 'react-native';
 import Animated, { FadeInDown, ZoomIn } from 'react-native-reanimated';
 import type { CollectibleCard } from '../../data/collectibleCards';
+import { GameActionButtons, PerformanceStats } from '@/components/common';
 import { PopupHeader } from './PopupHeader';
 import { CollectibleCardFlip } from './CollectibleCardFlip';
 import { CollectionProgress } from './CollectionProgress';
 import { StatsSection } from './StatsSection';
-import { PerformanceAnalysis } from './PerformanceAnalysis';
-import { ActionButtons } from './ActionButtons';
 import { getVictoryMessage } from '../../logic/cardAwardEngine';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -85,14 +84,17 @@ export function VictoryPopup({
       />
 
       {/* Performance Analysis */}
-      <PerformanceAnalysis
-        moves={moves}
-        optimalMoves={optimalMoves}
-        isPerfect={isPerfect}
+      <PerformanceStats
+        current={moves}
+        optimal={optimalMoves}
+        type="moves"
+        showAnalysis={true}
+        enterDelay={2200}
       />
 
       {/* Action Buttons */}
-      <ActionButtons
+      <GameActionButtons
+        variant="victory"
         hasNextLevel={hasNextLevel}
         onNextLevel={onNextLevel}
         onReplay={onReplay}

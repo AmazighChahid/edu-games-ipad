@@ -18,7 +18,8 @@ import {
   HomeHeaderV10,
   GameCardV10,
 } from '@/components/home-v10';
-import { HomeV10Layout } from '@/theme/home-v10-colors';
+import { HomeV10Layout, EdokiWidgetLayout } from '@/theme/home-v10-colors';
+import type { EdokiTheme } from '@/components/home-v10/GameCardV10';
 
 // Hooks
 import { useHomeData } from '@/hooks/useHomeData';
@@ -27,20 +28,20 @@ import { useHomeData } from '@/hooks/useHomeData';
 import { ParentDashboard } from '@/components/parent/ParentDashboard';
 import { useStore } from '@/store';
 
-// Game color mapping
-const GAME_COLORS: Record<string, 'blue' | 'purple' | 'orange' | 'teal' | 'pink' | 'indigo' | 'coral' | 'cyan' | 'amber'> = {
-  hanoi: 'blue',
-  'suites-logiques': 'indigo',
-  'logix-grid': 'cyan',
-  'math-blocks': 'purple',
-  sudoku: 'teal',
-  tangram: 'pink',
-  labyrinthe: 'amber',
-  memory: 'orange',
-  'mots-croises': 'coral',
-  'conteur-curieux': 'purple',
-  balance: 'amber',
-  'matrices-magiques': 'cyan',
+// Mapping des jeux vers les thèmes Edoki
+const GAME_THEME_MAPPING: Record<string, EdokiTheme> = {
+  hanoi: 'barres',
+  'suites-logiques': 'fuseaux',
+  'logix-grid': 'chiffres',
+  'math-blocks': 'barres',
+  sudoku: 'fuseaux',
+  tangram: 'plage',
+  labyrinthe: 'numberland',
+  memory: 'chiffres',
+  'mots-croises': 'plage',
+  'conteur-curieux': 'numberland',
+  balance: 'fuseaux',
+  'matrices-magiques': 'nouveaux',
 };
 
 // Game route mapping
@@ -140,50 +141,40 @@ export default function HomeScreen() {
   );
   const successfulGames = totalGames;
 
-  // Flatten games from categories for grid display
+  // Flatten games from categories for horizontal scroll display (Edoki style)
   const allGames = useMemo(() => {
     const games: Array<{
       id: string;
-      name: string;
-      icon: string;
-      color: 'blue' | 'purple' | 'orange' | 'teal' | 'pink' | 'indigo' | 'coral' | 'cyan' | 'amber';
-      medal: 'none' | 'bronze' | 'silver' | 'gold' | 'diamond' | 'locked';
-      badge?: 'new' | 'hot' | 'soon';
-      isLocked: boolean;
+      title: string;
+      theme: EdokiTheme;
+      progress: number; // 0-4 segments
+      isFavorite: boolean;
     }> = [];
 
     gameCategories.forEach((category) => {
       category.games.forEach((game) => {
-        // Si le jeu est verrouillé explicitement -> 'locked'
-        // Si le jeu n'a pas de médaille mais est accessible -> 'none' (À jouer)
-        // Sinon -> la médaille obtenue
-        const medal = game.isLocked
-          ? 'locked'
-          : (game.medal as 'none' | 'bronze' | 'silver' | 'gold' | 'diamond');
+        // Ne pas inclure les jeux verrouillés dans le scroll horizontal
+        if (game.isLocked) return;
+
+        // Calculer la progression (0-4 basé sur la médaille)
+        let progress = 0;
+        if (game.medal === 'bronze') progress = 1;
+        else if (game.medal === 'silver') progress = 2;
+        else if (game.medal === 'gold') progress = 3;
+        else if (game.medal === 'diamond') progress = 4;
 
         games.push({
           id: game.id,
-          name: game.name,
-          icon: game.icon,
-          color: GAME_COLORS[game.id] || 'blue',
-          medal,
-          badge: game.badge as 'new' | 'hot' | 'soon' | undefined,
-          isLocked: game.isLocked,
+          title: game.name,
+          theme: GAME_THEME_MAPPING[game.id] || 'barres',
+          progress,
+          isFavorite: false, // TODO: intégrer avec le store des favoris
         });
       });
     });
 
     return games;
   }, [gameCategories]);
-
-  // Group games into rows of 3
-  const gameRows = useMemo(() => {
-    const rows: typeof allGames[] = [];
-    for (let i = 0; i < allGames.length; i += 3) {
-      rows.push(allGames.slice(i, i + 3));
-    }
-    return rows;
-  }, [allGames]);
 
   // Handlers
   const handleParentPress = useCallback(() => {
@@ -262,25 +253,29 @@ export default function HomeScreen() {
             />
           </View>
 
-          {/* Games Grid */}
-          <View style={styles.gamesSection}>
-            {gameRows.map((row, rowIndex) => (
-              <View key={rowIndex} style={styles.gamesRow}>
-                {row.map((game) => (
-                  <GameCardV10
-                    key={game.id}
-                    name={game.name}
-                    icon={game.icon}
-                    color={game.color}
-                    medal={game.medal}
-                    badge={game.badge}
-                    isLocked={game.isLocked}
-                    onPress={() => handleGamePress(game.id)}
-                  />
-                ))}
-              </View>
+          {/* Games Horizontal Scroll - Style Edoki */}
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.gamesHorizontalScroll}
+            decelerationRate="fast"
+            snapToInterval={EdokiWidgetLayout.widgetWidth + EdokiWidgetLayout.scrollGap}
+            snapToAlignment="start"
+          >
+            {allGames.map((game) => (
+              <GameCardV10
+                key={game.id}
+                id={game.id}
+                title={game.title}
+                theme={game.theme}
+                progress={game.progress}
+                isFavorite={game.isFavorite}
+                onPress={() => handleGamePress(game.id)}
+                onPlayAudio={() => {/* TODO: play audio description */}}
+                onToggleFavorite={() => {/* TODO: toggle favorite */}}
+              />
             ))}
-          </View>
+          </ScrollView>
         </ScrollView>
       </ForestBackgroundV10>
 
@@ -327,13 +322,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     marginBottom: 80,
   },
-  gamesSection: {
-    paddingTop: 60,
-    paddingHorizontal: HomeV10Layout.gamesSectionPaddingH,
-  },
-  gamesRow: {
-    flexDirection: 'row',
-    gap: HomeV10Layout.gamesRowGap,
-    marginBottom: HomeV10Layout.gamesRowMarginBottom,
+  gamesHorizontalScroll: {
+    paddingHorizontal: 40,
+    paddingTop: 20,
+    paddingBottom: 40,
+    gap: EdokiWidgetLayout.scrollGap,
   },
 });

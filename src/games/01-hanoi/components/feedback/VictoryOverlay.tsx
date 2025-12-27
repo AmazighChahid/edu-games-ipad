@@ -16,7 +16,7 @@ import {
   isPerfectRun,
   getMascotMessage,
 } from '../../logic/cardAwardEngine';
-import { ConfettiLayer } from './ConfettiLayer';
+import { Confetti } from '@/components/common';
 import { VictoryPopup } from './VictoryPopup';
 import { VictoryMascot } from './VictoryMascot';
 import { useSound } from '@/hooks/useSound';
@@ -119,7 +119,7 @@ export function VictoryOverlay({
       <Animated.View style={styles.backdrop} entering={FadeIn.duration(300)} />
 
       {/* Confetti */}
-      <ConfettiLayer />
+      <Confetti type="emoji" loop={false} />
 
       {/* Main Popup */}
       <VictoryPopup

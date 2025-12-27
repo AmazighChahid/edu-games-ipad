@@ -35,12 +35,12 @@ import * as Haptics from 'expo-haptics';
 import { colors, spacing, borderRadius, shadows, fontFamily } from '@/theme';
 import { useAccessibilityAnimations } from '@/hooks';
 
+import { Confetti } from '@/components/common';
 import { PlumeMascot } from '../components/PlumeMascot';
 import { CollectibleCard } from '../components/CollectibleCard';
 import { StarsRow } from '../components/StarsRow';
 import { SkillBadge } from '../components/SkillBadge';
 import { RaysEffect } from '../components/RaysEffect';
-import { ConfettiAnimation } from '../components/ConfettiAnimation';
 import { getLevelById } from '../data/stories';
 import type { ConteurLevel, EarnedSkill, QuestionCategory } from '../types';
 
@@ -200,7 +200,7 @@ export function ConteurVictoryScreen({
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       {/* Animated Confetti */}
-      {shouldAnimate && <ConfettiAnimation count={25} duration={4000} loop={false} />}
+      {shouldAnimate && <Confetti type="shapes" count={25} duration={4000} loop={false} />}
 
       <ScrollView
         style={styles.scrollView}

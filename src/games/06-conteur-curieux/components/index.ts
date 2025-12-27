@@ -1,5 +1,9 @@
 /**
  * Conteur Curieux Components Index
+ *
+ * Note: SpeechBubble and ConfettiAnimation have been factorized to @/components/common
+ * - Use SpeechBubble from '@/components/common' with colorScheme="conteur"
+ * - Use Confetti from '@/components/common' with type="shapes"
  */
 
 // Existing components
@@ -8,7 +12,6 @@ export { QuestionCard } from './QuestionCard';
 
 // Mascot & Dialogue
 export { PlumeMascot } from './PlumeMascot';
-export { SpeechBubble } from './SpeechBubble';
 
 // Intro Screen Components
 export { StoryCard } from './StoryCard';
@@ -28,7 +31,6 @@ export { CollectibleCard } from './CollectibleCard';
 export { StarsRow } from './StarsRow';
 export { SkillBadge } from './SkillBadge';
 export { RaysEffect } from './RaysEffect';
-export { ConfettiAnimation } from './ConfettiAnimation';
 
 // Parent Dashboard Components
 export { RadarChart } from './RadarChart';
@@ -37,3 +39,6 @@ export { RecordingsList } from './RecordingsList';
 // Background & Illustrations
 export { LibraryBackground } from './LibraryBackground';
 export { StoryIllustration } from './StoryIllustration';
+
+// Re-export from common for backward compatibility
+export { SpeechBubble, Confetti as ConfettiAnimation } from '@/components/common';

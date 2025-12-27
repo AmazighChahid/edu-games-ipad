@@ -28,8 +28,8 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import { spacing } from '@/theme';
+import { SpeechBubble } from '@/components/common';
 import type { PlumeExpression } from '../types';
-import { SpeechBubble } from './SpeechBubble';
 
 type PlumeSize = 'small' | 'medium' | 'large';
 
@@ -250,6 +250,7 @@ export function PlumeMascot({
             visible={showBubble}
             tailPosition={bubblePosition === 'right' ? 'left' : 'bottom'}
             maxWidth={220}
+            colorScheme="conteur"
           />
         </View>
       )}

@@ -44,7 +44,12 @@
           "backgroundColor": "#F5F0E8"
         }
       ],
-      "expo-font"
+      [
+        "expo-font",
+        {
+          "fonts": ["./assets/fonts/FredokaOne-Regular.otf"]
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true

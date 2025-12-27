@@ -16,6 +16,8 @@ export const fontFamily = {
   extraBold: 'Nunito_800ExtraBold',
   display: 'Fredoka_600SemiBold',    // For titles, buttons, and playful elements
   displayBold: 'Fredoka_700Bold',
+  // FredokaOne - rounded display font for main titles (non-corpus)
+  title: 'FredokaOne-Regular',
 } as const;
 
 /**
@@ -63,17 +65,17 @@ export const fontWeight = {
 
 // Pre-defined text styles
 export const textStyles = {
-  // Headers
+  // Headers - using FredokaOne for main titles
   h1: {
-    fontFamily: fontFamily.displayBold,
+    fontFamily: fontFamily.title,
     fontSize: fontSize['3xl'],
-    fontWeight: fontWeight.bold,
+    fontWeight: fontWeight.regular,
     lineHeight: fontSize['3xl'] * lineHeight.tight,
   },
   h2: {
-    fontFamily: fontFamily.display,
+    fontFamily: fontFamily.title,
     fontSize: fontSize['2xl'],
-    fontWeight: fontWeight.semiBold,
+    fontWeight: fontWeight.regular,
     lineHeight: fontSize['2xl'] * lineHeight.tight,
   },
   h3: {
@@ -129,11 +131,11 @@ export const textStyles = {
     lineHeight: fontSize.xs * lineHeight.normal,
   },
 
-  // Game-specific
+  // Game-specific - using FredokaOne for game titles
   gameTitle: {
-    fontFamily: fontFamily.displayBold,
+    fontFamily: fontFamily.title,
     fontSize: fontSize['4xl'],
-    fontWeight: fontWeight.bold,
+    fontWeight: fontWeight.regular,
     lineHeight: fontSize['4xl'] * lineHeight.tight,
   },
   moveCounter: {
@@ -151,17 +153,17 @@ export const textStyles = {
     lineHeight: fontSize.lg * lineHeight.relaxed,
   },
 
-  // Home screen specific (from home-redesign.html)
+  // Home screen specific - using FredokaOne for main titles
   homeTitle: {
-    fontFamily: fontFamily.display,  // Fredoka
+    fontFamily: fontFamily.title,    // FredokaOne
     fontSize: fontSize['2xl'],       // 32px
-    fontWeight: fontWeight.bold,
+    fontWeight: fontWeight.regular,
     lineHeight: fontSize['2xl'] * lineHeight.tight,
   },
   sectionTitle: {
-    fontFamily: fontFamily.display,  // Fredoka
+    fontFamily: fontFamily.title,    // FredokaOne
     fontSize: fontSize.xl,           // 28px (was 24 in HTML)
-    fontWeight: fontWeight.semiBold,
+    fontWeight: fontWeight.regular,
     lineHeight: fontSize.xl * lineHeight.tight,
   },
   gameName: {

@@ -185,3 +185,94 @@ export const HomeV10Animations = {
   buttonPress: 200,
   cardHover: 300,
 };
+
+// ========================================
+// EDOKI WIDGET THEMES
+// Palettes de couleurs pour les widgets style Edoki
+// ========================================
+
+export type EdokiThemeKey = 'barres' | 'fuseaux' | 'chiffres' | 'plage' | 'numberland' | 'nouveaux';
+
+export interface EdokiWidgetTheme {
+  background: string;
+  gradient?: readonly [string, string];
+  titleColor: 'light' | 'dark';
+}
+
+export const edokiWidgetThemes: Record<EdokiThemeKey, EdokiWidgetTheme> = {
+  // Barres Numériques - Vert olive/sauge
+  barres: {
+    background: '#C5C9A8',
+    titleColor: 'dark',
+  },
+
+  // Les Fuseaux - Bleu gris clair
+  fuseaux: {
+    background: '#C5D5DC',
+    gradient: ['#C5D5DC', '#B8C8D0'] as const,
+    titleColor: 'dark',
+  },
+
+  // Chiffres Rugueux - Bleu-vert profond
+  chiffres: {
+    background: '#5B9AAD',
+    gradient: ['#5B9AAD', '#4A8A9D'] as const,
+    titleColor: 'light',
+  },
+
+  // La Plage des Chiffres - Sable/beige
+  plage: {
+    background: '#F5DEB3',
+    gradient: ['#F5DEB3', '#DEB887'] as const,
+    titleColor: 'dark',
+  },
+
+  // Numberland - Bleu ciel vers vert prairie
+  numberland: {
+    background: '#B8D4E3',
+    gradient: ['#B8D4E3', '#C9D4B8', '#8FA876'] as const as unknown as readonly [string, string],
+    titleColor: 'dark',
+  },
+
+  // Nouveaux Jeux - Vert vif
+  nouveaux: {
+    background: '#66BB6A',
+    gradient: ['#66BB6A', '#43A047'] as const,
+    titleColor: 'light',
+  },
+};
+
+// Layout pour les widgets Edoki (dimensions 520×380)
+export const EdokiWidgetLayout = {
+  // Widget dimensions
+  widgetWidth: 520,
+  widgetHeight: 380,
+  widgetBorderRadius: 28,
+
+  // Header
+  headerPadding: 20,
+  headerPaddingHorizontal: 24,
+  titleFontSize: 22,
+
+  // Progress bar
+  progressSegmentWidth: 28,
+  progressSegmentHeight: 10,
+  progressSegmentGap: 4,
+  progressBarPadding: 5,
+  progressBarPaddingH: 10,
+  progressBarBorderRadius: 10,
+
+  // Action buttons
+  actionButtonSize: 52,
+  actionButtonGap: 10,
+  actionIconSize: 24,
+
+  // FAB
+  fabSize: 64,
+  fabIconSize: 28,
+  fabBottom: 20,
+  fabRight: 20,
+
+  // Scroll horizontal
+  scrollGap: 24,
+};

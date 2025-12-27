@@ -17,6 +17,10 @@ import {
   Fredoka_600SemiBold,
   Fredoka_700Bold,
 } from '@expo-google-fonts/fredoka';
+
+// Custom font - FredokaOne for display titles
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const FredokaOneRegular = require('../assets/fonts/FredokaOne-Regular.otf');
 import 'react-native-reanimated';
 
 import '@/i18n';
@@ -39,6 +43,8 @@ export default function RootLayout() {
     Fredoka_500Medium,
     Fredoka_600SemiBold,
     Fredoka_700Bold,
+    // Custom display font for titles
+    'FredokaOne-Regular': FredokaOneRegular,
   });
 
   useEffect(() => {

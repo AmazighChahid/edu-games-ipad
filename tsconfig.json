@@ -13,7 +13,8 @@
       "@/components/*": ["./src/components/*"],
       "@/games/*": ["./src/games/*"],
       "@/data/*": ["./src/data/*"],
-      "@/utils/*": ["./src/utils/*"]
+      "@/utils/*": ["./src/utils/*"],
+      "@/assets/*": ["./assets/*"]
     }
   },
   "include": [

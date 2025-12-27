@@ -2,6 +2,7 @@ export const TYPOGRAPHY = {
   // Font families
   fontPrimary: 'Nunito',
   fontSecondary: 'Fredoka',
+  fontTitle: 'FredokaOne-Regular',  // For main titles (non-corpus)
 
   // Font weights
   weightRegular: '400' as const,
@@ -32,15 +33,15 @@ export const TYPOGRAPHY = {
 // Style presets
 export const TEXT_STYLES = {
   h1: {
-    fontFamily: 'Fredoka',
+    fontFamily: TYPOGRAPHY.fontTitle,
     fontSize: TYPOGRAPHY.size5Xl,
-    fontWeight: TYPOGRAPHY.weightBold,
+    fontWeight: TYPOGRAPHY.weightRegular,
     lineHeight: TYPOGRAPHY.size5Xl * TYPOGRAPHY.lineHeightTight,
   },
   h2: {
-    fontFamily: 'Fredoka',
+    fontFamily: TYPOGRAPHY.fontTitle,
     fontSize: TYPOGRAPHY.size3Xl,
-    fontWeight: TYPOGRAPHY.weightSemiBold,
+    fontWeight: TYPOGRAPHY.weightRegular,
     lineHeight: TYPOGRAPHY.size3Xl * TYPOGRAPHY.lineHeightTight,
   },
   h3: {

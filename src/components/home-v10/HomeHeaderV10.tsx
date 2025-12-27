@@ -7,6 +7,7 @@ import React, { memo } from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
 import Svg, { Path } from 'react-native-svg';
 import {
   HomeV10Colors,
@@ -23,7 +24,16 @@ interface HomeHeaderV10Props {
   };
   onParentPress?: () => void;
   onAvatarPress?: () => void;
+  showPlayground?: boolean;
 }
+
+// Playground Button Icon (code/palette icon)
+const PlaygroundIcon = () => (
+  <Svg width={18} height={18} viewBox="0 0 24 24" fill="#fff">
+    <Path d="M12 22C6.49 22 2 17.51 2 12S6.49 2 12 2s10 4.04 10 9c0 3.31-2.69 6-6 6h-1.77c-.28 0-.5.22-.5.5 0 .12.05.23.13.33.41.47.64 1.06.64 1.67A2.5 2.5 0 0 1 12 22zm0-18c-4.41 0-8 3.59-8 8s3.59 8 8 8c.28 0 .5-.22.5-.5a.54.54 0 0 0-.14-.35c-.41-.46-.63-1.05-.63-1.65a2.5 2.5 0 0 1 2.5-2.5H16c2.21 0 4-1.79 4-4 0-3.86-3.59-7-8-7z" />
+    <Path d="M6.5 11.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm3-4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm5 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z" />
+  </Svg>
+);
 
 // Parent Button Icon
 const ParentIcon = () => (
@@ -107,12 +117,40 @@ const StatBadge = memo(({ icon, value }: { icon: string; value: number }) => (
 
 StatBadge.displayName = 'StatBadge';
 
+// Playground Button Component
+const PlaygroundButton = memo(({ onPress }: { onPress?: () => void }) => (
+  <Pressable
+    onPress={onPress}
+    style={({ pressed }) => [
+      styles.playgroundButton,
+      pressed && styles.playgroundButtonPressed,
+    ]}
+  >
+    <LinearGradient
+      colors={['#10B981', '#059669']}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={styles.playgroundButtonGradient}
+    >
+      <PlaygroundIcon />
+    </LinearGradient>
+  </Pressable>
+));
+
+PlaygroundButton.displayName = 'PlaygroundButton';
+
 export const HomeHeaderV10 = memo(({
   profile,
   onParentPress,
   onAvatarPress,
+  showPlayground = true,
 }: HomeHeaderV10Props) => {
   const insets = useSafeAreaInsets();
+  const router = useRouter();
+
+  const handlePlaygroundPress = () => {
+    router.push('/playground');
+  };
 
   return (
     <View style={[styles.container, { paddingTop: insets.top + 10 }]}>
@@ -136,10 +174,11 @@ export const HomeHeaderV10 = memo(({
         </View>
       </View>
 
-      {/* Right: Stats */}
+      {/* Right: Stats + Playground */}
       <View style={styles.statsContainer}>
         <StatBadge icon="💎" value={profile.gems} />
         <StatBadge icon="🏅" value={profile.totalMedals} />
+        {showPlayground && <PlaygroundButton onPress={handlePlaygroundPress} />}
       </View>
     </View>
   );
@@ -284,5 +323,26 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '700',
     color: HomeV10Colors.textPrimary,
+  },
+
+  // Playground Button
+  playgroundButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    overflow: 'hidden',
+    shadowColor: '#10B981',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  playgroundButtonPressed: {
+    transform: [{ scale: 0.95 }],
+  },
+  playgroundButtonGradient: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

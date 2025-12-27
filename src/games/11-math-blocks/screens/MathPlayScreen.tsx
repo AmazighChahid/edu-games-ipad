@@ -8,8 +8,9 @@ import { View, StyleSheet, Text, Pressable, Modal, Switch } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 
 import { colors, spacing, borderRadius, shadows, textStyles } from '@/theme';
+import { ProgressIndicator } from '@/components/common';
 import { useAppSettings } from '@/store';
-import { GameGrid, TimerBar, ScoreDisplay } from '../components';
+import { GameGrid, ScoreDisplay } from '../components';
 import { useMathGame } from '../hooks/useMathGame';
 import { OPERATION_SYMBOLS } from '../types';
 
@@ -91,9 +92,11 @@ export function MathPlayScreen({ levelId }: MathPlayScreenProps) {
 
       {/* Timer */}
       {level.timeLimit > 0 && (
-        <TimerBar
+        <ProgressIndicator
+          type="timer"
           timeRemaining={gameState.timeRemaining}
           totalTime={level.timeLimit}
+          colorScheme="auto"
         />
       )}
 

@@ -5,142 +5,269 @@
 
 ---
 
-## 🎯 Quel document utiliser ?
+## 🚀 Pré-prompts prêts à copier-coller
 
-### 🆕 Pour créer un nouveau composant UI
+### 🆕 Créer un nouveau composant UI
 
-| Document | Contenu |
-|----------|---------|
-| [DESIGN_SYSTEM.md](./DESIGN_SYSTEM.md) | Couleurs, typo, spacing, touch targets |
-| [UI_PATTERNS.md](./UI_PATTERNS.md) | Composants standardisés à réutiliser |
-| [PROJECT_STRUCTURE.md](./PROJECT_STRUCTURE.md) | Où créer tes fichiers |
+```
+Lis ces documents avant de commencer :
+- docs/DESIGN_SYSTEM.md (couleurs, typo, spacing, touch targets)
+- docs/UI_PATTERNS.md (composants standardisés)
+- docs/PROJECT_STRUCTURE.md (où créer les fichiers)
 
----
-
-### 🎮 Pour créer/modifier un JEU
-
-| Document | Contenu |
-|----------|---------|
-| [PROJECT_STRUCTURE.md](./PROJECT_STRUCTURE.md) | Structure d'un jeu (`/src/games/{nom}/`) |
-| [AUDIO_IMPROVEMENTS.md](./AUDIO_IMPROVEMENTS.md) | Ajouter des sons au jeu |
-| [RAPPORT_VERIFICATION_MASCOTTES_COMPETENCES.md](./RAPPORT_VERIFICATION_MASCOTTES_COMPETENCES.md) | Quelle mascotte et compétences associer |
-| `/Fiches Educatives/` | Spécifications pédagogiques du jeu |
+Règles importantes :
+- Import du thème : `import { theme } from '@/theme'`
+- Touch targets minimum : 64dp
+- Texte minimum : 18pt
+- Polices : Fredoka (titres) + Nunito (corps)
+- Animations : React Native Reanimated avec spring
+```
 
 ---
 
-### 🏠 Pour modifier l'écran d'ACCUEIL
+### 🎮 Créer une nouvelle activité/jeu
 
-| Document | Contenu |
-|----------|---------|
-| [UI_PATTERNS.md](./UI_PATTERNS.md) | Patterns V10 (ForestBackgroundV10, etc.) |
-| [DESIGN_SYSTEM.md](./DESIGN_SYSTEM.md) | Couleurs V10, spacing |
+```
+Lis ces documents avant de commencer :
+- docs/PROJECT_STRUCTURE.md (structure d'un jeu dans /src/games/)
+- docs/DESIGN_SYSTEM.md (couleurs, spacing, accessibilité)
+- docs/UI_PATTERNS.md (composants réutilisables)
+- docs/RAPPORT_VERIFICATION_MASCOTTES_COMPETENCES.md (mascottes et compétences)
+- Fiches Educatives/ (spécifications pédagogiques si disponibles)
+
+Structure d'un jeu :
+/src/games/{nom-du-jeu}/
+├── index.ts                    # Exports publics
+├── types.ts                    # Types TypeScript
+├── components/                 # Composants UI
+│   ├── index.ts
+│   └── {Composant}.tsx
+├── hooks/
+│   └── use{NomJeu}Game.ts      # Hook principal
+├── logic/
+│   ├── {nomJeu}Engine.ts       # Logique pure
+│   └── validator.ts            # Validation
+├── data/
+│   ├── levels.ts               # Niveaux
+│   └── assistantScripts.ts     # Scripts mascotte
+└── screens/
+    ├── {NomJeu}IntroScreen.tsx
+    └── {NomJeu}VictoryScreen.tsx
+
+Après création, ajouter le jeu dans :
+- src/games/registry.ts
+- app/(games)/{XX-nom-du-jeu}/index.tsx
+```
 
 ---
 
-### 🔧 Pour du REFACTORING / MAINTENANCE
+### 🔊 Ajouter du son à une activité
 
-| Document | Contenu |
-|----------|---------|
-| [GUIDELINES_AUDIT.md](./GUIDELINES_AUDIT.md) | Fichiers à corriger, conformité |
-| [SYNTHESE_STANDARDISATION.md](./SYNTHESE_STANDARDISATION.md) | État de la migration |
-| [UI_COMPONENTS_CATALOG.md](./UI_COMPONENTS_CATALOG.md) | Catalogue des composants existants |
+```
+Lis ce document avant de commencer :
+- docs/AUDIO_IMPROVEMENTS.md (système audio, hook useSound)
+
+Sons disponibles dans assets/sounds/ :
+- disk_move.mp3, disk_error.mp3, disk_place.mp3
+- victory.mp3, hint.mp3
+- robot_select.mp3, robot_correct.mp3, robot_error.mp3
+- robot_ambient.mp3, robot_thinking.mp3
+
+Utilisation :
+import { useSound } from '@/hooks/useSound';
+
+function MonComposant() {
+  const { playSound } = useSound();
+
+  const handleSuccess = () => playSound('victory');
+  const handleError = () => playSound('disk_error');
+}
+```
 
 ---
 
-### 🤖 Pour configurer CLAUDE
+### 🏠 Modifier l'écran d'accueil
 
-| Document | Contenu |
-|----------|---------|
-| [../claude.md](../claude.md) | Instructions principales pour Claude |
-| [CLAUDE_CODE_RULES.md](./CLAUDE_CODE_RULES.md) | Règles spécifiques |
-| [PROMPT_REFACTORING.md](./PROMPT_REFACTORING.md) | Prompts de refactoring |
+```
+Lis ces documents avant de commencer :
+- docs/UI_PATTERNS.md (section "Patterns V10 - Forêt Immersive")
+- docs/DESIGN_SYSTEM.md (couleurs, spacing)
+- docs/PROJECT_STRUCTURE.md (structure /src/components/home-v10/)
+
+Composants V10 disponibles :
+- ForestBackgroundV10 (background forêt animé)
+- HomeHeaderV10 (en-tête)
+- GameCardV10 (carte de jeu)
+- PiouFloating, CollectionFloating (widgets)
+- Layers : Sky, Sun, Clouds, Mountains, Hills, Trees, Bushes, Garden
+- Animals : Birds, Butterflies, Squirrel, Rabbit, Bee, Ladybug
+
+Couleurs V10 : src/theme/home-v10-colors.ts
+```
 
 ---
 
-### 📚 Pour comprendre le PROJET
+### 🎨 Changer le design/style
 
-| Document | Contenu |
-|----------|---------|
-| [../README.md](../README.md) | Vue d'ensemble rapide |
-| [IMPLEMENTATION_SUMMARY.md](./IMPLEMENTATION_SUMMARY.md) | État d'avancement global |
-| [Guide_UX_UI_App_Educative.md](./Guide_UX_UI_App_Educative.md) | Philosophie UX/UI |
-| [Instructions_Projet_App_Educative.md](./Instructions_Projet_App_Educative.md) | Vision globale du projet |
+```
+Lis ces documents avant de commencer :
+- docs/DESIGN_SYSTEM.md (design system complet)
+- docs/UI_PATTERNS.md (patterns standardisés)
+- src/theme/colors.ts (palette de couleurs)
+- src/theme/typography.ts (polices et tailles)
+- src/theme/spacing.ts (espacements)
+- src/theme/touchTargets.ts (tailles tactiles)
+
+Import : import { theme } from '@/theme';
+
+Règles UX enfant :
+- Touch targets ≥ 64dp
+- Texte courant ≥ 18pt
+- Contraste ≥ 4.5:1
+- Jamais couleur seule (toujours + icône)
+- Animations spring avec Reanimated
+```
+
+---
+
+### 🔧 Faire du refactoring / maintenance
+
+```
+Lis ces documents avant de commencer :
+- docs/GUIDELINES_AUDIT.md (fichiers à corriger, conformité 92%)
+- docs/SYNTHESE_STANDARDISATION.md (état de la migration)
+- docs/UI_COMPONENTS_CATALOG.md (catalogue des composants)
+
+Fichiers prioritaires à corriger :
+- src/games/sudoku/screens/SudokuIntroScreen.tsx → fontSize 18pt
+- src/games/hanoi/screens/HanoiIntroScreen.tsx → fontSize 16pt+
+- src/games/math-blocks/screens/MathPlayScreen.tsx → fontSize timer 18pt
+- src/games/hanoi/components/FloatingButtons.tsx → touch targets
+
+Migration en cours : /src/constants/ → /src/theme/
+```
+
+---
+
+### 🤖 Configurer Claude pour ce projet
+
+```
+Lis ces documents pour comprendre le projet :
+- claude.md (instructions principales)
+- docs/CLAUDE_CODE_RULES.md (règles spécifiques)
+- docs/PROMPT_REFACTORING.md (prompts de refactoring)
+- docs/Instructions_Projet_App_Educative.md (vision globale)
+- docs/Guide_UX_UI_App_Educative.md (philosophie UX/UI)
+```
+
+---
+
+### 👨‍👩‍👧 Modifier l'espace parent
+
+```
+Lis ces documents avant de commencer :
+- docs/PROJECT_STRUCTURE.md (section /src/components/parent/)
+- docs/UI_PATTERNS.md (variant "parent" des composants)
+- docs/DESIGN_SYSTEM.md (couleurs et styles parent)
+
+Composants parent disponibles :
+- ParentZone, ParentDrawer, ParentTabs
+- ProgressChart, SkillsRadarV2, WeeklyChart
+- ActivityTimeline, BadgesGallery
+- ScreenTimeCard, RecommendationsCard
+- GoalEditor, GoalsSection, ChildSelector
+```
+
+---
+
+### 🃏 Modifier le système de collection
+
+```
+Lis ces documents avant de commencer :
+- docs/PROJECT_STRUCTURE.md (section /src/components/collection/)
+- src/data/cards.ts (définition des cartes)
+- src/store/slices/collectionSlice.ts (état des cartes)
+
+Composants collection :
+- CollectionBook, CollectionPage, CollectionCard
+- CardDetailModal, CardUnlockScreen
+- CategoryTabs
+```
 
 ---
 
 ## 📋 Liste complète des documents
 
-### Documents principaux (à la racine)
-
+### À la racine
 | Fichier | Description |
 |---------|-------------|
-| `README.md` | README principal du projet |
-| `claude.md` | Instructions pour Claude AI |
+| `README.md` | README principal |
+| `claude.md` | Instructions Claude AI |
 
-### Documents dans `/docs/`
-
-| Fichier | Description | Usage |
-|---------|-------------|-------|
-| `00-INDEX.md` | Ce fichier - Index de la documentation | Navigation |
-| `DESIGN_SYSTEM.md` | Design system (couleurs, typo, spacing) | UI/UX |
-| `PROJECT_STRUCTURE.md` | Architecture du projet | Structure |
-| `UI_PATTERNS.md` | Patterns UI standardisés (V9, V10) | UI/UX |
-| `UI_COMPONENTS_CATALOG.md` | Catalogue des composants | UI/UX |
-| `GUIDELINES_AUDIT.md` | Audit de conformité UX | Maintenance |
-| `AUDIO_IMPROVEMENTS.md` | Système audio | Audio |
-| `IMPLEMENTATION_SUMMARY.md` | Résumé d'implémentation | État |
-| `RAPPORT_VERIFICATION_MASCOTTES_COMPETENCES.md` | Mascottes/compétences | Pédagogie |
-| `SYNTHESE_STANDARDISATION.md` | Synthèse standardisation | Maintenance |
-| `Guide_UX_UI_App_Educative.md` | Guide UX/UI général | Vision |
-| `Instructions_Projet_App_Educative.md` | Instructions générales | Vision |
-| `CLAUDE_CODE_RULES.md` | Règles pour Claude Code | IA |
-| `PROMPT_REFACTORING.md` | Prompts de refactoring | IA |
+### Dans `/docs/`
+| Fichier | Catégorie | Description |
+|---------|-----------|-------------|
+| `00-INDEX.md` | Navigation | Ce fichier |
+| `DESIGN_SYSTEM.md` | UI/UX | Couleurs, typo, spacing |
+| `PROJECT_STRUCTURE.md` | Structure | Architecture du projet |
+| `UI_PATTERNS.md` | UI/UX | Patterns standardisés V9/V10 |
+| `UI_COMPONENTS_CATALOG.md` | UI/UX | Catalogue composants |
+| `GUIDELINES_AUDIT.md` | Maintenance | Conformité UX (92%) |
+| `AUDIO_IMPROVEMENTS.md` | Audio | Système sonore |
+| `IMPLEMENTATION_SUMMARY.md` | État | Avancement global |
+| `RAPPORT_VERIFICATION_MASCOTTES_COMPETENCES.md` | Pédagogie | Mascottes/compétences |
+| `SYNTHESE_STANDARDISATION.md` | Maintenance | Migration |
+| `Guide_UX_UI_App_Educative.md` | Vision | Philosophie UX/UI |
+| `Instructions_Projet_App_Educative.md` | Vision | Instructions générales |
+| `CLAUDE_CODE_RULES.md` | IA | Règles Claude |
+| `PROMPT_REFACTORING.md` | IA | Prompts refactoring |
 
 ---
 
-## 💡 Résumé rapide
+## 💡 Mémo rapide
 
 ```
-🆕 Nouveau composant UI    → DESIGN_SYSTEM + UI_PATTERNS
-🎮 Nouveau jeu             → PROJECT_STRUCTURE + Fiches Éducatives
-🔊 Ajouter du son          → AUDIO_IMPROVEMENTS
-🐛 Corriger un bug UX      → GUIDELINES_AUDIT
-📍 Où mettre mon fichier?  → PROJECT_STRUCTURE
-🎨 Quelle couleur/font?    → DESIGN_SYSTEM
-🤖 Configurer Claude       → claude.md + CLAUDE_CODE_RULES
+🆕 Nouveau composant    → DESIGN_SYSTEM + UI_PATTERNS
+🎮 Nouveau jeu          → PROJECT_STRUCTURE + Fiches Éducatives
+🔊 Ajouter son          → AUDIO_IMPROVEMENTS
+🏠 Modifier accueil     → UI_PATTERNS (V10)
+🎨 Changer style        → DESIGN_SYSTEM + theme/
+🔧 Refactoring          → GUIDELINES_AUDIT
+🤖 Config Claude        → claude.md + CLAUDE_CODE_RULES
 ```
 
 ---
 
-## 🔗 Liens rapides
+## ⚠️ Règles essentielles
 
-### Design & UI
-- [Couleurs](./DESIGN_SYSTEM.md#-couleurs)
-- [Typographie](./DESIGN_SYSTEM.md#-typographie)
-- [Espacements](./DESIGN_SYSTEM.md#-espacements)
-- [Touch Targets](./DESIGN_SYSTEM.md#-accessibilité)
-- [Patterns V10](./UI_PATTERNS.md#-patterns-v10---forêt-immersive)
-
-### Structure
-- [Structure d'un jeu](./PROJECT_STRUCTURE.md#srcgames---implémentation-des-jeux)
-- [Composants communs](./PROJECT_STRUCTURE.md#srccomponents---composants-ui-réutilisables)
-- [Theme system](./PROJECT_STRUCTURE.md#srctheme---design-system-nouveau---remplace-constants)
-
-### État du projet
-- [Jeux disponibles](./PROJECT_STRUCTURE.md#notes-importantes) (12 total, 11 disponibles)
-- [Conformité UX](./GUIDELINES_AUDIT.md#-évolution-de-la-conformité) (92%)
-- [Fichiers à corriger](./GUIDELINES_AUDIT.md#️-fichiers-à-corriger)
+| Règle | Valeur |
+|-------|--------|
+| Import thème | `import { theme } from '@/theme'` |
+| Touch targets | ≥ 64dp minimum |
+| Texte courant | ≥ 18pt minimum |
+| Polices | Fredoka (titres) + Nunito (corps) |
+| Animations | Reanimated 3 avec spring |
+| Jeux | 11 disponibles + 1 coming soon |
+| Conformité | 92% |
 
 ---
 
-## ⚠️ Points importants à retenir
+## 🎮 Liste des jeux (12)
 
-1. **Imports** : Utiliser `@/theme` et non `@/constants` (deprecated)
-2. **Touch targets** : Minimum 64dp pour les enfants
-3. **Texte** : Minimum 18pt pour le texte courant
-4. **Polices** : Fredoka (titres) + Nunito (corps)
-5. **Animations** : React Native Reanimated 3 avec spring physics
-6. **Versions** : Préférer V10 pour les nouveaux développements
+| # | Jeu | Route | Statut |
+|---|-----|-------|--------|
+| 01 | Tour de Hanoï | `/(games)/01-hanoi` | ✅ |
+| 02 | Suites Logiques | `/(games)/02-suites-logiques` | ✅ |
+| 03 | Labyrinthe | `/(games)/03-labyrinthe` | ✅ |
+| 04 | Balance Logique | `/(games)/04-balance` | ✅ |
+| 05 | Sudoku Montessori | `/(games)/05-sudoku` | ✅ |
+| 06 | Le Conteur Curieux | `/(games)/06-conteur-curieux` | ✅ |
+| 07 | Memory | `/(games)/07-memory` | ✅ |
+| 08 | Puzzle Formes | `/(games)/08-tangram` | ✅ |
+| 09 | Logix Grid | `/(games)/09-logix-grid` | ✅ |
+| 10 | Mots Croisés | `/(games)/10-mots-croises` | ✅ |
+| 11 | MathBlocks | `/(games)/11-math-blocks` | ✅ |
+| 12 | Matrices Magiques | `/(games)/12-matrices-magiques` | 🔜 |
 
 ---
 
