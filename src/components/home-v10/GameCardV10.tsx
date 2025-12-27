@@ -412,7 +412,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontFamily: fontFamily.title,
-    fontSize: 22,
+    fontSize: 28,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
     textShadowOffset: { width: 0, height: 2 },
