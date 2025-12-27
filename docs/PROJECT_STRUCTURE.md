@@ -89,7 +89,19 @@ app/
 │   │   ├── _layout.tsx         # Stack navigator du jeu
 │   │   └── index.tsx           # Point d'entrée → SuitesLogiquesGame
 │   │
-│   └── tangram/                # Jeu Tangram (placeholder)
+│   ├── tangram/                # Jeu Tangram
+│   │   ├── _layout.tsx         # Stack navigator du jeu
+│   │   └── index.tsx           # Point d'entrée
+│   │
+│   ├── mots-croises/           # 🆕 Jeu Mots Croisés
+│   │   ├── _layout.tsx         # Stack navigator du jeu
+│   │   └── index.tsx           # Point d'entrée
+│   │
+│   ├── conteur-curieux/        # 🆕 Jeu Le Conteur Curieux
+│   │   ├── _layout.tsx         # Stack navigator du jeu
+│   │   └── index.tsx           # Point d'entrée
+│   │
+│   └── matrices-magiques/      # 🆕 Jeu Matrices Magiques (coming soon)
 │       ├── _layout.tsx         # Stack navigator du jeu
 │       └── index.tsx           # Coming Soon
 │
@@ -185,7 +197,7 @@ src/components/
 │   ├── FloatingFlowers.tsx     # Fleurs flottantes
 │   └── Hills.tsx               # Collines décoratives
 │
-├── home/                       # Composants de l'écran d'accueil
+├── home/                       # Composants de l'écran d'accueil (V9)
 │   ├── index.ts                # Exports
 │   ├── AISuggestion.tsx        # Suggestion IA personnalisée
 │   ├── CardCollection.tsx      # Aperçu collection
@@ -193,11 +205,11 @@ src/components/
 │   ├── CategoryRow.tsx         # Ligne de catégorie
 │   ├── DailyStreak.tsx         # Série quotidienne
 │   ├── GameCard.tsx            # Carte de jeu (ancienne version)
-│   ├── GameCardV9.tsx          # Carte de jeu (version actuelle)
+│   ├── GameCardV9.tsx          # Carte de jeu (version V9)
 │   ├── GameCategoriesSection.tsx # Section des catégories de jeux
 │   ├── GamesGrid.tsx           # Grille de jeux
 │   ├── Header.tsx              # En-tête (ancienne version)
-│   ├── HomeHeaderV9.tsx        # En-tête (version actuelle)
+│   ├── HomeHeaderV9.tsx        # En-tête (version V9)
 │   ├── MascotBubble.tsx        # Bulle mascotte accueil
 │   ├── PiouMascot.tsx          # Mascotte Piou (hibou)
 │   ├── ProgressGarden.tsx      # Jardin de progression
@@ -208,6 +220,29 @@ src/components/
 │       ├── PiouWidget.tsx      # Widget mascotte Piou
 │       ├── StreakWidget.tsx    # Widget série quotidienne
 │       └── WidgetsSection.tsx  # Section widgets complète
+│
+├── home-v10/                   # 🆕 Composants écran d'accueil V10 (Forêt Immersive)
+│   ├── ForestBackgroundV10.tsx # Background forêt animé complet
+│   ├── HomeHeaderV10.tsx       # En-tête version V10
+│   ├── GameCardV10.tsx         # Carte de jeu version V10
+│   ├── CollectionFloating.tsx  # Widget collection flottant
+│   ├── PiouFloating.tsx        # Mascotte Piou flottante
+│   ├── layers/                 # Couches du paysage
+│   │   ├── Sky.tsx             # Ciel avec dégradé
+│   │   ├── Sun.tsx             # Soleil animé
+│   │   ├── Clouds.tsx          # Nuages animés
+│   │   ├── Mountains.tsx       # Montagnes (far/near)
+│   │   ├── Hills.tsx           # Collines
+│   │   ├── Trees.tsx           # Arbres
+│   │   ├── Bushes.tsx          # Buissons
+│   │   └── Garden.tsx          # Jardin de progression
+│   └── animals/                # Animaux animés
+│       ├── Birds.tsx           # Oiseaux volants
+│       ├── Butterflies.tsx     # Papillons
+│       ├── Squirrel.tsx        # Écureuil
+│       ├── Rabbit.tsx          # Lapin
+│       ├── Bee.tsx             # Abeille
+│       └── Ladybug.tsx         # Coccinelle
 │
 ├── layout/                     # Composants de mise en page
 │   ├── index.ts                # Exports
@@ -365,33 +400,51 @@ src/games/
 │   └── types/
 │       └── index.ts            # Types TypeScript
 │
-└── suites-logiques/            # Jeu Suites Logiques
+├── suites-logiques/            # Jeu Suites Logiques
+│   ├── index.ts                # Exports publics
+│   ├── components/
+│   │   ├── ChoicePanel.tsx     # Panel de choix
+│   │   ├── MascotRobot.tsx     # Mascotte Robot
+│   │   ├── MissingSlot.tsx     # Emplacement manquant
+│   │   ├── SequenceDisplay.tsx # Affichage de la séquence
+│   │   ├── SequenceElement.tsx # Élément de séquence
+│   │   ├── SuitesLogiquesGame.tsx  # Composant principal
+│   │   └── svg/                # Éléments SVG thématiques
+│   │       ├── FarmAnimals.tsx     # Animaux de ferme
+│   │       ├── GeometricShapes.tsx # Formes géométriques
+│   │       ├── MusicElements.tsx   # Éléments musicaux
+│   │       └── SpaceElements.tsx   # Éléments spatiaux
+│   ├── constants/
+│   │   └── gameConfig.ts       # Configuration du jeu
+│   ├── data/
+│   │   ├── patterns.ts         # Patterns de séquences
+│   │   └── themes.ts           # Thèmes visuels
+│   ├── hooks/
+│   │   ├── useSequenceGenerator.ts # Générateur de séquences
+│   │   ├── useStreakTracker.ts     # Suivi des séries
+│   │   └── useSuitesGame.ts        # Hook principal
+│   ├── types/
+│   │   └── index.ts            # Types TypeScript
+│   └── utils/
+│       └── patternUtils.ts     # Utilitaires pour patterns
+│
+├── mots-croises/               # 🆕 Jeu Mots Croisés
+│   ├── index.ts                # Exports publics
+│   ├── components/             # Composants UI du jeu
+│   ├── hooks/                  # Logique de jeu
+│   └── data/                   # Grilles et mots
+│
+├── conteur-curieux/            # 🆕 Jeu Le Conteur Curieux (lecture)
+│   ├── index.ts                # Exports publics
+│   ├── components/
+│   │   └── MascotPlume.tsx     # Mascotte Plume
+│   ├── hooks/                  # Logique de jeu
+│   └── data/                   # Histoires et questions
+│
+└── matrices-magiques/          # 🆕 Jeu Matrices Magiques (coming soon)
     ├── index.ts                # Exports publics
-    ├── components/
-    │   ├── ChoicePanel.tsx     # Panel de choix
-    │   ├── MascotRobot.tsx     # Mascotte Robot
-    │   ├── MissingSlot.tsx     # Emplacement manquant
-    │   ├── SequenceDisplay.tsx # Affichage de la séquence
-    │   ├── SequenceElement.tsx # Élément de séquence
-    │   ├── SuitesLogiquesGame.tsx  # Composant principal
-    │   └── svg/                # Éléments SVG thématiques
-    │       ├── FarmAnimals.tsx     # Animaux de ferme
-    │       ├── GeometricShapes.tsx # Formes géométriques
-    │       ├── MusicElements.tsx   # Éléments musicaux
-    │       └── SpaceElements.tsx   # Éléments spatiaux
-    ├── constants/
-    │   └── gameConfig.ts       # Configuration du jeu
-    ├── data/
-    │   ├── patterns.ts         # Patterns de séquences
-    │   └── themes.ts           # Thèmes visuels
-    ├── hooks/
-    │   ├── useSequenceGenerator.ts # Générateur de séquences
-    │   ├── useStreakTracker.ts     # Suivi des séries
-    │   └── useSuitesGame.ts        # Hook principal
-    ├── types/
-    │   └── index.ts            # Types TypeScript
-    └── utils/
-        └── patternUtils.ts     # Utilitaires pour patterns
+    ├── components/             # Composants UI
+    └── data/                   # Patterns de matrices
 ```
 
 ---
@@ -428,11 +481,11 @@ src/store/
 
 ---
 
-### `/src/theme/` - Design System
+### `/src/theme/` - Design System (NOUVEAU - remplace /constants/)
 
 ```
 src/theme/
-├── index.ts                    # Export du thème complet
+├── index.ts                    # Export du thème complet (theme object)
 ├── colors.ts                   # Palette de couleurs (~234 lignes)
 │                               # - Couleurs primaires, secondaires
 │                               # - Couleurs par catégorie de jeu
@@ -446,11 +499,24 @@ src/theme/
 │                               # - Scale: 0, 4, 8, 12, 16... 96px
 │                               # - Semantic: componentPadding, cardPadding...
 │                               # - Home layout dimensions
-└── touchTargets.ts             # Tailles tactiles
-                                # - Minimum: 44pt
-                                # - Standard enfant: 64pt
-                                # - Hit slop configurations
+├── touchTargets.ts             # Tailles tactiles
+│                               # - Minimum: 44pt
+│                               # - Standard enfant: 64pt
+│                               # - Hit slop configurations
+├── home-v10-colors.ts          # 🆕 Couleurs spécifiques Home V10
+│                               # - Palette forêt
+│                               # - Gradients ciel/nature
+└── daltonismModes.ts           # 🆕 Support daltonisme
+                                # - Palettes alternatives
+                                # - Modes protanopia, deuteranopia, tritanopia
 ```
+
+> **Import recommandé** :
+> ```typescript
+> import { theme } from '@/theme';
+> // ou
+> import { colors, spacing, typography } from '@/theme';
+> ```
 
 ---
 
@@ -483,15 +549,18 @@ src/data/
 
 ---
 
-### `/src/constants/` - Constantes (deprecated)
+### `/src/constants/` - Constantes (⚠️ DEPRECATED)
 
 ```
 src/constants/
 ├── index.ts                    # Exports
-├── colors.ts                   # Couleurs (utiliser theme/colors.ts)
-├── spacing.ts                  # Espacement (utiliser theme/spacing.ts)
-└── typography.ts               # Typographie (utiliser theme/typography.ts)
+├── colors.ts                   # ❌ Utiliser theme/colors.ts
+├── spacing.ts                  # ❌ Utiliser theme/spacing.ts
+└── typography.ts               # ❌ Utiliser theme/typography.ts
 ```
+
+> **⚠️ ATTENTION** : Ce dossier est **deprecated** et sera supprimé.
+> Tous les nouveaux développements doivent utiliser `/src/theme/`.
 
 ---
 
@@ -708,11 +777,20 @@ import type { GameState, LevelConfig } from './types';
    - `/src/components/activities/Labyrinthe/` (structure alternative)
    - Potentiellement dans `/src/games/labyrinthe/` (à créer)
 
-3. **Versions de composants** : Certains composants ont des versions (ex: `GameCard` vs `GameCardV9`). Préférer les versions les plus récentes (V9).
+3. **Versions de composants** : Certains composants ont des versions :
+   - V9 : Version stable actuelle (ex: `GameCardV9`, `HomeHeaderV9`)
+   - V10 : Nouvelle version "Forêt Immersive" (ex: `ForestBackgroundV10`, `GameCardV10`)
+   - Préférer les versions les plus récentes pour les nouveaux développements.
 
 4. **Store Zustand** : L'état global est géré par Zustand avec des slices séparées pour une meilleure organisation.
 
 5. **Animations** : Utiliser React Native Reanimated 3 pour toutes les animations (60 FPS).
+
+6. **Jeux disponibles** (12 total) :
+   - ✅ **Disponibles** (11) : Hanoi, MathBlocks, Sudoku, Suites Logiques, Logix Grid, Memory, Tangram, Labyrinthe, Balance, Mots Croisés, Conteur Curieux
+   - 🔜 **Coming Soon** (1) : Matrices Magiques
+
+7. **Import du thème** : Toujours utiliser `import { theme } from '@/theme'` et non `/constants/`.
 
 ---
 

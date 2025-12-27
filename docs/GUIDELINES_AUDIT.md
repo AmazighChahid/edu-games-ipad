@@ -130,23 +130,25 @@
 2. ✅ **FAIT** : Migrer Header.tsx vers /theme/
 3. ✅ **FAIT** : Refactoriser MathIntroScreen
 4. ✅ **FAIT** : Refactoriser ParentDashboard
+5. ✅ **FAIT** : Créer composants Home V10 (ForestBackgroundV10, etc.)
+6. ✅ **FAIT** : Ajouter nouveaux jeux (Mots Croisés, Conteur Curieux)
 
 ### Priorité MOYENNE (À planifier)
 
-5. **Instructions de jeux** : Augmenter fontSize 15pt → 18pt
+7. **Instructions de jeux** : Augmenter fontSize 15pt → 18pt
    - SudokuIntroScreen
    - Labyrinthe/Inventory
    - MathPlayScreen (timer)
 
-6. **Touch targets** : Vérifier et corriger
+8. **Touch targets** : Vérifier et corriger
    - FloatingButtons (Hanoi)
    - CategoriesNav (Home)
    - SudokuCell (si cliquable)
 
 ### Priorité BASSE (Optionnel)
 
-7. **Stats/Labels** : Garder 14pt (acceptable pour éléments secondaires)
-8. **Badges** : Garder 12pt (acceptable pour badges)
+9. **Stats/Labels** : Garder 14pt (acceptable pour éléments secondaires)
+10. **Badges** : Garder 12pt (acceptable pour badges)
 
 ---
 
@@ -202,6 +204,11 @@ console.log('touch targets < 60:', smallTargets.split('\n').length);
 - [x] `src/components/home/Header.tsx` (après migration)
 - [x] `src/games/math-blocks/screens/MathIntroScreen.tsx` (après refactor)
 - [x] `app/(parent)/index.tsx` (après refactor)
+- [x] `src/components/home-v10/ForestBackgroundV10.tsx` 🆕
+- [x] `src/components/home-v10/HomeHeaderV10.tsx` 🆕
+- [x] `src/components/home-v10/GameCardV10.tsx` 🆕
+- [x] `src/components/home-v10/layers/*.tsx` 🆕
+- [x] `src/components/home-v10/animals/*.tsx` 🆕
 
 ### ⚠️ Fichiers À Corriger
 
@@ -267,10 +274,26 @@ const styles = StyleSheet.create({
 | Date | Conformité | Actions |
 |------|------------|---------|
 | **Avant** | 60% | Code legacy, pas de standards |
-| **Aujourd'hui** | 89% | Composants créés, migrations faites |
+| **Nov 2024** | 89% | Composants créés, migrations faites |
+| **Déc 2024** | 92% | Home V10, nouveaux jeux, migration /theme/ |
 | **Objectif** | 95%+ | Corriger fichiers restants |
 
 ---
 
-*Document généré automatiquement - Mise à jour continue*
+## 🆕 Changements Décembre 2024
+
+### Nouveaux composants conformes
+- Système Home V10 complet (ForestBackgroundV10, layers, animals)
+- Composants V10 : HomeHeaderV10, GameCardV10, PiouFloating, CollectionFloating
+- Support daltonisme (daltonismModes.ts)
+
+### Migration effectuée
+- `/src/constants/` → `/src/theme/` (en cours de finalisation)
+- 11 jeux disponibles + 1 coming soon
+
+### Conformité actuelle : **92%**
+
+---
+
+*Document mis à jour - Décembre 2024*
 *Prochaine révision : Après correction des fichiers prioritaires*

@@ -583,15 +583,134 @@ Avant de commit, vérifier :
 
 ---
 
+## 🌲 Patterns V10 - Forêt Immersive
+
+La version V10 de l'écran d'accueil introduit une expérience immersive avec une forêt animée.
+
+### ForestBackgroundV10
+
+**Emplacement** : `src/components/home-v10/ForestBackgroundV10.tsx`
+
+**Composition en couches** (du fond vers l'avant) :
+1. `Sky` - Gradient de ciel
+2. `Sun` - Soleil animé avec pulse
+3. `MountainsFar` - Montagnes lointaines
+4. `Clouds` - Nuages animés
+5. `MountainsNear` - Montagnes proches
+6. `Hills` - Collines
+7. `Trees` - Arbres
+8. `Bushes` - Buissons
+9. `Garden` - Jardin de progression
+10. Animaux : `Birds`, `Butterflies`, `Squirrel`, `Rabbit`, `Bee`, `Ladybug`
+
+```tsx
+import { ForestBackgroundV10 } from '@/components/home-v10';
+
+export function HomeScreenV10() {
+  return (
+    <ForestBackgroundV10>
+      <SafeAreaView style={{ flex: 1 }}>
+        <HomeHeaderV10 />
+        {/* Contenu... */}
+      </SafeAreaView>
+    </ForestBackgroundV10>
+  );
+}
+```
+
+**Caractéristiques** :
+- ✅ Respecte `useReducedMotion()` pour l'accessibilité
+- ✅ Performances optimisées avec `memo`
+- ✅ Responsive (utilise `useWindowDimensions`)
+
+---
+
+### HomeHeaderV10
+
+**Emplacement** : `src/components/home-v10/HomeHeaderV10.tsx`
+
+```tsx
+<HomeHeaderV10
+  childName="Emma"
+  avatarEmoji="🦊"
+  level={5}
+  onAvatarPress={() => {}}
+  onParentPress={() => router.push('/(parent)')}
+/>
+```
+
+---
+
+### GameCardV10
+
+**Emplacement** : `src/components/home-v10/GameCardV10.tsx`
+
+Carte de jeu avec style "nature" intégré à la forêt.
+
+```tsx
+<GameCardV10
+  game={gameMetadata}
+  onPress={() => router.push(game.route)}
+  stars={3}
+  isNew={false}
+/>
+```
+
+---
+
+### Widgets Flottants V10
+
+**CollectionFloating** et **PiouFloating** : widgets flottants positionnés dans le paysage.
+
+```tsx
+<PiouFloating
+  message="Bonjour ! Prêt pour une aventure ?"
+  onPress={() => {}}
+/>
+
+<CollectionFloating
+  totalCards={42}
+  unlockedCards={12}
+  onPress={() => router.push('/(games)/collection')}
+/>
+```
+
+---
+
+### Palette de couleurs V10
+
+**Emplacement** : `src/theme/home-v10-colors.ts`
+
+```typescript
+import { homeV10Colors } from '@/theme/home-v10-colors';
+
+// Utilisation
+backgroundColor: homeV10Colors.sky.top
+mountainColor: homeV10Colors.mountains.far
+grassColor: homeV10Colors.grass.light
+```
+
+---
+
 ## 🚀 Pour Aller Plus Loin
 
-### Prochains patterns à standardiser
+### Patterns déjà standardisés
 
-- [ ] **GameModal** - Modale standardisée (Rules, Strategy, Demo)
-- [ ] **VictoryScreen** - Écran de victoire unifié
+- [x] **GameModal** - Modale standardisée (`src/components/common/GameModal.tsx`)
+- [x] **VictoryCard** - Carte de victoire (`src/components/common/VictoryCard.tsx`)
 - [ ] **TransitionAnimations** - Transitions de pages cohérentes
 - [ ] **FeedbackToast** - Messages de feedback standardisés
+
+### Migration V9 → V10
+
+Pour migrer un écran de V9 vers V10 :
+
+1. Remplacer `<ScreenBackground variant="playful">` par `<ForestBackgroundV10>`
+2. Remplacer `<HomeHeaderV9>` par `<HomeHeaderV10>`
+3. Remplacer `<GameCardV9>` par `<GameCardV10>`
+4. Utiliser les couleurs de `home-v10-colors.ts`
 
 ---
 
 *Document vivant - Mise à jour continue avec l'évolution du projet*
+*Dernière mise à jour : Décembre 2024*

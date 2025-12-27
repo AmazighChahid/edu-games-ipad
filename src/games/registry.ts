@@ -18,7 +18,7 @@ export const gameRegistry: GameMetadata[] = [
     category: 'logic',
     skills: ['planning', 'problem_solving', 'sequencing', 'perseverance'],
     status: 'available',
-    route: '/(games)/hanoi',
+    route: '/(games)/01-hanoi',
   },
   {
     id: 'math-blocks',
@@ -32,7 +32,7 @@ export const gameRegistry: GameMetadata[] = [
     category: 'math',
     skills: ['concentration', 'problem_solving', 'pattern_recognition'],
     status: 'available',
-    route: '/(games)/math-blocks',
+    route: '/(games)/11-math-blocks',
   },
   {
     id: 'sudoku',
@@ -46,7 +46,7 @@ export const gameRegistry: GameMetadata[] = [
     category: 'logic',
     skills: ['deductive_reasoning', 'concentration', 'patience', 'systematic_thinking'],
     status: 'available',
-    route: '/(games)/sudoku',
+    route: '/(games)/05-sudoku',
   },
   {
     id: 'suites-logiques',
@@ -60,7 +60,7 @@ export const gameRegistry: GameMetadata[] = [
     category: 'logic',
     skills: ['pattern_recognition', 'deductive_reasoning', 'sequencing', 'problem_solving'],
     status: 'available',
-    route: '/(games)/suites-logiques',
+    route: '/(games)/02-suites-logiques',
   },
   {
     id: 'logix-grid',
@@ -74,7 +74,7 @@ export const gameRegistry: GameMetadata[] = [
     category: 'logic',
     skills: ['deductive_reasoning', 'systematic_thinking', 'concentration', 'problem_solving'],
     status: 'available',
-    route: '/(games)/logix-grid',
+    route: '/(games)/09-logix-grid',
   },
   {
     id: 'memory',
@@ -88,7 +88,7 @@ export const gameRegistry: GameMetadata[] = [
     category: 'memory',
     skills: ['working_memory', 'concentration', 'pattern_recognition'],
     status: 'available',
-    route: '/(games)/memory',
+    route: '/(games)/07-memory',
   },
   {
     id: 'tangram',
@@ -102,7 +102,7 @@ export const gameRegistry: GameMetadata[] = [
     category: 'spatial',
     skills: ['spatial_reasoning', 'problem_solving', 'pattern_recognition', 'concentration'],
     status: 'available',
-    route: '/(games)/tangram',
+    route: '/(games)/08-tangram',
   },
   {
     id: 'labyrinthe',
@@ -116,7 +116,7 @@ export const gameRegistry: GameMetadata[] = [
     category: 'spatial',
     skills: ['planning', 'spatial_reasoning', 'problem_solving', 'perseverance'],
     status: 'available',
-    route: '/labyrinthe-demo',
+    route: '/(games)/03-labyrinthe',
   },
   {
     id: 'balance',
@@ -130,7 +130,7 @@ export const gameRegistry: GameMetadata[] = [
     category: 'logic',
     skills: ['quantitative_reasoning', 'equivalence', 'problem_solving', 'pre_algebra'],
     status: 'available',
-    route: '/(games)/balance',
+    route: '/(games)/04-balance',
   },
   {
     id: 'mots-croises',
@@ -144,7 +144,7 @@ export const gameRegistry: GameMetadata[] = [
     category: 'language',
     skills: ['vocabulary', 'spelling', 'deductive_reasoning', 'concentration'],
     status: 'available',
-    route: '/(games)/mots-croises',
+    route: '/(games)/10-mots-croises',
   },
   {
     id: 'conteur-curieux',
@@ -158,7 +158,7 @@ export const gameRegistry: GameMetadata[] = [
     category: 'language',
     skills: ['reading_comprehension', 'vocabulary', 'memory', 'inference'],
     status: 'available',
-    route: '/(games)/conteur-curieux',
+    route: '/(games)/06-conteur-curieux',
   },
   {
     id: 'matrices-magiques',
@@ -172,7 +172,7 @@ export const gameRegistry: GameMetadata[] = [
     category: 'logic',
     skills: ['pattern_recognition', 'visual_reasoning', 'logical_thinking', 'concentration'],
     status: 'coming_soon',
-    route: '/(games)/matrices-magiques',
+    route: '/(games)/12-matrices-magiques',
   },
 ];
 

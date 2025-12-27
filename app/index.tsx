@@ -45,18 +45,18 @@ const GAME_COLORS: Record<string, 'blue' | 'purple' | 'orange' | 'teal' | 'pink'
 
 // Game route mapping
 const GAME_ROUTES: Record<string, string> = {
-  hanoi: '/(games)/hanoi',
-  'suites-logiques': '/(games)/suites-logiques',
-  'logix-grid': '/(games)/logix-grid',
-  'math-blocks': '/(games)/math-blocks',
-  sudoku: '/(games)/sudoku',
-  tangram: '/(games)/tangram',
-  labyrinthe: '/(games)/labyrinthe',
-  memory: '/(games)/memory',
-  'mots-croises': '/(games)/mots-croises',
-  'conteur-curieux': '/(games)/conteur-curieux',
-  balance: '/(games)/balance',
-  'matrices-magiques': '/(games)/matrices-magiques',
+  hanoi: '/(games)/01-hanoi',
+  'suites-logiques': '/(games)/02-suites-logiques',
+  'logix-grid': '/(games)/09-logix-grid',
+  'math-blocks': '/(games)/11-math-blocks',
+  sudoku: '/(games)/05-sudoku',
+  tangram: '/(games)/08-tangram',
+  labyrinthe: '/(games)/03-labyrinthe',
+  memory: '/(games)/07-memory',
+  'mots-croises': '/(games)/10-mots-croises',
+  'conteur-curieux': '/(games)/06-conteur-curieux',
+  balance: '/(games)/04-balance',
+  'matrices-magiques': '/(games)/12-matrices-magiques',
 };
 
 export default function HomeScreen() {

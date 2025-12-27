@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { LabyrintheGame, LEVELS, LevelConfig, SessionStats } from '../src/games/03-labyrinthe';
+import { LabyrintheGame, LEVELS, LevelConfig, SessionStats } from '../../../src/games/03-labyrinthe';
 
-export default function LabyrintheDemo() {
+export default function LabyrintheScreen() {
   const router = useRouter();
   const [selectedLevel, setSelectedLevel] = useState<LevelConfig | null>(null);
   const [completedLevels, setCompletedLevels] = useState<Set<number>>(new Set());

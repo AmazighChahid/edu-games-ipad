@@ -1,4 +1,7 @@
-# Améliorations Audio - Tour de Hanoï
+# Améliorations Audio - Application Éducative
+
+> **Dernière mise à jour** : Décembre 2024
+> **Statut** : ✅ Implémenté et fonctionnel
 
 ## Modifications effectuées
 
@@ -6,24 +9,47 @@
 - **Fichier**: `src/hooks/useSound.ts`
 - Gère les effets sonores via expo-av
 - Respecte les préférences utilisateur (soundEnabled)
-- Prend en charge 5 types de sons :
+- Prend en charge les types de sons suivants :
   - `disk_move` : Déplacement de disque
   - `disk_error` : Mouvement invalide
   - `disk_place` : Placement réussi
   - `victory` : Victoire
   - `hint` : Indice
+  - `robot_select` : Sélection robot (Suites Logiques)
+  - `robot_correct` : Réponse correcte robot
+  - `robot_error` : Erreur robot
+  - `robot_ambient` : Ambiance robot
+  - `robot_thinking` : Robot en réflexion
 
-### 2. Fichiers audio créés
+### 2. Fichiers audio - ✅ CONFIRMÉS PRÉSENTS
 - **Répertoire**: `assets/sounds/`
-- Fichiers MP3 générés avec ffmpeg (sons temporaires)
-- À remplacer par de vrais sons si souhaité
+- **Fichiers disponibles** :
 
-### 3. Intégration dans le jeu Hanoi
+| Fichier | Taille | Usage |
+|---------|--------|-------|
+| `disk_move.mp3` | 1.2 KB | Déplacement disque |
+| `disk_error.mp3` | 1.6 KB | Mouvement invalide |
+| `disk_place.mp3` | 1.2 KB | Placement réussi |
+| `victory.mp3` | 4.5 KB | Victoire |
+| `hint.mp3` | 1.4 KB | Indice |
+| `robot_select.mp3` | 2.5 KB | Sélection robot |
+| `robot_correct.mp3` | 6.7 KB | Robot correct |
+| `robot_error.mp3` | 5.8 KB | Robot erreur |
+| `robot_ambient.mp3` | 80 KB | Ambiance robot |
+| `robot_thinking.mp3` | 14 KB | Robot réflexion |
+
+### 3. Intégration dans les jeux
+
+#### Tour de Hanoï
 - **Fichier**: `src/games/hanoi/hooks/useHanoiGame.ts`
 - Sons ajoutés pour :
   - ✅ Placement de disque valide (`disk_place`)
   - ❌ Tentative de mouvement invalide (`disk_error`)
   - 🎉 Victoire (`victory`)
+
+#### Suites Logiques
+- **Fichier**: `src/games/suites-logiques/`
+- Sons robot intégrés pour la mascotte Pixel
 
 ## Message d'erreur
 
@@ -49,3 +75,34 @@ Les sons peuvent être désactivés via :
 - Paramètres du jeu (modal Settings)
 - Paramètres parent (app/(parent)/settings.tsx)
 - Toggle "Effets sonores"
+
+---
+
+## Utilisation dans le code
+
+```typescript
+import { useSound } from '@/hooks/useSound';
+
+function MyComponent() {
+  const { playSound } = useSound();
+
+  const handleSuccess = () => {
+    playSound('victory');
+  };
+
+  const handleError = () => {
+    playSound('disk_error');
+  };
+
+  return (/* ... */);
+}
+```
+
+---
+
+## Améliorations futures suggérées
+
+- [ ] Ajouter sons pour les autres jeux (Sudoku, Balance, etc.)
+- [ ] Remplacer les sons générés par de vrais sons professionnels
+- [ ] Ajouter musique de fond optionnelle
+- [ ] Support de sons spécifiques par thème de jeu

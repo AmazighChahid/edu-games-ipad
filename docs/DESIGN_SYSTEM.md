@@ -28,7 +28,7 @@ npx expo install @expo/vector-icons
 ### Tokens principaux
 
 ```typescript
-// src/constants/colors.ts
+// src/theme/colors.ts (NOUVEAU CHEMIN - /src/constants/ est deprecated)
 
 export const Colors = {
   // Couleurs principales
@@ -114,7 +114,7 @@ export const AccessiblePairs = {
 ### Configuration des fonts
 
 ```typescript
-// src/constants/typography.ts
+// src/theme/typography.ts (NOUVEAU CHEMIN - /src/constants/ est deprecated)
 
 export const FontFamily = {
   // Titres et boutons - ludique mais lisible
@@ -258,7 +258,7 @@ export default function App() {
 ## 📐 Espacements
 
 ```typescript
-// src/constants/spacing.ts
+// src/theme/spacing.ts (NOUVEAU CHEMIN - /src/constants/ est deprecated)
 
 export const Spacing = {
   // Base scale (multiples de 4)
@@ -296,7 +296,7 @@ export const TouchTarget = {
 ### Boutons
 
 ```typescript
-// src/constants/components.ts
+// src/theme/spacing.ts ou composants individuels
 
 export const ButtonSize = {
   small: {
@@ -470,7 +470,7 @@ export const ProgressStyle = {
 ## 🎬 Animations
 
 ```typescript
-// src/constants/animations.ts
+// Animations (utiliser directement react-native-reanimated)
 import { Easing } from 'react-native-reanimated';
 
 export const Duration = {
@@ -551,7 +551,7 @@ export const Animations = {
 ## 👆 Gestes
 
 ```typescript
-// src/constants/gestures.ts
+// Configuration des gestes (react-native-gesture-handler)
 
 export const Gestures = {
   // ✅ RECOMMANDÉS
@@ -588,7 +588,7 @@ export const DragConfig = {
 ## 📱 Layouts & Responsive
 
 ```typescript
-// src/constants/layout.ts
+// src/theme/spacing.ts (homeLayout) ou responsive utils
 import { Dimensions } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
@@ -631,7 +631,7 @@ export const SafeArea = {
 ## 👶 Adaptation par âge
 
 ```typescript
-// src/constants/ageGroups.ts
+// Configuration par groupe d'âge
 
 export const AgeGroup = {
   '6-7': {
@@ -691,7 +691,7 @@ export type AgeGroupKey = keyof typeof AgeGroup;
 ## ♿ Accessibilité
 
 ```typescript
-// src/constants/accessibility.ts
+// src/theme/touchTargets.ts et bonnes pratiques accessibilité
 
 export const A11y = {
   // Tailles minimum
@@ -769,47 +769,60 @@ export const NavigationIcons = {
 ```
 src/
 ├── components/
-│   ├── ui/
+│   ├── common/              # Composants UI réutilisables
 │   │   ├── Button.tsx
-│   │   ├── Card.tsx
-│   │   ├── Text.tsx
-│   │   ├── ProgressBar.tsx
-│   │   └── IconButton.tsx
-│   ├── feedback/
-│   │   ├── SuccessAnimation.tsx
-│   │   ├── HintBubble.tsx
-│   │   └── FeedbackMessage.tsx
-│   ├── activities/
-│   │   ├── HanoiTower.tsx
-│   │   └── ...
-│   └── ai/
-│       └── MascotAssistant.tsx
-├── screens/
-│   ├── child/
-│   │   ├── HomeScreen.tsx
-│   │   ├── ActivityScreen.tsx
-│   │   └── ProgressScreen.tsx
-│   └── parent/
-│       ├── DashboardScreen.tsx
-│       └── SettingsScreen.tsx
-├── constants/
-│   ├── colors.ts
-│   ├── typography.ts
-│   ├── spacing.ts
-│   ├── components.ts
-│   ├── animations.ts
-│   └── index.ts         # Export tout
+│   │   ├── BackButton.tsx
+│   │   ├── ScreenHeader.tsx
+│   │   ├── PageContainer.tsx
+│   │   ├── ScreenBackground.tsx
+│   │   └── GameModal.tsx
+│   ├── home/                # Composants écran d'accueil
+│   │   ├── GameCardV9.tsx
+│   │   ├── HomeHeaderV9.tsx
+│   │   └── widgets/
+│   ├── home-v10/            # 🆕 Composants Home V10 (Forêt immersive)
+│   │   ├── ForestBackgroundV10.tsx
+│   │   ├── HomeHeaderV10.tsx
+│   │   ├── GameCardV10.tsx
+│   │   ├── layers/          # Couches du paysage
+│   │   └── animals/         # Animaux animés
+│   ├── background/          # Éléments de fond
+│   ├── parent/              # Composants espace parents
+│   └── collection/          # Système de collection
+├── games/                   # Implémentation des jeux
+│   ├── registry.ts          # Registre central des jeux
+│   ├── hanoi/
+│   ├── suites-logiques/
+│   ├── balance/
+│   ├── sudoku/
+│   ├── math-blocks/
+│   ├── logix-grid/
+│   ├── conteur-curieux/     # 🆕 Jeu de lecture
+│   ├── mots-croises/        # 🆕 Jeu de vocabulaire
+│   └── matrices-magiques/   # 🆕 (coming soon)
+├── theme/                   # 🆕 NOUVEAU - Design System centralisé
+│   ├── index.ts             # Export combiné du thème
+│   ├── colors.ts            # Palette de couleurs
+│   ├── typography.ts        # Polices et styles texte
+│   ├── spacing.ts           # Espacement et layouts
+│   ├── touchTargets.ts      # Tailles tactiles enfants
+│   ├── home-v10-colors.ts   # Couleurs spécifiques V10
+│   └── daltonismModes.ts    # Support daltonisme
+├── constants/               # ⚠️ DEPRECATED - Utiliser /theme/
+│   └── (ancien code)
 ├── hooks/
-│   ├── useAgeGroup.ts
-│   ├── useProgress.ts
-│   └── useAccessibility.ts
-├── context/
-│   ├── UserContext.tsx
-│   └── ProgressContext.tsx
+│   ├── useSound.ts          # 🆕 Gestion audio
+│   ├── useChildProfile.ts
+│   ├── useGamesProgress.ts
+│   └── useCardUnlock.ts
+├── store/                   # État global Zustand
+│   └── slices/
+├── types/
 └── utils/
-    ├── accessibility.ts
-    └── feedback.ts
 ```
+
+> **Note importante** : Le dossier `/src/constants/` est **deprecated**.
+> Utiliser `/src/theme/` pour tous les nouveaux développements.
 
 ---
 
@@ -842,5 +855,15 @@ src/
 
 ---
 
-*Design System v1.0 — App Éducative iPad*
+*Design System v2.0 — App Éducative iPad*
 *Basé sur les guidelines UX enfant et principes Montessori*
+*Dernière mise à jour : Décembre 2024*
+
+---
+
+## 📝 Historique des changements
+
+| Version | Date | Changements |
+|---------|------|-------------|
+| v2.0 | Déc 2024 | Migration `/constants/` → `/theme/`, ajout Home V10, nouveaux jeux |
+| v1.0 | Nov 2024 | Version initiale |

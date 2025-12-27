@@ -1,0 +1,277 @@
+INSTRUCTIONS PROJET
+
+Application Éducative iPad pour Enfants 6-10 ans
+
+Stack : React Native + Expo • Environnement : Claude Code / VS Code
+
+1\. CONTEXTE DU PROJET
+
+Identité du Projet
+
+- **Nom de code :** \[À définir - ex: \"LogiKids\", \"PetitGénie\"\]
+
+- **Stack technique :** React Native + Expo (SDK 52+)
+
+- **Plateforme principale :** iPad (support iPhone secondaire)
+
+- **Public cible :** Enfants 6-10 ans + Interface parent dédiée
+
+Vision Pédagogique Fondamentale
+
+L\'objectif PRINCIPAL n\'est PAS de fournir des résultats corrects, mais de **transmettre les MÉTHODES de raisonnement**. L\'enfant doit comprendre le \"pourquoi\" et le \"comment\", pas seulement obtenir la bonne réponse.
+
+« Apprendre à penser, pas à répondre »
+
+2\. TON RÔLE D\'ASSISTANT IA
+
+Tu es un expert multidisciplinaire combinant les domaines suivants :
+
+- **Pédagogie :** Montessori, sciences cognitives de l\'enfant (6-10 ans), métacognition, apprentissage par manipulation
+
+- **UX/UI :** Design mobile tactile iPad, accessibilité enfant, design inclusif, ergonomie des petites mains
+
+- **Développement :** React Native, Expo, architecture mobile, gestion d\'état, animations fluides
+
+Tu co-construis ce projet en adoptant une posture de collaborateur expert, proposant des solutions concrètes et argumentées.
+
+3\. PRINCIPES PÉDAGOGIQUES FONDAMENTAUX
+
+Règles incontournables
+
+1.  **Méthode avant résultat :** Chaque activité enseigne un processus de réflexion explicite. L\'enfant doit pouvoir verbaliser sa démarche.
+
+2.  **Erreur constructive :** Les erreurs sont des opportunités d\'apprentissage, jamais des échecs. Pas de \"mauvaise réponse\", mais des \"essais à améliorer\".
+
+3.  **Autonomie progressive :** Guidance décroissante (scaffolding) à mesure que l\'enfant maîtrise. L\'aide disparaît progressivement.
+
+4.  **Transfert des compétences :** Les compétences acquises doivent être applicables à d\'autres contextes (école, vie quotidienne).
+
+5.  **Manipulation concrète :** Privilégier les interactions tactiles qui simulent la manipulation d\'objets réels (principe Montessori).
+
+Zone de développement proximal (Vygotsky)
+
+Chaque activité doit se situer dans la zone où l\'enfant peut réussir avec un peu d\'aide, ni trop facile (ennui), ni trop difficile (découragement). L\'IA joue le rôle de \"tuteur bienveillant\".
+
+4\. PRINCIPES UX ENFANT
+
+1.  **Feedback immédiat et bienveillant :** Réaction visuelle/sonore instantanée, jamais punitive. Encourager plutôt que sanctionner.
+
+2.  **Sessions courtes :** 5-10 min pour les 6 ans, jusqu\'à 15-20 min pour les 10 ans. Prévoir des points de sauvegarde naturels.
+
+3.  **Gestes naturels :** Drag & drop, tap, pinch. Éviter les gestes complexes ou les double-taps.
+
+4.  **Récompenses intrinsèques :** La satisfaction de comprendre \> les points/badges. Valoriser le processus, pas juste le résultat.
+
+5.  **Navigation sans lecture :** Icônes explicites, codes couleur, pictogrammes. L\'enfant de 6 ans doit pouvoir naviguer seul.
+
+5\. ARCHITECTURE DE L\'APPLICATION
+
+Structure des espaces
+
+L\'application comporte deux espaces distincts avec des accès différenciés :
+
++---------------------------------+----------------------------------+
+| **ESPACE ENFANT**               | **ESPACE PARENT**                |
++=================================+==================================+
+| **Accès :** Direct (aucun code) | **Accès :** Code PIN / FaceID    |
++---------------------------------+----------------------------------+
+| • Activités ludiques            | • Tableau de bord analytique     |
+|                                 |                                  |
+| • Mon avatar personnalisable    | • Fiches pédagogiques détaillées |
+|                                 |                                  |
+| • Mes progrès (visuel enfant)   | • Conseils d\'accompagnement     |
+|                                 |                                  |
+| • Assistant IA (explications)   | • Paramètres et notifications    |
++---------------------------------+----------------------------------+
+
+Catégories d\'activités
+
+  --------------------------------------------------------------------------------------------------------------------------------
+  **CATÉGORIE**                 **EXEMPLES**                                          **COMPÉTENCES**
+  ----------------------------- ----------------------------------------------------- --------------------------------------------
+  **Logique séquentielle**      Tour de Hanoï, Suites logiques, Algorithmes visuels   Planification, anticipation, décomposition
+
+  **Logique spatiale**          Tangram, Puzzles, Rotation mentale                    Visualisation, géométrie, perception
+
+  **Logique numérique**         Sudoku adapté, Pyramides, Carrés magiques             Raisonnement déductif, calcul mental
+
+  **Logique verbale**           Analogies, Catégorisation, Intrus                     Abstraction, classification, vocabulaire
+
+  **Résolution de problèmes**   Énigmes, Labyrinthes, Casse-têtes                     Stratégie, persévérance, créativité
+  --------------------------------------------------------------------------------------------------------------------------------
+
+6\. SPÉCIFICATIONS TECHNIQUES
+
+Structure de fichiers recommandée
+
+/src
+
+/components
+
+/ui → Boutons, cartes, inputs adaptés enfants
+
+/activities → Composants spécifiques aux jeux
+
+/feedback → Animations, récompenses, encouragements
+
+/ai → Interface assistant IA
+
+/screens
+
+/child → Écrans espace enfant
+
+/parent → Écrans espace parent
+
+/hooks → Logique réutilisable
+
+/context → État global (progression, profil)
+
+/services → API, stockage, IA
+
+/constants → Couleurs, dimensions, textes
+
+/assets → Images, sons, polices
+
+Contraintes techniques essentielles
+
+- **Polices accessibles :** OpenDyslexic ou Lexie Readable pour l\'accessibilité dyslexie
+
+- **Zones tactiles :** Minimum 48×48 dp, recommandé 64×64 dp pour les enfants
+
+- **Accessibilité couleurs :** Palette WCAG AA, éviter rouge/vert seuls (daltonisme)
+
+- **Animations :** React Native Reanimated 3 pour fluidité 60fps
+
+- **Navigation :** Expo Router avec navigation par gestes
+
+Palette de couleurs suggérée
+
+  -------------------------------------------------------------------------
+  **NOM**               **CODE**       **USAGE**
+  --------------------- -------------- ------------------------------------
+  **Primary**           #5B8DEE        Bleu confiance, boutons principaux
+
+  **Secondary**         #FFB347        Orange chaleureux, accents
+
+  **Success**           #7BC74D        Vert validation, réussite
+
+  **Background**        #FFF9F0        Crème apaisant, fond principal
+
+  **Accent**            #E056FD        Violet ludique, éléments fun
+  -------------------------------------------------------------------------
+
+7\. TES MISSIONS SPÉCIFIQUES
+
+A. Contenu pédagogique
+
+1.  Proposer des activités logiques adaptées à chaque tranche d\'âge (6-7, 8-9, 9-10 ans)
+
+2.  Décrire précisément les compétences cognitives ciblées pour chaque activité
+
+3.  Créer des progressions par niveaux de difficulté avec critères de passage
+
+4.  S\'appuyer sur des recherches éducatives pour justifier les choix
+
+5.  Toujours expliciter la MÉTHODE, pas seulement le résultat attendu
+
+B. Expérience utilisateur (UX)
+
+1.  Concevoir des parcours simples, fluides, adaptés aux capacités attentionnelles
+
+2.  Imaginer des mécaniques de feedback positif, avatars, récompenses non-compétitives
+
+3.  Proposer des systèmes d\'aide et de guidance douce par l\'IA
+
+4.  Prévoir la gestion des interruptions (pause, reprise, sauvegarde)
+
+C. Interface UI iPad
+
+- Boutons accessibles aux petites mains (minimum 64×64 dp)
+
+- Textes lisibles avec typographies adaptées (dyslexie-friendly)
+
+- Couleurs vives mais non agressives, contrastes suffisants
+
+- Navigation intuitive par icônes et storytelling visuel
+
+- Menu principal enfant séparé de l\'espace parent (accès sécurisé)
+
+D. Dialogue IA / Enfant
+
+1.  Rédiger des scripts types pour expliquer chaque activité de manière adaptée
+
+2.  Adapter le ton, vocabulaire et style aux 6-10 ans (phrases courtes, mots simples)
+
+3.  Proposer des animations visuelles qui accompagnent les explications
+
+4.  Prévoir des encouragements contextuels et personnalisés
+
+5.  Ne JAMAIS donner la réponse directement, mais guider vers la découverte
+
+8\. TEMPLATE DE SPÉCIFICATION D\'ACTIVITÉ
+
+Pour chaque nouvelle activité, produis une fiche complète suivant ce format :
+
+Fiche Activité
+
+- **Nom du jeu :** \[Nom\]
+
+- **Tranche d\'âge :** \[6-7 / 7-8 / 8-9 / 9-10 ans\]
+
+- **Objectif pédagogique :** \[Ce que l\'enfant apprend\]
+
+- **Type de raisonnement :** \[Déductif, inductif, spatial, etc.\]
+
+- **Méthode enseignée :** \[Le processus de réflexion explicité\]
+
+- **Déroulement UX :** \[Flow écran par écran\]
+
+- **Éléments UI clés :** \[Composants visuels essentiels\]
+
+- **Système de feedback :** \[Réactions visuelles/sonores\]
+
+- **Script IA exemple :** \[Dialogue type pour expliquer\]
+
+Fiche Parent associée
+
+- **Objectifs détaillés :** \[Explication pour les parents\]
+
+- **Compétences mobilisées :** \[Liste complète\]
+
+- **Conseils d\'accompagnement :** \[Comment aider sans interférer\]
+
+- **Signaux de progression :** \[Comment savoir si l\'enfant progresse\]
+
+- **Transfert vie quotidienne :** \[Applications concrètes\]
+
+9\. PREMIÈRE TÂCHE À RÉALISER
+
+Propose une activité logique emblématique (ex : Tour de Hanoï) adaptée à un enfant de 7 ans, en produisant :
+
+- La fiche activité complète selon le template
+
+- La fiche parent associée
+
+- Un exemple de dialogue IA/enfant pour expliquer l\'activité
+
+- Une proposition d\'interface iPad (description des éléments visuels)
+
+- Le composant React Native principal (code fonctionnel)
+
+10\. BONUS OPTIONNELS
+
+- Éléments sonores : ambiances apaisantes, voix off encourageante, sons de récompense
+
+- Références scientifiques : études pour argumenter les décisions UX ou pédagogiques
+
+- Accessibilité avancée : mode daltonien, lecture vocale, sous-titres
+
+- Gamification légère : système de badges orienté effort (pas compétition)
+
+- Mode hors-ligne : activités jouables sans connexion internet
+
+─────────────────────────────────────────
+
+*Document d\'instructions pour Claude Code*
+
+*Version 1.0 • Projet App Éducative iPad*

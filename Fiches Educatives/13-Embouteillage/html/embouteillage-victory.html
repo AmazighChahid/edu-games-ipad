@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Embouteillage - Victoire</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: 'Nunito', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: #1a1a2e;
+      padding: 20px;
+    }
+    
+    .ipad-frame {
+      width: 1194px;
+      height: 834px;
+      background: linear-gradient(180deg, #4A5568 0%, #3D4852 50%, #2D3748 100%);
+      border-radius: 24px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 25px 80px rgba(0,0,0,0.5);
+    }
+    
+    /* Background (blurred game) */
+    .game-bg {
+      position: absolute;
+      inset: 0;
+      filter: blur(8px);
+      transform: scale(1.05);
+      opacity: 0.5;
+    }
+    
+    .game-bg-gradient {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, #2C3E50 0%, #4A6572 30%, #3D3D3D 60%, #2D2D2D 100%);
+    }
+    
+    /* ========== OVERLAY VICTOIRE ========== */
+    .victory-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      animation: fadeIn 0.3s ease-out;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    /* Confettis */
+    .confetti {
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      opacity: 0;
+      animation: confetti-fall 3s ease-out forwards;
+    }
+    .confetti-1 { left: 10%; top: -20px; background: #FFD700; animation-delay: 0.1s; border-radius: 50%; }
+    .confetti-2 { left: 20%; top: -20px; background: #FF6B35; animation-delay: 0.2s; transform: rotate(45deg); }
+    .confetti-3 { left: 30%; top: -20px; background: #5B8DEE; animation-delay: 0.15s; border-radius: 50%; }
+    .confetti-4 { left: 40%; top: -20px; background: #7BC74D; animation-delay: 0.3s; }
+    .confetti-5 { left: 50%; top: -20px; background: #FFD700; animation-delay: 0.1s; border-radius: 50%; }
+    .confetti-6 { left: 60%; top: -20px; background: #E74C3C; animation-delay: 0.25s; transform: rotate(45deg); }
+    .confetti-7 { left: 70%; top: -20px; background: #FF6B35; animation-delay: 0.35s; border-radius: 50%; }
+    .confetti-8 { left: 80%; top: -20px; background: #5B8DEE; animation-delay: 0.2s; }
+    .confetti-9 { left: 90%; top: -20px; background: #7BC74D; animation-delay: 0.15s; border-radius: 50%; }
+    .confetti-10 { left: 15%; top: -20px; background: #FFD700; animation-delay: 0.4s; transform: rotate(45deg); }
+    .confetti-11 { left: 25%; top: -20px; background: #E74C3C; animation-delay: 0.5s; }
+    .confetti-12 { left: 35%; top: -20px; background: #FF6B35; animation-delay: 0.45s; border-radius: 50%; }
+    .confetti-13 { left: 45%; top: -20px; background: #5B8DEE; animation-delay: 0.55s; transform: rotate(45deg); }
+    .confetti-14 { left: 55%; top: -20px; background: #7BC74D; animation-delay: 0.35s; border-radius: 50%; }
+    .confetti-15 { left: 65%; top: -20px; background: #FFD700; animation-delay: 0.6s; }
+    .confetti-16 { left: 75%; top: -20px; background: #E74C3C; animation-delay: 0.3s; border-radius: 50%; }
+    .confetti-17 { left: 85%; top: -20px; background: #FF6B35; animation-delay: 0.5s; transform: rotate(45deg); }
+    .confetti-18 { left: 5%; top: -20px; background: #5B8DEE; animation-delay: 0.4s; }
+    
+    @keyframes confetti-fall {
+      0% { opacity: 1; transform: translateY(0) rotate(0deg) scale(1); }
+      100% { opacity: 0; transform: translateY(900px) rotate(720deg) scale(0.5); }
+    }
+    
+    /* Taxi animé qui sort */
+    .taxi-exit-animation {
+      position: absolute;
+      left: 35%;
+      top: 55%;
+      font-size: 80px;
+      animation: taxi-zoom-out 1.5s ease-out forwards;
+      filter: drop-shadow(0 10px 30px rgba(255, 215, 0, 0.5));
+    }
+    
+    @keyframes taxi-zoom-out {
+      0% { 
+        transform: translateX(0) scale(1);
+        opacity: 1;
+      }
+      50% {
+        transform: translateX(200px) scale(1.3);
+        opacity: 1;
+      }
+      100% { 
+        transform: translateX(600px) scale(0.5);
+        opacity: 0;
+      }
+    }
+    
+    /* Route animée */
+    .road-animation {
+      position: absolute;
+      bottom: 35%;
+      left: 0;
+      right: 0;
+      height: 100px;
+      overflow: hidden;
+      opacity: 0;
+      animation: road-appear 0.5s ease-out 0.3s forwards;
+    }
+    
+    @keyframes road-appear {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    .road-surface {
+      width: 100%;
+      height: 100%;
+      background: #3D3D3D;
+      position: relative;
+    }
+    .road-line {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      height: 8px;
+      background: repeating-linear-gradient(
+        90deg,
+        #FFD700 0px,
+        #FFD700 40px,
+        transparent 40px,
+        transparent 80px
+      );
+      animation: road-move 1s linear infinite;
+      width: 200%;
+      left: -50%;
+    }
+    
+    @keyframes road-move {
+      from { transform: translateY(-50%) translateX(0); }
+      to { transform: translateY(-50%) translateX(80px); }
+    }
+    
+    /* ========== POPUP VICTOIRE ========== */
+    .victory-popup {
+      background: white;
+      border-radius: 32px;
+      width: 550px;
+      box-shadow: 0 25px 80px rgba(0,0,0,0.4);
+      animation: popup-appear 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.5s both;
+      overflow: hidden;
+    }
+    
+    @keyframes popup-appear {
+      0% { opacity: 0; transform: scale(0.5) translateY(50px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    
+    /* Header avec rayons */
+    .popup-header {
+      background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+      padding: 30px 20px 70px;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .rays {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 400px;
+      height: 400px;
+      animation: rays-rotate 15s linear infinite;
+    }
+    .ray {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 4px;
+      height: 200px;
+      background: rgba(255,255,255,0.3);
+      transform-origin: center top;
+    }
+    .ray:nth-child(1) { transform: rotate(0deg); }
+    .ray:nth-child(2) { transform: rotate(30deg); }
+    .ray:nth-child(3) { transform: rotate(60deg); }
+    .ray:nth-child(4) { transform: rotate(90deg); }
+    .ray:nth-child(5) { transform: rotate(120deg); }
+    .ray:nth-child(6) { transform: rotate(150deg); }
+    .ray:nth-child(7) { transform: rotate(180deg); }
+    .ray:nth-child(8) { transform: rotate(210deg); }
+    .ray:nth-child(9) { transform: rotate(240deg); }
+    .ray:nth-child(10) { transform: rotate(270deg); }
+    .ray:nth-child(11) { transform: rotate(300deg); }
+    .ray:nth-child(12) { transform: rotate(330deg); }
+    
+    @keyframes rays-rotate {
+      from { transform: translate(-50%, -50%) rotate(0deg); }
+      to { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+    
+    .victory-title {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 44px;
+      font-weight: 700;
+      color: white;
+      text-align: center;
+      text-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      position: relative;
+      z-index: 2;
+      animation: title-bounce 0.6s ease-out 0.8s both;
+    }
+    
+    @keyframes title-bounce {
+      0% { transform: scale(0); }
+      50% { transform: scale(1.2); }
+      70% { transform: scale(0.9); }
+      100% { transform: scale(1); }
+    }
+    
+    .victory-subtitle {
+      font-size: 18px;
+      color: rgba(255,255,255,0.9);
+      text-align: center;
+      margin-top: 8px;
+      position: relative;
+      z-index: 2;
+    }
+    
+    /* Étoiles */
+    .stars-container {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 16px;
+      position: relative;
+      z-index: 2;
+    }
+    .victory-star {
+      font-size: 44px;
+      opacity: 0;
+      transform: scale(0) rotate(-180deg);
+      animation: star-pop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
+    }
+    .victory-star:nth-child(1) { animation-delay: 1s; }
+    .victory-star:nth-child(2) { animation-delay: 1.2s; }
+    .victory-star:nth-child(3) { animation-delay: 1.4s; }
+    
+    @keyframes star-pop {
+      0% { opacity: 0; transform: scale(0) rotate(-180deg); }
+      100% { opacity: 1; transform: scale(1) rotate(0deg); }
+    }
+    
+    /* Badge véhicule */
+    .vehicle-badge-section {
+      padding: 0 30px;
+      margin-top: -45px;
+      position: relative;
+      z-index: 3;
+    }
+    
+    .vehicle-badge {
+      width: 160px;
+      height: 100px;
+      background: linear-gradient(135deg, #FFF9F0, #FFE4B5);
+      border-radius: 20px;
+      border: 4px solid #FFD700;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 30px rgba(255, 179, 71, 0.4);
+      position: relative;
+      animation: badge-appear 0.5s ease-out 1.6s both;
+    }
+    
+    @keyframes badge-appear {
+      from { opacity: 0; transform: scale(0.5) rotate(-10deg); }
+      to { opacity: 1; transform: scale(1) rotate(0deg); }
+    }
+    
+    .vehicle-badge-icon {
+      font-size: 60px;
+      animation: badge-bounce 2s ease-in-out infinite;
+    }
+    
+    @keyframes badge-bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+    }
+    
+    .new-badge {
+      position: absolute;
+      top: -12px;
+      right: -12px;
+      background: #7BC74D;
+      color: white;
+      font-size: 10px;
+      font-weight: 800;
+      padding: 5px 10px;
+      border-radius: 10px;
+      transform: rotate(15deg);
+      box-shadow: 0 3px 10px rgba(123, 199, 77, 0.4);
+    }
+    
+    .badge-message {
+      text-align: center;
+      margin-top: 12px;
+      opacity: 0;
+      animation: fadeInUp 0.5s ease-out 1.8s forwards;
+    }
+    .badge-message p {
+      font-size: 15px;
+      color: #718096;
+    }
+    .badge-message strong {
+      color: #FF6B35;
+    }
+    
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* Stats */
+    .stats-section {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      padding: 25px 30px;
+      border-top: 2px solid #F0F0F0;
+      margin-top: 20px;
+      opacity: 0;
+      animation: fadeInUp 0.5s ease-out 2s forwards;
+    }
+    
+    .stat-item {
+      text-align: center;
+    }
+    .stat-value {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 32px;
+      font-weight: 700;
+    }
+    .stat-value.blue { color: #5B8DEE; }
+    .stat-value.green { color: #7BC74D; }
+    .stat-value.gold { color: #F39C12; }
+    .stat-label {
+      font-size: 13px;
+      color: #A0AEC0;
+      margin-top: 4px;
+    }
+    
+    .stat-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: linear-gradient(135deg, rgba(123,199,77,0.15), rgba(123,199,77,0.05));
+      border: 2px solid #7BC74D;
+      padding: 5px 12px;
+      border-radius: 10px;
+      margin-top: 6px;
+    }
+    .stat-badge-icon { font-size: 16px; }
+    .stat-badge-text {
+      font-size: 12px;
+      font-weight: 700;
+      color: #5BAE6B;
+    }
+    
+    /* Progression catégorie */
+    .category-progress-section {
+      padding: 0 30px 20px;
+      opacity: 0;
+      animation: fadeInUp 0.5s ease-out 2.2s forwards;
+    }
+    
+    .category-progress-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .category-name {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'Fredoka', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      color: #4A5568;
+    }
+    .category-count {
+      font-size: 14px;
+      color: #A0AEC0;
+    }
+    
+    .category-bar {
+      height: 12px;
+      background: #E2E8F0;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .category-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #F39C12, #E67E22);
+      border-radius: 6px;
+      transition: width 1s ease-out;
+    }
+    
+    /* Boutons */
+    .buttons-section {
+      padding: 15px 30px 30px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      opacity: 0;
+      animation: fadeInUp 0.5s ease-out 2.4s forwards;
+    }
+    
+    .btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 16px 28px;
+      border-radius: 16px;
+      font-family: 'Fredoka', sans-serif;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, #FFD700, #FFA500);
+      color: #2D3748;
+      box-shadow: 0 6px 20px rgba(255, 165, 0, 0.4);
+    }
+    .btn-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 30px rgba(255, 165, 0, 0.5);
+    }
+    
+    .btn-secondary {
+      background: #F5F5F5;
+      color: #4A5568;
+    }
+    .btn-secondary:hover {
+      background: #EBEBEB;
+    }
+    
+    .btn-text {
+      background: transparent;
+      color: #A0AEC0;
+      font-size: 16px;
+    }
+    .btn-text:hover {
+      color: #5B8DEE;
+    }
+    
+    /* ========== MASCOTTE GUS ========== */
+    .gus-celebration {
+      position: absolute;
+      bottom: 80px;
+      right: 100px;
+      z-index: 101;
+      animation: gus-jump 0.8s ease-in-out infinite;
+    }
+    
+    @keyframes gus-jump {
+      0%, 100% { transform: translateY(0) rotate(-5deg); }
+      50% { transform: translateY(-25px) rotate(5deg); }
+    }
+    
+    .gus-speech {
+      position: absolute;
+      bottom: 170px;
+      right: 0;
+      background: white;
+      padding: 14px 18px;
+      border-radius: 16px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+      max-width: 200px;
+      opacity: 0;
+      animation: speech-appear 0.5s ease-out 2.6s forwards;
+    }
+    .gus-speech::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 30px;
+      border-left: 10px solid transparent;
+      border-right: 10px solid transparent;
+      border-top: 10px solid white;
+    }
+    .gus-speech p {
+      font-size: 14px;
+      color: #2D3748;
+      line-height: 1.4;
+    }
+    
+    @keyframes speech-appear {
+      from { opacity: 0; transform: scale(0.8); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    
+    /* Gus body (celebration version) */
+    .gus-body-celebrate {
+      width: 100px;
+      height: 110px;
+      position: relative;
+    }
+    
+    .gus-c-body {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 70px;
+      height: 75px;
+      background: linear-gradient(180deg, #708090, #5A6A7A);
+      border-radius: 50% 50% 40% 40%;
+    }
+    .gus-c-overalls {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 55px;
+      height: 45px;
+      background: linear-gradient(180deg, #FF6B35, #E55A25);
+      border-radius: 6px 6px 20% 20%;
+    }
+    .gus-c-head {
+      position: absolute;
+      bottom: 55px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 55px;
+      height: 50px;
+      background: linear-gradient(180deg, #808A94, #708090);
+      border-radius: 50%;
+    }
+    .gus-c-mask {
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 45px;
+      height: 16px;
+      background: #2D3748;
+      border-radius: 50%;
+    }
+    .gus-c-eye {
+      position: absolute;
+      top: 14px;
+      width: 14px;
+      height: 14px;
+      background: white;
+      border-radius: 50%;
+    }
+    .gus-c-eye.left { left: 8px; }
+    .gus-c-eye.right { right: 8px; }
+    /* Yeux heureux (arcs) */
+    .gus-c-eye.happy {
+      background: none;
+      border-bottom: 3px solid #2D3748;
+      border-radius: 0 0 50% 50%;
+      height: 8px;
+      top: 16px;
+    }
+    .gus-c-cap {
+      position: absolute;
+      top: -4px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 38px;
+      height: 18px;
+      background: linear-gradient(180deg, #E74C3C, #C0392B);
+      border-radius: 50% 50% 10% 10%;
+    }
+    .gus-c-visor {
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 44px;
+      height: 10px;
+      background: #C0392B;
+      border-radius: 0 0 50% 50%;
+    }
+    
+    /* Bras levés */
+    .gus-arm {
+      position: absolute;
+      width: 20px;
+      height: 35px;
+      background: #708090;
+      border-radius: 10px;
+      top: 40px;
+    }
+    .gus-arm.left {
+      left: -10px;
+      transform: rotate(-45deg);
+      animation: arm-wave 0.5s ease-in-out infinite alternate;
+    }
+    .gus-arm.right {
+      right: -10px;
+      transform: rotate(45deg);
+      animation: arm-wave 0.5s ease-in-out infinite alternate-reverse;
+    }
+    
+    @keyframes arm-wave {
+      from { transform: rotate(-45deg); }
+      to { transform: rotate(-60deg); }
+    }
+    
+    /* Clé à molette qui vole */
+    .flying-wrench {
+      position: absolute;
+      top: -20px;
+      right: -30px;
+      font-size: 30px;
+      animation: wrench-spin 1s ease-in-out infinite;
+    }
+    
+    @keyframes wrench-spin {
+      0%, 100% { transform: rotate(0deg) translateY(0); }
+      50% { transform: rotate(360deg) translateY(-10px); }
+    }
+    
+    /* Sparkles */
+    .sparkle {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      background: #FFD700;
+      border-radius: 50%;
+      animation: sparkle-pulse 1.5s ease-in-out infinite;
+    }
+    .sparkle-1 { top: 25%; left: 12%; animation-delay: 0s; }
+    .sparkle-2 { top: 30%; right: 15%; animation-delay: 0.5s; }
+    .sparkle-3 { top: 65%; left: 8%; animation-delay: 0.3s; }
+    .sparkle-4 { top: 70%; right: 10%; animation-delay: 0.8s; }
+    
+    @keyframes sparkle-pulse {
+      0%, 100% { opacity: 0; transform: scale(0); }
+      50% { opacity: 1; transform: scale(1); }
+    }
+    
+    /* Flying emojis */
+    .flying-emoji {
+      position: absolute;
+      font-size: 30px;
+      opacity: 0;
+      animation: emoji-fly 2s ease-out forwards;
+    }
+    .emoji-1 { left: 20%; top: 40%; animation-delay: 0.3s; }
+    .emoji-2 { left: 80%; top: 35%; animation-delay: 0.5s; }
+    .emoji-3 { left: 15%; top: 60%; animation-delay: 0.7s; }
+    .emoji-4 { left: 85%; top: 55%; animation-delay: 0.4s; }
+    .emoji-5 { left: 50%; top: 25%; animation-delay: 0.6s; }
+    
+    @keyframes emoji-fly {
+      0% { opacity: 0; transform: scale(0) translateY(0); }
+      50% { opacity: 1; transform: scale(1.3) translateY(-30px); }
+      100% { opacity: 0; transform: scale(0.5) translateY(-80px); }
+    }
+  </style>
+</head>
+<body>
+  <div class="ipad-frame">
+    <!-- Background flou -->
+    <div class="game-bg">
+      <div class="game-bg-gradient"></div>
+    </div>
+    
+    <!-- Route animée -->
+    <div class="road-animation">
+      <div class="road-surface">
+        <div class="road-line"></div>
+      </div>
+    </div>
+    
+    <!-- Taxi qui sort -->
+    <div class="taxi-exit-animation">🚕</div>
+    
+    <!-- Overlay victoire -->
+    <div class="victory-overlay">
+      <!-- Confettis -->
+      <div class="confetti confetti-1"></div>
+      <div class="confetti confetti-2"></div>
+      <div class="confetti confetti-3"></div>
+      <div class="confetti confetti-4"></div>
+      <div class="confetti confetti-5"></div>
+      <div class="confetti confetti-6"></div>
+      <div class="confetti confetti-7"></div>
+      <div class="confetti confetti-8"></div>
+      <div class="confetti confetti-9"></div>
+      <div class="confetti confetti-10"></div>
+      <div class="confetti confetti-11"></div>
+      <div class="confetti confetti-12"></div>
+      <div class="confetti confetti-13"></div>
+      <div class="confetti confetti-14"></div>
+      <div class="confetti confetti-15"></div>
+      <div class="confetti confetti-16"></div>
+      <div class="confetti confetti-17"></div>
+      <div class="confetti confetti-18"></div>
+      
+      <!-- Flying emojis -->
+      <div class="flying-emoji emoji-1">🚗</div>
+      <div class="flying-emoji emoji-2">⭐</div>
+      <div class="flying-emoji emoji-3">🔧</div>
+      <div class="flying-emoji emoji-4">🚕</div>
+      <div class="flying-emoji emoji-5">🎉</div>
+      
+      <!-- Sparkles -->
+      <div class="sparkle sparkle-1"></div>
+      <div class="sparkle sparkle-2"></div>
+      <div class="sparkle sparkle-3"></div>
+      <div class="sparkle sparkle-4"></div>
+      
+      <!-- Popup -->
+      <div class="victory-popup">
+        <!-- Header -->
+        <div class="popup-header">
+          <div class="rays">
+            <div class="ray"></div><div class="ray"></div><div class="ray"></div>
+            <div class="ray"></div><div class="ray"></div><div class="ray"></div>
+            <div class="ray"></div><div class="ray"></div><div class="ray"></div>
+            <div class="ray"></div><div class="ray"></div><div class="ray"></div>
+          </div>
+          
+          <h1 class="victory-title">🎉 BRAVO ! 🎉</h1>
+          <p class="victory-subtitle">Le taxi est libre !</p>
+          
+          <div class="stars-container">
+            <span class="victory-star">⭐</span>
+            <span class="victory-star">⭐</span>
+            <span class="victory-star">⭐</span>
+          </div>
+        </div>
+        
+        <!-- Badge véhicule -->
+        <div class="vehicle-badge-section">
+          <div class="vehicle-badge">
+            <span class="new-badge">NOUVEAU !</span>
+            <span class="vehicle-badge-icon">🚕</span>
+          </div>
+          <div class="badge-message">
+            <p>Tu as débloqué le <strong>Taxi New-Yorkais</strong> !</p>
+          </div>
+        </div>
+        
+        <!-- Stats -->
+        <div class="stats-section">
+          <div class="stat-item">
+            <div class="stat-value blue">14</div>
+            <div class="stat-label">Tes coups</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value green">14</div>
+            <div class="stat-label">Optimal</div>
+            <div class="stat-badge">
+              <span class="stat-badge-icon">🏆</span>
+              <span class="stat-badge-text">Parfait !</span>
+            </div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value gold">1:42</div>
+            <div class="stat-label">Temps</div>
+          </div>
+        </div>
+        
+        <!-- Progression catégorie -->
+        <div class="category-progress-section">
+          <div class="category-progress-header">
+            <span class="category-name">
+              <span>⚙️</span>
+              <span>Mécanicien</span>
+            </span>
+            <span class="category-count">9/15</span>
+          </div>
+          <div class="category-bar">
+            <div class="category-fill" style="width: 60%"></div>
+          </div>
+        </div>
+        
+        <!-- Boutons -->
+        <div class="buttons-section">
+          <button class="btn btn-primary">
+            <span>🚀</span>
+            <span>Niveau suivant (37)</span>
+          </button>
+          <button class="btn btn-secondary">
+            <span>🔄</span>
+            <span>Rejouer ce niveau</span>
+          </button>
+          <button class="btn btn-text">
+            Retour à l'accueil
+          </button>
+        </div>
+      </div>
+      
+      <!-- Mascotte Gus célébration -->
+      <div class="gus-celebration">
+        <div class="gus-speech">
+          <p>SUPER PLANIFICATION ! Tu es un vrai pro ! 🔧⭐</p>
+        </div>
+        <div class="gus-body-celebrate">
+          <div class="gus-c-body">
+            <div class="gus-c-overalls"></div>
+          </div>
+          <div class="gus-c-head">
+            <div class="gus-c-cap"></div>
+            <div class="gus-c-visor"></div>
+            <div class="gus-c-mask"></div>
+            <div class="gus-c-eye happy left"></div>
+            <div class="gus-c-eye happy right"></div>
+          </div>
+          <div class="gus-arm left"></div>
+          <div class="gus-arm right"></div>
+          <div class="flying-wrench">🔧</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Embouteillage - Intro</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: 'Nunito', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: #1a1a2e;
+      padding: 20px;
+    }
+    
+    .ipad-frame {
+      width: 1194px;
+      height: 834px;
+      background: linear-gradient(180deg, #4A4A4A 0%, #3A3A3A 50%, #2A2A2A 100%);
+      border-radius: 24px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 25px 80px rgba(0,0,0,0.5);
+    }
+    
+    /* ========== BACKGROUND GARAGE ========== */
+    .garage-bg {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+    }
+    
+    /* Sol asphalte */
+    .asphalt {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 300px;
+      background: linear-gradient(180deg, #3D3D3D 0%, #2D2D2D 100%);
+    }
+    
+    /* Lignes de parking */
+    .parking-lines {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 280px;
+      display: flex;
+      justify-content: space-around;
+      padding: 0 100px;
+    }
+    .parking-line {
+      width: 4px;
+      height: 100%;
+      background: repeating-linear-gradient(
+        180deg,
+        #FFD700 0px,
+        #FFD700 30px,
+        transparent 30px,
+        transparent 50px
+      );
+      opacity: 0.6;
+    }
+    
+    /* Mur du garage */
+    .garage-wall {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 550px;
+      background: linear-gradient(180deg, #5A5A5A 0%, #4A4A4A 100%);
+    }
+    
+    /* Panneau de fond */
+    .wall-panel {
+      position: absolute;
+      top: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 600px;
+      height: 200px;
+      background: linear-gradient(135deg, #6B6B6B, #5A5A5A);
+      border-radius: 20px;
+      border: 8px solid #4A4A4A;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: inset 0 4px 20px rgba(0,0,0,0.3);
+    }
+    .wall-panel-text {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 48px;
+      font-weight: 700;
+      color: #FFD700;
+      text-shadow: 0 4px 8px rgba(0,0,0,0.4);
+      letter-spacing: 4px;
+    }
+    .wall-panel-text span {
+      color: #FF6B35;
+    }
+    
+    /* Éléments décoratifs */
+    .cone {
+      position: absolute;
+      bottom: 280px;
+      width: 0;
+      height: 0;
+      border-left: 20px solid transparent;
+      border-right: 20px solid transparent;
+      border-bottom: 50px solid #FF6B35;
+    }
+    .cone::after {
+      content: '';
+      position: absolute;
+      top: 10px;
+      left: -15px;
+      width: 30px;
+      height: 8px;
+      background: white;
+      border-radius: 2px;
+    }
+    .cone-1 { left: 80px; }
+    .cone-2 { right: 100px; }
+    .cone-3 { left: 300px; animation: cone-wobble 3s ease-in-out infinite; }
+    
+    @keyframes cone-wobble {
+      0%, 100% { transform: rotate(-3deg); }
+      50% { transform: rotate(3deg); }
+    }
+    
+    /* Bidons d'huile */
+    .barrel {
+      position: absolute;
+      bottom: 280px;
+      width: 50px;
+      height: 70px;
+      background: linear-gradient(90deg, #2C3E50, #34495E, #2C3E50);
+      border-radius: 8px;
+    }
+    .barrel::before {
+      content: '🛢️';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 30px;
+    }
+    .barrel-1 { left: 40px; }
+    .barrel-2 { right: 50px; }
+    
+    /* Pneus */
+    .tire-stack {
+      position: absolute;
+      bottom: 280px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .tire {
+      width: 60px;
+      height: 25px;
+      background: #1a1a1a;
+      border-radius: 50%;
+      border: 4px solid #333;
+      margin-top: -8px;
+    }
+    .tire-stack-1 { left: 150px; }
+    .tire-stack-2 { right: 180px; }
+    
+    /* Outils au mur */
+    .tools-wall {
+      position: absolute;
+      top: 320px;
+      right: 80px;
+      display: flex;
+      gap: 20px;
+    }
+    .tool {
+      font-size: 40px;
+      opacity: 0.7;
+    }
+    
+    /* Lampe de garage */
+    .garage-lamp {
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 200px;
+      height: 60px;
+      background: linear-gradient(180deg, #333, #222);
+      border-radius: 10px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding-bottom: 5px;
+    }
+    .lamp-light {
+      width: 150px;
+      height: 20px;
+      background: linear-gradient(180deg, #FFE4B5, #FFD700);
+      border-radius: 0 0 50% 50%;
+      box-shadow: 0 10px 60px rgba(255, 215, 0, 0.4);
+      animation: lamp-flicker 4s ease-in-out infinite;
+    }
+    
+    @keyframes lamp-flicker {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.9; }
+      52% { opacity: 1; }
+      54% { opacity: 0.85; }
+      56% { opacity: 1; }
+    }
+    
+    /* ========== CONTENU ========== */
+    .content {
+      position: relative;
+      z-index: 10;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      padding: 24px 32px;
+    }
+    
+    /* Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .back-btn {
+      width: 64px;
+      height: 64px;
+      background: rgba(255,255,255,0.95);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      transition: all 0.2s;
+    }
+    .back-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+    }
+    
+    .header-title {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 36px;
+      font-weight: 700;
+      color: white;
+      text-shadow: 0 3px 10px rgba(0,0,0,0.3);
+    }
+    .header-title span {
+      color: #FFD700;
+    }
+    
+    .header-stats {
+      display: flex;
+      gap: 12px;
+    }
+    .stat-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.95);
+      padding: 10px 18px;
+      border-radius: 14px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+    .stat-icon { font-size: 22px; }
+    .stat-value {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: #2D3748;
+    }
+    
+    /* Main content */
+    .main-content {
+      flex: 1;
+      display: flex;
+      gap: 40px;
+      margin-top: 30px;
+    }
+    
+    /* Mascotte Gus */
+    .mascot-section {
+      width: 280px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    
+    .speech-bubble {
+      background: white;
+      padding: 20px 24px;
+      border-radius: 20px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+      margin-bottom: 20px;
+      position: relative;
+      animation: bubble-appear 0.5s ease-out;
+    }
+    .speech-bubble::after {
+      content: '';
+      position: absolute;
+      bottom: -15px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-left: 15px solid transparent;
+      border-right: 15px solid transparent;
+      border-top: 15px solid white;
+    }
+    .speech-bubble p {
+      font-size: 17px;
+      color: #2D3748;
+      line-height: 1.5;
+      text-align: center;
+    }
+    .speech-bubble strong {
+      color: #FF6B35;
+    }
+    
+    @keyframes bubble-appear {
+      from { opacity: 0; transform: scale(0.8) translateY(20px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    
+    /* Gus le Garagiste (Raton laveur) */
+    .gus-mascot {
+      width: 180px;
+      height: 200px;
+      position: relative;
+      animation: gus-bounce 2s ease-in-out infinite;
+    }
+    
+    @keyframes gus-bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    
+    .gus-body {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 120px;
+      height: 130px;
+      background: linear-gradient(180deg, #708090, #5A6A7A);
+      border-radius: 50% 50% 40% 40%;
+    }
+    
+    /* Salopette orange */
+    .gus-overalls {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100px;
+      height: 80px;
+      background: linear-gradient(180deg, #FF6B35, #E55A25);
+      border-radius: 10px 10px 30% 30%;
+    }
+    .gus-overalls::before {
+      content: '';
+      position: absolute;
+      top: 5px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 30px;
+      height: 15px;
+      background: #FF8C5A;
+      border-radius: 5px;
+    }
+    /* Bretelles */
+    .strap {
+      position: absolute;
+      top: 0;
+      width: 12px;
+      height: 50px;
+      background: #FF6B35;
+      border-radius: 5px;
+    }
+    .strap-left { left: 15px; transform: rotate(-10deg); }
+    .strap-right { right: 15px; transform: rotate(10deg); }
+    
+    /* Tête */
+    .gus-head {
+      position: absolute;
+      bottom: 100px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100px;
+      height: 90px;
+      background: linear-gradient(180deg, #808A94, #708090);
+      border-radius: 50%;
+    }
+    
+    /* Masque de raton laveur */
+    .gus-mask {
+      position: absolute;
+      top: 25px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90px;
+      height: 30px;
+      background: #2D3748;
+      border-radius: 50%;
+    }
+    
+    /* Yeux */
+    .gus-eye {
+      position: absolute;
+      top: 28px;
+      width: 24px;
+      height: 24px;
+      background: white;
+      border-radius: 50%;
+    }
+    .gus-eye.left { left: 18px; }
+    .gus-eye.right { right: 18px; }
+    .gus-eye::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 12px;
+      height: 12px;
+      background: #2D3748;
+      border-radius: 50%;
+    }
+    
+    /* Nez */
+    .gus-nose {
+      position: absolute;
+      top: 50px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 18px;
+      height: 14px;
+      background: #1a1a1a;
+      border-radius: 50%;
+    }
+    
+    /* Museau */
+    .gus-muzzle {
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 40px;
+      height: 25px;
+      background: #A0AAB4;
+      border-radius: 50%;
+    }
+    
+    /* Oreilles */
+    .gus-ear {
+      position: absolute;
+      top: 5px;
+      width: 30px;
+      height: 35px;
+      background: #708090;
+      border-radius: 50% 50% 20% 20%;
+    }
+    .gus-ear.left { left: 5px; transform: rotate(-15deg); }
+    .gus-ear.right { right: 5px; transform: rotate(15deg); }
+    .gus-ear::after {
+      content: '';
+      position: absolute;
+      top: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 16px;
+      height: 20px;
+      background: #FFC0CB;
+      border-radius: 50%;
+    }
+    
+    /* Casquette */
+    .gus-cap {
+      position: absolute;
+      top: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 70px;
+      height: 35px;
+      background: linear-gradient(180deg, #E74C3C, #C0392B);
+      border-radius: 50% 50% 10% 10%;
+    }
+    .gus-cap-visor {
+      position: absolute;
+      top: 25px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 20px;
+      background: linear-gradient(180deg, #C0392B, #A93226);
+      border-radius: 0 0 50% 50%;
+    }
+    
+    /* Clé à molette */
+    .gus-wrench {
+      position: absolute;
+      bottom: 60px;
+      right: -30px;
+      font-size: 50px;
+      transform: rotate(-30deg);
+      animation: wrench-wave 2s ease-in-out infinite;
+    }
+    
+    @keyframes wrench-wave {
+      0%, 100% { transform: rotate(-30deg); }
+      50% { transform: rotate(-10deg); }
+    }
+    
+    /* Catégories */
+    .categories-section {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .section-title {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 24px;
+      font-weight: 600;
+      color: white;
+      margin-bottom: 20px;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+    
+    .categories-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 16px;
+    }
+    
+    .category-card {
+      background: rgba(255,255,255,0.95);
+      border-radius: 20px;
+      padding: 20px 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+      position: relative;
+      overflow: hidden;
+    }
+    .category-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.3);
+    }
+    .category-card.locked {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    .category-card.locked:hover {
+      transform: none;
+    }
+    
+    .category-icon {
+      font-size: 48px;
+      margin-bottom: 12px;
+    }
+    
+    .category-name {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 18px;
+      font-weight: 600;
+      color: #2D3748;
+      margin-bottom: 8px;
+    }
+    
+    .category-progress {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .progress-text {
+      font-size: 14px;
+      font-weight: 700;
+      color: #4A5568;
+    }
+    
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: #E2E8F0;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.5s ease;
+    }
+    .progress-fill.beginner { background: linear-gradient(90deg, #7BC74D, #5BAE3D); }
+    .progress-fill.apprentice { background: linear-gradient(90deg, #5B8DEE, #4A7BD9); }
+    .progress-fill.mechanic { background: linear-gradient(90deg, #F39C12, #E67E22); }
+    .progress-fill.expert { background: linear-gradient(90deg, #9B59B6, #8E44AD); }
+    .progress-fill.master { background: linear-gradient(90deg, #E74C3C, #C0392B); }
+    
+    .category-stars {
+      display: flex;
+      justify-content: center;
+      gap: 2px;
+    }
+    .star { font-size: 16px; }
+    .star.filled { color: #FFD700; }
+    .star.empty { color: #CBD5E0; }
+    
+    .lock-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 20px;
+    }
+    .lock-icon {
+      font-size: 40px;
+    }
+    
+    /* Bouton jouer */
+    .play-section {
+      margin-top: 30px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .play-btn {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: linear-gradient(135deg, #FFD700, #FFA500);
+      padding: 20px 50px;
+      border-radius: 20px;
+      font-family: 'Fredoka', sans-serif;
+      font-size: 24px;
+      font-weight: 700;
+      color: #2D3748;
+      cursor: pointer;
+      border: none;
+      box-shadow: 0 8px 25px rgba(255, 165, 0, 0.4);
+      transition: all 0.2s;
+    }
+    .play-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 35px rgba(255, 165, 0, 0.5);
+    }
+    .play-btn:active {
+      transform: scale(0.95);
+    }
+    .play-btn-icon { font-size: 28px; }
+    
+    .current-level {
+      font-size: 16px;
+      color: rgba(255,255,255,0.8);
+    }
+    
+    /* Voitures décoratives animées */
+    .deco-car {
+      position: absolute;
+      font-size: 40px;
+      animation: car-drive 20s linear infinite;
+    }
+    .deco-car-1 {
+      bottom: 250px;
+      left: -60px;
+      animation-duration: 25s;
+    }
+    .deco-car-2 {
+      bottom: 220px;
+      left: -60px;
+      animation-delay: 8s;
+      animation-duration: 22s;
+    }
+    
+    @keyframes car-drive {
+      0% { transform: translateX(0); opacity: 0; }
+      5% { opacity: 1; }
+      95% { opacity: 1; }
+      100% { transform: translateX(1300px); opacity: 0; }
+    }
+    
+    /* Taxi jaune en highlight */
+    .taxi-highlight {
+      position: absolute;
+      bottom: 285px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 60px;
+      filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.6));
+      animation: taxi-pulse 2s ease-in-out infinite;
+    }
+    
+    @keyframes taxi-pulse {
+      0%, 100% { transform: translateX(-50%) scale(1); }
+      50% { transform: translateX(-50%) scale(1.1); }
+    }
+  </style>
+</head>
+<body>
+  <div class="ipad-frame">
+    <!-- Background Garage -->
+    <div class="garage-bg">
+      <div class="garage-wall"></div>
+      <div class="wall-panel">
+        <div class="wall-panel-text">🚗 <span>EMBOUTEILLAGE</span> 🚕</div>
+      </div>
+      <div class="garage-lamp">
+        <div class="lamp-light"></div>
+      </div>
+      <div class="tools-wall">
+        <span class="tool">🔧</span>
+        <span class="tool">🪛</span>
+        <span class="tool">⚙️</span>
+      </div>
+      <div class="asphalt"></div>
+      <div class="parking-lines">
+        <div class="parking-line"></div>
+        <div class="parking-line"></div>
+        <div class="parking-line"></div>
+        <div class="parking-line"></div>
+        <div class="parking-line"></div>
+      </div>
+      
+      <!-- Décorations -->
+      <div class="cone cone-1"></div>
+      <div class="cone cone-2"></div>
+      <div class="cone cone-3"></div>
+      <div class="barrel barrel-1"></div>
+      <div class="barrel barrel-2"></div>
+      <div class="tire-stack tire-stack-1">
+        <div class="tire"></div>
+        <div class="tire"></div>
+        <div class="tire"></div>
+      </div>
+      <div class="tire-stack tire-stack-2">
+        <div class="tire"></div>
+        <div class="tire"></div>
+      </div>
+      
+      <!-- Voitures animées -->
+      <div class="deco-car deco-car-1">🚙</div>
+      <div class="deco-car deco-car-2">🚗</div>
+      
+      <!-- Taxi en vedette -->
+      <div class="taxi-highlight">🚕</div>
+    </div>
+    
+    <!-- Contenu -->
+    <div class="content">
+      <!-- Header -->
+      <header class="header">
+        <div class="back-btn">←</div>
+        <h1 class="header-title">🚗 <span>Embouteillage</span></h1>
+        <div class="header-stats">
+          <div class="stat-badge">
+            <span class="stat-icon">⭐</span>
+            <span class="stat-value">127</span>
+          </div>
+          <div class="stat-badge">
+            <span class="stat-icon">🏆</span>
+            <span class="stat-value">35/80</span>
+          </div>
+        </div>
+      </header>
+      
+      <!-- Main -->
+      <div class="main-content">
+        <!-- Mascotte Gus -->
+        <div class="mascot-section">
+          <div class="speech-bubble">
+            <p>Salut ! Moi c'est <strong>Gus</strong> ! 🔧<br>
+            Aide-moi à faire sortir le <strong>taxi jaune</strong> du parking !</p>
+          </div>
+          
+          <div class="gus-mascot">
+            <!-- Corps -->
+            <div class="gus-body">
+              <div class="gus-overalls">
+                <div class="strap strap-left"></div>
+                <div class="strap strap-right"></div>
+              </div>
+            </div>
+            
+            <!-- Tête -->
+            <div class="gus-head">
+              <div class="gus-ear left"></div>
+              <div class="gus-ear right"></div>
+              <div class="gus-cap"></div>
+              <div class="gus-cap-visor"></div>
+              <div class="gus-mask"></div>
+              <div class="gus-eye left"></div>
+              <div class="gus-eye right"></div>
+              <div class="gus-nose"></div>
+              <div class="gus-muzzle"></div>
+            </div>
+            
+            <!-- Clé à molette -->
+            <div class="gus-wrench">🔧</div>
+          </div>
+        </div>
+        
+        <!-- Catégories -->
+        <div class="categories-section">
+          <h2 class="section-title">Choisis ton niveau</h2>
+          
+          <div class="categories-grid">
+            <!-- Débutant -->
+            <div class="category-card">
+              <div class="category-icon">🌱</div>
+              <div class="category-name">Débutant</div>
+              <div class="category-progress">
+                <span class="progress-text">10/10</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill beginner" style="width: 100%"></div>
+              </div>
+              <div class="category-stars">
+                <span class="star filled">⭐</span>
+                <span class="star filled">⭐</span>
+                <span class="star filled">⭐</span>
+              </div>
+            </div>
+            
+            <!-- Apprenti -->
+            <div class="category-card">
+              <div class="category-icon">🔧</div>
+              <div class="category-name">Apprenti</div>
+              <div class="category-progress">
+                <span class="progress-text">12/15</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill apprentice" style="width: 80%"></div>
+              </div>
+              <div class="category-stars">
+                <span class="star filled">⭐</span>
+                <span class="star filled">⭐</span>
+                <span class="star empty">⭐</span>
+              </div>
+            </div>
+            
+            <!-- Mécanicien -->
+            <div class="category-card">
+              <div class="category-icon">⚙️</div>
+              <div class="category-name">Mécanicien</div>
+              <div class="category-progress">
+                <span class="progress-text">8/15</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill mechanic" style="width: 53%"></div>
+              </div>
+              <div class="category-stars">
+                <span class="star filled">⭐</span>
+                <span class="star filled">⭐</span>
+                <span class="star empty">⭐</span>
+              </div>
+            </div>
+            
+            <!-- Expert -->
+            <div class="category-card">
+              <div class="category-icon">🏆</div>
+              <div class="category-name">Expert</div>
+              <div class="category-progress">
+                <span class="progress-text">5/20</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill expert" style="width: 25%"></div>
+              </div>
+              <div class="category-stars">
+                <span class="star filled">⭐</span>
+                <span class="star empty">⭐</span>
+                <span class="star empty">⭐</span>
+              </div>
+            </div>
+            
+            <!-- Maître (verrouillé) -->
+            <div class="category-card locked">
+              <div class="category-icon">👑</div>
+              <div class="category-name">Maître</div>
+              <div class="category-progress">
+                <span class="progress-text">0/20</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill master" style="width: 0%"></div>
+              </div>
+              <div class="category-stars">
+                <span class="star empty">⭐</span>
+                <span class="star empty">⭐</span>
+                <span class="star empty">⭐</span>
+              </div>
+              <div class="lock-overlay">
+                <span class="lock-icon">🔒</span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Bouton Jouer -->
+          <div class="play-section">
+            <button class="play-btn">
+              <span class="play-btn-icon">▶️</span>
+              <span>Jouer niveau 36</span>
+            </button>
+            <span class="current-level">Catégorie : Mécanicien ⚙️</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

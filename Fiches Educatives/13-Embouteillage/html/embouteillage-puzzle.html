@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Embouteillage - Puzzle</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: 'Nunito', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: #1a1a2e;
+      padding: 20px;
+    }
+    
+    .ipad-frame {
+      width: 1194px;
+      height: 834px;
+      background: linear-gradient(180deg, #4A5568 0%, #3D4852 50%, #2D3748 100%);
+      border-radius: 24px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 25px 80px rgba(0,0,0,0.5);
+    }
+    
+    /* ========== BACKGROUND PARKING ========== */
+    .parking-bg {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+    }
+    
+    /* Ciel du soir */
+    .sky {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 250px;
+      background: linear-gradient(180deg, #2C3E50 0%, #4A6572 50%, #7D8A91 100%);
+    }
+    
+    /* Étoiles */
+    .star {
+      position: absolute;
+      background: white;
+      border-radius: 50%;
+      animation: twinkle 2s ease-in-out infinite;
+    }
+    .star-1 { top: 30px; left: 100px; width: 3px; height: 3px; }
+    .star-2 { top: 50px; left: 300px; width: 2px; height: 2px; animation-delay: 0.5s; }
+    .star-3 { top: 40px; right: 200px; width: 3px; height: 3px; animation-delay: 1s; }
+    .star-4 { top: 80px; right: 400px; width: 2px; height: 2px; animation-delay: 0.3s; }
+    .star-5 { top: 60px; left: 500px; width: 2px; height: 2px; animation-delay: 0.8s; }
+    
+    @keyframes twinkle {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+    
+    /* Lune */
+    .moon {
+      position: absolute;
+      top: 40px;
+      right: 100px;
+      width: 60px;
+      height: 60px;
+      background: radial-gradient(circle at 30% 30%, #FFF9C4, #FFE082);
+      border-radius: 50%;
+      box-shadow: 0 0 30px rgba(255, 224, 130, 0.5);
+    }
+    
+    /* Bâtiments en arrière-plan */
+    .buildings {
+      position: absolute;
+      bottom: 350px;
+      left: 0;
+      right: 0;
+      height: 150px;
+      display: flex;
+      justify-content: space-between;
+      padding: 0 50px;
+    }
+    .building {
+      background: #1a1a2e;
+      position: relative;
+    }
+    .building-1 { width: 80px; height: 120px; }
+    .building-2 { width: 100px; height: 150px; }
+    .building-3 { width: 60px; height: 100px; }
+    .building-4 { width: 90px; height: 130px; }
+    .building-5 { width: 70px; height: 90px; }
+    .building-6 { width: 110px; height: 140px; }
+    .window {
+      position: absolute;
+      width: 12px;
+      height: 15px;
+      background: #FFE082;
+      border-radius: 2px;
+      opacity: 0.8;
+    }
+    
+    /* Sol asphalte */
+    .asphalt {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 350px;
+      background: linear-gradient(180deg, #3D3D3D 0%, #2D2D2D 100%);
+    }
+    
+    /* Marquages au sol */
+    .road-marking {
+      position: absolute;
+      background: #FFD700;
+      opacity: 0.4;
+    }
+    .marking-h {
+      height: 4px;
+      width: 40px;
+    }
+    .marking-v {
+      width: 4px;
+      height: 40px;
+    }
+    
+    /* Lampadaires */
+    .lamppost {
+      position: absolute;
+      bottom: 350px;
+      width: 8px;
+      height: 150px;
+      background: linear-gradient(180deg, #4A4A4A, #3A3A3A);
+    }
+    .lamppost::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -16px;
+      width: 40px;
+      height: 20px;
+      background: #333;
+      border-radius: 10px 10px 0 0;
+    }
+    .lamppost::after {
+      content: '';
+      position: absolute;
+      top: 20px;
+      left: -12px;
+      width: 32px;
+      height: 8px;
+      background: #FFE082;
+      border-radius: 0 0 50% 50%;
+      box-shadow: 0 20px 60px rgba(255, 224, 130, 0.3);
+    }
+    .lamppost-1 { left: 60px; }
+    .lamppost-2 { right: 60px; }
+    
+    /* ========== CONTENU ========== */
+    .content {
+      position: relative;
+      z-index: 10;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      padding: 20px 32px;
+    }
+    
+    /* Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    
+    .back-btn {
+      width: 56px;
+      height: 56px;
+      background: rgba(255,255,255,0.95);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      transition: all 0.2s;
+    }
+    .back-btn:hover { transform: scale(1.05); }
+    
+    .level-info {
+      display: flex;
+      flex-direction: column;
+    }
+    .level-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.95);
+      padding: 8px 16px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+    .level-icon { font-size: 20px; }
+    .level-text {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: #2D3748;
+    }
+    
+    .header-center {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+    
+    .stars-display {
+      display: flex;
+      gap: 8px;
+    }
+    .star-slot {
+      width: 40px;
+      height: 40px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+    }
+    .star-slot.potential {
+      background: rgba(255, 215, 0, 0.3);
+      border: 2px dashed rgba(255, 215, 0, 0.6);
+    }
+    
+    .moves-counter {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: rgba(255,255,255,0.95);
+      padding: 12px 24px;
+      border-radius: 16px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+    .moves-value {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 32px;
+      font-weight: 700;
+      color: #2D3748;
+    }
+    .moves-label {
+      font-size: 12px;
+      color: #718096;
+      text-transform: uppercase;
+    }
+    .moves-optimal {
+      font-size: 11px;
+      color: #A0AEC0;
+    }
+    
+    .header-right {
+      display: flex;
+      gap: 12px;
+    }
+    
+    .action-btn {
+      width: 56px;
+      height: 56px;
+      background: rgba(255,255,255,0.95);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      transition: all 0.2s;
+    }
+    .action-btn:hover { transform: scale(1.05); }
+    .action-btn.hint {
+      background: linear-gradient(135deg, #F39C12, #E67E22);
+      animation: hint-pulse 2s ease-in-out infinite;
+    }
+    .action-btn.hint:hover { animation: none; }
+    
+    @keyframes hint-pulse {
+      0%, 100% { transform: scale(1); box-shadow: 0 4px 15px rgba(243, 156, 18, 0.4); }
+      50% { transform: scale(1.05); box-shadow: 0 6px 25px rgba(243, 156, 18, 0.6); }
+    }
+    
+    /* Main game area */
+    .game-area {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 40px;
+      padding: 20px 0;
+    }
+    
+    /* Grille de parking */
+    .parking-grid-container {
+      position: relative;
+    }
+    
+    .parking-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 90px);
+      grid-template-rows: repeat(6, 90px);
+      gap: 4px;
+      background: #2D2D2D;
+      padding: 12px;
+      border-radius: 20px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+      position: relative;
+    }
+    
+    .grid-cell {
+      background: #4A4A4A;
+      border-radius: 8px;
+      position: relative;
+    }
+    .grid-cell::after {
+      content: '';
+      position: absolute;
+      inset: 4px;
+      border: 2px dashed rgba(255,255,255,0.1);
+      border-radius: 4px;
+    }
+    
+    /* Zone de sortie */
+    .exit-zone {
+      position: absolute;
+      top: calc(12px + 2 * 94px);
+      right: -60px;
+      width: 60px;
+      height: 90px;
+      background: linear-gradient(90deg, #4CAF50, #66BB6A);
+      border-radius: 0 16px 16px 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
+      animation: exit-glow 2s ease-in-out infinite;
+    }
+    .exit-zone::before {
+      content: '➡️';
+      font-size: 30px;
+    }
+    .exit-zone::after {
+      content: 'SORTIE';
+      position: absolute;
+      bottom: -25px;
+      font-family: 'Fredoka', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      color: #4CAF50;
+      letter-spacing: 1px;
+    }
+    
+    @keyframes exit-glow {
+      0%, 100% { box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4); }
+      50% { box-shadow: 0 4px 30px rgba(76, 175, 80, 0.7); }
+    }
+    
+    /* Véhicules */
+    .vehicle {
+      position: absolute;
+      border-radius: 12px;
+      cursor: grab;
+      transition: transform 0.1s, box-shadow 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+    .vehicle:hover {
+      box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+    }
+    .vehicle.selected {
+      box-shadow: 0 0 0 4px #5B8DEE, 0 8px 25px rgba(91, 141, 238, 0.5);
+      z-index: 10;
+    }
+    .vehicle.dragging {
+      cursor: grabbing;
+      transform: scale(1.05);
+      z-index: 20;
+    }
+    
+    /* Voiture 2 cases horizontal */
+    .vehicle.car.horizontal {
+      width: 184px;
+      height: 86px;
+    }
+    /* Voiture 2 cases vertical */
+    .vehicle.car.vertical {
+      width: 86px;
+      height: 184px;
+    }
+    /* Camion 3 cases horizontal */
+    .vehicle.truck.horizontal {
+      width: 278px;
+      height: 86px;
+    }
+    /* Camion 3 cases vertical */
+    .vehicle.truck.vertical {
+      width: 86px;
+      height: 278px;
+    }
+    
+    /* Couleurs véhicules */
+    .vehicle.taxi { background: linear-gradient(135deg, #FFD700, #FFC107); }
+    .vehicle.red { background: linear-gradient(135deg, #E74C3C, #C0392B); }
+    .vehicle.blue { background: linear-gradient(135deg, #3498DB, #2980B9); }
+    .vehicle.green { background: linear-gradient(135deg, #27AE60, #1E8449); }
+    .vehicle.purple { background: linear-gradient(135deg, #9B59B6, #8E44AD); }
+    .vehicle.orange { background: linear-gradient(135deg, #E67E22, #D35400); }
+    .vehicle.pink { background: linear-gradient(135deg, #FD79A8, #E84393); }
+    .vehicle.brown { background: linear-gradient(135deg, #8B4513, #6B3410); }
+    .vehicle.darkblue { background: linear-gradient(135deg, #2C3E50, #1A252F); }
+    .vehicle.darkgreen { background: linear-gradient(135deg, #1E8449, #145A32); }
+    
+    /* Détails véhicules */
+    .vehicle::before {
+      content: '';
+      position: absolute;
+      background: rgba(255,255,255,0.3);
+      border-radius: 4px;
+    }
+    .vehicle.car.horizontal::before {
+      top: 8px;
+      left: 15px;
+      width: 50px;
+      height: 20px;
+    }
+    .vehicle.car.vertical::before {
+      top: 15px;
+      left: 8px;
+      width: 20px;
+      height: 50px;
+    }
+    .vehicle.truck.horizontal::before {
+      top: 8px;
+      left: 15px;
+      width: 80px;
+      height: 20px;
+    }
+    .vehicle.truck.vertical::before {
+      top: 15px;
+      left: 8px;
+      width: 20px;
+      height: 80px;
+    }
+    
+    /* Roues */
+    .wheel {
+      position: absolute;
+      width: 16px;
+      height: 10px;
+      background: #1a1a1a;
+      border-radius: 3px;
+    }
+    .vehicle.horizontal .wheel.front-left { top: -4px; left: 20px; }
+    .vehicle.horizontal .wheel.front-right { bottom: -4px; left: 20px; }
+    .vehicle.horizontal .wheel.back-left { top: -4px; right: 20px; }
+    .vehicle.horizontal .wheel.back-right { bottom: -4px; right: 20px; }
+    
+    .vehicle.vertical .wheel.front-left { left: -4px; top: 20px; }
+    .vehicle.vertical .wheel.front-right { right: -4px; top: 20px; }
+    .vehicle.vertical .wheel.back-left { left: -4px; bottom: 20px; }
+    .vehicle.vertical .wheel.back-right { right: -4px; bottom: 20px; }
+    
+    /* Icône dans le véhicule */
+    .vehicle-icon {
+      position: absolute;
+      font-size: 32px;
+      opacity: 0.9;
+    }
+    
+    /* Indicateur de chemin bloqué */
+    .blocked-path {
+      position: absolute;
+      top: calc(12px + 2 * 94px + 35px);
+      left: calc(12px + 2 * 94px);
+      width: calc(4 * 94px - 50px);
+      height: 4px;
+      background: repeating-linear-gradient(
+        90deg,
+        #E74C3C 0px,
+        #E74C3C 10px,
+        transparent 10px,
+        transparent 20px
+      );
+      opacity: 0.6;
+    }
+    
+    /* Mascotte Gus */
+    .mascot-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 220px;
+    }
+    
+    .mascot-bubble {
+      background: white;
+      padding: 16px 20px;
+      border-radius: 16px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+      margin-bottom: 16px;
+      position: relative;
+      max-width: 200px;
+    }
+    .mascot-bubble::after {
+      content: '';
+      position: absolute;
+      bottom: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-left: 12px solid transparent;
+      border-right: 12px solid transparent;
+      border-top: 12px solid white;
+    }
+    .mascot-bubble p {
+      font-size: 15px;
+      color: #2D3748;
+      line-height: 1.4;
+      text-align: center;
+    }
+    .mascot-bubble strong { color: #FF6B35; }
+    
+    /* Mini Gus */
+    .mini-gus {
+      width: 120px;
+      height: 130px;
+      position: relative;
+      animation: gus-idle 2s ease-in-out infinite;
+    }
+    
+    @keyframes gus-idle {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+    }
+    
+    .mini-gus-body {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 85px;
+      background: linear-gradient(180deg, #708090, #5A6A7A);
+      border-radius: 50% 50% 40% 40%;
+    }
+    .mini-gus-overalls {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 65px;
+      height: 50px;
+      background: linear-gradient(180deg, #FF6B35, #E55A25);
+      border-radius: 8px 8px 25% 25%;
+    }
+    .mini-gus-head {
+      position: absolute;
+      bottom: 65px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 65px;
+      height: 60px;
+      background: linear-gradient(180deg, #808A94, #708090);
+      border-radius: 50%;
+    }
+    .mini-gus-mask {
+      position: absolute;
+      top: 15px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 55px;
+      height: 20px;
+      background: #2D3748;
+      border-radius: 50%;
+    }
+    .mini-gus-eye {
+      position: absolute;
+      top: 17px;
+      width: 16px;
+      height: 16px;
+      background: white;
+      border-radius: 50%;
+    }
+    .mini-gus-eye.left { left: 10px; }
+    .mini-gus-eye.right { right: 10px; }
+    .mini-gus-eye::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 8px;
+      height: 8px;
+      background: #2D3748;
+      border-radius: 50%;
+    }
+    .mini-gus-cap {
+      position: absolute;
+      top: -5px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 45px;
+      height: 22px;
+      background: linear-gradient(180deg, #E74C3C, #C0392B);
+      border-radius: 50% 50% 10% 10%;
+    }
+    .mini-gus-visor {
+      position: absolute;
+      top: 15px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 52px;
+      height: 12px;
+      background: #C0392B;
+      border-radius: 0 0 50% 50%;
+    }
+    
+    /* Instructions rapides */
+    .quick-tip {
+      background: rgba(255,255,255,0.1);
+      padding: 12px 16px;
+      border-radius: 12px;
+      margin-top: 16px;
+      text-align: center;
+    }
+    .quick-tip p {
+      font-size: 13px;
+      color: rgba(255,255,255,0.8);
+      line-height: 1.4;
+    }
+    .quick-tip strong {
+      color: #FFD700;
+    }
+    
+    /* Footer info */
+    .footer-info {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      padding: 10px 0;
+    }
+    .footer-stat {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: rgba(255,255,255,0.7);
+      font-size: 14px;
+    }
+    .footer-stat-icon { font-size: 18px; }
+  </style>
+</head>
+<body>
+  <div class="ipad-frame">
+    <!-- Background -->
+    <div class="parking-bg">
+      <div class="sky">
+        <div class="star star-1"></div>
+        <div class="star star-2"></div>
+        <div class="star star-3"></div>
+        <div class="star star-4"></div>
+        <div class="star star-5"></div>
+        <div class="moon"></div>
+      </div>
+      <div class="buildings">
+        <div class="building building-1">
+          <div class="window" style="top: 20px; left: 15px;"></div>
+          <div class="window" style="top: 20px; right: 15px;"></div>
+          <div class="window" style="top: 50px; left: 15px;"></div>
+          <div class="window" style="top: 50px; right: 15px;"></div>
+          <div class="window" style="top: 80px; left: 15px;"></div>
+        </div>
+        <div class="building building-2">
+          <div class="window" style="top: 20px; left: 20px;"></div>
+          <div class="window" style="top: 20px; left: 50px;"></div>
+          <div class="window" style="top: 50px; left: 20px;"></div>
+          <div class="window" style="top: 80px; left: 50px;"></div>
+          <div class="window" style="top: 110px; left: 20px;"></div>
+        </div>
+        <div class="building building-3">
+          <div class="window" style="top: 20px; left: 12px;"></div>
+          <div class="window" style="top: 50px; right: 12px;"></div>
+        </div>
+        <div class="building building-4">
+          <div class="window" style="top: 25px; left: 18px;"></div>
+          <div class="window" style="top: 25px; right: 18px;"></div>
+          <div class="window" style="top: 60px; left: 18px;"></div>
+          <div class="window" style="top: 95px; right: 18px;"></div>
+        </div>
+        <div class="building building-5">
+          <div class="window" style="top: 20px; left: 15px;"></div>
+          <div class="window" style="top: 50px; right: 15px;"></div>
+        </div>
+        <div class="building building-6">
+          <div class="window" style="top: 20px; left: 25px;"></div>
+          <div class="window" style="top: 20px; right: 25px;"></div>
+          <div class="window" style="top: 55px; left: 25px;"></div>
+          <div class="window" style="top: 90px; left: 55px;"></div>
+        </div>
+      </div>
+      <div class="asphalt"></div>
+      <div class="lamppost lamppost-1"></div>
+      <div class="lamppost lamppost-2"></div>
+    </div>
+    
+    <!-- Contenu -->
+    <div class="content">
+      <!-- Header -->
+      <header class="header">
+        <div class="header-left">
+          <div class="back-btn">←</div>
+          <div class="level-info">
+            <div class="level-badge">
+              <span class="level-icon">⚙️</span>
+              <span class="level-text">Niveau 36</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="header-center">
+          <div class="stars-display">
+            <div class="star-slot potential">⭐</div>
+            <div class="star-slot potential">⭐</div>
+            <div class="star-slot potential">⭐</div>
+          </div>
+          
+          <div class="moves-counter">
+            <div class="moves-value">8</div>
+            <div class="moves-label">Coups</div>
+            <div class="moves-optimal">Optimal : 14</div>
+          </div>
+        </div>
+        
+        <div class="header-right">
+          <div class="action-btn">↩️</div>
+          <div class="action-btn">🔄</div>
+          <div class="action-btn hint">💡</div>
+        </div>
+      </header>
+      
+      <!-- Zone de jeu -->
+      <div class="game-area">
+        <!-- Grille -->
+        <div class="parking-grid-container">
+          <div class="parking-grid">
+            <!-- 36 cellules -->
+            <div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
+            <div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
+            <div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
+            <div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
+            <div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
+            <div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
+            
+            <!-- Véhicules -->
+            <!-- Taxi jaune (row 2, col 0) - objectif -->
+            <div class="vehicle car horizontal taxi" style="top: calc(12px + 2 * 94px); left: 12px;">
+              <span class="vehicle-icon">🚕</span>
+              <div class="wheel front-left"></div>
+              <div class="wheel front-right"></div>
+              <div class="wheel back-left"></div>
+              <div class="wheel back-right"></div>
+            </div>
+            
+            <!-- Voiture rouge (row 0, col 1-2) -->
+            <div class="vehicle car horizontal red" style="top: 12px; left: calc(12px + 1 * 94px);">
+              <div class="wheel front-left"></div>
+              <div class="wheel front-right"></div>
+              <div class="wheel back-left"></div>
+              <div class="wheel back-right"></div>
+            </div>
+            
+            <!-- Voiture bleue (row 1-2, col 4) - vertical -->
+            <div class="vehicle car vertical blue" style="top: calc(12px + 1 * 94px); left: calc(12px + 4 * 94px);">
+              <div class="wheel front-left"></div>
+              <div class="wheel front-right"></div>
+              <div class="wheel back-left"></div>
+              <div class="wheel back-right"></div>
+            </div>
+            
+            <!-- Voiture verte (row 4, col 2-3) -->
+            <div class="vehicle car horizontal green selected" style="top: calc(12px + 4 * 94px); left: calc(12px + 2 * 94px);">
+              <div class="wheel front-left"></div>
+              <div class="wheel front-right"></div>
+              <div class="wheel back-left"></div>
+              <div class="wheel back-right"></div>
+            </div>
+            
+            <!-- Voiture violette (row 3-4, col 0) - vertical -->
+            <div class="vehicle car vertical purple" style="top: calc(12px + 3 * 94px); left: 12px;">
+              <div class="wheel front-left"></div>
+              <div class="wheel front-right"></div>
+              <div class="wheel back-left"></div>
+              <div class="wheel back-right"></div>
+            </div>
+            
+            <!-- Camion marron (row 0-2, col 5) - vertical -->
+            <div class="vehicle truck vertical brown" style="top: 12px; left: calc(12px + 5 * 94px);">
+              <span class="vehicle-icon">📦</span>
+              <div class="wheel front-left"></div>
+              <div class="wheel front-right"></div>
+              <div class="wheel back-left"></div>
+              <div class="wheel back-right"></div>
+            </div>
+            
+            <!-- Camion bleu foncé (row 5, col 0-2) - horizontal -->
+            <div class="vehicle truck horizontal darkblue" style="top: calc(12px + 5 * 94px); left: 12px;">
+              <span class="vehicle-icon">🚚</span>
+              <div class="wheel front-left"></div>
+              <div class="wheel front-right"></div>
+              <div class="wheel back-left"></div>
+              <div class="wheel back-right"></div>
+            </div>
+            
+            <!-- Voiture orange (row 2, col 2-3) - bloque le taxi -->
+            <div class="vehicle car horizontal orange" style="top: calc(12px + 2 * 94px); left: calc(12px + 2 * 94px);">
+              <div class="wheel front-left"></div>
+              <div class="wheel front-right"></div>
+              <div class="wheel back-left"></div>
+              <div class="wheel back-right"></div>
+            </div>
+            
+            <!-- Indicateur de chemin bloqué -->
+            <div class="blocked-path"></div>
+          </div>
+          
+          <!-- Zone de sortie -->
+          <div class="exit-zone"></div>
+        </div>
+        
+        <!-- Mascotte -->
+        <div class="mascot-section">
+          <div class="mascot-bubble">
+            <p>La <strong>voiture orange</strong> bloque le taxi ! Où peut-elle aller ? 🤔</p>
+          </div>
+          
+          <div class="mini-gus">
+            <div class="mini-gus-body">
+              <div class="mini-gus-overalls"></div>
+            </div>
+            <div class="mini-gus-head">
+              <div class="mini-gus-cap"></div>
+              <div class="mini-gus-visor"></div>
+              <div class="mini-gus-mask"></div>
+              <div class="mini-gus-eye left"></div>
+              <div class="mini-gus-eye right"></div>
+            </div>
+          </div>
+          
+          <div class="quick-tip">
+            <p>💡 <strong>Astuce</strong> : Glisse les véhicules dans leur axe pour libérer le passage !</p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Footer -->
+      <div class="footer-info">
+        <div class="footer-stat">
+          <span class="footer-stat-icon">⏱️</span>
+          <span>01:23</span>
+        </div>
+        <div class="footer-stat">
+          <span class="footer-stat-icon">↩️</span>
+          <span>2 annulations</span>
+        </div>
+        <div class="footer-stat">
+          <span class="footer-stat-icon">🏆</span>
+          <span>Record : 16 coups</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
