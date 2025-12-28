@@ -6,10 +6,9 @@
 import { useEffect, useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { colors, spacing } from '../../../src/theme';
-import { VictoryCard, type VictoryBadge } from '../../../src/components/common';
+import { VictoryCard, PageContainer, type VictoryBadge } from '../../../src/components/common';
 import { CardUnlockScreen } from '../../../src/components/collection';
 import { useCardUnlock } from '../../../src/hooks';
 import { useCollection } from '../../../src/store';
@@ -42,7 +41,6 @@ const getSuitesLogBadge = (
 
 export default function SuitesLogiquesVictoryScreen() {
   const router = useRouter();
-  const insets = useSafeAreaInsets();
   const { getUnlockedCardsCount } = useCollection();
 
   const params = useLocalSearchParams<{
@@ -137,42 +135,37 @@ export default function SuitesLogiquesVictoryScreen() {
   const timeInSeconds = Math.floor(totalTime / 1000);
 
   return (
-    <View
-      style={[
-        styles.container,
-        {
-          paddingTop: insets.top + spacing[4],
-          paddingBottom: insets.bottom + spacing[4],
-        },
-      ]}
-    >
-      <VictoryCard
-        title="Bravo !"
-        message={`Niveau ${currentLevel} terminé !`}
-        stats={{
-          timeElapsed: timeInSeconds,
-          hintsUsed: hintsUsed > 0 ? hintsUsed : undefined,
-          customStats: [
-            { label: 'Réussies', value: `${correctFirstTry}/${completed}`, icon: '✅' },
-            { label: 'Meilleure série', value: `🔥 ${maxStreak}` },
-            { label: 'Taux de réussite', value: `${successRate}%` },
-          ],
-        }}
-        badge={badge}
-        onReplay={handlePlayAgain}
-        onNextLevel={nextLevel ? handleNextLevel : undefined}
-        hasNextLevel={nextLevel !== null}
-        nextLevelLabel={nextLevel ? `Niveau ${nextLevel} →` : undefined}
-        onHome={handleHome}
-        onCollection={handleViewCollection}
-      />
-    </View>
+    <PageContainer variant="playful" showDecorations={false}>
+      <View style={styles.content}>
+        <VictoryCard
+          title="Bravo !"
+          message={`Niveau ${currentLevel} terminé !`}
+          stats={{
+            timeElapsed: timeInSeconds,
+            hintsUsed: hintsUsed > 0 ? hintsUsed : undefined,
+            customStats: [
+              { label: 'Réussies', value: `${correctFirstTry}/${completed}`, icon: '✅' },
+              { label: 'Meilleure série', value: `🔥 ${maxStreak}` },
+              { label: 'Taux de réussite', value: `${successRate}%` },
+            ],
+          }}
+          badge={badge}
+          onReplay={handlePlayAgain}
+          onNextLevel={nextLevel ? handleNextLevel : undefined}
+          hasNextLevel={nextLevel !== null}
+          nextLevelLabel={nextLevel ? `Niveau ${nextLevel} →` : undefined}
+          onHome={handleHome}
+          onCollection={handleViewCollection}
+        />
+      </View>
+    </PageContainer>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  content: {
     flex: 1,
-    backgroundColor: colors.background.game,
+    justifyContent: 'center',
+    padding: spacing[4],
   },
 });

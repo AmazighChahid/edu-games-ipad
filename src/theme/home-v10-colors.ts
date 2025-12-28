@@ -191,7 +191,10 @@ export const HomeV10Animations = {
 // Palettes de couleurs pour les widgets style Edoki
 // ========================================
 
-export type EdokiThemeKey = 'barres' | 'fuseaux' | 'chiffres' | 'plage' | 'numberland' | 'nouveaux' | 'hanoi' | 'video';
+export type EdokiThemeKey =
+  | 'barres' | 'fuseaux' | 'chiffres' | 'plage' | 'numberland' | 'nouveaux' | 'hanoi' | 'video'
+  | 'suites-logiques' | 'labyrinthe' | 'balance' | 'sudoku' | 'memory' | 'tangram'
+  | 'logix-grid' | 'mots-croises' | 'math-blocks' | 'matrices-magiques' | 'conteur-curieux';
 
 export interface EdokiWidgetTheme {
   background: string;
@@ -253,6 +256,83 @@ export const edokiWidgetThemes: Record<EdokiThemeKey, EdokiWidgetTheme> = {
     background: '#1a1a2e',
     gradient: ['#1a1a2e', '#16213e'] as const,
     titleColor: 'light',
+  },
+
+  // Suites Logiques - Bleu indigo/violet avec robot
+  'suites-logiques': {
+    background: '#7986CB',
+    gradient: ['#9FA8DA', '#5C6BC0'] as const,
+    titleColor: 'light',
+  },
+
+  // Labyrinthe - Vert forêt
+  labyrinthe: {
+    background: '#81C784',
+    gradient: ['#A5D6A7', '#66BB6A'] as const,
+    titleColor: 'dark',
+  },
+
+  // Balance - Jaune doré/ambre
+  balance: {
+    background: '#FFD54F',
+    gradient: ['#FFECB3', '#FFC107'] as const,
+    titleColor: 'dark',
+  },
+
+  // Sudoku - Indigo profond
+  sudoku: {
+    background: '#7986CB',
+    gradient: ['#9FA8DA', '#5C6BC0'] as const,
+    titleColor: 'light',
+  },
+
+  // Memory - Violet/pourpre
+  memory: {
+    background: '#9575CD',
+    gradient: ['#B39DDB', '#7E57C2'] as const,
+    titleColor: 'light',
+  },
+
+  // Tangram - Orange vif
+  tangram: {
+    background: '#FF8A65',
+    gradient: ['#FFAB91', '#FF7043'] as const,
+    titleColor: 'dark',
+  },
+
+  // Logix Grid - Bleu gris
+  'logix-grid': {
+    background: '#90A4AE',
+    gradient: ['#B0BEC5', '#78909C'] as const,
+    titleColor: 'dark',
+  },
+
+  // Mots Croisés - Vert perroquet
+  'mots-croises': {
+    background: '#81C784',
+    gradient: ['#A5D6A7', '#66BB6A'] as const,
+    titleColor: 'dark',
+  },
+
+  // MathBlocks - Bleu clair
+  'math-blocks': {
+    background: '#64B5F6',
+    gradient: ['#90CAF9', '#42A5F5'] as const,
+    titleColor: 'dark',
+  },
+
+  // Matrices Magiques - Violet magique
+  'matrices-magiques': {
+    background: '#9C27B0',
+    gradient: ['#BA68C8', '#7B1FA2'] as const,
+    titleColor: 'light',
+  },
+
+  // Conteur Curieux - Beige parchemin
+  'conteur-curieux': {
+    background: '#D7CCC8',
+    gradient: ['#EFEBE9', '#BCAAA4'] as const,
+    titleColor: 'dark',
   },
 };
 

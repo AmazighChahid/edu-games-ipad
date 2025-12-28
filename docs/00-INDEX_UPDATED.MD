@@ -1,8 +1,75 @@
 # 📚 INDEX DOCUMENTATION — Hello Guys
 
 > **Application Éducative iPad** — Guide d'utilisation des documents
-> **Version** : 2.1 — Décembre 2024
+> **Version** : 2.2 — Décembre 2024
 > **Conformité UI** : 89%
+
+---
+
+## 🤖 Protocole de travail Claude Code
+
+**IMPORTANT : Avant chaque tâche, Claude Code DOIT suivre ce protocole en 3 étapes :**
+
+### Étape 1 — Confirmation de lecture
+
+```
+APRÈS LECTURE des documents requis, CONFIRME explicitement :
+
+✅ CONFIRMATION DE LECTURE :
+- [ ] J'ai lu [nom du document] — Points clés retenus : ...
+- [ ] J'ai lu [nom du document] — Points clés retenus : ...
+- [ ] J'ai compris les règles critiques : [lister les 3-5 règles principales]
+- [ ] J'ai identifié les composants existants à réutiliser : [lister]
+- [ ] J'ai noté les contraintes spécifiques : [lister]
+
+FORMAT ATTENDU : Liste à puces avec résumé de ce qui a été compris.
+NE PAS commencer à coder avant cette confirmation.
+```
+
+### Étape 2 — Questions de clarification
+
+```
+AVANT DE PLANIFIER, POSE des questions pour améliorer ta compréhension :
+
+❓ QUESTIONS DE CLARIFICATION :
+Exemples de questions pertinentes :
+- "Le composant doit-il gérer [cas particulier] ?"
+- "Quelle est la priorité entre [option A] et [option B] ?"
+- "Y a-t-il des contraintes de performance spécifiques ?"
+- "Comment ce composant interagit-il avec [autre composant] ?"
+- "Quel est le comportement attendu en cas de [situation edge case] ?"
+
+RÈGLE : Poser au minimum 2-3 questions pertinentes.
+OBJECTIF : Éviter les allers-retours et les corrections tardives.
+Si tout est parfaitement clair, expliquer pourquoi aucune question n'est nécessaire.
+```
+
+### Étape 3 — Planification des actions
+
+```
+APRÈS CLARIFICATION, PRÉSENTE un plan d'action structuré :
+
+📋 PLAN D'ACTION PROPOSÉ :
+
+1. **Analyse préalable** (fichiers à examiner)
+   - [ ] Fichier X — raison
+   - [ ] Fichier Y — raison
+
+2. **Modifications à effectuer** (par ordre)
+   - [ ] Action 1 — description courte
+   - [ ] Action 2 — description courte
+   - [ ] Action 3 — description courte
+
+3. **Tests et validation**
+   - [ ] Vérification 1
+   - [ ] Vérification 2
+
+4. **Livrables attendus**
+   - Fichiers créés/modifiés : [liste]
+   - Documentation à mettre à jour : [liste]
+
+ATTENDRE VALIDATION avant de commencer l'implémentation.
+```
 
 ---
 
@@ -22,6 +89,11 @@ RÈGLES CRITIQUES :
 - Texte courant : ≥ 18pt minimum
 - Polices : Fredoka (titres) + Nunito (corps)
 - NE JAMAIS recréer : BackButton, ScreenHeader, PageContainer, GameModal, VictoryCard
+
+⚠️ PROTOCOLE OBLIGATOIRE (voir section "Protocole de travail Claude Code") :
+1. CONFIRME ta lecture avec les points clés retenus
+2. POSE 2-3 questions de clarification
+3. PRÉSENTE ton plan d'action et ATTENDS validation
 ```
 
 ---
@@ -47,6 +119,11 @@ STRUCTURE OBLIGATOIRE d'un jeu :
 APRÈS CRÉATION, ajouter dans :
 - src/games/registry.ts
 - app/(games)/{XX-nom-du-jeu}/
+
+⚠️ PROTOCOLE OBLIGATOIRE (voir section "Protocole de travail Claude Code") :
+1. CONFIRME ta lecture avec les points clés retenus
+2. POSE 2-3 questions de clarification
+3. PRÉSENTE ton plan d'action et ATTENDS validation
 ```
 
 ---
@@ -64,6 +141,11 @@ CHECKLIST REFACTORING :
 - [ ] Utiliser PageContainer (wrapper obligatoire)
 - [ ] Vérifier touch targets ≥ 64dp
 - [ ] Vérifier fontSize ≥ 18pt
+
+⚠️ PROTOCOLE OBLIGATOIRE (voir section "Protocole de travail Claude Code") :
+1. CONFIRME ta lecture avec les points clés retenus
+2. POSE 2-3 questions de clarification
+3. PRÉSENTE ton plan d'action et ATTENDS validation
 ```
 
 ---
@@ -455,6 +537,7 @@ PLAN D'ACTION : Top 5 corrections à impact maximal
 
 | Date | Version | Changements |
 |------|---------|-------------|
+| Déc 2024 | 2.2 | Ajout "Protocole de travail Claude Code" : confirmation lecture, questions clarification, planification actions |
 | Déc 2024 | 2.1 | Ajout 9 prompts d'audit (structure, codification, performance, homogénéité, réutilisation, fichiers morts, complexité, cohérence globale) |
 | Déc 2024 | 2.0 | Ajout MASCOTTES_REGISTRY, correction références, audit complet |
 | Déc 2024 | 1.5 | Ajout CLAUDE_CODE_RULES, UI_COMPONENTS_CATALOG |

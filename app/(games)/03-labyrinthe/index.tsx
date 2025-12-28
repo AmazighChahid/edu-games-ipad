@@ -1,13 +1,25 @@
+/**
+ * Écran principal du jeu Labyrinthe
+ * Utilise les composants standards PageContainer et ScreenHeader
+ */
+
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+} from 'react-native-reanimated';
+import { PageContainer, ScreenHeader, GameModal } from '../../../src/components/common';
+import { theme } from '../../../src/theme';
 import { LabyrintheGame, LEVELS, LevelConfig, SessionStats } from '../../../src/games/03-labyrinthe';
 
 export default function LabyrintheScreen() {
   const router = useRouter();
   const [selectedLevel, setSelectedLevel] = useState<LevelConfig | null>(null);
   const [completedLevels, setCompletedLevels] = useState<Set<number>>(new Set());
+  const [showHelp, setShowHelp] = useState(false);
 
   const handleLevelComplete = (stats: SessionStats) => {
     console.log('Niveau terminé !', stats);
@@ -38,83 +50,50 @@ export default function LabyrintheScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      <View style={styles.header}>
-        <Pressable onPress={() => router.back()} style={styles.backButton}>
-          <Text style={styles.backButtonText}>← Retour</Text>
-        </Pressable>
-        <View style={styles.headerContent}>
-          <Text style={styles.mascot}>🐿️</Text>
-          <View>
-            <Text style={styles.title}>Labyrinthe Logique</Text>
-            <Text style={styles.subtitle}>avec Noisette l'Écureuil</Text>
-          </View>
-        </View>
-      </View>
+    <PageContainer variant="playful" scrollable>
+      <ScreenHeader
+        variant="game"
+        title="Labyrinthe Logique"
+        emoji="🐿️"
+        onBack={() => router.back()}
+        showParentButton
+        onParentPress={() => router.push('/(parent)')}
+        showHelpButton
+        onHelpPress={() => setShowHelp(true)}
+      />
 
-      <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer}>
+      <View style={styles.content}>
+        {/* Section Forêt Enchantée */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>🌲 Forêt Enchantée</Text>
           <View style={styles.levelsGrid}>
             {LEVELS.filter((l) => l.theme === 'forest').map((level) => (
-              <Pressable
+              <LevelCard
                 key={level.id}
-                style={[
-                  styles.levelCard,
-                  completedLevels.has(level.id) && styles.levelCardCompleted,
-                ]}
+                level={level}
+                isCompleted={completedLevels.has(level.id)}
                 onPress={() => setSelectedLevel(level)}
-              >
-                <Text style={styles.levelNumber}>{level.id}</Text>
-                <Text style={styles.levelName}>{level.name}</Text>
-                <View style={styles.levelInfo}>
-                  <Text style={styles.levelSize}>
-                    {level.width}×{level.height}
-                  </Text>
-                  {level.hasKeys && <Text style={styles.levelIcon}>🔑</Text>}
-                  {level.hasGems && <Text style={styles.levelIcon}>💎</Text>}
-                </View>
-                {completedLevels.has(level.id) && (
-                  <View style={styles.completedBadge}>
-                    <Text style={styles.completedIcon}>✓</Text>
-                  </View>
-                )}
-              </Pressable>
+              />
             ))}
           </View>
         </View>
 
+        {/* Section Temple Ancien */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>🏛️ Temple Ancien</Text>
           <View style={styles.levelsGrid}>
             {LEVELS.filter((l) => l.theme === 'temple').map((level) => (
-              <Pressable
+              <LevelCard
                 key={level.id}
-                style={[
-                  styles.levelCard,
-                  completedLevels.has(level.id) && styles.levelCardCompleted,
-                ]}
+                level={level}
+                isCompleted={completedLevels.has(level.id)}
                 onPress={() => setSelectedLevel(level)}
-              >
-                <Text style={styles.levelNumber}>{level.id}</Text>
-                <Text style={styles.levelName}>{level.name}</Text>
-                <View style={styles.levelInfo}>
-                  <Text style={styles.levelSize}>
-                    {level.width}×{level.height}
-                  </Text>
-                  {level.hasKeys && <Text style={styles.levelIcon}>🔑</Text>}
-                  {level.hasGems && <Text style={styles.levelIcon}>💎</Text>}
-                </View>
-                {completedLevels.has(level.id) && (
-                  <View style={styles.completedBadge}>
-                    <Text style={styles.completedIcon}>✓</Text>
-                  </View>
-                )}
-              </Pressable>
+              />
             ))}
           </View>
         </View>
 
+        {/* Boîte d'information */}
         <View style={styles.infoBox}>
           <Text style={styles.infoTitle}>Comment jouer ? 🎮</Text>
           <Text style={styles.infoText}>• Glisse ton doigt pour déplacer l'avatar</Text>
@@ -123,140 +102,177 @@ export default function LabyrintheScreen() {
           <Text style={styles.infoText}>• Ramasse les gemmes 💎 bonus</Text>
           <Text style={styles.infoText}>• Demande des indices 💡 si tu es bloqué</Text>
         </View>
-      </ScrollView>
-    </SafeAreaView>
+      </View>
+
+      {/* Modal d'aide */}
+      <GameModal
+        visible={showHelp}
+        onClose={() => setShowHelp(false)}
+        variant="info"
+        title="Comment jouer"
+        emoji="❓"
+        buttons={[
+          { label: 'Compris !', onPress: () => setShowHelp(false), variant: 'primary' },
+        ]}
+      >
+        <Text style={styles.infoText}>
+          Guide Noisette l'Écureuil à travers le labyrinthe ! Glisse ton doigt pour le déplacer, collecte les clés pour ouvrir les portes et trouve la sortie ⭐
+        </Text>
+      </GameModal>
+    </PageContainer>
   );
 }
 
+// Composant LevelCard avec animations
+interface LevelCardProps {
+  level: LevelConfig;
+  isCompleted: boolean;
+  onPress: () => void;
+}
+
+const LevelCard: React.FC<LevelCardProps> = ({ level, isCompleted, onPress }) => {
+  const scale = useSharedValue(1);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
+
+  const handlePressIn = () => {
+    scale.value = withSpring(0.95, { damping: 15, stiffness: 200 });
+  };
+
+  const handlePressOut = () => {
+    scale.value = withSpring(1, { damping: 15, stiffness: 150 });
+  };
+
+  return (
+    <Pressable
+      onPress={onPress}
+      onPressIn={handlePressIn}
+      onPressOut={handlePressOut}
+      accessible
+      accessibilityLabel={`Niveau ${level.id}: ${level.name}${isCompleted ? ', complété' : ''}`}
+      accessibilityRole="button"
+    >
+      <Animated.View
+        style={[
+          styles.levelCard,
+          isCompleted && styles.levelCardCompleted,
+          animatedStyle,
+        ]}
+      >
+        <Text style={styles.levelNumber}>{level.id}</Text>
+        <Text style={styles.levelName}>{level.name}</Text>
+        <View style={styles.levelInfo}>
+          <Text style={styles.levelSize}>
+            {level.width}×{level.height}
+          </Text>
+          {level.hasKeys && <Text style={styles.levelIcon}>🔑</Text>}
+          {level.hasGems && <Text style={styles.levelIcon}>💎</Text>}
+        </View>
+        {isCompleted && (
+          <View style={styles.completedBadge}>
+            <Text style={styles.completedIcon}>✓</Text>
+          </View>
+        )}
+      </Animated.View>
+    </Pressable>
+  );
+};
+
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FFF9F0',
-  },
-  header: {
-    padding: 16,
-    backgroundColor: '#FFF',
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(91, 141, 238, 0.2)',
-  },
-  backButton: {
-    marginBottom: 12,
-  },
-  backButtonText: {
-    fontSize: 16,
-    color: '#5B8DEE',
-    fontWeight: '600',
-  },
-  headerContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  mascot: {
-    fontSize: 48,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#2D3748',
-  },
-  subtitle: {
-    fontSize: 14,
-    color: '#4A5568',
-  },
   content: {
-    flex: 1,
-  },
-  contentContainer: {
-    padding: 16,
+    padding: theme.spacing[4],
   },
   section: {
-    marginBottom: 32,
+    marginBottom: theme.spacing[8],
   },
   sectionTitle: {
-    fontSize: 20,
+    fontFamily: 'Fredoka_600SemiBold',
+    fontSize: theme.fontSize.xl, // 24pt pour titres de section
     fontWeight: '700',
-    color: '#2D3748',
-    marginBottom: 16,
+    color: theme.colors.text.primary,
+    marginBottom: theme.spacing[4],
   },
   levelsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 12,
+    gap: theme.spacing[3],
   },
   levelCard: {
     width: '47%',
-    backgroundColor: '#FFF',
-    borderRadius: 16,
-    padding: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
+    backgroundColor: theme.colors.background.card,
+    borderRadius: theme.borderRadius.lg,
+    padding: theme.spacing[4],
+    ...theme.shadows.md,
     position: 'relative',
   },
   levelCardCompleted: {
     borderWidth: 2,
-    borderColor: '#7BC74D',
+    borderColor: theme.colors.feedback.success,
   },
   levelNumber: {
+    fontFamily: 'Fredoka_700Bold',
     fontSize: 32,
     fontWeight: '700',
-    color: '#5B8DEE',
-    marginBottom: 8,
+    color: theme.colors.primary.main,
+    marginBottom: theme.spacing[2],
   },
   levelName: {
-    fontSize: 16,
+    fontFamily: 'Nunito_600SemiBold',
+    fontSize: theme.fontSize.lg, // 18pt minimum
     fontWeight: '600',
-    color: '#2D3748',
-    marginBottom: 8,
+    color: theme.colors.text.primary,
+    marginBottom: theme.spacing[2],
   },
   levelInfo: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: theme.spacing[2],
   },
   levelSize: {
-    fontSize: 14,
-    color: '#4A5568',
+    fontFamily: 'Nunito_400Regular',
+    fontSize: theme.fontSize.lg, // 18pt minimum (était 14)
+    color: theme.colors.text.secondary,
   },
   levelIcon: {
-    fontSize: 16,
+    fontSize: 18,
   },
   completedBadge: {
     position: 'absolute',
-    top: 8,
-    right: 8,
+    top: theme.spacing[2],
+    right: theme.spacing[2],
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: '#7BC74D',
+    backgroundColor: theme.colors.feedback.success,
     justifyContent: 'center',
     alignItems: 'center',
   },
   completedIcon: {
-    color: '#FFF',
-    fontSize: 16,
+    color: theme.colors.text.inverse,
+    fontSize: 18,
     fontWeight: '700',
   },
   infoBox: {
-    backgroundColor: 'rgba(91, 141, 238, 0.1)',
-    borderRadius: 16,
-    padding: 20,
+    backgroundColor: theme.colors.primary.light,
+    borderRadius: theme.borderRadius.lg,
+    padding: theme.spacing[5],
     borderWidth: 2,
-    borderColor: 'rgba(91, 141, 238, 0.3)',
+    borderColor: theme.colors.primary.main,
   },
   infoTitle: {
-    fontSize: 18,
+    fontFamily: 'Fredoka_600SemiBold',
+    fontSize: theme.fontSize.lg, // 18pt
     fontWeight: '700',
-    color: '#2D3748',
-    marginBottom: 12,
+    color: theme.colors.text.primary,
+    marginBottom: theme.spacing[3],
   },
   infoText: {
-    fontSize: 16,
-    color: '#4A5568',
-    marginBottom: 8,
+    fontFamily: 'Nunito_400Regular',
+    fontSize: theme.fontSize.lg, // 18pt minimum (était 16)
+    color: theme.colors.text.secondary,
+    marginBottom: theme.spacing[2],
     lineHeight: 24,
   },
 });

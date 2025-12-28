@@ -31,14 +31,16 @@ import { Trees as BackgroundTrees } from '../src/components/background/Trees';
 import { ForestBackground } from '../src/components/background/ForestBackground';
 import { Sun as BackgroundSun } from '../src/components/background/Sun';
 
-// Background Animals
+// Background Animals (réexportés depuis home-v10/animals, sauf Dragonfly)
 import { Dragonfly } from '../src/components/background/animals/Dragonfly';
-import { Rabbit as BackgroundRabbit } from '../src/components/background/animals/Rabbit';
-import { Butterflies as BackgroundButterflies } from '../src/components/background/animals/Butterfly';
-import { Bee as BackgroundBee } from '../src/components/background/animals/Bee';
-import { Ladybug as BackgroundLadybug } from '../src/components/background/animals/Ladybug';
-import { Birds as BackgroundBirds } from '../src/components/background/animals/Bird';
-import { Squirrel as BackgroundSquirrel } from '../src/components/background/animals/Squirrel';
+import {
+  Rabbit as BackgroundRabbit,
+  Butterflies as BackgroundButterflies,
+  Bee as BackgroundBee,
+  Ladybug as BackgroundLadybug,
+  Birds as BackgroundBirds,
+  Squirrel as BackgroundSquirrel,
+} from '../src/components/background/animals';
 
 // ============================================================
 // IMPORTS - Common Components

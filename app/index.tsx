@@ -5,6 +5,10 @@
 
 import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { View, StyleSheet, ScrollView, AppState, AppStateStatus } from 'react-native';
+import Animated, {
+  useSharedValue,
+  useAnimatedScrollHandler,
+} from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -28,20 +32,20 @@ import { useHomeData } from '../src/hooks/useHomeData';
 import { ParentDashboard } from '../src/components/parent/ParentDashboard';
 import { useStore } from '../src/store';
 
-// Mapping des jeux vers les thèmes Edoki
+// Mapping des jeux vers les thèmes Edoki (avec illustrations SVG dédiées)
 const GAME_THEME_MAPPING: Record<string, EdokiTheme> = {
   hanoi: 'hanoi',
-  'suites-logiques': 'fuseaux',
-  'logix-grid': 'chiffres',
-  'math-blocks': 'barres',
-  sudoku: 'fuseaux',
-  tangram: 'plage',
-  labyrinthe: 'numberland',
-  memory: 'chiffres',
-  'mots-croises': 'plage',
-  'conteur-curieux': 'numberland',
-  balance: 'fuseaux',
-  'matrices-magiques': 'nouveaux',
+  'suites-logiques': 'suites-logiques',
+  'logix-grid': 'logix-grid',
+  'math-blocks': 'math-blocks',
+  sudoku: 'sudoku',
+  tangram: 'tangram',
+  labyrinthe: 'labyrinthe',
+  memory: 'memory',
+  'mots-croises': 'mots-croises',
+  'conteur-curieux': 'conteur-curieux',
+  balance: 'balance',
+  'matrices-magiques': 'matrices-magiques',
 };
 
 // Game route mapping
@@ -130,6 +134,14 @@ export default function HomeScreen() {
 
   // Parent dashboard state
   const [isParentDashboardVisible, setIsParentDashboardVisible] = useState(false);
+
+  // Parallax scroll value for game cards
+  const scrollX = useSharedValue(0);
+  const onScrollHandler = useAnimatedScrollHandler({
+    onScroll: (event) => {
+      scrollX.value = event.contentOffset.x;
+    },
+  });
 
   // Get game progress for parent drawer stats
   const gameProgress = useStore((state) => state.gameProgress);
@@ -262,16 +274,18 @@ export default function HomeScreen() {
             />
           </View>
 
-          {/* Games Horizontal Scroll - Style Edoki */}
-          <ScrollView
+          {/* Games Horizontal Scroll - Style Edoki avec effet parallaxe */}
+          <Animated.ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.gamesHorizontalScroll}
             decelerationRate="fast"
             snapToInterval={EdokiWidgetLayout.widgetWidth + EdokiWidgetLayout.scrollGap}
             snapToAlignment="start"
+            onScroll={onScrollHandler}
+            scrollEventThrottle={16}
           >
-            {allGames.map((game) => (
+            {allGames.map((game, index) => (
               <GameCardV10
                 key={game.id}
                 id={game.id}
@@ -282,9 +296,11 @@ export default function HomeScreen() {
                 onPress={() => handleGamePress(game.id)}
                 onPlayAudio={() => {/* TODO: play audio description */}}
                 onToggleFavorite={() => {/* TODO: toggle favorite */}}
+                scrollX={scrollX}
+                index={index}
               />
             ))}
-          </ScrollView>
+          </Animated.ScrollView>
         </ScrollView>
       </ForestBackgroundV10>
 

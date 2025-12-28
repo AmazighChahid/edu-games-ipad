@@ -148,15 +148,15 @@ const styles = StyleSheet.create({
     marginRight: spacing[2],
   },
   clueNumberText: {
-    fontSize: 12,
+    fontSize: 14, // Minimum pour badge
     fontWeight: '700',
     color: '#FFF',
   },
   clueText: {
     flex: 1,
-    fontSize: 14,
+    fontSize: 18, // Minimum enfant (était 14)
     color: colors.text.primary,
-    lineHeight: 20,
+    lineHeight: 24,
   },
   clueTextUsed: {
     color: colors.text.tertiary,
@@ -182,15 +182,15 @@ const styles = StyleSheet.create({
     marginTop: spacing[2],
   },
   helpTitle: {
-    fontSize: 14,
+    fontSize: 18, // Minimum enfant (était 14)
     fontWeight: '700',
     color: colors.text.primary,
     marginBottom: spacing[1],
   },
   helpText: {
-    fontSize: 12,
+    fontSize: 16, // Amélioré (était 12)
     color: colors.text.secondary,
-    lineHeight: 18,
+    lineHeight: 22,
   },
 });
 

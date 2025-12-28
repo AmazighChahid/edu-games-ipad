@@ -33,7 +33,7 @@ import {
   getCardsByCategory,
   RARITY_CONFIG,
 } from '../../../src/data/cards';
-import { COLORS } from '../../../src/constants/colors';
+import { colors } from '../../../src/theme';
 
 // Decorative elements
 const CloudDecoration: React.FC<{ style: object }> = ({ style }) => (
@@ -210,7 +210,7 @@ export default function CollectionScreen() {
       <View style={styles.globalProgress}>
         <View style={styles.progressCircle}>
           <LinearGradient
-            colors={[COLORS.primary, COLORS.accent]}
+            colors={[colors.primary.main, colors.secondary.main]}
             style={[
               styles.progressCircleFill,
               {
@@ -370,7 +370,7 @@ const styles = StyleSheet.create({
   statValue: {
     fontFamily: 'Fredoka_700Bold',
     fontSize: 18,
-    color: COLORS.primary,
+    color: colors.primary.main,
   },
   statLabel: {
     fontFamily: 'Nunito_400Regular',
@@ -408,7 +408,7 @@ const styles = StyleSheet.create({
   },
   mascotHighlight: {
     fontFamily: 'Nunito_700Bold',
-    color: COLORS.accent,
+    color: colors.secondary.main,
   },
   owlBody: {
     width: 75,
@@ -481,7 +481,7 @@ const styles = StyleSheet.create({
   progressCircleText: {
     fontFamily: 'Fredoka_700Bold',
     fontSize: 16,
-    color: COLORS.primary,
+    color: colors.primary.main,
     zIndex: 1,
   },
   progressInfo: {
@@ -510,6 +510,6 @@ const styles = StyleSheet.create({
   nextRewardText: {
     fontFamily: 'Nunito_600SemiBold',
     fontSize: 12,
-    color: COLORS.accent,
+    color: colors.secondary.main,
   },
 });

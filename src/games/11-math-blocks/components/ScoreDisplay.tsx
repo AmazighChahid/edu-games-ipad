@@ -89,7 +89,7 @@ const styles = StyleSheet.create({
     minWidth: 100,
   },
   scoreLabel: {
-    fontSize: 12,
+    fontSize: 14, // Amélioré (était 12) - label secondaire
     color: 'rgba(255,255,255,0.8)',
     fontWeight: '500',
   },
@@ -120,7 +120,7 @@ const styles = StyleSheet.create({
     borderColor: colors.ui.border,
   },
   progressLabel: {
-    fontSize: 12,
+    fontSize: 14, // Amélioré (était 12) - label secondaire
     color: colors.text.muted,
     fontWeight: '500',
   },

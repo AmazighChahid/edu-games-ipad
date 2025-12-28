@@ -388,7 +388,7 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.round,
   },
   progressText: {
-    fontSize: 12,
+    fontSize: 14, // Amélioré (était 12)
     color: colors.text.tertiary,
     textAlign: 'center',
     marginTop: spacing[1],
@@ -451,7 +451,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
   },
   controlButtonLabel: {
-    fontSize: 11,
+    fontSize: 14, // Amélioré (était 11)
     color: colors.text.secondary,
     marginTop: 2,
   },

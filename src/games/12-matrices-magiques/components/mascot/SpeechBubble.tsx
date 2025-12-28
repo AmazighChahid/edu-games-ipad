@@ -200,8 +200,8 @@ const styles = StyleSheet.create({
     borderTopColor: '#FFFFFF',
   },
   message: {
-    fontSize: 15,
-    lineHeight: 22,
+    fontSize: 18, // Minimum enfant (était 15)
+    lineHeight: 26,
     color: '#4A4A4A',
     fontFamily: 'Nunito-Regular',
   },
@@ -211,7 +211,7 @@ const styles = StyleSheet.create({
   },
   skipHint: {
     marginTop: 8,
-    fontSize: 12,
+    fontSize: 14, // Amélioré (était 12) - texte secondaire
     color: '#9E9E9E',
     textAlign: 'center',
     fontFamily: 'Nunito-Regular',
