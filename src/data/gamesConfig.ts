@@ -120,6 +120,32 @@ export const GAMES_DEFINITIONS: GameDefinition[] = [
     categoryId: 'logic',
     badge: 'new',
   },
+
+  // === COMING SOON ===
+  {
+    id: 'embouteillage',
+    name: 'Embouteillage',
+    icon: '🚗',
+    color: 'red',
+    categoryId: 'logic',
+    badge: 'soon',
+  },
+  {
+    id: 'fabrique-reactions',
+    name: 'Fabrique de Réactions',
+    icon: '⚙️',
+    color: 'blue',
+    categoryId: 'logic',
+    badge: 'soon',
+  },
+  {
+    id: 'chasseur-papillons',
+    name: 'Chasseur de Papillons',
+    icon: '🦋',
+    color: 'green',
+    categoryId: 'memory',
+    badge: 'soon',
+  },
 ];
 
 // ============ CATEGORY DEFINITIONS ============

@@ -3,7 +3,7 @@
 ## Application Éducative iPad pour Enfants 6-10 ans
 
 **Stack** : React Native + Expo SDK 52+ • **Environnement** : Claude Code / VS Code
-**Dernière mise à jour** : Décembre 2024
+**Dernière mise à jour** : 28 Décembre 2024 | **Version** : 2.1
 
 ---
 
@@ -15,7 +15,7 @@
 - **Stack technique** : React Native + Expo (SDK 52+)
 - **Plateforme principale** : iPad (support iPhone secondaire)
 - **Public cible** : Enfants 6-10 ans + Interface parent dédiée
-- **Jeux disponibles** : 11 activités + 1 coming soon
+- **Jeux disponibles** : 15 activités (12 implémentées dont 11 disponibles + 1 coming soon, 3 planifiées)
 
 ### Vision Pédagogique Fondamentale
 
@@ -95,14 +95,14 @@ L'application comporte deux espaces distincts avec des accès différenciés :
 | **Logique verbale** | Mots Croisés, Conteur Curieux | Abstraction, classification, vocabulaire |
 | **Résolution de problèmes** | Logix Grid, Matrices Magiques | Stratégie, persévérance, créativité |
 
-### Liste des 12 jeux
+### Liste des 15 jeux
 
 | # | Jeu | Route | Mascotte | Statut |
 |---|-----|-------|----------|--------|
-| 01 | Tour de Hanoï | `/(games)/01-hanoi` | 🐵 Léo | ✅ |
+| 01 | Tour de Hanoï | `/(games)/01-hanoi` | 🦉 Piou | ✅ |
 | 02 | Suites Logiques | `/(games)/02-suites-logiques` | 🤖 Pixel | ✅ |
 | 03 | Labyrinthe | `/(games)/03-labyrinthe` | 🐿️ Scout | ✅ |
-| 04 | Balance Logique | `/(games)/04-balance` | 🦉 Libra | ✅ |
+| 04 | Balance Logique | `/(games)/04-balance` | 🦉 Dr. Hibou | ✅ |
 | 05 | Sudoku Montessori | `/(games)/05-sudoku` | 🦉 Prof. Hoo | ✅ |
 | 06 | Le Conteur Curieux | `/(games)/06-conteur-curieux` | 🪶 Plume | ✅ |
 | 07 | Memory | `/(games)/07-memory` | 🐘 Memo | ✅ |
@@ -110,7 +110,12 @@ L'application comporte deux espaces distincts avec des accès différenciés :
 | 09 | Logix Grid | `/(games)/09-logix-grid` | 🐜 Ada | ✅ |
 | 10 | Mots Croisés | `/(games)/10-mots-croises` | 🦜 Lexie | ✅ |
 | 11 | MathBlocks | `/(games)/11-math-blocks` | 🦫 Calc | ✅ |
-| 12 | Matrices Magiques | `/(games)/12-matrices-magiques` | ✨ Mystic | 🔜 |
+| 12 | Matrices Magiques | `/(games)/12-matrices-magiques` | 🦊 Pixel le Renard | 🔜 |
+| 13 | Embouteillage | — | 🚗 TBD | 📋 |
+| 14 | La Fabrique de Réactions | — | ⚗️ TBD | 📋 |
+| 15 | Chasseur de Papillons | — | 🦋 TBD | 📋 |
+
+> **Légende** : ✅ Disponible | 🔜 Coming Soon | 📋 Planifié (fiches prêtes)
 
 ---
 
@@ -122,22 +127,23 @@ L'application comporte deux espaces distincts avec des accès différenciés :
 /src
   /components
     /common          → Composants partagés (Button, ScreenHeader, etc.)
-    /home            → Composants écran d'accueil
     /home-v10        → Composants Home V10 "Forêt Magique"
     /parent          → Composants espace parent
     /collection      → Système de cartes collectibles
+    /mascots         → Documentation mascottes
   /games
-    /hanoi           → Tour de Hanoï
-    /suites-logiques → Suites Logiques
-    /labyrinthe      → Labyrinthe
-    /balance         → Balance Logique
-    /sudoku          → Sudoku Montessori
-    /conteur-curieux → Le Conteur Curieux
-    /memory          → Memory
-    /tangram         → Puzzle Formes
-    /logix-grid      → Logix Grid
-    /mots-croises    → Mots Croisés
-    /math-blocks     → MathBlocks
+    /01-hanoi           → Tour de Hanoï
+    /02-suites-logiques → Suites Logiques
+    /03-labyrinthe      → Labyrinthe
+    /04-balance         → Balance Logique
+    /05-sudoku          → Sudoku Montessori
+    /06-conteur-curieux → Le Conteur Curieux
+    /07-memory          → Memory
+    /08-tangram         → Puzzle Formes
+    /09-logix-grid      → Logix Grid
+    /10-mots-croises    → Mots Croisés
+    /11-math-blocks     → MathBlocks
+    /12-matrices-magiques → Matrices Magiques
   /theme             → Design System (⚠️ CHEMIN OBLIGATOIRE)
     /colors.ts
     /typography.ts
@@ -386,5 +392,5 @@ Lors de la création d'un nouvel écran, utiliser OBLIGATOIREMENT ces composants
 ---
 
 *Document d'instructions pour Claude Code*
-*Version 2.0 • Projet App Éducative iPad "Hello Guys"*
-*Dernière mise à jour : Décembre 2024*
+*Version 2.1 • Projet App Éducative iPad "Hello Guys"*
+*Dernière mise à jour : 28 Décembre 2024*

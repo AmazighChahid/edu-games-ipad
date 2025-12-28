@@ -1,6 +1,7 @@
 # Architecture du Projet Hello Guys
 
 > Application éducative pour enfants (6-10 ans) - React Native / Expo
+> **Version** : 2.1 — 28 Décembre 2024
 
 ---
 
@@ -26,14 +27,13 @@ hello-guys/
 │   ├── theme/              # Design system
 │   ├── types/              # Définitions TypeScript
 │   ├── data/               # Données statiques
-│   ├── constants/          # Constantes (deprecated)
+│   ├── core/               # Logique pédagogique (AI, difficulté)
 │   ├── i18n/               # Internationalisation
 │   └── utils/              # Utilitaires
 ├── assets/                 # Images, sons, polices
 ├── docs/                   # Documentation
 ├── Fiches Educatives/      # Spécifications pédagogiques
-├── hooks/                  # Hooks legacy (deprecated)
-└── constants/              # Constantes legacy (deprecated)
+└── .vscode/                # Configuration VS Code
 ```
 
 ---
@@ -51,59 +51,58 @@ app/
 ├── (games)/                    # Groupe de routes pour les jeux
 │   ├── _layout.tsx             # Layout partagé pour tous les jeux
 │   │
-│   ├── balance/                # Jeu Balance Logique
+│   ├── 01-hanoi/              # Jeu Tour de Hanoï
 │   │   ├── _layout.tsx         # Stack navigator du jeu
-│   │   └── index.tsx           # Point d'entrée → BalanceIntroScreen
+│   │   └── index.tsx           # Point d'entrée → HanoiIntroScreen
 │   │
-│   ├── collection/             # Système de collection de cartes
-│   │   └── index.tsx           # Écran de la collection
-│   │
-│   ├── hanoi/                  # Jeu Tour de Hanoï
-│   │   ├── _layout.tsx         # Stack navigator du jeu
-│   │   ├── index.tsx           # Point d'entrée → HanoiIntroScreen
-│   │   └── victory.tsx         # Écran de victoire
-│   │
-│   ├── labyrinthe/             # Jeu Labyrinthe
-│   │   ├── _layout.tsx         # Stack navigator du jeu
-│   │   └── index.tsx           # Point d'entrée
-│   │
-│   ├── logix-grid/             # Jeu Logix Grid (en développement)
-│   │   ├── _layout.tsx         # Stack navigator du jeu
-│   │   └── index.tsx           # Point d'entrée
-│   │
-│   ├── math-blocks/            # Jeu MathBlocks
-│   │   ├── _layout.tsx         # Stack navigator du jeu
-│   │   ├── index.tsx           # Point d'entrée → MathIntroScreen
-│   │   ├── play.tsx            # Écran de jeu → MathPlayScreen
-│   │   └── victory.tsx         # Écran de victoire → MathVictoryScreen
-│   │
-│   ├── memory/                 # Jeu Memory (placeholder)
-│   │   ├── _layout.tsx         # Stack navigator du jeu
-│   │   └── index.tsx           # Coming Soon
-│   │
-│   ├── sudoku/                 # Jeu Sudoku Montessori
-│   │   ├── _layout.tsx         # Stack navigator du jeu
-│   │   └── index.tsx           # Point d'entrée → SudokuIntroScreen
-│   │
-│   ├── suites-logiques/        # Jeu Suites Logiques
+│   ├── 02-suites-logiques/     # Jeu Suites Logiques
 │   │   ├── _layout.tsx         # Stack navigator du jeu
 │   │   └── index.tsx           # Point d'entrée → SuitesLogiquesGame
 │   │
-│   ├── tangram/                # Jeu Tangram
+│   ├── 03-labyrinthe/          # Jeu Labyrinthe
 │   │   ├── _layout.tsx         # Stack navigator du jeu
 │   │   └── index.tsx           # Point d'entrée
 │   │
-│   ├── mots-croises/           # 🆕 Jeu Mots Croisés
+│   ├── 04-balance/             # Jeu Balance Logique
+│   │   ├── _layout.tsx         # Stack navigator du jeu
+│   │   └── index.tsx           # Point d'entrée → BalanceIntroScreen
+│   │
+│   ├── 05-sudoku/              # Jeu Sudoku Montessori
+│   │   ├── _layout.tsx         # Stack navigator du jeu
+│   │   └── index.tsx           # Point d'entrée → SudokuIntroScreen
+│   │
+│   ├── 06-conteur-curieux/     # Jeu Le Conteur Curieux
 │   │   ├── _layout.tsx         # Stack navigator du jeu
 │   │   └── index.tsx           # Point d'entrée
 │   │
-│   ├── conteur-curieux/        # 🆕 Jeu Le Conteur Curieux
+│   ├── 07-memory/              # Jeu Memory
 │   │   ├── _layout.tsx         # Stack navigator du jeu
 │   │   └── index.tsx           # Point d'entrée
 │   │
-│   └── matrices-magiques/      # 🆕 Jeu Matrices Magiques (coming soon)
-│       ├── _layout.tsx         # Stack navigator du jeu
-│       └── index.tsx           # Coming Soon
+│   ├── 08-tangram/             # Jeu Tangram
+│   │   ├── _layout.tsx         # Stack navigator du jeu
+│   │   └── index.tsx           # Point d'entrée
+│   │
+│   ├── 09-logix-grid/          # Jeu Logix Grid
+│   │   ├── _layout.tsx         # Stack navigator du jeu
+│   │   └── index.tsx           # Point d'entrée
+│   │
+│   ├── 10-mots-croises/        # Jeu Mots Croisés
+│   │   ├── _layout.tsx         # Stack navigator du jeu
+│   │   └── index.tsx           # Point d'entrée
+│   │
+│   ├── 11-math-blocks/         # Jeu MathBlocks
+│   │   ├── _layout.tsx         # Stack navigator du jeu
+│   │   ├── index.tsx           # Point d'entrée → MathIntroScreen
+│   │   ├── play.tsx            # Écran de jeu → MathPlayScreen
+│   │   └── victory.tsx         # Écran de victoire
+│   │
+│   ├── 12-matrices-magiques/   # Jeu Matrices Magiques (🔜 coming soon)
+│   │   ├── _layout.tsx         # Stack navigator du jeu
+│   │   └── index.tsx           # Point d'entrée
+│   │
+│   └── collection/             # Système de collection de cartes
+│       └── index.tsx           # Écran de la collection
 │
 └── (parent)/                   # Espace Parents
     ├── _layout.tsx             # Layout de l'espace parent
@@ -197,31 +196,7 @@ src/components/
 │   ├── FloatingFlowers.tsx     # Fleurs flottantes
 │   └── Hills.tsx               # Collines décoratives
 │
-├── home/                       # Composants de l'écran d'accueil (V9)
-│   ├── index.ts                # Exports
-│   ├── AISuggestion.tsx        # Suggestion IA personnalisée
-│   ├── CardCollection.tsx      # Aperçu collection
-│   ├── CategoriesNav.tsx       # Navigation par catégories
-│   ├── CategoryRow.tsx         # Ligne de catégorie
-│   ├── DailyStreak.tsx         # Série quotidienne
-│   ├── GameCard.tsx            # Carte de jeu (ancienne version)
-│   ├── GameCardV9.tsx          # Carte de jeu (version V9)
-│   ├── GameCategoriesSection.tsx # Section des catégories de jeux
-│   ├── GamesGrid.tsx           # Grille de jeux
-│   ├── Header.tsx              # En-tête (ancienne version)
-│   ├── HomeHeaderV9.tsx        # En-tête (version V9)
-│   ├── MascotBubble.tsx        # Bulle mascotte accueil
-│   ├── PiouMascot.tsx          # Mascotte Piou (hibou)
-│   ├── ProgressGarden.tsx      # Jardin de progression
-│   └── widgets/                # Widgets de la barre latérale
-│       ├── index.ts            # Exports
-│       ├── CollectionWidgetV9.tsx # Widget collection
-│       ├── GardenWidget.tsx    # Widget jardin
-│       ├── PiouWidget.tsx      # Widget mascotte Piou
-│       ├── StreakWidget.tsx    # Widget série quotidienne
-│       └── WidgetsSection.tsx  # Section widgets complète
-│
-├── home-v10/                   # 🆕 Composants écran d'accueil V10 (Forêt Immersive)
+├── home-v10/                   # Composants écran d'accueil V10 (Forêt Immersive) ✅ ACTIF
 │   ├── ForestBackgroundV10.tsx # Background forêt animé complet
 │   ├── HomeHeaderV10.tsx       # En-tête version V10
 │   ├── GameCardV10.tsx         # Carte de jeu version V10
@@ -278,7 +253,32 @@ src/games/
 ├── registry.ts                 # Registre central de tous les jeux
 │                               # Définit: id, nom, catégorie, route, compétences
 │
-├── balance/                    # Jeu Balance Logique
+├── 01-hanoi/                   # Jeu Tour de Hanoï
+│   ├── index.ts                # Exports publics
+│   ├── types.ts                # Types TypeScript
+│   ├── components/
+│   │   ├── MascotOwl.tsx       # Mascotte Piou (hibou)
+│   │   ├── Disk.tsx, Tower.tsx # Éléments du jeu
+│   │   └── feedback/           # Composants de victoire
+│   ├── hooks/useHanoiGame.ts   # Hook principal
+│   ├── logic/hanoiEngine.ts    # Logique pure
+│   ├── data/                   # Niveaux et scripts
+│   └── screens/                # Intro, Victory
+│
+├── 02-suites-logiques/         # Jeu Suites Logiques
+│   ├── components/
+│   │   ├── MascotRobot.tsx     # Mascotte Pixel
+│   │   └── SuitesLogiquesGame.tsx
+│   ├── hooks/, data/, types/
+│   └── constants/gameConfig.ts
+│
+├── 03-labyrinthe/              # Jeu Labyrinthe
+│   ├── components/
+│   │   └── MascotBubble.tsx    # Dialogue Scout
+│   ├── hooks/, data/
+│   └── LabyrintheGame.tsx
+│
+├── 04-balance/                 # Jeu Balance Logique
 │   ├── index.ts                # Exports publics
 │   ├── types.ts                # Types TypeScript du jeu
 │   ├── components/
@@ -300,56 +300,26 @@ src/games/
 │       ├── BalanceGameScreen.tsx   # Écran de jeu
 │       └── BalanceIntroScreen.tsx  # Écran d'introduction
 │
-├── hanoi/                      # Jeu Tour de Hanoï
-│   ├── index.ts                # Exports publics
-│   ├── types.ts                # Types TypeScript (14 types)
+├── 05-sudoku/                  # Jeu Sudoku Montessori
 │   ├── components/
-│   │   ├── index.ts            # Exports composants
-│   │   ├── Disk.tsx            # Disque individuel
-│   │   ├── DraggableDisk.tsx   # Disque déplaçable
-│   │   ├── DraggableDiskEnhanced.tsx # Version améliorée
-│   │   ├── DraggableGameBoard.tsx    # Plateau avec drag & drop
-│   │   ├── DraggableTower.tsx  # Tour avec drag & drop
-│   │   ├── FloatingButtons.tsx # Boutons flottants (aide, reset)
-│   │   ├── GameBackground.tsx  # Fond du jeu
-│   │   ├── GameBoard.tsx       # Plateau de jeu (tap)
-│   │   ├── MascotOwl.tsx       # Mascotte hibou
-│   │   ├── ProgressPanel.tsx   # Panel de progression
-│   │   ├── Tower.tsx           # Tour individuelle
-│   │   ├── TowerLabel.tsx      # Label de tour
-│   │   ├── VictoryCelebration.tsx # Célébration victoire
-│   │   ├── WoodenBase.tsx      # Base en bois
-│   │   └── feedback/           # Composants de feedback victoire
-│   │       ├── index.ts
-│   │       ├── ActionButtons.tsx       # Boutons d'action
-│   │       ├── CardBack.tsx            # Dos de carte
-│   │       ├── CardFront.tsx           # Face de carte
-│   │       ├── CollectibleCardFlip.tsx # Animation flip carte
-│   │       ├── CollectionProgress.tsx  # Progression collection
-│   │       ├── ConfettiLayer.tsx       # Confettis animés
-│   │       ├── MascotCelebration.tsx   # Mascotte qui célèbre
-│   │       ├── PerformanceAnalysis.tsx # Analyse performance
-│   │       ├── PopupHeader.tsx         # En-tête popup
-│   │       ├── StatsSection.tsx        # Section statistiques
-│   │       ├── VictoryMascot.tsx       # Mascotte victoire
-│   │       ├── VictoryOverlay.tsx      # Overlay de victoire
-│   │       └── VictoryPopup.tsx        # Popup de victoire
-│   ├── data/
-│   │   ├── assistantScripts.ts # Scripts de l'assistant IA
-│   │   ├── collectibleCards.ts # Cartes à collectionner
-│   │   └── levels.ts           # Configuration des 4 niveaux
-│   ├── hooks/
-│   │   └── useHanoiGame.ts     # Hook principal (~400 lignes)
-│   ├── logic/
-│   │   ├── cardAwardEngine.ts  # Attribution des cartes
-│   │   ├── hanoiEngine.ts      # Algorithme de résolution optimale
-│   │   └── moveValidator.ts    # Validation des déplacements
-│   └── screens/
-│       ├── index.ts
-│       ├── HanoiIntroScreen.tsx    # Écran d'introduction
-│       └── HanoiVictoryScreen.tsx  # Écran de victoire
+│   │   ├── ProfessorHooMascot.tsx  # Mascotte Prof Hoo
+│   │   ├── FelixMascot.tsx         # Mascotte alternative Félix
+│   │   └── SudokuGrid.tsx, etc.
+│   ├── hooks/, logic/, screens/
+│   └── types/
 │
-├── math-blocks/                # Jeu MathBlocks
+├── 06-conteur-curieux/         # Jeu Le Conteur Curieux
+│   ├── components/
+│   │   └── PlumeMascot.tsx     # Mascotte Plume
+│   ├── hooks/, data/, screens/
+│   └── assets/                 # Histoires
+│
+├── 07-memory/                  # Jeu Memory
+├── 08-tangram/                 # Jeu Puzzle Formes
+├── 09-logix-grid/              # Jeu Logix Grid
+├── 10-mots-croises/            # Jeu Mots Croisés
+│
+├── 11-math-blocks/             # Jeu MathBlocks
 │   ├── index.ts                # Exports publics
 │   ├── types.ts                # Types TypeScript
 │   ├── components/
@@ -373,78 +343,15 @@ src/games/
 │       ├── MathPlayScreen.tsx      # Écran de jeu
 │       └── MathVictoryScreen.tsx   # Victoire
 │
-├── sudoku/                     # Jeu Sudoku Montessori
-│   ├── index.ts                # Exports publics
-│   ├── COMPONENTS_CATALOG.md   # Catalogue des composants
-│   ├── INTEGRATION_GUIDE.md    # Guide d'intégration
-│   ├── components/
-│   │   ├── index.ts
-│   │   ├── FloatingActionButtons.tsx # Boutons flottants
-│   │   ├── GameTimer.tsx       # Chronomètre
-│   │   ├── LibraryDecoration.tsx    # Décoration bibliothèque
-│   │   ├── ProfessorHooMascot.tsx   # Mascotte Prof Hibou
-│   │   ├── ProgressBar.tsx     # Barre de progression
-│   │   ├── StatsPanel.tsx      # Panel de stats
-│   │   ├── SudokuBackground.tsx     # Fond du jeu
-│   │   ├── SudokuCell.tsx      # Cellule individuelle
-│   │   ├── SudokuGrid.tsx      # Grille Sudoku
-│   │   └── SymbolSelector.tsx  # Sélecteur de symboles
-│   ├── hooks/
-│   │   └── useSudokuGame.ts    # Hook principal
-│   ├── logic/
-│   │   ├── generator.ts        # Générateur de grilles
-│   │   └── validation.ts       # Validation des règles
-│   ├── screens/
-│   │   ├── index.ts
-│   │   └── SudokuIntroScreen.tsx   # Introduction
-│   └── types/
-│       └── index.ts            # Types TypeScript
-│
-├── suites-logiques/            # Jeu Suites Logiques
-│   ├── index.ts                # Exports publics
-│   ├── components/
-│   │   ├── ChoicePanel.tsx     # Panel de choix
-│   │   ├── MascotRobot.tsx     # Mascotte Robot
-│   │   ├── MissingSlot.tsx     # Emplacement manquant
-│   │   ├── SequenceDisplay.tsx # Affichage de la séquence
-│   │   ├── SequenceElement.tsx # Élément de séquence
-│   │   ├── SuitesLogiquesGame.tsx  # Composant principal
-│   │   └── svg/                # Éléments SVG thématiques
-│   │       ├── FarmAnimals.tsx     # Animaux de ferme
-│   │       ├── GeometricShapes.tsx # Formes géométriques
-│   │       ├── MusicElements.tsx   # Éléments musicaux
-│   │       └── SpaceElements.tsx   # Éléments spatiaux
-│   ├── constants/
-│   │   └── gameConfig.ts       # Configuration du jeu
-│   ├── data/
-│   │   ├── patterns.ts         # Patterns de séquences
-│   │   └── themes.ts           # Thèmes visuels
-│   ├── hooks/
-│   │   ├── useSequenceGenerator.ts # Générateur de séquences
-│   │   ├── useStreakTracker.ts     # Suivi des séries
-│   │   └── useSuitesGame.ts        # Hook principal
-│   ├── types/
-│   │   └── index.ts            # Types TypeScript
-│   └── utils/
-│       └── patternUtils.ts     # Utilitaires pour patterns
-│
-├── mots-croises/               # 🆕 Jeu Mots Croisés
-│   ├── index.ts                # Exports publics
-│   ├── components/             # Composants UI du jeu
-│   ├── hooks/                  # Logique de jeu
-│   └── data/                   # Grilles et mots
-│
-├── conteur-curieux/            # 🆕 Jeu Le Conteur Curieux (lecture)
-│   ├── index.ts                # Exports publics
-│   ├── components/
-│   │   └── MascotPlume.tsx     # Mascotte Plume
-│   ├── hooks/                  # Logique de jeu
-│   └── data/                   # Histoires et questions
-│
-└── matrices-magiques/          # 🆕 Jeu Matrices Magiques (coming soon)
-    ├── index.ts                # Exports publics
-    ├── components/             # Composants UI
-    └── data/                   # Patterns de matrices
+└── 12-matrices-magiques/       # Jeu Matrices Magiques (🔜 coming soon)
+    ├── components/
+    │   └── mascot/
+    │       ├── PixelMascot.tsx     # Mascotte Pixel le Renard
+    │       ├── SpeechBubble.tsx
+    │       └── PixelWithBubble.tsx
+    ├── hooks/, data/, logic/
+    ├── screens/
+    └── types/
 ```
 
 ---
@@ -546,21 +453,6 @@ src/data/
 ├── cards.ts                    # Définition des cartes collectibles
 └── gamesConfig.ts              # Configuration globale des jeux
 ```
-
----
-
-### `/src/constants/` - Constantes (⚠️ DEPRECATED)
-
-```
-src/constants/
-├── index.ts                    # Exports
-├── colors.ts                   # ❌ Utiliser theme/colors.ts
-├── spacing.ts                  # ❌ Utiliser theme/spacing.ts
-└── typography.ts               # ❌ Utiliser theme/typography.ts
-```
-
-> **⚠️ ATTENTION** : Ce dossier est **deprecated** et sera supprimé.
-> Tous les nouveaux développements doivent utiliser `/src/theme/`.
 
 ---
 
@@ -786,12 +678,12 @@ import type { GameState, LevelConfig } from './types';
 
 5. **Animations** : Utiliser React Native Reanimated 3 pour toutes les animations (60 FPS).
 
-6. **Jeux disponibles** (12 total) :
-   - ✅ **Disponibles** (11) : Hanoi, MathBlocks, Sudoku, Suites Logiques, Logix Grid, Memory, Tangram, Labyrinthe, Balance, Mots Croisés, Conteur Curieux
-   - 🔜 **Coming Soon** (1) : Matrices Magiques
+6. **Jeux disponibles** (15 total) :
+   - ✅ **Disponibles** (11) : 01-Hanoi, 02-Suites, 03-Labyrinthe, 04-Balance, 05-Sudoku, 06-Conteur, 07-Memory, 08-Tangram, 09-Logix, 10-MotsCroisés, 11-MathBlocks
+   - 🔜 **Coming Soon** (4) : 12-Matrices Magiques, 13-Embouteillage, 14-Fabrique Réactions, 15-Chasseur Papillons
 
 7. **Import du thème** : Toujours utiliser `import { theme } from '@/theme'` et non `/constants/`.
 
 ---
 
-*Dernière mise à jour : Décembre 2024*
+*Dernière mise à jour : 28 Décembre 2024 — v2.1*

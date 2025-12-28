@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="Tous">
+  <defs>
+    <radialGradient id="bg" cx="30%" cy="25%" r="80%">
+      <stop offset="0%" stop-color="#B8F3A6"/>
+      <stop offset="55%" stop-color="#59C16C"/>
+      <stop offset="100%" stop-color="#2F8B52"/>
+    </radialGradient>
+    <radialGradient id="shine" cx="25%" cy="20%" r="50%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.90"/>
+      <stop offset="60%" stop-color="#FFFFFF" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="14" stdDeviation="12" flood-color="#000" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+
+  <circle cx="256" cy="256" r="220" fill="url(#bg)" filter="url(#softShadow)"/>
+  <circle cx="256" cy="256" r="205" fill="none" stroke="#FFFFFF" stroke-opacity="0.35" stroke-width="10"/>
+  <ellipse cx="190" cy="160" rx="120" ry="90" fill="url(#shine)"/>
+
+  <g transform="translate(0,8)">
+    <path d="M160 250 L256 170 L352 250" fill="none" stroke="#FFFFFF" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M186 248 V340 C186 360 202 376 222 376 H290 C310 376 326 360 326 340 V248"
+          fill="none" stroke="#FFFFFF" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M238 376 V310 C238 296 250 284 264 284 C278 284 290 296 290 310 V376"
+          fill="none" stroke="#FFFFFF" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M310 190 V222" fill="none" stroke="#FFFFFF" stroke-width="18" stroke-linecap="round"/>
+  </g>
+</svg>

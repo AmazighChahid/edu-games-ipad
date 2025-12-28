@@ -16,6 +16,11 @@ export { GameCardV10 } from './GameCardV10';
 export { CategoryFilterBar } from './CategoryFilterBar';
 export type { CategoryFilterId } from './CategoryFilterBar';
 
+// Category Filters (version compacte)
+export { CategoryFilters } from './CategoryFilters';
+export { CATEGORIES, CATEGORY_MAPPING, getCategoryById } from './categoryFiltersData';
+export type { CategoryId, Category } from './categoryFiltersData';
+
 // Layers (for advanced usage)
 export * from './layers';
 

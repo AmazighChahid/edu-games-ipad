@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react';
-import { View, StyleSheet, ScrollView, AppState, AppStateStatus } from 'react-native';
+import { View, StyleSheet, ScrollView, AppState, AppStateStatus, Alert } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedScrollHandler,
@@ -21,11 +21,14 @@ import {
   CollectionFloating,
   HomeHeaderV10,
   GameCardV10,
-  CategoryFilterBar,
-  CategoryFilterId,
+  CategoryFilters,
+  CategoryId,
+  CATEGORY_MAPPING,
 } from '../src/components/home-v10';
 import { HomeV10Layout, EdokiWidgetLayout } from '../src/theme/home-v10-colors';
-import type { EdokiTheme } from '../src/components/home-v10/GameCardV10';
+import type { EdokiTheme, GameCategory } from '../src/components/home-v10/GameCardV10';
+import { mapRegistryCategory } from '../src/components/home-v10/GameCardV10';
+import { getGameById } from '../src/games/registry';
 
 // Hooks
 import { useHomeData } from '../src/hooks/useHomeData';
@@ -48,6 +51,10 @@ const GAME_THEME_MAPPING: Record<string, EdokiTheme> = {
   'conteur-curieux': 'conteur-curieux',
   balance: 'balance',
   'matrices-magiques': 'matrices-magiques',
+  // Coming Soon games
+  embouteillage: 'embouteillage',
+  'fabrique-reactions': 'fabrique-reactions',
+  'chasseur-papillons': 'chasseur-papillons',
 };
 
 // Game route mapping
@@ -64,7 +71,14 @@ const GAME_ROUTES: Record<string, string> = {
   'conteur-curieux': '/(games)/06-conteur-curieux',
   balance: '/(games)/04-balance',
   'matrices-magiques': '/(games)/12-matrices-magiques',
+  // Coming Soon games (routes préparées mais pas encore implémentées)
+  embouteillage: '/(games)/13-embouteillage',
+  'fabrique-reactions': '/(games)/14-fabrique-reactions',
+  'chasseur-papillons': '/(games)/15-chasseur-papillons',
 };
+
+// Jeux Coming Soon (pas encore jouables)
+const COMING_SOON_GAMES = ['embouteillage', 'fabrique-reactions', 'chasseur-papillons'];
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -138,7 +152,7 @@ export default function HomeScreen() {
   const [isParentDashboardVisible, setIsParentDashboardVisible] = useState(false);
 
   // Category filter state
-  const [selectedCategory, setSelectedCategory] = useState<CategoryFilterId>('all');
+  const [selectedCategory, setSelectedCategory] = useState<CategoryId>('all');
 
   // Parallax scroll value for game cards
   const scrollX = useSharedValue(0);
@@ -171,6 +185,8 @@ export default function HomeScreen() {
       progress: number; // 0-4 segments
       isFavorite: boolean;
       categoryId: string;
+      category?: GameCategory;
+      isComingSoon: boolean;
     }> = [];
 
     // Carte fictive pour tester la vidéo en arrière-plan (toujours visible)
@@ -181,6 +197,7 @@ export default function HomeScreen() {
       progress: 0,
       isFavorite: false,
       categoryId: 'all',
+      isComingSoon: false,
     });
 
     gameCategories.forEach((category) => {
@@ -195,6 +212,10 @@ export default function HomeScreen() {
         else if (game.medal === 'gold') progress = 3;
         else if (game.medal === 'diamond') progress = 4;
 
+        // Récupérer la catégorie depuis le registry
+        const registryGame = getGameById(game.id);
+        const gameCategory = registryGame ? mapRegistryCategory(registryGame.category) : undefined;
+
         games.push({
           id: game.id,
           title: game.name,
@@ -202,6 +223,8 @@ export default function HomeScreen() {
           progress,
           isFavorite: favoriteGameIds.includes(game.id),
           categoryId: category.id,
+          category: gameCategory,
+          isComingSoon: COMING_SOON_GAMES.includes(game.id),
         });
       });
     });
@@ -217,9 +240,14 @@ export default function HomeScreen() {
     if (selectedCategory === 'favorites') {
       return allGames.filter((game) => game.isFavorite);
     }
-    return allGames.filter(
-      (game) => game.categoryId === selectedCategory || game.categoryId === 'all'
-    );
+    // Mapper la catégorie sélectionnée vers les catégories du registry
+    return allGames.filter((game) => {
+      // Toujours inclure les éléments de catégorie "all" (comme video-demo)
+      if (game.categoryId === 'all') return true;
+      // Vérifier si la catégorie du jeu correspond via le mapping
+      const mappedCategory = CATEGORY_MAPPING[game.categoryId];
+      return mappedCategory === selectedCategory;
+    });
   }, [allGames, selectedCategory]);
 
   // Handler for toggling favorite
@@ -237,6 +265,16 @@ export default function HomeScreen() {
   }, []);
 
   const handleGamePress = useCallback((gameId: string) => {
+    // Ne pas naviguer pour les jeux Coming Soon
+    if (COMING_SOON_GAMES.includes(gameId)) {
+      Alert.alert(
+        'Bientôt disponible ! 🎮',
+        'Ce jeu arrive très bientôt. Reviens vite pour le découvrir !',
+        [{ text: 'OK', style: 'default' }]
+      );
+      return;
+    }
+
     const route = GAME_ROUTES[gameId];
     if (route) {
       router.push(route as any);
@@ -253,7 +291,7 @@ export default function HomeScreen() {
     router.push('/(games)/collection' as any);
   }, [router]);
 
-  const handleCategoryChange = useCallback((category: CategoryFilterId) => {
+  const handleCategoryChange = useCallback((category: CategoryId) => {
     setSelectedCategory(category);
   }, []);
 
@@ -308,6 +346,13 @@ export default function HomeScreen() {
             />
           </View>
 
+          {/* Category filters - chips colorées */}
+          <CategoryFilters
+            selectedCategory={selectedCategory}
+            onCategoryChange={handleCategoryChange}
+            style={styles.categoryFilters}
+          />
+
           {/* Games Horizontal Scroll - Style Edoki avec effet parallaxe */}
           <Animated.ScrollView
             horizontal
@@ -326,9 +371,10 @@ export default function HomeScreen() {
                 title={game.title}
                 theme={game.theme}
                 progress={game.progress}
+                category={game.category}
                 isFavorite={game.isFavorite}
+                isComingSoon={game.isComingSoon}
                 onPress={() => handleGamePress(game.id)}
-                onPlayAudio={() => {/* TODO: play audio description */}}
                 onToggleFavorite={() => handleToggleFavorite(game.id)}
                 scrollX={scrollX}
                 index={index}
@@ -336,12 +382,6 @@ export default function HomeScreen() {
             ))}
           </Animated.ScrollView>
         </ScrollView>
-
-        {/* Category filter bar at the bottom */}
-        <CategoryFilterBar
-          selectedCategory={selectedCategory}
-          onSelectCategory={handleCategoryChange}
-        />
       </ForestBackgroundV10>
 
       {/* Parent dashboard modal */}
@@ -385,7 +425,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'flex-start',
     paddingHorizontal: 20,
-    marginBottom: 80,
+    marginBottom: 24,
+  },
+  categoryFilters: {
+    marginBottom: 16,
   },
   gamesHorizontalScroll: {
     paddingHorizontal: 40,

@@ -1,7 +1,11 @@
 /**
  * CrosswordCell Component
  *
- * Une cellule de la grille de mots croisés
+ * Une cellule de la grille de mots croisés avec système SUTOM
+ * Les couleurs indiquent automatiquement le statut de chaque lettre :
+ * - Vert : lettre correcte et bien placée
+ * - Orange : lettre présente mais mal placée
+ * - Rouge : lettre absente du mot
  */
 
 import React from 'react';
@@ -15,7 +19,37 @@ import Animated, {
 
 import { colors, borderRadius, fontFamily } from '../../../theme';
 import { useAccessibilityAnimations } from '../../../hooks';
-import type { CrosswordCell as CellType } from '../types';
+import type { CrosswordCell as CellType, LetterStatus } from '../types';
+
+// ============================================================================
+// SUTOM COLORS
+// ============================================================================
+
+/**
+ * Couleurs SUTOM selon le design system
+ */
+const SUTOM_COLORS: Record<LetterStatus, { background: string; border: string; icon: string }> = {
+  correct: {
+    background: '#E8F5E9',  // Vert clair
+    border: '#4CAF50',       // Vert (success)
+    icon: '✓',
+  },
+  misplaced: {
+    background: '#FFF3E0',  // Orange clair
+    border: '#FF9800',       // Orange
+    icon: '↔',
+  },
+  absent: {
+    background: '#FFEBEE',  // Rouge clair
+    border: '#F44336',       // Rouge
+    icon: '✗',
+  },
+  neutral: {
+    background: colors.background.card,
+    border: 'rgba(0,0,0,0.1)',
+    icon: '',
+  },
+};
 
 // ============================================================================
 // TYPES
@@ -81,21 +115,44 @@ export function CrosswordCell({
     transform: [{ scale: scale.value }],
   }));
 
+  // Obtenir les couleurs SUTOM selon le statut
+  const sutomStatus = cell.letterStatus || 'neutral';
+  const sutomColors = SUTOM_COLORS[sutomStatus];
+
   // Déterminer la couleur de fond
-  const backgroundColor = isSelected
+  // PRIORITÉ : couleurs SUTOM > sélection (on garde toujours les couleurs SUTOM visibles)
+  const backgroundColor = cell.isRevealed
+    ? '#E8F5E9'
+    : cell.userLetter && sutomStatus !== 'neutral'
+    ? sutomColors.background  // Couleur SUTOM prioritaire
+    : isSelected
     ? colors.primary.light
     : isInSelectedWord
     ? '#E3F2FD'
-    : cell.isRevealed
-    ? '#E8F5E9'
     : colors.background.card;
 
-  // Vérifier si la lettre est correcte
-  const isCorrect = cell.userLetter === cell.letter;
+  // Déterminer la couleur de bordure
+  // La sélection est indiquée par une bordure bleue épaisse, mais la couleur SUTOM reste si présente
+  const borderColor = isSelected
+    ? colors.primary.main  // Bordure bleue pour la sélection
+    : cell.userLetter && sutomStatus !== 'neutral'
+    ? sutomColors.border
+    : isInSelectedWord
+    ? colors.primary.light
+    : 'rgba(0,0,0,0.1)';
+
+  // Épaisseur de bordure : plus épaisse si sélectionné
+  const borderWidth = isSelected ? 3 : (cell.userLetter && sutomStatus !== 'neutral') ? 2 : 1;
+
+  // Couleur du texte selon le statut
   const textColor = cell.isRevealed
     ? '#4CAF50'
-    : cell.userLetter && !isCorrect
-    ? colors.text.primary
+    : sutomStatus === 'correct'
+    ? '#2E7D32'      // Vert foncé
+    : sutomStatus === 'misplaced'
+    ? '#E65100'      // Orange foncé
+    : sutomStatus === 'absent'
+    ? '#C62828'      // Rouge foncé
     : colors.text.primary;
 
   return (
@@ -107,12 +164,8 @@ export function CrosswordCell({
             width: size,
             height: size,
             backgroundColor,
-            borderColor: isSelected
-              ? colors.primary.main
-              : isInSelectedWord
-              ? colors.primary.light
-              : 'rgba(0,0,0,0.1)',
-            borderWidth: isSelected ? 2 : 1,
+            borderColor,
+            borderWidth,
           },
           animatedStyle,
         ]}
@@ -120,6 +173,18 @@ export function CrosswordCell({
         {/* Numéro de mot */}
         {cell.wordNumber && (
           <Text style={styles.wordNumber}>{cell.wordNumber}</Text>
+        )}
+
+        {/* Icône accessibilité (pour daltoniens) - en haut à droite */}
+        {cell.userLetter && sutomStatus !== 'neutral' && sutomColors.icon && (
+          <Text
+            style={[
+              styles.statusIcon,
+              { color: sutomColors.border },
+            ]}
+          >
+            {sutomColors.icon}
+          </Text>
         )}
 
         {/* Lettre */}
@@ -161,6 +226,13 @@ const styles = StyleSheet.create({
     fontSize: 8,
     fontWeight: '600',
     color: colors.text.tertiary,
+  },
+  statusIcon: {
+    position: 'absolute',
+    top: 2,
+    right: 3,
+    fontSize: 10,
+    fontWeight: '700',
   },
   letter: {
     fontFamily: fontFamily.displayBold,

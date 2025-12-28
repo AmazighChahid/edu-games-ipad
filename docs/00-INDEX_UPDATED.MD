@@ -1,6 +1,6 @@
 # 📚 INDEX DOCUMENTATION — Hello Guys
 
-> **Version** : 3.0 — Décembre 2024 | **Conformité UI** : 89%
+> **Version** : 3.1 — Décembre 2024 | **Conformité UI** : 89%
 
 ---
 
@@ -50,7 +50,7 @@ RÈGLES :
 
 ### 🎮 Nouveau jeu
 ```
-LIRE : PROJECT_STRUCTURE.md, MASCOTTES_REGISTRY.md, CLAUDE_CODE_RULES.md, GUIDE_UX_UI_APP_EDUCATIVE.md, INSTRUCTIONS_PROJET_APP_EDUCATIVE.md, Fiches Educatives/ (si existante)
+LIRE : TRAME_REFERENTIEL.md (OBLIGATOIRE), PROJECT_STRUCTURE.md, MASCOTTES_REGISTRY.md, CLAUDE_CODE_RULES.md, GUIDE_UX_UI_APP_EDUCATIVE.md, Fiches Educatives/ (si existante)
 
 STRUCTURE OBLIGATOIRE :
 /src/games/{nom}/
@@ -170,7 +170,7 @@ OBJECTIF : Mettre à jour TOUS les docs d'instructions après évolutions du pro
 VÉRIFIER PAR DOCUMENT :
 - Chemins/imports encore valides ?
 - Composants référencés existent ?
-- Liste des jeux à jour (13) ?
+- Liste des jeux à jour (15 : 12 disponibles + 3 coming soon) ?
 - Mascottes correspondent au code ?
 - Règles reflètent le code actuel ?
 
@@ -195,6 +195,7 @@ ACTIONS :
 
 | Fichier | Description |
 |---------|-------------|
+| **TRAME_REFERENTIEL.md** | Architecture des activités, types universels, core pédagogique |
 | **CLAUDE_CODE_RULES.md** | Règles obligatoires Claude Code |
 | **DESIGN_SYSTEM.md** | Tokens couleurs, typo, spacing, animations |
 | **PROJECT_STRUCTURE.md** | Structure projet, conventions nommage |
@@ -207,36 +208,49 @@ ACTIONS :
 | **GUIDE_UX_UI_APP_EDUCATIVE.md** | Principes UX enfant 6-10 ans |
 | **INSTRUCTIONS_PROJET_APP_EDUCATIVE.md** | Vision pédagogique, missions |
 | **AUDIT_DOCUMENTATION.md** | Méthodologie audit documentation |
-| **IMPLEMENTATION_SUMMARY.md** | Avancement global |
-| **SYNTHESE_STANDARDISATION.md** | Historique migrations |
+
+### /docs/Etat-Historique/
+
+| Fichier | Description |
+|---------|-------------|
+| **IMPLEMENTATION_SUMMARY.md** | Avancement global projet |
+| **SYNTHESE_STANDARDISATION.md** | Historique migrations effectuées |
 | **RAPPORT_VERIFICATION_MASCOTTES_COMPETENCES.md** | Vérification mascottes/compétences |
+
+> **Règle** : Tout document d'état, rapport ou historique doit être créé dans ce dossier.
 
 ### /Fiches Educatives/
 
 | Statut | Jeux |
 |--------|------|
-| ✅ Complet | 01-Hanoï, 02-Suites, 03-Labyrinthe, 04-Balance, 05-Sudoku, 06-Conteur, 12-Matrices |
-| ⚠️ Partiel | 07-Memory, 08-Tangram, 09-Logix, 10-MotsCroisés, 11-MathBlocks, 13-Embouteillage |
+| ✅ Complet | 01-Hanoï, 02-Suites, 03-Labyrinthe, 04-Balance, 05-Sudoku, 06-Conteur, 12-Matrices, 13-Embouteillage, 14-Fabrique Réactions, 15-Chasseur Papillons |
+| ⚠️ Partiel | 07-Memory, 08-Tangram, 09-Logix, 10-MotsCroisés, 11-MathBlocks |
+
+> **Note** : Les jeux 07-11 ont seulement FICHE_ACTIVITE.md et DIALOGUES_IA.md. Manquent : FICHE_PARENT.md, SPECS_TECHNIQUES.md
 
 ---
 
-## 🎮 Jeux (13)
+## 🎮 Jeux (15 : 12 disponibles + 3 coming soon)
 
-| # | Jeu | Mascotte | Route |
-|---|-----|----------|-------|
-| 01 | Tour de Hanoï | 🐵 Léo | 01-hanoi |
-| 02 | Suites Logiques | 🤖 Pixel | 02-suites-logiques |
-| 03 | Labyrinthe | 🐿️ Scout | 03-labyrinthe |
-| 04 | Balance Logique | 🦉 Libra | 04-balance |
-| 05 | Sudoku Montessori | 🦉 Prof. Hoo | 05-sudoku |
-| 06 | Le Conteur Curieux | 🪶 Plume | 06-conteur-curieux |
-| 07 | Memory | 🐘 Memo | 07-memory |
-| 08 | Puzzle Formes | 🦊 Géo | 08-tangram |
-| 09 | Logix Grid | 🐜 Ada | 09-logix-grid |
-| 10 | Mots Croisés | 🦜 Lexie | 10-mots-croises |
-| 11 | MathBlocks | 🦫 Calc | 11-math-blocks |
-| 12 | Matrices Magiques | ✨ Mystic | 12-matrices-magiques |
-| 13 | Embouteillage | 🚗 TBD | 13-embouteillage 🔜 |
+| # | Jeu | Mascotte | Route | Statut |
+|---|-----|----------|-------|--------|
+| 01 | Tour de Hanoï | 🦉 Piou | 01-hanoi | ✅ |
+| 02 | Suites Logiques | 🤖 Pixel | 02-suites-logiques | ✅ |
+| 03 | Labyrinthe | 🐿️ Scout | 03-labyrinthe | ✅ |
+| 04 | Balance Logique | 🦉 Dr. Hibou | 04-balance | ✅ |
+| 05 | Sudoku Montessori | 🦉 Prof. Hoo / 🦊 Félix | 05-sudoku | ✅ |
+| 06 | Le Conteur Curieux | 🪶 Plume | 06-conteur-curieux | ✅ |
+| 07 | Memory | 🐘 Memo | 07-memory | ✅ |
+| 08 | Puzzle Formes | 🦊 Géo | 08-tangram | ✅ |
+| 09 | Logix Grid | 🐜 Ada | 09-logix-grid | ✅ |
+| 10 | Mots Croisés | 🦜 Lexie | 10-mots-croises | ✅ |
+| 11 | MathBlocks | 🦫 Calc | 11-math-blocks | ✅ |
+| 12 | Matrices Magiques | 🦊 Pixel le Renard | 12-matrices-magiques | 🔜 |
+| 13 | Embouteillage | 🚗 TBD | - | 🔜 |
+| 14 | La Fabrique de Réactions | ⚗️ TBD | - | 🔜 |
+| 15 | Chasseur de Papillons | 🦋 TBD | - | 🔜 |
+
+> **Légende** : ✅ Disponible | 🔜 Coming Soon
 
 ---
 
@@ -253,4 +267,4 @@ ACTIONS :
 
 ---
 
-*v3.0 — 28 Décembre 2024*
+*v3.1 — 28 Décembre 2024*

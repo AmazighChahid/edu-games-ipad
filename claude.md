@@ -206,6 +206,7 @@ hello-guys/
 │   └── AppIcons/
 │
 ├── docs/                       # Documentation technique
+│   └── Etat-Historique/        # Documents d'état et historique (rapports, synthèses)
 └── Fiches Educatives/          # Spécifications pédagogiques
     ├── 01-Tour de Hanoï/
     ├── 02-suites-logiques/
@@ -769,21 +770,54 @@ import type { GameState } from './types';
 
 ---
 
-## 22. RESSOURCES PROJET
+## 22. COMMANDES SLASH DISPONIBLES
 
-| Document | Chemin |
-|----------|--------|
-| Design System | `/docs/DESIGN_SYSTEM.md` |
-| Structure Projet | `/docs/PROJECT_STRUCTURE.md` |
-| 18 Activités | `/docs/ACTIVITES_APP_EDUCATIVE.md` |
-| Guide UX/UI V2 | `/docs/Guide_UX_UI_V2.md` |
-| Brief Template | `/docs/TEMPLATE_BRIEF_VIERGE.md` |
-| Instruction HTML | `/docs/INSTRUCTION_HTML_BRIEF.md` |
-| Fiches Éducatives | `/Fiches Educatives/` |
+Les commandes suivantes automatisent le chargement du contexte approprié :
+
+| Commande | Description | Contexte chargé |
+|----------|-------------|-----------------|
+| `/nouveau-jeu <nom>` | Créer un nouveau jeu complet | TRAME_REFERENTIEL, PROJECT_STRUCTURE, MASCOTTES_REGISTRY |
+| `/nouveau-composant <Nom>` | Créer un composant UI | UI_COMPONENTS_CATALOG, DESIGN_SYSTEM |
+| `/fiche-educative <XX-Nom>` | Créer les 4 fiches d'un jeu | Templates Fiches Educatives |
+| `/audit` | Audit complet du projet | GUIDELINES_AUDIT, DESIGN_SYSTEM |
+| `/sync-docs` | Synchroniser la documentation | 00-INDEX_UPDATED |
+
+### Utilisation
+```bash
+# Créer un nouveau jeu
+/nouveau-jeu chasseur-papillons
+
+# Créer un composant
+/nouveau-composant ProgressBar common
+
+# Audit du projet
+/audit
+```
 
 ---
 
-## 23. RÈGLE FINALE
+## 23. RESSOURCES PROJET
+
+| Document | Chemin |
+|----------|--------|
+| **Index documentation** | `/docs/00-INDEX_UPDATED.md` |
+| **Trame Référentiel** | `/docs/TRAME_REFERENTIEL.md` |
+| Design System | `/docs/DESIGN_SYSTEM.md` |
+| Structure Projet | `/docs/PROJECT_STRUCTURE.md` |
+| Règles Claude Code | `/docs/CLAUDE_CODE_RULES.md` |
+| Composants UI | `/docs/UI_COMPONENTS_CATALOG.md` |
+| Guide UX/UI Enfant | `/docs/GUIDE_UX_UI_APP_EDUCATIVE.md` |
+| Instructions Projet | `/docs/INSTRUCTIONS_PROJET_APP_EDUCATIVE.md` |
+| Fiches Éducatives | `/Fiches Educatives/` |
+| **État/Historique** | `/docs/Etat-Historique/` |
+
+### Règle Documentation
+
+**Documents d'état ou historique** (rapports d'audit, synthèses, vérifications) doivent être créés dans `/docs/Etat-Historique/` et non à la racine de `/docs/`.
+
+---
+
+## 24. RÈGLE FINALE
 
 **Toujours privilégier :**
 
