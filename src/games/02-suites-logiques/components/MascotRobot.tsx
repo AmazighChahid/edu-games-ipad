@@ -254,21 +254,7 @@ export function MascotRobot({
 
   return (
     <View style={styles.container}>
-      {/* Speech bubble with typewriter effect - no popup animation */}
-      <View style={styles.speechBubble}>
-        <View style={styles.bubbleHeader}>
-          <Text style={[styles.bubbleName, { color: currentEmotion.color }]}>
-            Pixel :
-          </Text>
-        </View>
-        <Text style={styles.bubbleText}>
-          {displayedText}
-          {isTyping && <Text style={styles.cursor}>|</Text>}
-        </Text>
-        <View style={styles.bubbleArrow} />
-      </View>
-
-      {/* Robot SVG */}
+      {/* Robot SVG - positioned left */}
       <Animated.View style={[styles.robot, bodyStyle]}>
         <Svg width="100" height="120" viewBox="0 0 100 120">
           <Defs>
@@ -372,26 +358,50 @@ export function MascotRobot({
           <Circle cx="79" cy="107" r="5" fill={ROBOT_COLORS.bodyDark} />
         </Svg>
       </Animated.View>
+
+      {/* Speech bubble with typewriter effect - positioned to the right of robot */}
+      <View style={styles.speechBubble}>
+        <View style={styles.bubbleHeader}>
+          <Text style={[styles.bubbleName, { color: currentEmotion.color }]}>
+            Pixel :
+          </Text>
+        </View>
+        <Text style={styles.bubbleText}>
+          {displayedText}
+          {isTyping && <Text style={styles.cursor}>|</Text>}
+        </Text>
+        <View style={styles.bubbleArrowLeft} />
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    alignItems: 'flex-start',
-    marginBottom: spacing[4],
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: spacing[4],
   },
 
-  // Speech bubble with enhanced styling
+  // Robot container - positioned left
+  robot: {
+    width: 100,
+    height: 120,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+  },
+
+  // Speech bubble with enhanced styling - positioned to the right
   speechBubble: {
     backgroundColor: '#FFFFFF',
     borderRadius: 24,
     padding: spacing[5],
     paddingBottom: spacing[4],
-    minWidth: 280,
-    maxWidth: '90%',
+    flex: 1,
+    maxWidth: 300,
     ...shadows.lg,
-    marginBottom: spacing[3],
+    marginLeft: spacing[3],
     borderWidth: 3,
     borderColor: '#E0E8F8',
   },
@@ -417,26 +427,19 @@ const styles = StyleSheet.create({
     color: '#5B8DEE',
     fontWeight: '300',
   },
-  bubbleArrow: {
+  // Arrow pointing left (towards the robot)
+  bubbleArrowLeft: {
     position: 'absolute',
-    bottom: -15,
-    left: 40,
+    left: -15,
+    top: '50%',
+    marginTop: -10,
     width: 0,
     height: 0,
-    borderLeftWidth: 18,
+    borderTopWidth: 12,
+    borderBottomWidth: 12,
     borderRightWidth: 18,
-    borderTopWidth: 18,
-    borderLeftColor: 'transparent',
-    borderRightColor: 'transparent',
-    borderTopColor: '#FFFFFF',
-  },
-
-  // Robot container
-  robot: {
-    width: 100,
-    height: 120,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginLeft: 30,
+    borderTopColor: 'transparent',
+    borderBottomColor: 'transparent',
+    borderRightColor: '#FFFFFF',
   },
 });

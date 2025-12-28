@@ -248,7 +248,7 @@ const styles = StyleSheet.create({
 - **Textes** : Lisibles avec typographies adaptées (**minimum 18pt**, dyslexie-friendly)
 - **Couleurs** : Vives mais non agressives, contrastes suffisants
 - **Navigation** : Intuitive par icônes et storytelling visuel
-- **Espaces** : Menu principal enfant séparé de l'espace parent (accès sécurisé)
+- **Espaces** : Menu principal enfant séparé de l'**Espace Parent** (dashboard app, accès sécurisé PIN/FaceID)
 
 ### D. Dialogue IA / Enfant
 
@@ -279,7 +279,9 @@ Pour chaque nouvelle activité, produis une fiche complète suivant ce format :
 - **Script IA exemple** : [Dialogue type pour expliquer]
 ```
 
-### Fiche Parent associée
+### Fiche Parent associée (Documentation Markdown)
+
+> ⚠️ **Note** : La "Fiche Parent" est un fichier de **documentation Markdown** (`FICHE_PARENT.md`) destiné à accompagner les parents. Ne pas confondre avec l'"Espace Parent" qui est le **dashboard intégré à l'app** (code TypeScript).
 
 ```markdown
 - **Objectifs détaillés** : [Explication pour les parents]
@@ -288,6 +290,8 @@ Pour chaque nouvelle activité, produis une fiche complète suivant ce format :
 - **Signaux de progression** : [Comment savoir si l'enfant progresse]
 - **Transfert vie quotidienne** : [Applications concrètes]
 ```
+
+Localisation : `Fiches Educatives/{XX-nom}/FICHE_PARENT.md`
 
 ---
 

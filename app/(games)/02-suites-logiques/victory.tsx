@@ -11,7 +11,7 @@ import { colors, spacing } from '../../../src/theme';
 import { VictoryCard, PageContainer, type VictoryBadge } from '../../../src/components/common';
 import { CardUnlockScreen } from '../../../src/components/collection';
 import { useCardUnlock } from '../../../src/hooks';
-import { useCollection } from '../../../src/store';
+import { useCollection, useStore } from '../../../src/store';
 
 // ============================================
 // BADGES NON-COMPÉTITIFS
@@ -42,6 +42,7 @@ const getSuitesLogBadge = (
 export default function SuitesLogiquesVictoryScreen() {
   const router = useRouter();
   const { getUnlockedCardsCount } = useCollection();
+  const recordCompletion = useStore((state) => state.recordCompletion);
 
   const params = useLocalSearchParams<{
     completed: string;
@@ -78,6 +79,23 @@ export default function SuitesLogiquesVictoryScreen() {
     levelNumber: currentLevel,
     isOptimal,
   });
+
+  // Sauvegarder la progression du niveau complété
+  const [hasRecordedCompletion, setHasRecordedCompletion] = useState(false);
+
+  useEffect(() => {
+    if (!hasRecordedCompletion) {
+      recordCompletion({
+        gameId: 'suites-logiques',
+        levelId: `level_${currentLevel}`,
+        completedAt: Date.now(),
+        moveCount: completed, // Nombre de séquences complétées
+        timeSeconds: Math.floor(totalTime / 1000),
+        hintsUsed: hintsUsed,
+      });
+      setHasRecordedCompletion(true);
+    }
+  }, [hasRecordedCompletion, recordCompletion, currentLevel, completed, totalTime, hintsUsed]);
 
   // Check pour déblocage de carte
   const [hasCheckedUnlock, setHasCheckedUnlock] = useState(false);

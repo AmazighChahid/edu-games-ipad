@@ -120,6 +120,124 @@ export const PATTERNS: PatternDefinition[] = [
     transform: 'none',
     difficulty: 5
   },
+
+  // ============================================
+  // NIVEAU 6 : Motifs miroir et symétriques (9-10 ans)
+  // ============================================
+  {
+    type: 'mirror',
+    cycle: [0, 1, 2, 1, 0],
+    transform: 'none',
+    difficulty: 6
+  },
+  {
+    type: 'ABCBA',
+    cycle: [0, 1, 2, 1, 0],
+    transform: 'none',
+    difficulty: 6
+  },
+  {
+    type: 'rotation_45',
+    cycle: [0],
+    transform: 'rotation',
+    step: 45,
+    difficulty: 6
+  },
+
+  // ============================================
+  // NIVEAU 7 : Doubles transformations (10 ans)
+  // ============================================
+  {
+    type: 'size_color',
+    cycle: [0, 1],
+    transform: 'size',
+    step: 1,
+    difficulty: 7
+  },
+  {
+    type: 'numeric_add',
+    cycle: [0],
+    transform: 'numeric',
+    step: 5,
+    difficulty: 7
+  },
+  {
+    type: 'AABBC',
+    cycle: [0, 0, 1, 1, 2],
+    transform: 'none',
+    difficulty: 7
+  },
+
+  // ============================================
+  // NIVEAU 8 : Suites avancées (10-11 ans)
+  // ============================================
+  {
+    type: 'numeric_square',
+    cycle: [0],
+    transform: 'numeric',
+    step: 1, // 1, 4, 9, 16...
+    difficulty: 8
+  },
+  {
+    type: 'decreasing',
+    cycle: [0],
+    transform: 'size',
+    step: -1,
+    difficulty: 8
+  },
+  {
+    type: 'ABCDCBA',
+    cycle: [0, 1, 2, 3, 2, 1, 0],
+    transform: 'none',
+    difficulty: 8
+  },
+
+  // ============================================
+  // NIVEAU 9 : Combinaisons complexes (11 ans)
+  // ============================================
+  {
+    type: 'numeric_add',
+    cycle: [0],
+    transform: 'numeric',
+    step: 10,
+    difficulty: 9
+  },
+  {
+    type: 'nested',
+    cycle: [0, 0, 1, 0, 0, 1, 2],
+    transform: 'none',
+    difficulty: 9
+  },
+  {
+    type: 'rotation_complex',
+    cycle: [0],
+    transform: 'rotation',
+    step: 60,
+    difficulty: 9
+  },
+
+  // ============================================
+  // NIVEAU 10 : Expert (11-12 ans)
+  // ============================================
+  {
+    type: 'numeric_mult',
+    cycle: [0],
+    transform: 'numeric',
+    step: 3,
+    difficulty: 10
+  },
+  {
+    type: 'prime',
+    cycle: [0],
+    transform: 'numeric',
+    difficulty: 10
+  },
+  {
+    type: 'complex_pattern',
+    cycle: [0, 1, 1, 2, 3, 5], // Fibonacci visuel
+    transform: 'none',
+    difficulty: 10
+  },
 ];
 
 // Helper pour obtenir les patterns d'un niveau spécifique
@@ -146,6 +264,11 @@ export function getSequenceLength(difficulty: number): number {
     3: 7,   // 6 visibles + 1 manquant
     4: 7,   // 6 visibles + 1 manquant
     5: 8,   // 7 visibles + 1 manquant
+    6: 8,   // 7 visibles + 1 manquant
+    7: 9,   // 8 visibles + 1 manquant
+    8: 9,   // 8 visibles + 1 manquant
+    9: 10,  // 9 visibles + 1 manquant
+    10: 10, // 9 visibles + 1 manquant
   };
   return lengths[difficulty] || 5;
 }

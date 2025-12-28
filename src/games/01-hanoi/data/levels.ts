@@ -65,6 +65,67 @@ export const hanoiLevels: HanoiLevelConfig[] = [
     targetTower: 2,
     optimalMoves: 63,
   },
+  // Niveaux supplémentaires avec variations
+  {
+    id: 'level_6',
+    gameId: 'hanoi',
+    difficulty: 'easy',
+    displayOrder: 6,
+    targetAge: 5,
+    estimatedMinutes: 2,
+    diskCount: 2,
+    sourceTower: 0,
+    targetTower: 1, // Variation : tour cible différente
+    optimalMoves: 3,
+  },
+  {
+    id: 'level_7',
+    gameId: 'hanoi',
+    difficulty: 'easy',
+    displayOrder: 7,
+    targetAge: 6,
+    estimatedMinutes: 2,
+    diskCount: 3,
+    sourceTower: 2, // Variation : départ tour droite
+    targetTower: 0,
+    optimalMoves: 7,
+  },
+  {
+    id: 'level_8',
+    gameId: 'hanoi',
+    difficulty: 'medium',
+    displayOrder: 8,
+    targetAge: 7,
+    estimatedMinutes: 5,
+    diskCount: 4,
+    sourceTower: 1, // Variation : départ tour centrale
+    targetTower: 2,
+    optimalMoves: 15,
+  },
+  {
+    id: 'level_9',
+    gameId: 'hanoi',
+    difficulty: 'hard',
+    displayOrder: 9,
+    targetAge: 10,
+    estimatedMinutes: 15,
+    diskCount: 7,
+    sourceTower: 0,
+    targetTower: 2,
+    optimalMoves: 127,
+  },
+  {
+    id: 'level_10',
+    gameId: 'hanoi',
+    difficulty: 'hard',
+    displayOrder: 10,
+    targetAge: 10,
+    estimatedMinutes: 20,
+    diskCount: 8,
+    sourceTower: 0,
+    targetTower: 2,
+    optimalMoves: 255,
+  },
 ];
 
 export const getLevel = (levelId: string): HanoiLevelConfig | undefined => {

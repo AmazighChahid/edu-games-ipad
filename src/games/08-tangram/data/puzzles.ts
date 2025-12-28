@@ -75,7 +75,7 @@ const animalPuzzles: TangramPuzzle[] = [
     solution: [],
     thumbnailEmoji: '🐰',
     idealTime: 150,
-    locked: true,
+    locked: false,
     unlockCondition: 'Complete tangram-bird',
   },
   {
@@ -88,7 +88,7 @@ const animalPuzzles: TangramPuzzle[] = [
     solution: [],
     thumbnailEmoji: '🦊',
     idealTime: 180,
-    locked: true,
+    locked: false,
     unlockCondition: 'Complete tangram-rabbit',
   },
 ];
@@ -120,7 +120,7 @@ const objectPuzzles: TangramPuzzle[] = [
     solution: [],
     thumbnailEmoji: '⛵',
     idealTime: 100,
-    locked: true,
+    locked: false,
     unlockCondition: 'Complete tangram-house',
   },
   {
@@ -133,7 +133,7 @@ const objectPuzzles: TangramPuzzle[] = [
     solution: [],
     thumbnailEmoji: '🚀',
     idealTime: 150,
-    locked: true,
+    locked: false,
     unlockCondition: 'Complete tangram-boat',
   },
 ];
@@ -153,7 +153,7 @@ const peoplePuzzles: TangramPuzzle[] = [
     solution: [],
     thumbnailEmoji: '🏃',
     idealTime: 180,
-    locked: true,
+    locked: false,
     unlockCondition: 'Complete 3 easy puzzles',
   },
   {
@@ -166,8 +166,21 @@ const peoplePuzzles: TangramPuzzle[] = [
     solution: [],
     thumbnailEmoji: '💃',
     idealTime: 240,
-    locked: true,
+    locked: false,
     unlockCondition: 'Complete tangram-person',
+  },
+  {
+    id: 'tangram-ninja',
+    name: 'Le Ninja',
+    description: 'Un ninja en position de combat',
+    category: 'people',
+    difficulty: 'hard',
+    silhouette: [],
+    solution: [],
+    thumbnailEmoji: '🥷',
+    idealTime: 300,
+    locked: false,
+    unlockCondition: 'Complete tangram-dancer',
   },
 ];
 

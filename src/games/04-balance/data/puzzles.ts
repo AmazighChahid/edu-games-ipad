@@ -1077,13 +1077,8 @@ export function getNextPuzzle(currentLevel: number): Puzzle | undefined {
 }
 
 export function isPhaseUnlocked(phase: Phase, completedLevels: number): boolean {
-  const requirements: Record<Phase, number> = {
-    1: 0,
-    2: 5,
-    3: 12,
-    4: 20,
-  };
-  return completedLevels >= requirements[phase];
+  // All phases unlocked by default
+  return true;
 }
 
 export function getPhaseProgress(phase: Phase, completedPuzzleIds: string[]): {

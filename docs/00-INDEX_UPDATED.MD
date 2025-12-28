@@ -1,6 +1,6 @@
 # 📚 INDEX DOCUMENTATION — Hello Guys
 
-> **Version** : 3.1 — Décembre 2024 | **Conformité UI** : 89%
+> **Version** : 3.3 — Décembre 2024 | **Conformité UI** : 89%
 
 ---
 
@@ -106,27 +106,132 @@ APRÈS : Mettre à jour MASCOTTES_REGISTRY.md
 → Confirmer lecture, poser questions, planifier.
 ```
 
-### 👨‍👩‍👧 Espace parent
+### 🏠 Espace Parent (Dashboard App)
 ```
-LIRE : GUIDE_UX_UI_APP_EDUCATIVE.md (section Espace Parent), UI_PATTERNS.md
+LIRE : GUIDE_UX_UI_APP_EDUCATIVE.md (section Espace Parent), UI_PATTERNS.md, src/types/parent.types.ts
+
+⚠️ DISTINCTION IMPORTANTE :
+- "Espace Parent" = Dashboard DANS l'app (code TypeScript/React)
+- "Fiche Parent" = Documentation MARKDOWN par activité (voir pré-prompt séparé)
+
+TYPES À UTILISER (parent.types.ts) :
+- ChildProfile : profil enfant (nom, avatar, âge)
+- ParentGoal : objectifs définis par le parent
+- ScreenTimeSettings : limites temps écran
+- WeeklyStats, DailyStats : statistiques
+- Badge, ActivityItem : récompenses et historique
+- BehaviorInsights : analyses comportementales
+
+ONGLETS DASHBOARD :
+- overview : vue d'ensemble, stats rapides
+- activities : historique des sessions
+- skills : compétences par domaine
+- goals : objectifs parentaux
 
 RÈGLES :
 - Accès sécurisé (PIN/FaceID)
-- Contenu : dashboard, fiches pédago, conseils, paramètres temps
-- Pas de collecte données enfant
+- Pas de collecte données enfant externe
+- UI adulte (peut différer du design enfant)
+- Graphiques lisibles, données actionables
 
 → Confirmer lecture, poser questions, planifier.
 ```
 
-### 📝 Créer fiche éducative
+### 📊 Modifier Espace Parent
 ```
-LIRE : Fiches Educatives/01-Tour de Hanoï/ (template), INSTRUCTIONS_PROJET_APP_EDUCATIVE.md
+LIRE : src/types/parent.types.ts, src/screens/parent/, GUIDE_UX_UI_APP_EDUCATIVE.md
 
-4 FICHIERS À CRÉER :
-1. FICHE_ACTIVITE.md : objectif, tranche âge, déroulement, feedback
-2. FICHE_PARENT.md : compétences, conseils, transfert quotidien
-3. DIALOGUES_IA.md : scripts mascotte par âge
-4. SPECS_TECHNIQUES.md : composants, animations, sons
+FICHIERS CONCERNÉS :
+- src/types/parent.types.ts : types TypeScript
+- src/screens/parent/ : écrans du dashboard
+- src/store/ : slices Zustand pour données parent
+
+FONCTIONNALITÉS MODIFIABLES :
+- Profils enfants (ChildProfile)
+- Objectifs (ParentGoal, GoalTemplate)
+- Temps d'écran (ScreenTimeSettings, DailyScreenTime)
+- Badges (Badge, BadgeCategory)
+- Insights (BehaviorInsights, StrengthItem)
+- Recommandations IA (GameRecommendation)
+
+RÈGLES :
+- Respecter les types existants
+- Pas de breaking changes sur les données persistées
+- Tests sur les calculs de stats
+
+→ Confirmer lecture, poser questions, planifier.
+```
+
+### 📝 Créer Fiche Parent (Documentation Activité)
+```
+LIRE : Fiches Educatives/01-Tour de Hanoï/FICHE_PARENT.md (template), INSTRUCTIONS_PROJET_APP_EDUCATIVE.md
+
+⚠️ DISTINCTION IMPORTANTE :
+- "Fiche Parent" = Documentation MARKDOWN pour accompagner l'enfant
+- "Espace Parent" = Dashboard dans l'app (voir pré-prompt séparé)
+
+STRUCTURE FICHE_PARENT.md :
+1. Vue d'ensemble : description activité pour les parents
+2. Compétences développées : cognitives + transversales
+3. Lien apprentissages scolaires : maths, français, sciences
+4. Progression par âge : 6-7 / 7-8 / 9-10 ans
+5. Conseils d'accompagnement : ✅ À faire / ❌ À éviter
+6. Questions à poser : compréhension, stratégie, métacognition
+7. Transfert quotidien : activités complémentaires, jeux société
+8. Indicateurs app : explication du tableau de bord
+9. FAQ parents : réponses aux questions courantes
+10. Résumé en 5 points
+
+TON :
+- Bienveillant, non culpabilisant
+- Concret, actionnable
+- Basé sur principes Montessori
+
+→ Confirmer lecture, poser questions, planifier.
+```
+
+### ✏️ Modifier Fiche Parent existante
+```
+LIRE : Fiches Educatives/{XX-nom}/FICHE_PARENT.md, FICHE_ACTIVITE.md, SPECS_TECHNIQUES.md
+
+VÉRIFICATIONS :
+- Cohérence avec FICHE_ACTIVITE.md (règles, niveaux)
+- Cohérence avec SPECS_TECHNIQUES.md (fonctionnalités réelles)
+- Progression par âge alignée avec levels.ts du jeu
+
+SECTIONS À METTRE À JOUR :
+- Compétences si nouvelles fonctionnalités
+- Progression si nouveaux niveaux
+- FAQ si nouveaux retours utilisateurs
+- Indicateurs si nouveau scoring
+
+→ Confirmer lecture, poser questions, planifier.
+```
+
+### 📝 Créer fiche éducative complète
+```
+LIRE : Fiches Educatives/01-Tour de Hanoï/ (template complet), INSTRUCTIONS_PROJET_APP_EDUCATIVE.md
+
+4 FICHIERS À CRÉER dans /Fiches Educatives/{XX-nom}/ :
+
+1. FICHE_ACTIVITE.md :
+   - Objectif pédagogique, tranche âge
+   - Règles du jeu, déroulement
+   - Niveaux de difficulté, feedback
+
+2. FICHE_PARENT.md :
+   - Guide d'accompagnement parental
+   - Compétences, conseils, transfert quotidien
+   - (Voir pré-prompt "Créer Fiche Parent" pour détails)
+
+3. DIALOGUES_IA.md :
+   - Scripts mascotte par âge (6-7, 8-9, 9-10)
+   - Encouragements, indices, félicitations
+
+4. SPECS_TECHNIQUES.md :
+   - Architecture fichiers, types TypeScript
+   - Composants, hooks, animations
+   - Configuration niveaux
 
 → Confirmer lecture, poser questions, planifier.
 ```
@@ -208,6 +313,7 @@ ACTIONS :
 | **GUIDE_UX_UI_APP_EDUCATIVE.md** | Principes UX enfant 6-10 ans |
 | **INSTRUCTIONS_PROJET_APP_EDUCATIVE.md** | Vision pédagogique, missions |
 | **AUDIT_DOCUMENTATION.md** | Méthodologie audit documentation |
+| **00-INDEX_UPDATED.md** | Index documentation et pré-prompts Claude Code |
 
 ### /docs/Etat-Historique/
 
@@ -223,10 +329,11 @@ ACTIONS :
 
 | Statut | Jeux |
 |--------|------|
-| ✅ Complet | 01-Hanoï, 02-Suites, 03-Labyrinthe, 04-Balance, 05-Sudoku, 06-Conteur, 12-Matrices, 13-Embouteillage, 14-Fabrique Réactions, 15-Chasseur Papillons |
-| ⚠️ Partiel | 07-Memory, 08-Tangram, 09-Logix, 10-MotsCroisés, 11-MathBlocks |
+| ✅ Complet (4 fiches) | 01-Hanoï, 02-Suites, 03-Labyrinthe, 04-Balance, 05-Sudoku, 06-Conteur |
+| ⚠️ Partiel (2-3 fiches) | 07-Memory, 08-Tangram, 09-Logix, 10-MotsCroisés, 11-MathBlocks |
+| ✅ Complet (briefs inclus) | 12-Matrices, 13-Embouteillage, 14-Fabrique Réactions, 15-Chasseur Papillons |
 
-> **Note** : Les jeux 07-11 ont seulement FICHE_ACTIVITE.md et DIALOGUES_IA.md. Manquent : FICHE_PARENT.md, SPECS_TECHNIQUES.md
+> **Structure standard** : FICHE_ACTIVITE.md, FICHE_PARENT.md, DIALOGUES_IA.md, SPECS_TECHNIQUES.md
 
 ---
 
@@ -234,23 +341,23 @@ ACTIONS :
 
 | # | Jeu | Mascotte | Route | Statut |
 |---|-----|----------|-------|--------|
-| 01 | Tour de Hanoï | 🦉 Piou | 01-hanoi | ✅ |
-| 02 | Suites Logiques | 🤖 Pixel | 02-suites-logiques | ✅ |
-| 03 | Labyrinthe | 🐿️ Scout | 03-labyrinthe | ✅ |
+| 01 | Tour de Hanoï | 🦉 Piou (MascotOwl) | 01-hanoi | ✅ |
+| 02 | Suites Logiques | 🤖 Pixel (MascotRobot) | 02-suites-logiques | ✅ |
+| 03 | Labyrinthe | 🐿️ Scout (MascotBubble) | 03-labyrinthe | ✅ |
 | 04 | Balance Logique | 🦉 Dr. Hibou | 04-balance | ✅ |
 | 05 | Sudoku Montessori | 🦉 Prof. Hoo / 🦊 Félix | 05-sudoku | ✅ |
 | 06 | Le Conteur Curieux | 🪶 Plume | 06-conteur-curieux | ✅ |
-| 07 | Memory | 🐘 Memo | 07-memory | ✅ |
-| 08 | Puzzle Formes | 🦊 Géo | 08-tangram | ✅ |
-| 09 | Logix Grid | 🐜 Ada | 09-logix-grid | ✅ |
-| 10 | Mots Croisés | 🦜 Lexie | 10-mots-croises | ✅ |
-| 11 | MathBlocks | 🦫 Calc | 11-math-blocks | ✅ |
-| 12 | Matrices Magiques | 🦊 Pixel le Renard | 12-matrices-magiques | 🔜 |
+| 07 | Memory | 🐘 Memo (TBD) | 07-memory | ✅ |
+| 08 | Puzzle Formes | 🦊 Géo (TBD) | 08-tangram | ✅ |
+| 09 | Logix Grid | 🐜 Ada (TBD) | 09-logix-grid | ✅ |
+| 10 | Mots Croisés | 🦜 Lexie (TBD) | 10-mots-croises | ✅ |
+| 11 | MathBlocks | 🦫 Calc (TBD) | 11-math-blocks | ✅ |
+| 12 | Matrices Magiques | 🦊 Pixel (PixelMascot) | 12-matrices-magiques | ✅ |
 | 13 | Embouteillage | 🚗 TBD | - | 🔜 |
 | 14 | La Fabrique de Réactions | ⚗️ TBD | - | 🔜 |
 | 15 | Chasseur de Papillons | 🦋 TBD | - | 🔜 |
 
-> **Légende** : ✅ Disponible | 🔜 Coming Soon
+> **Légende** : ✅ Disponible | 🔜 Coming Soon | (TBD) = Mascotte non encore implémentée
 
 ---
 
@@ -267,4 +374,17 @@ ACTIONS :
 
 ---
 
-*v3.1 — 28 Décembre 2024*
+*v3.3 — 28 Décembre 2024*
+
+---
+
+## 📖 Glossaire Sémantique
+
+| Terme | Définition | Localisation |
+|-------|------------|--------------|
+| **Espace Parent** | Dashboard intégré à l'app pour le suivi parental (stats, objectifs, temps écran) | `src/types/parent.types.ts`, `src/screens/parent/` |
+| **Fiche Parent** | Documentation Markdown d'accompagnement pédagogique par activité | `Fiches Educatives/{XX-nom}/FICHE_PARENT.md` |
+| **Fiche Activité** | Documentation Markdown décrivant les règles et objectifs d'un jeu | `Fiches Educatives/{XX-nom}/FICHE_ACTIVITE.md` |
+| **Fiche Éducative** | Ensemble des 4 fichiers de documentation par jeu | `Fiches Educatives/{XX-nom}/` |
+
+> ⚠️ **Ne pas confondre** : L'Espace Parent est du **code** (TypeScript/React), les Fiches Parent sont de la **documentation** (Markdown).

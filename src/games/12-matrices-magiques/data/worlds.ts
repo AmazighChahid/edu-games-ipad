@@ -183,22 +183,8 @@ export function isWorldUnlocked(
   worldId: WorldTheme,
   completedWorlds: WorldTheme[]
 ): boolean {
-  const world = getWorldById(worldId);
-  if (!world) return false;
-
-  switch (world.unlockCondition.type) {
-    case 'default':
-      return true;
-    case 'complete_world':
-      return completedWorlds.includes(world.unlockCondition.worldId!);
-    case 'complete_all':
-      // All worlds except mystery must be completed
-      return WORLD_ORDER.filter((id) => id !== 'mystery').every((id) =>
-        completedWorlds.includes(id)
-      );
-    default:
-      return false;
-  }
+  // All worlds unlocked by default
+  return true;
 }
 
 /** Get world theme colors */

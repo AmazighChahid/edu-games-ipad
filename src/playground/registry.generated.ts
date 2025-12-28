@@ -234,7 +234,7 @@ import { MascotRobot } from '../games/02-suites-logiques/components/MascotRobot'
 import { MissingSlot } from '../games/02-suites-logiques/components/MissingSlot';
 import { SequenceDisplay } from '../games/02-suites-logiques/components/SequenceDisplay';
 import { SequenceElement } from '../games/02-suites-logiques/components/SequenceElement';
-import { SuitesIntroScreen } from '../games/02-suites-logiques/screens/SuitesIntroScreen';
+import SuitesIntroScreen from '../games/02-suites-logiques/screens/SuitesIntroScreen';
 import { SuitesLogiquesGame } from '../games/02-suites-logiques/components/SuitesLogiquesGame';
 import { AlienSVG } from '../games/02-suites-logiques/components/svg/SpaceElements';
 import { ChickenSVG } from '../games/02-suites-logiques/components/svg/FarmAnimals';

@@ -1,11 +1,9 @@
 /**
- * ParentDrawer component
- * Bottom drawer with modern tabs for parent educational guide
- * Design: Option 2 - Drawer inférieur avec tabs modernes
+ * ParentDrawer component - V2
+ * Generic bottom drawer with 6 tabs for parent educational guide
+ * Reusable across all activities - content passed via props
  *
- * Simple behavior:
- * - Click "Espace Parent" button → drawer slides up
- * - Click outside or swipe down on handle → drawer closes
+ * Tabs: Objectif & Règles, Compétences, Accompagnement, Questions, Vie quotidienne, Progression
  */
 
 import { useEffect, useState, useRef } from 'react';
@@ -24,54 +22,184 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
+import { LinearGradient } from 'expo-linear-gradient';
 
-import { shadows } from '../../theme';
+import { theme } from '../../theme';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
-
-// Drawer height - 90% of screen height
 const DRAWER_HEIGHT = SCREEN_HEIGHT * 0.9;
 
-// Tab types
-type TabType = 'objectif' | 'competences' | 'questions' | 'quotidien' | 'progression';
+// ============================================================================
+// TYPES & INTERFACES
+// ============================================================================
 
-// Game mode types (for progression tab)
+type TabType = 'objectif' | 'competences' | 'accompagnement' | 'questions' | 'quotidien' | 'progression';
+
 export type GameMode = 'discovery' | 'challenge' | 'expert';
 
-// Colors matching the design
-const COLORS = {
-  primary: '#5B8DEE',
-  primaryDark: '#4A7BD9',
-  secondary: '#FFB347',
-  success: '#7BC74D',
-  accent: '#E056FD',
-  attention: '#F39C12',
-  background: '#FFFFFF',
-  surface: '#F7FAFC',
-  textDark: '#2D3748',
-  textMedium: '#4A5568',
-  textMuted: '#718096',
-  border: '#E2E8F0',
-};
+/** Game objective and rules data */
+export interface GameObjectiveData {
+  objective: string;
+  optimalSolution: string;
+  rules: string[];
+  strategy: string;
+  tip: string;
+}
 
-interface ParentDrawerProps {
+/** What the app does / doesn't do */
+export interface AppBehaviorData {
+  does: string[];
+  doesnt: string[];
+}
+
+/** Competence item */
+export interface CompetenceData {
+  id: string;
+  icon: string;
+  title: string;
+  description: string;
+  stars: number; // 1-5
+  iconBgColor: string;
+}
+
+/** Scientific basis info */
+export interface ScienceData {
+  text: string;
+}
+
+/** Advice row for accompaniment tab */
+export interface AdviceData {
+  situation: string;
+  response: string;
+}
+
+/** Question item */
+export interface QuestionData {
+  text: string;
+}
+
+/** Daily life transfer activity */
+export interface DailyActivityData {
+  icon: string;
+  title: string;
+  description: string;
+}
+
+/** Resource recommendation */
+export interface ResourceData {
+  type: string;
+  icon: string;
+  title: string;
+  author: string;
+}
+
+/** Badge for play style */
+export interface BadgeData {
+  id: string;
+  icon: string;
+  title: string;
+  description: string;
+  earned: boolean;
+}
+
+/** Age expectation */
+export interface AgeExpectationData {
+  age: number;
+  expectation: string;
+  isCurrent?: boolean;
+}
+
+/** Settings item */
+export interface SettingData {
+  id: string;
+  label: string;
+  enabled: boolean;
+}
+
+/** Stats for progression */
+export interface StatsData {
+  totalGames: number;
+  successfulGames: number;
+  totalTime: string;
+}
+
+/** Progress data */
+export interface ProgressData {
+  currentLevel: number;
+  maxLevel: number;
+  progressPercent: number;
+  nextObjective: string;
+}
+
+/** Complete props interface */
+export interface ParentDrawerProps {
   isVisible: boolean;
   onClose?: () => void;
-  // Game stats for progression tab
-  currentMoves?: number;
-  optimalMoves?: number;
-  hintsRemaining?: number;
-  maxHints?: number;
+
+  // Activity identity
+  activityName?: string;
+  activityEmoji?: string;
+
+  // Tab 1: Objectif & Règles
+  gameData?: GameObjectiveData;
+  appBehavior?: AppBehaviorData;
+
+  // Tab 2: Compétences
+  competences?: CompetenceData[];
+  scienceData?: ScienceData;
+
+  // Tab 3: Accompagnement
+  advices?: AdviceData[];
+  warningText?: string;
+  teamMessage?: string;
+
+  // Tab 4: Questions
+  questionsDuring?: QuestionData[];
+  questionsAfter?: QuestionData[];
+  questionsWarning?: string;
+
+  // Tab 5: Vie quotidienne
+  dailyActivities?: DailyActivityData[];
+  transferPhrases?: string[];
+  resources?: ResourceData[];
+
+  // Tab 6: Progression
+  stats?: StatsData;
+  progress?: ProgressData;
+  badges?: BadgeData[];
   currentMode?: GameMode;
   onModeChange?: (mode: GameMode) => void;
+  childAge?: number;
+  ageExpectations?: AgeExpectationData[];
+  settings?: SettingData[];
+  onSettingChange?: (id: string, value: boolean) => void;
+  hintsRemaining?: number;
+  maxHints?: number;
   onHintPress?: () => void;
-  // Child stats
-  totalGames?: number;
-  successfulGames?: number;
+
+  // Legacy props (for backward compatibility)
+  currentMoves?: number;
+  optimalMoves?: number;
   currentLevel?: number;
 }
 
-// Haptic feedback helper
+// ============================================================================
+// CONSTANTS
+// ============================================================================
+
+const TABS: { id: TabType; label: string; emoji: string }[] = [
+  { id: 'objectif', label: 'Objectif & Règles', emoji: '🎯' },
+  { id: 'competences', label: 'Compétences', emoji: '🧠' },
+  { id: 'accompagnement', label: 'Accompagnement', emoji: '🤝' },
+  { id: 'questions', label: 'Questions à poser', emoji: '💬' },
+  { id: 'quotidien', label: 'Vie quotidienne', emoji: '🏠' },
+  { id: 'progression', label: 'Progression', emoji: '📈' },
+];
+
+// ============================================================================
+// HELPERS
+// ============================================================================
+
 const triggerHaptic = (type: 'light' | 'medium' | 'heavy') => {
   if (Platform.OS === 'web') return;
   const style = {
@@ -82,34 +210,99 @@ const triggerHaptic = (type: 'light' | 'medium' | 'heavy') => {
   Haptics.impactAsync(style);
 };
 
+// ============================================================================
+// COMPONENT
+// ============================================================================
+
+// Default values for optional props
+const defaultGameData: GameObjectiveData = {
+  objective: '',
+  optimalSolution: '',
+  rules: [],
+  strategy: '',
+  tip: '',
+};
+
+const defaultAppBehavior: AppBehaviorData = {
+  does: [],
+  doesnt: [],
+};
+
+const defaultScienceData: ScienceData = {
+  text: '',
+};
+
+const defaultStats: StatsData = {
+  totalGames: 0,
+  successfulGames: 0,
+  totalTime: '0min',
+};
+
+const defaultProgress: ProgressData = {
+  currentLevel: 3,
+  maxLevel: 8,
+  progressPercent: 0,
+  nextObjective: '',
+};
+
 export function ParentDrawer({
   isVisible,
   onClose,
-  currentMoves = 0,
-  optimalMoves = 7,
-  hintsRemaining = 3,
-  maxHints = 3,
+  activityName = 'Activité',
+  activityEmoji = '🎮',
+  gameData = defaultGameData,
+  appBehavior = defaultAppBehavior,
+  competences = [],
+  scienceData = defaultScienceData,
+  advices = [],
+  warningText = '',
+  teamMessage = '',
+  questionsDuring = [],
+  questionsAfter = [],
+  questionsWarning,
+  dailyActivities = [],
+  transferPhrases = [],
+  resources = [],
+  stats = defaultStats,
+  progress = defaultProgress,
+  badges = [],
   currentMode = 'discovery',
   onModeChange,
+  childAge = 7,
+  ageExpectations = [],
+  settings = [],
+  onSettingChange,
+  hintsRemaining = 3,
+  maxHints = 3,
   onHintPress,
-  totalGames = 12,
-  successfulGames = 8,
-  currentLevel = 3,
+  // Legacy props
+  currentMoves,
+  optimalMoves,
+  currentLevel,
 }: ParentDrawerProps) {
   const insets = useSafeAreaInsets();
   const [activeTab, setActiveTab] = useState<TabType>('objectif');
+  const [localSettings, setLocalSettings] = useState<Record<string, boolean>>({});
 
-  // Animation values - start offscreen
+  // Initialize local settings from props
+  useEffect(() => {
+    const initial: Record<string, boolean> = {};
+    settings.forEach(s => { initial[s.id] = s.enabled; });
+    setLocalSettings(initial);
+  }, [settings]);
+
+  // Animation values
   const translateY = useRef(new Animated.Value(SCREEN_HEIGHT)).current;
   const backdropOpacity = useRef(new Animated.Value(0)).current;
 
   // Calculate success rate
-  const successRate = totalGames > 0 ? Math.round((successfulGames / totalGames) * 100) : 0;
+  const successRate = stats.totalGames > 0
+    ? Math.round((stats.successfulGames / stats.totalGames) * 100)
+    : 0;
 
-  // Open/close drawer based on visibility
+  // Open/close animation
   useEffect(() => {
     if (isVisible) {
-      // Animate both backdrop and drawer
       Animated.parallel([
         Animated.timing(backdropOpacity, {
           toValue: 1,
@@ -143,23 +336,17 @@ export function ParentDrawer({
   const panResponder = useRef(
     PanResponder.create({
       onStartShouldSetPanResponder: () => true,
-      onMoveShouldSetPanResponder: (_, gestureState) => {
-        // Only respond to downward swipes
-        return gestureState.dy > 10;
-      },
+      onMoveShouldSetPanResponder: (_, gestureState) => gestureState.dy > 10,
       onPanResponderMove: (_, gestureState) => {
-        // Only allow downward movement (0 = open, positive = closing)
         if (gestureState.dy > 0) {
           translateY.setValue(gestureState.dy);
         }
       },
       onPanResponderRelease: (_, gestureState) => {
-        // If swiped down more than 100px or with velocity, close
         if (gestureState.dy > 100 || gestureState.vy > 0.5) {
           triggerHaptic('light');
           onClose?.();
         } else {
-          // Snap back to open position
           Animated.spring(translateY, {
             toValue: 0,
             damping: 20,
@@ -171,327 +358,446 @@ export function ParentDrawer({
     })
   ).current;
 
-  // Tab data
-  const tabs: { id: TabType; label: string; emoji: string }[] = [
-    { id: 'objectif', label: 'Objectif & Règles', emoji: '🎯' },
-    { id: 'competences', label: 'Compétences', emoji: '🧠' },
-    { id: 'questions', label: 'Questions à poser', emoji: '💬' },
-    { id: 'quotidien', label: 'Vie quotidienne', emoji: '🏠' },
-    { id: 'progression', label: 'Progression', emoji: '📈' },
-  ];
+  // Toggle setting handler
+  const handleToggleSetting = (id: string) => {
+    const newValue = !localSettings[id];
+    setLocalSettings(prev => ({ ...prev, [id]: newValue }));
+    onSettingChange?.(id, newValue);
+    triggerHaptic('light');
+  };
 
-  // Tab content renderers
+  // ==========================================================================
+  // TAB CONTENT RENDERERS
+  // ==========================================================================
+
   const renderObjectifContent = () => (
-    <View style={styles.contentGrid}>
-      {/* Objectif Card */}
-      <View style={styles.gridCard}>
-        <View style={styles.gridCardHeader}>
-          <View style={[styles.gridCardIcon, styles.iconBlue]}>
-            <Text style={styles.gridCardIconText}>🎯</Text>
+    <View style={styles.tabContentInner}>
+      {/* Cards Grid */}
+      <View style={styles.cardsGrid}>
+        {/* Objectif Card */}
+        <View style={styles.infoCard}>
+          <View style={styles.infoCardHeader}>
+            <View style={[styles.infoCardIcon, styles.iconBlue]}>
+              <Text style={styles.infoCardIconText}>🎯</Text>
+            </View>
+            <Text style={styles.infoCardTitle}>Objectif du jeu</Text>
           </View>
-          <Text style={styles.gridCardTitle}>Objectif du jeu</Text>
+          <Text style={styles.infoCardText}>{gameData.objective}</Text>
+          <View style={styles.highlightBox}>
+            <Text style={styles.highlightLabel}>SOLUTION OPTIMALE</Text>
+            <Text style={styles.highlightValue}>{gameData.optimalSolution}</Text>
+          </View>
         </View>
-        <Text style={styles.gridCardText}>
-          Déplacer tous les disques de la tour A vers la tour C, en utilisant B comme intermédiaire.
-        </Text>
-        <View style={styles.infoBox}>
-          <Text style={styles.infoBoxLabel}>Solution optimale</Text>
-          <Text style={styles.infoBoxValue}>7 mouvements pour 3 disques</Text>
+
+        {/* Règles Card */}
+        <View style={styles.infoCard}>
+          <View style={styles.infoCardHeader}>
+            <View style={[styles.infoCardIcon, styles.iconOrange]}>
+              <Text style={styles.infoCardIconText}>📜</Text>
+            </View>
+            <Text style={styles.infoCardTitle}>Les 3 règles d'or</Text>
+          </View>
+          <View style={styles.rulesList}>
+            {gameData.rules.map((rule, index) => (
+              <View key={index} style={styles.ruleItem}>
+                <Text style={styles.ruleCheck}>✓</Text>
+                <Text style={styles.ruleText}>{rule}</Text>
+              </View>
+            ))}
+          </View>
+        </View>
+
+        {/* Stratégie Card */}
+        <View style={styles.infoCard}>
+          <View style={styles.infoCardHeader}>
+            <View style={[styles.infoCardIcon, styles.iconGreen]}>
+              <Text style={styles.infoCardIconText}>💡</Text>
+            </View>
+            <Text style={styles.infoCardTitle}>La stratégie</Text>
+          </View>
+          <Text style={styles.infoCardText}>{gameData.strategy}</Text>
+          <View style={[styles.highlightBox, styles.highlightBoxOrange]}>
+            <Text style={[styles.highlightLabel, styles.highlightLabelOrange]}>ASTUCE</Text>
+            <Text style={styles.highlightValueOrange}>{gameData.tip}</Text>
+          </View>
         </View>
       </View>
 
-      {/* Règles Card */}
-      <View style={styles.gridCard}>
-        <View style={styles.gridCardHeader}>
-          <View style={[styles.gridCardIcon, styles.iconOrange]}>
-            <Text style={styles.gridCardIconText}>📜</Text>
-          </View>
-          <Text style={styles.gridCardTitle}>Les 3 règles d'or</Text>
+      {/* App Behavior Section */}
+      <View style={styles.appBehaviorSection}>
+        <View style={styles.sectionTitleRow}>
+          <Text style={styles.sectionTitleEmoji}>📱</Text>
+          <Text style={styles.sectionTitle}>Ce que l'application fait</Text>
         </View>
-        <View style={styles.rulesList}>
-          <View style={styles.ruleItem}>
-            <Text style={styles.ruleCheck}>✓</Text>
-            <Text style={styles.ruleText}>Un seul disque à la fois</Text>
+        <View style={styles.behaviorGrid}>
+          {/* Does Card */}
+          <View style={[styles.behaviorCard, styles.behaviorCardDoes]}>
+            <View style={styles.behaviorHeader}>
+              <Text style={styles.behaviorHeaderIcon}>✓</Text>
+              <Text style={styles.behaviorHeaderTextDoes}>L'app fait</Text>
+            </View>
+            <View style={styles.behaviorList}>
+              {appBehavior.does.map((item, index) => (
+                <View key={index} style={styles.behaviorItem}>
+                  <Text style={styles.behaviorBullet}>•</Text>
+                  <Text style={styles.behaviorItemText}>{item}</Text>
+                </View>
+              ))}
+            </View>
           </View>
-          <View style={styles.ruleItem}>
-            <Text style={styles.ruleCheck}>✓</Text>
-            <Text style={styles.ruleText}>Seul le disque du haut bouge</Text>
-          </View>
-          <View style={styles.ruleItem}>
-            <Text style={styles.ruleCheck}>✓</Text>
-            <Text style={styles.ruleText}>Jamais un grand sur un petit</Text>
-          </View>
-        </View>
-      </View>
 
-      {/* Stratégie Card */}
-      <View style={styles.gridCard}>
-        <View style={styles.gridCardHeader}>
-          <View style={[styles.gridCardIcon, styles.iconGreen]}>
-            <Text style={styles.gridCardIconText}>💡</Text>
+          {/* Doesn't Card */}
+          <View style={[styles.behaviorCard, styles.behaviorCardDoesnt]}>
+            <View style={styles.behaviorHeader}>
+              <Text style={styles.behaviorHeaderIcon}>✗</Text>
+              <Text style={styles.behaviorHeaderTextDoesnt}>L'app ne fait pas</Text>
+            </View>
+            <View style={styles.behaviorList}>
+              {appBehavior.doesnt.map((item, index) => (
+                <View key={index} style={styles.behaviorItem}>
+                  <Text style={styles.behaviorBullet}>•</Text>
+                  <Text style={styles.behaviorItemText}>{item}</Text>
+                </View>
+              ))}
+            </View>
           </View>
-          <Text style={styles.gridCardTitle}>La stratégie</Text>
-        </View>
-        <Text style={styles.gridCardText}>
-          Pour déplacer N disques : d'abord déplacer les N-1 du dessus vers la tour intermédiaire, puis le grand vers la destination.
-        </Text>
-        <View style={styles.tipBox}>
-          <Text style={styles.tipBadge}>Astuce</Text>
-          <Text style={styles.tipText}>Commencez toujours par le plus petit disque !</Text>
         </View>
       </View>
     </View>
   );
 
   const renderCompetencesContent = () => (
-    <View style={styles.contentSection}>
-      <Text style={styles.sectionIntro}>
-        La Tour de Hanoï développe des compétences essentielles pour la réussite scolaire et la vie quotidienne.
+    <View style={styles.tabContentInner}>
+      <Text style={styles.introText}>
+        {activityName} développe des compétences essentielles pour la réussite scolaire et la vie quotidienne.
       </Text>
 
-      <View style={styles.skillsGrid}>
-        <View style={styles.skillCard}>
-          <View style={[styles.skillIcon, { backgroundColor: 'rgba(91, 141, 238, 0.15)' }]}>
-            <Text style={styles.skillIconText}>📋</Text>
+      <View style={styles.competencesGrid}>
+        {competences.map((comp) => (
+          <View key={comp.id} style={styles.competenceCard}>
+            <View style={[styles.competenceIcon, { backgroundColor: comp.iconBgColor }]}>
+              <Text style={styles.competenceIconText}>{comp.icon}</Text>
+            </View>
+            <Text style={styles.competenceTitle}>{comp.title}</Text>
+            <Text style={styles.competenceDesc}>{comp.description}</Text>
+            <View style={styles.competenceStars}>
+              <Text style={styles.starFilled}>{'★'.repeat(comp.stars)}</Text>
+              <Text style={styles.starEmpty}>{'☆'.repeat(5 - comp.stars)}</Text>
+            </View>
           </View>
-          <Text style={styles.skillTitle}>Planification</Text>
-          <Text style={styles.skillDesc}>Capacité à penser avant d'agir</Text>
-          <View style={styles.skillStars}>
-            <Text style={styles.starFilled}>★★★★★</Text>
-          </View>
-        </View>
-
-        <View style={styles.skillCard}>
-          <View style={[styles.skillIcon, { backgroundColor: 'rgba(123, 199, 77, 0.15)' }]}>
-            <Text style={styles.skillIconText}>🧩</Text>
-          </View>
-          <Text style={styles.skillTitle}>Raisonnement</Text>
-          <Text style={styles.skillDesc}>Déduire les conséquences</Text>
-          <View style={styles.skillStars}>
-            <Text style={styles.starFilled}>★★★★</Text>
-            <Text style={styles.starEmpty}>☆</Text>
-          </View>
-        </View>
-
-        <View style={styles.skillCard}>
-          <View style={[styles.skillIcon, { backgroundColor: 'rgba(255, 179, 71, 0.15)' }]}>
-            <Text style={styles.skillIconText}>⏳</Text>
-          </View>
-          <Text style={styles.skillTitle}>Patience</Text>
-          <Text style={styles.skillDesc}>Accepter que ça prend du temps</Text>
-          <View style={styles.skillStars}>
-            <Text style={styles.starFilled}>★★★★★</Text>
-          </View>
-        </View>
-
-        <View style={styles.skillCard}>
-          <View style={[styles.skillIcon, { backgroundColor: 'rgba(224, 86, 253, 0.15)' }]}>
-            <Text style={styles.skillIconText}>🧠</Text>
-          </View>
-          <Text style={styles.skillTitle}>Mémoire</Text>
-          <Text style={styles.skillDesc}>Retenir plusieurs informations</Text>
-          <View style={styles.skillStars}>
-            <Text style={styles.starFilled}>★★★</Text>
-            <Text style={styles.starEmpty}>☆☆</Text>
-          </View>
-        </View>
+        ))}
       </View>
 
       <View style={styles.scienceBox}>
-        <Text style={styles.scienceTitle}>Base scientifique</Text>
-        <Text style={styles.scienceText}>
-          La Tour de Hanoï est utilisée en neuropsychologie pour évaluer les fonctions exécutives. Des études montrent que la pratique régulière améliore la capacité de planification (+15% en moyenne).
-        </Text>
+        <View style={styles.scienceBoxHeader}>
+          <Text style={styles.scienceBoxEmoji}>🔬</Text>
+          <Text style={styles.scienceBoxTitle}>Base scientifique</Text>
+        </View>
+        <Text style={styles.scienceBoxText}>{scienceData.text}</Text>
+      </View>
+    </View>
+  );
+
+  const renderAccompagnementContent = () => (
+    <View style={styles.tabContentInner}>
+      <Text style={styles.introText}>
+        Ces conseils vous aident à accompagner votre enfant sans interférer avec son apprentissage autonome.
+      </Text>
+
+      {/* Advice Table */}
+      <View style={styles.adviceTable}>
+        <View style={styles.adviceTableHeader}>
+          <View style={[styles.adviceTableCell, styles.adviceTableCellSituation]}>
+            <Text style={styles.adviceTableHeaderText}>Situation</Text>
+          </View>
+          <View style={styles.adviceTableCell}>
+            <Text style={styles.adviceTableHeaderText}>Votre réaction recommandée</Text>
+          </View>
+        </View>
+        {advices.map((advice, index) => (
+          <View key={index} style={styles.adviceTableRow}>
+            <View style={[styles.adviceTableCell, styles.adviceTableCellSituation]}>
+              <Text style={styles.adviceSituation}>{advice.situation}</Text>
+            </View>
+            <View style={styles.adviceTableCell}>
+              <Text style={styles.adviceResponse}>{advice.response}</Text>
+            </View>
+          </View>
+        ))}
+      </View>
+
+      {/* Warning Box */}
+      <View style={styles.warningBox}>
+        <Text style={styles.warningIcon}>⚠️</Text>
+        <View style={styles.warningContent}>
+          <Text style={styles.warningTitle}>À éviter absolument</Text>
+          <Text style={styles.warningText}>{warningText}</Text>
+        </View>
+      </View>
+
+      {/* Team Message */}
+      <View style={styles.teamMessageBox}>
+        <View style={styles.teamMessageHeader}>
+          <Text style={styles.teamMessageEmoji}>💌</Text>
+          <Text style={styles.teamMessageTitle}>Message de l'équipe pédagogique</Text>
+        </View>
+        <Text style={styles.teamMessageText}>{teamMessage}</Text>
       </View>
     </View>
   );
 
   const renderQuestionsContent = () => (
-    <View style={styles.contentSection}>
-      <Text style={styles.sectionIntro}>
+    <View style={styles.tabContentInner}>
+      <Text style={styles.introText}>
         Ces questions aident votre enfant à verbaliser sa réflexion (métacognition). Guidez sans donner la réponse !
       </Text>
 
-      <View style={styles.questionCategory}>
-        <View style={styles.categoryHeader}>
-          <View style={[styles.categoryIcon, { backgroundColor: COLORS.primary }]}>
-            <Text style={styles.categoryIconText}>🎮</Text>
+      {/* During Game */}
+      <View style={styles.questionsSection}>
+        <View style={styles.questionsSectionHeader}>
+          <View style={[styles.questionsSectionIcon, styles.questionsSectionIconDuring]}>
+            <Text style={styles.questionsSectionIconText}>🎮</Text>
           </View>
-          <Text style={styles.categoryTitle}>Pendant le jeu</Text>
+          <Text style={styles.questionsSectionTitle}>Pendant le jeu</Text>
         </View>
         <View style={styles.questionsList}>
-          <View style={styles.questionItem}>
-            <Text style={styles.questionBullet}>💬</Text>
-            <Text style={styles.questionText}>"Par quel disque vas-tu commencer ?"</Text>
-          </View>
-          <View style={styles.questionItem}>
-            <Text style={styles.questionBullet}>💬</Text>
-            <Text style={styles.questionText}>"Que se passe-t-il si tu mets celui-ci là ?"</Text>
-          </View>
-          <View style={styles.questionItem}>
-            <Text style={styles.questionBullet}>💬</Text>
-            <Text style={styles.questionText}>"Comment peux-tu libérer le grand disque ?"</Text>
-          </View>
+          {questionsDuring.map((q, index) => (
+            <View key={index} style={styles.questionItem}>
+              <Text style={styles.questionBullet}>💬</Text>
+              <Text style={styles.questionText}>{q.text}</Text>
+            </View>
+          ))}
         </View>
       </View>
 
-      <View style={styles.questionCategory}>
-        <View style={styles.categoryHeader}>
-          <View style={[styles.categoryIcon, { backgroundColor: COLORS.success }]}>
-            <Text style={styles.categoryIconText}>✅</Text>
+      {/* After Game */}
+      <View style={styles.questionsSection}>
+        <View style={styles.questionsSectionHeader}>
+          <View style={[styles.questionsSectionIcon, styles.questionsSectionIconAfter]}>
+            <Text style={styles.questionsSectionIconText}>✅</Text>
           </View>
-          <Text style={styles.categoryTitle}>Après l'activité</Text>
+          <Text style={styles.questionsSectionTitle}>Après l'activité</Text>
         </View>
         <View style={styles.questionsList}>
-          <View style={styles.questionItem}>
-            <Text style={styles.questionBullet}>💬</Text>
-            <Text style={styles.questionText}>"Comment as-tu su quel disque bouger en premier ?"</Text>
-          </View>
-          <View style={styles.questionItem}>
-            <Text style={styles.questionBullet}>💬</Text>
-            <Text style={styles.questionText}>"Qu'est-ce qui était le plus difficile ?"</Text>
-          </View>
-          <View style={styles.questionItem}>
-            <Text style={styles.questionBullet}>💬</Text>
-            <Text style={styles.questionText}>"Si tu recommençais, ferais-tu pareil ?"</Text>
-          </View>
+          {questionsAfter.map((q, index) => (
+            <View key={index} style={styles.questionItem}>
+              <Text style={styles.questionBullet}>💬</Text>
+              <Text style={styles.questionText}>{q.text}</Text>
+            </View>
+          ))}
         </View>
       </View>
 
-      <View style={styles.warningBox}>
-        <Text style={styles.warningIcon}>⚠️</Text>
-        <View style={styles.warningContent}>
-          <Text style={styles.warningTitle}>À éviter</Text>
-          <Text style={styles.warningText}>
-            Ne donnez pas la solution ! Cela prive l'enfant de la satisfaction de trouver seul.
-          </Text>
+      {/* Warning */}
+      {questionsWarning && (
+        <View style={styles.warningBox}>
+          <Text style={styles.warningIcon}>⚠️</Text>
+          <View style={styles.warningContent}>
+            <Text style={styles.warningTitle}>À éviter</Text>
+            <Text style={styles.warningText}>{questionsWarning}</Text>
+          </View>
         </View>
-      </View>
+      )}
     </View>
   );
 
   const renderQuotidienContent = () => (
-    <View style={styles.contentSection}>
-      <Text style={styles.sectionIntro}>
+    <View style={styles.tabContentInner}>
+      <Text style={styles.introText}>
         Appliquez les compétences développées dans la vie quotidienne pour renforcer les apprentissages.
       </Text>
 
-      <View style={styles.transferGrid}>
-        <View style={styles.transferCard}>
-          <Text style={styles.transferEmoji}>🎒</Text>
-          <Text style={styles.transferTitle}>Ranger le cartable</Text>
-          <Text style={styles.transferDesc}>Planifier et organiser les affaires par ordre d'importance</Text>
-        </View>
-
-        <View style={styles.transferCard}>
-          <Text style={styles.transferEmoji}>🧹</Text>
-          <Text style={styles.transferTitle}>Organiser sa chambre</Text>
-          <Text style={styles.transferDesc}>Même logique de "petit sur grand" pour empiler</Text>
-        </View>
-
-        <View style={styles.transferCard}>
-          <Text style={styles.transferEmoji}>📚</Text>
-          <Text style={styles.transferTitle}>Planifier ses devoirs</Text>
-          <Text style={styles.transferDesc}>Séquencer les étapes comme dans le jeu</Text>
-        </View>
-
-        <View style={styles.transferCard}>
-          <Text style={styles.transferEmoji}>🧱</Text>
-          <Text style={styles.transferTitle}>Construire avec Lego</Text>
-          <Text style={styles.transferDesc}>Anticiper plusieurs coups à l'avance</Text>
-        </View>
+      {/* Daily Activities Grid */}
+      <View style={styles.dailyCardsGrid}>
+        {dailyActivities.map((activity, index) => (
+          <View key={index} style={styles.dailyCard}>
+            <Text style={styles.dailyCardIcon}>{activity.icon}</Text>
+            <Text style={styles.dailyCardTitle}>{activity.title}</Text>
+            <Text style={styles.dailyCardDesc}>{activity.description}</Text>
+          </View>
+        ))}
       </View>
 
-      <View style={styles.phraseBox}>
-        <Text style={styles.phraseTitle}>Phrases de transfert</Text>
-        <View style={styles.phraseItem}>
-          <Text style={styles.phraseQuote}>
-            "Tu te souviens de la Tour de Hanoï ? C'est pareil ici : il faut réfléchir à l'ordre des étapes."
-          </Text>
-        </View>
-        <View style={styles.phraseItem}>
-          <Text style={styles.phraseQuote}>
-            "Comme dans le jeu, si tu es bloqué, essaie de voir quel est le 'gros disque' à bouger."
-          </Text>
+      {/* Transfer Phrases */}
+      <View style={styles.transferPhrasesBox}>
+        <Text style={styles.transferPhrasesTitle}>💡 Phrases de transfert</Text>
+        {transferPhrases.map((phrase, index) => (
+          <View key={index} style={styles.transferPhrase}>
+            <Text style={styles.transferPhraseText}>{phrase}</Text>
+          </View>
+        ))}
+      </View>
+
+      {/* Resources */}
+      <View style={styles.resourcesSection}>
+        <Text style={styles.resourcesSectionTitle}>📚 Ressources recommandées</Text>
+        <View style={styles.resourcesGrid}>
+          {resources.map((resource, index) => (
+            <View key={index} style={styles.resourceCard}>
+              <Text style={styles.resourceIcon}>{resource.icon}</Text>
+              <View style={styles.resourceContent}>
+                <Text style={styles.resourceType}>{resource.type}</Text>
+                <Text style={styles.resourceTitle}>{resource.title}</Text>
+                <Text style={styles.resourceAuthor}>{resource.author}</Text>
+              </View>
+            </View>
+          ))}
         </View>
       </View>
     </View>
   );
 
   const renderProgressionContent = () => (
-    <View style={styles.contentSection}>
-      {/* Stats Cards */}
+    <View style={styles.tabContentInner}>
+      {/* Stats Grid */}
       <View style={styles.statsGrid}>
         <View style={styles.statCard}>
-          <Text style={[styles.statValue, { color: COLORS.primary }]}>{totalGames}</Text>
+          <Text style={[styles.statValue, styles.statValueBlue]}>{stats.totalGames}</Text>
           <Text style={styles.statLabel}>Parties</Text>
         </View>
         <View style={styles.statCard}>
-          <Text style={[styles.statValue, { color: COLORS.success }]}>{successfulGames}</Text>
+          <Text style={[styles.statValue, styles.statValueGreen]}>{stats.successfulGames}</Text>
           <Text style={styles.statLabel}>Réussites</Text>
         </View>
         <View style={styles.statCard}>
-          <Text style={[styles.statValue, { color: COLORS.secondary }]}>{successRate}%</Text>
+          <Text style={[styles.statValue, styles.statValueOrange]}>{successRate}%</Text>
           <Text style={styles.statLabel}>Taux</Text>
+        </View>
+        <View style={styles.statCard}>
+          <Text style={[styles.statValue, styles.statValuePurple]}>{stats.totalTime}</Text>
+          <Text style={styles.statLabel}>Temps total</Text>
         </View>
       </View>
 
-      {/* Level Progress */}
+      {/* Progress Section */}
       <View style={styles.progressSection}>
         <View style={styles.progressHeader}>
           <Text style={styles.progressTitle}>Niveau actuel</Text>
-          <Text style={styles.progressValue}>{currentLevel} disques</Text>
+          <Text style={styles.progressLevel}>{progress.currentLevel} disques</Text>
         </View>
-        <View style={styles.progressBar}>
-          <View style={[styles.progressFill, { width: `${Math.min(100, (currentLevel / 7) * 100)}%` }]} />
+        <View style={styles.progressBarContainer}>
+          <LinearGradient
+            colors={[theme.colors.primary.main, theme.colors.secondary.light]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={[styles.progressBarFill, { width: `${progress.progressPercent}%` }]}
+          />
         </View>
-        <Text style={styles.progressHint}>
-          Prochain objectif : Réussir 3 fois en moins de {Math.pow(2, currentLevel + 1) - 1} coups pour débloquer {currentLevel + 1} disques.
-        </Text>
+        <Text style={styles.progressHint}>{progress.nextObjective}</Text>
+      </View>
+
+      {/* Badges Section */}
+      <View style={styles.badgesSection}>
+        <Text style={styles.badgesSectionTitle}>🏆 Style de jeu</Text>
+        <View style={styles.badgesGrid}>
+          {badges.map((badge) => (
+            <View
+              key={badge.id}
+              style={[styles.badgeCard, badge.earned && styles.badgeCardEarned]}
+            >
+              <Text style={styles.badgeCardIcon}>{badge.icon}</Text>
+              <Text style={styles.badgeCardTitle}>{badge.title}</Text>
+              <Text style={styles.badgeCardDesc}>{badge.description}</Text>
+            </View>
+          ))}
+        </View>
       </View>
 
       {/* Game Modes */}
-      <Text style={styles.modesTitle}>Modes de jeu</Text>
-      <View style={styles.modesGrid}>
-        <Pressable
-          style={[styles.modeCard, currentMode === 'discovery' && styles.modeCardActive]}
-          onPress={() => onModeChange?.('discovery')}
-        >
-          <Text style={styles.modeEmoji}>☀️</Text>
-          <Text style={styles.modeTitle}>Découverte</Text>
-          <Text style={styles.modeDesc}>Indices illimités</Text>
-          {currentMode === 'discovery' && <Text style={styles.modeCheck}>✓</Text>}
-        </Pressable>
+      <View style={styles.modesSection}>
+        <Text style={styles.modesSectionTitle}>🎮 Modes de jeu</Text>
+        <View style={styles.modesGrid}>
+          <Pressable
+            style={[styles.modeCard, currentMode === 'discovery' && styles.modeCardActive]}
+            onPress={() => { onModeChange?.('discovery'); triggerHaptic('light'); }}
+          >
+            {currentMode === 'discovery' && <Text style={styles.modeCardCheck}>✓</Text>}
+            <Text style={styles.modeCardIcon}>☀️</Text>
+            <Text style={styles.modeCardTitle}>Découverte</Text>
+            <Text style={styles.modeCardDesc}>Indices illimités</Text>
+          </Pressable>
 
-        <Pressable
-          style={[styles.modeCard, currentMode === 'challenge' && styles.modeCardActive]}
-          onPress={() => onModeChange?.('challenge')}
-        >
-          <Text style={styles.modeEmoji}>⭐</Text>
-          <Text style={styles.modeTitle}>Défi</Text>
-          <Text style={styles.modeDesc}>3 indices max</Text>
-          {currentMode === 'challenge' && <Text style={styles.modeCheck}>✓</Text>}
-        </Pressable>
+          <Pressable
+            style={[styles.modeCard, currentMode === 'challenge' && styles.modeCardActive]}
+            onPress={() => { onModeChange?.('challenge'); triggerHaptic('light'); }}
+          >
+            {currentMode === 'challenge' && <Text style={styles.modeCardCheck}>✓</Text>}
+            <Text style={styles.modeCardIcon}>⭐</Text>
+            <Text style={styles.modeCardTitle}>Défi</Text>
+            <Text style={styles.modeCardDesc}>3 indices max</Text>
+          </Pressable>
 
-        <Pressable
-          style={[styles.modeCard, currentMode === 'expert' && styles.modeCardActive]}
-          onPress={() => onModeChange?.('expert')}
-        >
-          <Text style={styles.modeEmoji}>🏆</Text>
-          <Text style={styles.modeTitle}>Expert</Text>
-          <Text style={styles.modeDesc}>Aucun indice</Text>
-          {currentMode === 'expert' && <Text style={styles.modeCheck}>✓</Text>}
-        </Pressable>
+          <Pressable
+            style={[styles.modeCard, currentMode === 'expert' && styles.modeCardActive]}
+            onPress={() => { onModeChange?.('expert'); triggerHaptic('light'); }}
+          >
+            {currentMode === 'expert' && <Text style={styles.modeCardCheck}>✓</Text>}
+            <Text style={styles.modeCardIcon}>🏆</Text>
+            <Text style={styles.modeCardTitle}>Expert</Text>
+            <Text style={styles.modeCardDesc}>Aucun indice</Text>
+          </Pressable>
+        </View>
+      </View>
+
+      {/* Age Expectations */}
+      <View style={styles.ageSection}>
+        <Text style={styles.ageSectionTitle}>📊 Attentes par âge (indicatif)</Text>
+        <View style={styles.ageGrid}>
+          {ageExpectations.map((age) => (
+            <View
+              key={age.age}
+              style={[styles.ageCard, age.age === childAge && styles.ageCardCurrent]}
+            >
+              <Text style={[styles.ageCardAge, age.age === childAge && styles.ageCardAgeCurrent]}>
+                {age.age} ans
+              </Text>
+              <Text style={styles.ageCardExpect}>{age.expectation}</Text>
+            </View>
+          ))}
+        </View>
+      </View>
+
+      {/* Settings Section */}
+      <View style={styles.settingsSection}>
+        <Text style={styles.settingsSectionTitle}>⚙️ Paramètres de l'activité</Text>
+        <View style={styles.settingsGrid}>
+          {settings.map((setting) => (
+            <View key={setting.id} style={styles.settingItem}>
+              <Text style={styles.settingLabel}>{setting.label}</Text>
+              <Pressable
+                style={[
+                  styles.settingToggle,
+                  localSettings[setting.id] && styles.settingToggleActive,
+                ]}
+                onPress={() => handleToggleSetting(setting.id)}
+              >
+                <View
+                  style={[
+                    styles.settingToggleThumb,
+                    localSettings[setting.id] && styles.settingToggleThumbActive,
+                  ]}
+                />
+              </Pressable>
+            </View>
+          ))}
+        </View>
       </View>
 
       {/* Hint Button */}
       {currentMode !== 'expert' && (
         <Pressable
           style={[styles.hintButton, hintsRemaining <= 0 && styles.hintButtonDisabled]}
-          onPress={onHintPress}
+          onPress={() => { onHintPress?.(); triggerHaptic('medium'); }}
           disabled={hintsRemaining <= 0}
         >
-          <Text style={styles.hintButtonText}>💡 Utiliser un indice ({hintsRemaining}/{maxHints})</Text>
+          <LinearGradient
+            colors={[theme.colors.secondary.main, theme.colors.secondary.dark]}
+            style={styles.hintButtonGradient}
+          >
+            <Text style={styles.hintButtonText}>
+              💡 Utiliser un indice ({hintsRemaining}/{maxHints})
+            </Text>
+          </LinearGradient>
         </Pressable>
       )}
     </View>
@@ -503,6 +809,8 @@ export function ParentDrawer({
         return renderObjectifContent();
       case 'competences':
         return renderCompetencesContent();
+      case 'accompagnement':
+        return renderAccompagnementContent();
       case 'questions':
         return renderQuestionsContent();
       case 'quotidien':
@@ -514,6 +822,10 @@ export function ParentDrawer({
     }
   };
 
+  // ==========================================================================
+  // RENDER
+  // ==========================================================================
+
   return (
     <Modal
       visible={isVisible}
@@ -523,38 +835,33 @@ export function ParentDrawer({
       onRequestClose={onClose}
     >
       <View style={styles.overlay}>
-        {/* Backdrop - click to close */}
+        {/* Backdrop */}
         <TouchableWithoutFeedback onPress={onClose}>
-          <Animated.View
-            style={[
-              styles.backdrop,
-              { opacity: backdropOpacity }
-            ]}
-          />
+          <Animated.View style={[styles.backdrop, { opacity: backdropOpacity }]} />
         </TouchableWithoutFeedback>
 
         {/* Drawer */}
         <Animated.View
           style={[
-            styles.container,
+            styles.drawer,
             {
               transform: [{ translateY }],
               height: DRAWER_HEIGHT,
             },
           ]}
         >
-          {/* Drag Handle */}
+          {/* Handle */}
           <View {...panResponder.panHandlers} style={styles.handleContainer}>
             <View style={styles.handle} />
           </View>
 
           {/* Header */}
           <View style={styles.header}>
-            <View style={styles.headerTitle}>
+            <View style={styles.headerLeft}>
               <Text style={styles.headerIcon}>👨‍👩‍👧</Text>
-              <Text style={styles.headerText}>Guide Parent</Text>
+              <Text style={styles.headerTitle}>Guide Parent</Text>
               <View style={styles.headerBadge}>
-                <Text style={styles.headerBadgeText}>Tour de Hanoï</Text>
+                <Text style={styles.headerBadgeText}>{activityName}</Text>
               </View>
             </View>
             <Pressable onPress={onClose} style={styles.closeButton}>
@@ -569,7 +876,7 @@ export function ParentDrawer({
             style={styles.tabsContainer}
             contentContainerStyle={styles.tabsContent}
           >
-            {tabs.map((tab) => (
+            {TABS.map((tab) => (
               <Pressable
                 key={tab.id}
                 style={[styles.tab, activeTab === tab.id && styles.tabActive]}
@@ -601,40 +908,47 @@ export function ParentDrawer({
   );
 }
 
+// ============================================================================
+// STYLES
+// ============================================================================
+
 const styles = StyleSheet.create({
+  // === MODAL & OVERLAY ===
   overlay: {
     flex: 1,
   },
   backdrop: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
   },
-  container: {
+  drawer: {
     position: 'absolute',
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: COLORS.background,
+    backgroundColor: theme.colors.background.card,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
-    ...shadows.lg,
-    boxShadow: '0px -10px 20px rgba(0, 0, 0, 0.15)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 24,
     elevation: 20,
   },
 
-  // Handle
+  // === HANDLE ===
   handleContainer: {
     alignItems: 'center',
     paddingVertical: 12,
   },
   handle: {
-    width: 50,
+    width: 48,
     height: 5,
-    backgroundColor: '#D1D5DB',
+    backgroundColor: theme.colors.ui.disabled,
     borderRadius: 3,
   },
 
-  // Header
+  // === HEADER ===
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -642,108 +956,126 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
+    borderBottomColor: theme.colors.ui.disabled,
   },
-  headerTitle: {
+  headerLeft: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
   },
   headerIcon: {
-    fontSize: 24,
+    fontSize: 28,
   },
-  headerText: {
+  headerTitle: {
     fontSize: 20,
-    fontWeight: '600',
-    color: COLORS.textDark,
-    fontFamily: Platform.OS === 'ios' ? 'System' : 'Roboto',
+    fontFamily: 'Fredoka',
+    fontWeight: '700',
+    color: theme.colors.text.primary,
   },
   headerBadge: {
-    backgroundColor: COLORS.primary,
-    paddingHorizontal: 10,
+    backgroundColor: theme.colors.secondary.main,
+    paddingHorizontal: 12,
     paddingVertical: 4,
-    borderRadius: 8,
+    borderRadius: 12,
   },
   headerBadgeText: {
-    fontSize: 11,
+    fontSize: 12,
+    fontFamily: 'Nunito',
     fontWeight: '700',
     color: '#FFFFFF',
   },
   closeButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: COLORS.surface,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: theme.colors.background.card,
     alignItems: 'center',
     justifyContent: 'center',
   },
   closeButtonText: {
-    fontSize: 18,
-    color: COLORS.textMuted,
+    fontSize: 20,
+    color: theme.colors.text.muted,
   },
 
-  // Tabs
+  // === TABS ===
   tabsContainer: {
-    maxHeight: 56,
+    maxHeight: 60,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
+    borderBottomColor: theme.colors.ui.disabled,
   },
   tabsContent: {
     paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingVertical: 10,
     gap: 8,
   },
   tab: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    paddingHorizontal: 18,
+    paddingHorizontal: 16,
     paddingVertical: 10,
-    borderRadius: 12,
-    backgroundColor: COLORS.surface,
+    borderRadius: 20,
+    backgroundColor: theme.colors.background.card,
     marginRight: 8,
+    minHeight: 44,
   },
   tabActive: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.colors.primary.main,
   },
   tabEmoji: {
     fontSize: 16,
   },
   tabLabel: {
     fontSize: 14,
+    fontFamily: 'Nunito',
     fontWeight: '600',
-    color: COLORS.textMuted,
+    color: theme.colors.text.secondary,
   },
   tabLabelActive: {
     color: '#FFFFFF',
   },
 
-  // Content
+  // === CONTENT ===
   contentScroll: {
     flex: 1,
+    backgroundColor: theme.colors.parent.background,
+  },
+  tabContentInner: {
+    padding: 24,
   },
 
-  // Grid layout
-  contentGrid: {
+  // === INTRO TEXT ===
+  introText: {
+    fontSize: 18,
+    fontFamily: 'Nunito',
+    color: theme.colors.text.secondary,
+    lineHeight: 26,
+    marginBottom: 20,
+  },
+
+  // === CARDS GRID (Objectif) ===
+  cardsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    padding: 16,
     gap: 16,
+    marginBottom: 24,
   },
-  gridCard: {
+  infoCard: {
     flex: 1,
     minWidth: 280,
-    backgroundColor: COLORS.surface,
+    backgroundColor: theme.colors.background.card,
     borderRadius: 16,
     padding: 20,
+    borderWidth: 1,
+    borderColor: theme.colors.ui.disabled,
   },
-  gridCardHeader: {
+  infoCardHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
     marginBottom: 12,
   },
-  gridCardIcon: {
+  infoCardIcon: {
     width: 44,
     height: 44,
     borderRadius: 12,
@@ -759,221 +1091,312 @@ const styles = StyleSheet.create({
   iconGreen: {
     backgroundColor: 'rgba(123, 199, 77, 0.15)',
   },
-  gridCardIconText: {
+  infoCardIconText: {
     fontSize: 22,
   },
-  gridCardTitle: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: COLORS.textDark,
+  infoCardTitle: {
+    fontSize: 18,
+    fontFamily: 'Fredoka',
+    fontWeight: '700',
+    color: theme.colors.text.primary,
   },
-  gridCardText: {
-    fontSize: 13,
-    color: COLORS.textMedium,
-    lineHeight: 20,
+  infoCardText: {
+    fontSize: 16,
+    fontFamily: 'Nunito',
+    color: theme.colors.text.secondary,
+    lineHeight: 24,
     marginBottom: 12,
   },
 
-  // Rules list
+  // === HIGHLIGHT BOX ===
+  highlightBox: {
+    backgroundColor: 'rgba(91, 141, 238, 0.08)',
+    borderLeftWidth: 4,
+    borderLeftColor: theme.colors.primary.main,
+    borderTopRightRadius: 12,
+    borderBottomRightRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    marginTop: 8,
+  },
+  highlightBoxOrange: {
+    backgroundColor: 'rgba(243, 156, 18, 0.08)',
+    borderLeftColor: theme.colors.feedback.warning,
+  },
+  highlightLabel: {
+    fontSize: 11,
+    fontFamily: 'Nunito',
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    color: theme.colors.primary.main,
+    marginBottom: 4,
+  },
+  highlightLabelOrange: {
+    color: theme.colors.feedback.warning,
+  },
+  highlightValue: {
+    fontSize: 16,
+    fontFamily: 'Nunito',
+    fontWeight: '600',
+    color: theme.colors.primary.dark,
+  },
+  highlightValueOrange: {
+    fontSize: 16,
+    fontFamily: 'Nunito',
+    fontWeight: '600',
+    color: theme.colors.secondary.dark,
+  },
+
+  // === RULES LIST ===
   rulesList: {
-    gap: 8,
+    gap: 10,
   },
   ruleItem: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     gap: 10,
   },
   ruleCheck: {
-    fontSize: 14,
-    color: COLORS.success,
+    fontSize: 16,
+    color: theme.colors.feedback.success,
     fontWeight: '700',
+    marginTop: 2,
   },
   ruleText: {
-    fontSize: 13,
-    color: COLORS.textDark,
+    fontSize: 16,
+    fontFamily: 'Nunito',
+    color: theme.colors.text.primary,
+    flex: 1,
   },
 
-  // Info box
-  infoBox: {
-    backgroundColor: 'rgba(91, 141, 238, 0.1)',
-    borderRadius: 10,
-    padding: 12,
+  // === APP BEHAVIOR SECTION ===
+  appBehaviorSection: {
     marginTop: 8,
   },
-  infoBoxLabel: {
-    fontSize: 11,
-    color: COLORS.primary,
-    fontWeight: '500',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
+  sectionTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 12,
   },
-  infoBoxValue: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: COLORS.primaryDark,
-    marginTop: 4,
+  sectionTitleEmoji: {
+    fontSize: 18,
   },
-
-  // Tip box
-  tipBox: {
-    backgroundColor: 'rgba(255, 179, 71, 0.1)',
-    borderLeftWidth: 4,
-    borderLeftColor: COLORS.secondary,
-    borderRadius: 8,
-    padding: 12,
-    marginTop: 8,
-  },
-  tipBadge: {
-    fontSize: 10,
+  sectionTitle: {
+    fontSize: 18,
+    fontFamily: 'Fredoka',
     fontWeight: '700',
-    color: COLORS.secondary,
-    textTransform: 'uppercase',
-    marginBottom: 4,
+    color: theme.colors.text.primary,
   },
-  tipText: {
-    fontSize: 13,
-    color: COLORS.textDark,
+  behaviorGrid: {
+    flexDirection: 'row',
+    gap: 16,
   },
-
-  // Content section
-  contentSection: {
-    padding: 20,
+  behaviorCard: {
+    flex: 1,
+    borderRadius: 16,
+    padding: 16,
   },
-  sectionIntro: {
+  behaviorCardDoes: {
+    backgroundColor: 'rgba(123, 199, 77, 0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(123, 199, 77, 0.3)',
+  },
+  behaviorCardDoesnt: {
+    backgroundColor: 'rgba(229, 62, 62, 0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(229, 62, 62, 0.2)',
+  },
+  behaviorHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 12,
+  },
+  behaviorHeaderIcon: {
     fontSize: 14,
-    color: COLORS.textMedium,
-    lineHeight: 22,
-    marginBottom: 20,
+    fontWeight: '700',
+  },
+  behaviorHeaderTextDoes: {
+    fontSize: 14,
+    fontFamily: 'Nunito',
+    fontWeight: '700',
+    color: '#3AA069',
+  },
+  behaviorHeaderTextDoesnt: {
+    fontSize: 14,
+    fontFamily: 'Nunito',
+    fontWeight: '700',
+    color: theme.colors.feedback.error,
+  },
+  behaviorList: {
+    gap: 8,
+  },
+  behaviorItem: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 8,
+  },
+  behaviorBullet: {
+    fontSize: 14,
+    color: theme.colors.text.secondary,
+    marginTop: 2,
+  },
+  behaviorItemText: {
+    fontSize: 14,
+    fontFamily: 'Nunito',
+    color: theme.colors.text.secondary,
+    flex: 1,
+    lineHeight: 20,
   },
 
-  // Skills
-  skillsGrid: {
+  // === COMPETENCES GRID ===
+  competencesGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 12,
     marginBottom: 20,
   },
-  skillCard: {
-    flex: 1,
-    minWidth: 150,
-    backgroundColor: COLORS.surface,
-    borderRadius: 12,
+  competenceCard: {
+    width: '31%',
+    minWidth: 160,
+    backgroundColor: theme.colors.background.card,
+    borderWidth: 1,
+    borderColor: theme.colors.ui.disabled,
+    borderRadius: 16,
     padding: 16,
     alignItems: 'center',
   },
-  skillIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+  competenceIcon: {
+    width: 56,
+    height: 56,
+    borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 10,
+    marginBottom: 12,
   },
-  skillIconText: {
-    fontSize: 24,
+  competenceIconText: {
+    fontSize: 28,
   },
-  skillTitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: COLORS.textDark,
+  competenceTitle: {
+    fontSize: 16,
+    fontFamily: 'Fredoka',
+    fontWeight: '700',
+    color: theme.colors.text.primary,
     marginBottom: 4,
+    textAlign: 'center',
   },
-  skillDesc: {
-    fontSize: 11,
-    color: COLORS.textMuted,
+  competenceDesc: {
+    fontSize: 13,
+    fontFamily: 'Nunito',
+    color: theme.colors.text.muted,
     textAlign: 'center',
     marginBottom: 8,
   },
-  skillStars: {
+  competenceStars: {
     flexDirection: 'row',
   },
   starFilled: {
-    fontSize: 12,
-    color: COLORS.secondary,
-    letterSpacing: 1,
+    fontSize: 14,
+    color: theme.colors.secondary.main,
+    letterSpacing: 2,
   },
   starEmpty: {
-    fontSize: 12,
-    color: '#D1D5DB',
-    letterSpacing: 1,
+    fontSize: 14,
+    color: theme.colors.ui.disabled,
+    letterSpacing: 2,
   },
 
-  // Science box
+  // === SCIENCE BOX ===
   scienceBox: {
     backgroundColor: 'rgba(91, 141, 238, 0.08)',
-    borderRadius: 12,
+    borderRadius: 16,
     padding: 16,
     borderWidth: 1,
     borderColor: 'rgba(91, 141, 238, 0.2)',
   },
-  scienceTitle: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: COLORS.primary,
+  scienceBoxHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
     marginBottom: 8,
   },
-  scienceText: {
-    fontSize: 13,
-    color: COLORS.textMedium,
-    lineHeight: 20,
-  },
-
-  // Questions
-  questionCategory: {
-    marginBottom: 20,
-  },
-  categoryHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    marginBottom: 12,
-  },
-  categoryIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  categoryIconText: {
+  scienceBoxEmoji: {
     fontSize: 16,
   },
-  categoryTitle: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: COLORS.textDark,
-  },
-  questionsList: {
-    gap: 10,
-  },
-  questionItem: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 10,
-    backgroundColor: COLORS.surface,
-    padding: 14,
-    borderRadius: 12,
-  },
-  questionBullet: {
-    fontSize: 16,
-  },
-  questionText: {
-    flex: 1,
+  scienceBoxTitle: {
     fontSize: 14,
-    color: COLORS.textDark,
-    lineHeight: 20,
+    fontFamily: 'Nunito',
+    fontWeight: '700',
+    color: theme.colors.primary.main,
+  },
+  scienceBoxText: {
+    fontSize: 14,
+    fontFamily: 'Nunito',
+    color: theme.colors.text.secondary,
+    lineHeight: 22,
   },
 
-  // Warning box
+  // === ADVICE TABLE (Accompagnement) ===
+  adviceTable: {
+    marginBottom: 20,
+    borderRadius: 12,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: theme.colors.ui.disabled,
+  },
+  adviceTableHeader: {
+    flexDirection: 'row',
+    backgroundColor: theme.colors.background.card,
+    borderBottomWidth: 2,
+    borderBottomColor: theme.colors.ui.disabled,
+  },
+  adviceTableRow: {
+    flexDirection: 'row',
+    borderBottomWidth: 1,
+    borderBottomColor: theme.colors.ui.disabled,
+  },
+  adviceTableCell: {
+    flex: 1,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+  adviceTableCellSituation: {
+    flex: 0.4,
+    borderRightWidth: 1,
+    borderRightColor: theme.colors.ui.disabled,
+  },
+  adviceTableHeaderText: {
+    fontSize: 14,
+    fontFamily: 'Nunito',
+    fontWeight: '700',
+    color: theme.colors.text.primary,
+  },
+  adviceSituation: {
+    fontSize: 14,
+    fontFamily: 'Nunito',
+    fontWeight: '600',
+    color: theme.colors.text.primary,
+  },
+  adviceResponse: {
+    fontSize: 14,
+    fontFamily: 'Nunito',
+    fontStyle: 'italic',
+    color: theme.colors.primary.dark,
+  },
+
+  // === WARNING BOX ===
   warningBox: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 12,
     backgroundColor: 'rgba(243, 156, 18, 0.1)',
-    borderRadius: 12,
-    padding: 16,
     borderLeftWidth: 4,
-    borderLeftColor: COLORS.attention,
+    borderLeftColor: theme.colors.feedback.warning,
+    borderTopRightRadius: 12,
+    borderBottomRightRadius: 12,
+    padding: 16,
+    marginTop: 20,
+    gap: 12,
   },
   warningIcon: {
     fontSize: 20,
@@ -982,102 +1405,260 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   warningTitle: {
-    fontSize: 13,
+    fontSize: 14,
+    fontFamily: 'Nunito',
     fontWeight: '700',
-    color: COLORS.attention,
+    color: theme.colors.secondary.dark,
     marginBottom: 4,
   },
   warningText: {
-    fontSize: 13,
-    color: COLORS.textMedium,
+    fontSize: 14,
+    fontFamily: 'Nunito',
+    color: theme.colors.text.secondary,
     lineHeight: 20,
   },
 
-  // Transfer
-  transferGrid: {
+  // === TEAM MESSAGE BOX ===
+  teamMessageBox: {
+    backgroundColor: 'rgba(91, 141, 238, 0.06)',
+    borderRadius: 16,
+    padding: 20,
+    marginTop: 24,
+  },
+  teamMessageHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 10,
+  },
+  teamMessageEmoji: {
+    fontSize: 16,
+  },
+  teamMessageTitle: {
+    fontSize: 14,
+    fontFamily: 'Nunito',
+    fontWeight: '700',
+    color: theme.colors.primary.main,
+  },
+  teamMessageText: {
+    fontSize: 14,
+    fontFamily: 'Nunito',
+    fontStyle: 'italic',
+    color: theme.colors.text.secondary,
+    lineHeight: 22,
+  },
+
+  // === QUESTIONS SECTION ===
+  questionsSection: {
+    marginBottom: 24,
+  },
+  questionsSectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginBottom: 12,
+  },
+  questionsSectionIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  questionsSectionIconDuring: {
+    backgroundColor: 'rgba(91, 141, 238, 0.15)',
+  },
+  questionsSectionIconAfter: {
+    backgroundColor: 'rgba(123, 199, 77, 0.15)',
+  },
+  questionsSectionIconText: {
+    fontSize: 18,
+  },
+  questionsSectionTitle: {
+    fontSize: 16,
+    fontFamily: 'Fredoka',
+    fontWeight: '700',
+    color: theme.colors.text.primary,
+  },
+  questionsList: {
+    gap: 10,
+  },
+  questionItem: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    backgroundColor: theme.colors.background.card,
+    borderRadius: 12,
+    padding: 14,
+    gap: 10,
+  },
+  questionBullet: {
+    fontSize: 16,
+  },
+  questionText: {
+    flex: 1,
+    fontSize: 16,
+    fontFamily: 'Nunito',
+    color: theme.colors.text.secondary,
+    lineHeight: 22,
+  },
+
+  // === DAILY CARDS GRID ===
+  dailyCardsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 12,
     marginBottom: 20,
   },
-  transferCard: {
-    flex: 1,
-    minWidth: 150,
-    backgroundColor: COLORS.surface,
-    borderRadius: 12,
+  dailyCard: {
+    width: '23%',
+    minWidth: 140,
+    backgroundColor: theme.colors.background.card,
+    borderWidth: 1,
+    borderColor: theme.colors.ui.disabled,
+    borderRadius: 16,
     padding: 16,
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(123, 199, 77, 0.3)',
   },
-  transferEmoji: {
+  dailyCardIcon: {
     fontSize: 32,
     marginBottom: 8,
   },
-  transferTitle: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: COLORS.textDark,
+  dailyCardTitle: {
+    fontSize: 14,
+    fontFamily: 'Fredoka',
+    fontWeight: '700',
+    color: theme.colors.text.primary,
     marginBottom: 4,
     textAlign: 'center',
   },
-  transferDesc: {
-    fontSize: 11,
-    color: COLORS.textMuted,
+  dailyCardDesc: {
+    fontSize: 12,
+    fontFamily: 'Nunito',
+    color: theme.colors.text.muted,
     textAlign: 'center',
     lineHeight: 16,
   },
 
-  // Phrase box
-  phraseBox: {
-    backgroundColor: 'rgba(123, 199, 77, 0.08)',
-    borderRadius: 12,
+  // === TRANSFER PHRASES BOX ===
+  transferPhrasesBox: {
+    backgroundColor: 'rgba(91, 141, 238, 0.06)',
+    borderRadius: 16,
     padding: 16,
-    borderWidth: 1,
-    borderColor: 'rgba(123, 199, 77, 0.2)',
+    marginBottom: 24,
   },
-  phraseTitle: {
-    fontSize: 13,
+  transferPhrasesTitle: {
+    fontSize: 14,
+    fontFamily: 'Nunito',
     fontWeight: '700',
-    color: COLORS.success,
+    color: theme.colors.primary.main,
     marginBottom: 12,
   },
-  phraseItem: {
-    marginBottom: 12,
+  transferPhrase: {
+    borderLeftWidth: 3,
+    borderLeftColor: theme.colors.primary.light,
+    paddingLeft: 16,
+    marginBottom: 10,
   },
-  phraseQuote: {
-    fontSize: 13,
-    color: COLORS.textMedium,
+  transferPhraseText: {
+    fontSize: 14,
+    fontFamily: 'Nunito',
     fontStyle: 'italic',
+    color: theme.colors.text.secondary,
     lineHeight: 20,
   },
 
-  // Stats
+  // === RESOURCES SECTION ===
+  resourcesSection: {
+    marginTop: 8,
+  },
+  resourcesSectionTitle: {
+    fontSize: 16,
+    fontFamily: 'Fredoka',
+    fontWeight: '700',
+    color: theme.colors.text.primary,
+    marginBottom: 12,
+  },
+  resourcesGrid: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  resourceCard: {
+    flex: 1,
+    flexDirection: 'row',
+    backgroundColor: theme.colors.background.card,
+    borderRadius: 12,
+    padding: 16,
+    gap: 12,
+  },
+  resourceIcon: {
+    fontSize: 24,
+  },
+  resourceContent: {
+    flex: 1,
+  },
+  resourceType: {
+    fontSize: 10,
+    fontFamily: 'Nunito',
+    fontWeight: '700',
+    color: theme.colors.text.muted,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    marginBottom: 4,
+  },
+  resourceTitle: {
+    fontSize: 14,
+    fontFamily: 'Nunito',
+    fontWeight: '600',
+    color: theme.colors.text.primary,
+    marginBottom: 2,
+  },
+  resourceAuthor: {
+    fontSize: 12,
+    fontFamily: 'Nunito',
+    color: theme.colors.text.muted,
+  },
+
+  // === STATS GRID ===
   statsGrid: {
     flexDirection: 'row',
     gap: 12,
-    marginBottom: 20,
+    marginBottom: 24,
   },
   statCard: {
     flex: 1,
-    backgroundColor: COLORS.surface,
+    backgroundColor: theme.colors.background.card,
     borderRadius: 12,
-    padding: 14,
+    padding: 16,
     alignItems: 'center',
   },
   statValue: {
-    fontSize: 24,
-    fontWeight: '700',
+    fontSize: 28,
+    fontFamily: 'Fredoka',
+    fontWeight: '800',
     marginBottom: 4,
+  },
+  statValueBlue: {
+    color: theme.colors.primary.main,
+  },
+  statValueGreen: {
+    color: theme.colors.feedback.success,
+  },
+  statValueOrange: {
+    color: theme.colors.secondary.dark,
+  },
+  statValuePurple: {
+    color: theme.colors.secondary.light,
   },
   statLabel: {
     fontSize: 11,
-    color: COLORS.textMuted,
+    fontFamily: 'Nunito',
+    fontWeight: '600',
+    color: theme.colors.text.muted,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
 
-  // Progress
+  // === PROGRESS SECTION ===
   progressSection: {
     marginBottom: 24,
   },
@@ -1088,96 +1669,271 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   progressTitle: {
-    fontSize: 14,
+    fontSize: 16,
+    fontFamily: 'Fredoka',
     fontWeight: '700',
-    color: COLORS.textDark,
+    color: theme.colors.text.primary,
   },
-  progressValue: {
-    fontSize: 14,
+  progressLevel: {
+    fontSize: 16,
+    fontFamily: 'Nunito',
     fontWeight: '700',
-    color: COLORS.primary,
+    color: theme.colors.primary.main,
   },
-  progressBar: {
-    height: 10,
-    backgroundColor: COLORS.border,
-    borderRadius: 5,
+  progressBarContainer: {
+    height: 12,
+    backgroundColor: theme.colors.ui.disabled,
+    borderRadius: 6,
     overflow: 'hidden',
     marginBottom: 8,
   },
-  progressFill: {
+  progressBarFill: {
     height: '100%',
-    backgroundColor: COLORS.primary,
-    borderRadius: 5,
+    borderRadius: 6,
   },
   progressHint: {
-    fontSize: 12,
-    color: COLORS.textMuted,
+    fontSize: 13,
+    fontFamily: 'Nunito',
+    color: theme.colors.text.muted,
     lineHeight: 18,
   },
 
-  // Modes
-  modesTitle: {
-    fontSize: 14,
+  // === BADGES SECTION ===
+  badgesSection: {
+    marginBottom: 24,
+  },
+  badgesSectionTitle: {
+    fontSize: 16,
+    fontFamily: 'Fredoka',
     fontWeight: '700',
-    color: COLORS.textDark,
+    color: theme.colors.text.primary,
+    marginBottom: 12,
+  },
+  badgesGrid: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  badgeCard: {
+    flex: 1,
+    backgroundColor: theme.colors.background.card,
+    borderWidth: 1,
+    borderColor: theme.colors.ui.disabled,
+    borderRadius: 16,
+    padding: 16,
+    alignItems: 'center',
+    opacity: 0.5,
+  },
+  badgeCardEarned: {
+    opacity: 1,
+    borderColor: theme.colors.secondary.main,
+    backgroundColor: 'rgba(255, 179, 71, 0.08)',
+  },
+  badgeCardIcon: {
+    fontSize: 36,
+    marginBottom: 8,
+  },
+  badgeCardTitle: {
+    fontSize: 14,
+    fontFamily: 'Fredoka',
+    fontWeight: '700',
+    color: theme.colors.text.primary,
+    marginBottom: 4,
+    textAlign: 'center',
+  },
+  badgeCardDesc: {
+    fontSize: 12,
+    fontFamily: 'Nunito',
+    color: theme.colors.text.muted,
+    textAlign: 'center',
+  },
+
+  // === MODES SECTION ===
+  modesSection: {
+    marginBottom: 24,
+  },
+  modesSectionTitle: {
+    fontSize: 16,
+    fontFamily: 'Fredoka',
+    fontWeight: '700',
+    color: theme.colors.text.primary,
     marginBottom: 12,
   },
   modesGrid: {
     flexDirection: 'row',
-    gap: 10,
-    marginBottom: 16,
+    gap: 12,
   },
   modeCard: {
     flex: 1,
-    backgroundColor: COLORS.surface,
-    borderRadius: 12,
-    padding: 14,
-    alignItems: 'center',
+    backgroundColor: theme.colors.background.card,
     borderWidth: 2,
     borderColor: 'transparent',
+    borderRadius: 16,
+    padding: 16,
+    alignItems: 'center',
     position: 'relative',
+    minHeight: 100,
   },
   modeCardActive: {
-    borderColor: COLORS.success,
-    backgroundColor: 'rgba(123, 199, 77, 0.08)',
+    borderColor: theme.colors.feedback.success,
+    backgroundColor: 'rgba(123, 199, 77, 0.1)',
   },
-  modeEmoji: {
-    fontSize: 24,
-    marginBottom: 6,
-  },
-  modeTitle: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: COLORS.textDark,
-    marginBottom: 2,
-  },
-  modeDesc: {
-    fontSize: 10,
-    color: COLORS.textMuted,
-  },
-  modeCheck: {
+  modeCardCheck: {
     position: 'absolute',
     top: 8,
     right: 8,
     fontSize: 14,
-    color: COLORS.success,
+    color: theme.colors.feedback.success,
     fontWeight: '700',
   },
+  modeCardIcon: {
+    fontSize: 28,
+    marginBottom: 8,
+  },
+  modeCardTitle: {
+    fontSize: 14,
+    fontFamily: 'Fredoka',
+    fontWeight: '700',
+    color: theme.colors.text.primary,
+    marginBottom: 4,
+  },
+  modeCardDesc: {
+    fontSize: 12,
+    fontFamily: 'Nunito',
+    color: theme.colors.text.muted,
+  },
 
-  // Hint button
-  hintButton: {
-    backgroundColor: COLORS.secondary,
-    borderRadius: 16,
-    paddingVertical: 14,
+  // === AGE SECTION ===
+  ageSection: {
+    marginBottom: 24,
+  },
+  ageSectionTitle: {
+    fontSize: 16,
+    fontFamily: 'Fredoka',
+    fontWeight: '700',
+    color: theme.colors.text.primary,
+    marginBottom: 12,
+  },
+  ageGrid: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  ageCard: {
+    flex: 1,
+    backgroundColor: theme.colors.background.card,
+    borderRadius: 12,
+    padding: 12,
     alignItems: 'center',
   },
+  ageCardCurrent: {
+    backgroundColor: 'rgba(91, 141, 238, 0.15)',
+    borderWidth: 2,
+    borderColor: theme.colors.primary.main,
+  },
+  ageCardAge: {
+    fontSize: 18,
+    fontFamily: 'Fredoka',
+    fontWeight: '800',
+    color: theme.colors.text.primary,
+    marginBottom: 4,
+  },
+  ageCardAgeCurrent: {
+    color: theme.colors.primary.main,
+  },
+  ageCardExpect: {
+    fontSize: 10,
+    fontFamily: 'Nunito',
+    color: theme.colors.text.muted,
+    textAlign: 'center',
+    lineHeight: 13,
+  },
+
+  // === SETTINGS SECTION ===
+  settingsSection: {
+    borderTopWidth: 1,
+    borderTopColor: theme.colors.ui.disabled,
+    paddingTop: 20,
+    marginBottom: 20,
+  },
+  settingsSectionTitle: {
+    fontSize: 16,
+    fontFamily: 'Fredoka',
+    fontWeight: '700',
+    color: theme.colors.text.primary,
+    marginBottom: 16,
+  },
+  settingsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+  },
+  settingItem: {
+    width: '48%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: theme.colors.background.card,
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    minHeight: 48,
+  },
+  settingLabel: {
+    fontSize: 13,
+    fontFamily: 'Nunito',
+    fontWeight: '600',
+    color: theme.colors.text.primary,
+    flex: 1,
+    marginRight: 8,
+  },
+  settingToggle: {
+    width: 48,
+    height: 28,
+    backgroundColor: theme.colors.ui.disabled,
+    borderRadius: 14,
+    justifyContent: 'center',
+    padding: 3,
+  },
+  settingToggleActive: {
+    backgroundColor: theme.colors.feedback.success,
+  },
+  settingToggleThumb: {
+    width: 22,
+    height: 22,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 11,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  settingToggleThumbActive: {
+    transform: [{ translateX: 20 }],
+  },
+
+  // === HINT BUTTON ===
+  hintButton: {
+    marginTop: 8,
+    borderRadius: 16,
+    overflow: 'hidden',
+    shadowColor: theme.colors.secondary.main,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 4,
+  },
   hintButtonDisabled: {
-    backgroundColor: COLORS.border,
-    opacity: 0.6,
+    opacity: 0.5,
+  },
+  hintButtonGradient: {
+    paddingVertical: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   hintButtonText: {
-    fontSize: 14,
-    fontWeight: '600',
+    fontSize: 16,
+    fontFamily: 'Nunito',
+    fontWeight: '700',
     color: '#FFFFFF',
   },
 });

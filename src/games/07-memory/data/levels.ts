@@ -48,7 +48,7 @@ const easyLevels: MemoryLevel[] = [
     idealTime: 35,
     idealAttempts: 6,
     ageRange: '4-6',
-    locked: true,
+    locked: false,
     unlockCondition: 'Complete memory-easy-02',
   },
   {
@@ -62,7 +62,7 @@ const easyLevels: MemoryLevel[] = [
     idealTime: 50,
     idealAttempts: 9,
     ageRange: '5-7',
-    locked: true,
+    locked: false,
     unlockCondition: 'Complete memory-easy-03',
   },
   {
@@ -76,7 +76,7 @@ const easyLevels: MemoryLevel[] = [
     idealTime: 55,
     idealAttempts: 9,
     ageRange: '5-7',
-    locked: true,
+    locked: false,
     unlockCondition: 'Complete memory-easy-04',
   },
   {
@@ -90,7 +90,7 @@ const easyLevels: MemoryLevel[] = [
     idealTime: 60,
     idealAttempts: 9,
     ageRange: '5-7',
-    locked: true,
+    locked: false,
     unlockCondition: 'Complete memory-easy-05',
   },
 ];
@@ -111,7 +111,7 @@ const mediumLevels: MemoryLevel[] = [
     idealTime: 75,
     idealAttempts: 12,
     ageRange: '6-8',
-    locked: true,
+    locked: false,
     unlockCondition: 'Complete all easy levels',
   },
   {
@@ -125,7 +125,7 @@ const mediumLevels: MemoryLevel[] = [
     idealTime: 70,
     idealAttempts: 12,
     ageRange: '6-8',
-    locked: true,
+    locked: false,
     unlockCondition: 'Complete memory-medium-01',
   },
   {
@@ -139,7 +139,7 @@ const mediumLevels: MemoryLevel[] = [
     idealTime: 80,
     idealAttempts: 12,
     ageRange: '6-8',
-    locked: true,
+    locked: false,
     unlockCondition: 'Complete memory-medium-02',
   },
   {
@@ -153,7 +153,7 @@ const mediumLevels: MemoryLevel[] = [
     idealTime: 70,
     idealAttempts: 12,
     ageRange: '6-8',
-    locked: true,
+    locked: false,
     unlockCondition: 'Complete memory-medium-03',
   },
 ];
@@ -174,7 +174,7 @@ const hardLevels: MemoryLevel[] = [
     idealTime: 100,
     idealAttempts: 15,
     ageRange: '7-10',
-    locked: true,
+    locked: false,
     unlockCondition: 'Complete all medium levels',
   },
   {
@@ -188,7 +188,7 @@ const hardLevels: MemoryLevel[] = [
     idealTime: 120,
     idealAttempts: 18,
     ageRange: '8-10',
-    locked: true,
+    locked: false,
     unlockCondition: 'Complete memory-hard-01',
   },
   {
@@ -202,7 +202,7 @@ const hardLevels: MemoryLevel[] = [
     idealTime: 70,
     idealAttempts: 15,
     ageRange: '8-10',
-    locked: true,
+    locked: false,
     unlockCondition: 'Complete memory-hard-02',
   },
   {
@@ -216,7 +216,7 @@ const hardLevels: MemoryLevel[] = [
     idealTime: 90,
     idealAttempts: 18,
     ageRange: '9-10',
-    locked: true,
+    locked: false,
     unlockCondition: 'Complete memory-hard-03 twice',
   },
 ];

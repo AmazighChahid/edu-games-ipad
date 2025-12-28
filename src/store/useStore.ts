@@ -1,12 +1,17 @@
 /**
  * Combined Zustand store
  * Merges all slices with persistence
+ *
+ * Utilise StorageService pour une persistance robuste :
+ * - SQLite sur mobile natif (iOS/Android)
+ * - AsyncStorage sur web (fallback)
+ * - Prêt pour sync serveur future
  */
 
 import { create } from 'zustand';
 import { useShallow } from 'zustand/shallow';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { createZustandStorage } from '../services/storage';
 
 import { createAppSlice, type AppSlice, initialAppState } from './slices/appSlice';
 import { createProgressSlice, type ProgressSlice, initialProgressState } from './slices/progressSlice';
@@ -70,7 +75,7 @@ export const useStore = create<RootStore>()(
     }),
     {
       name: 'edu-games-storage',
-      storage: createJSONStorage(() => AsyncStorage),
+      storage: createJSONStorage(() => createZustandStorage()),
       partialize: (state) => {
         const persisted: Partial<RootStore> = {};
         for (const key of PERSISTED_KEYS) {

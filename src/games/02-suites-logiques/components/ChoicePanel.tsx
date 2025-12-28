@@ -237,9 +237,11 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.3)',
     elevation: 5,
+    minHeight: 64, // Touch target guideline
+    justifyContent: 'center',
   },
   validateButtonText: {
-    fontSize: 18,
+    fontSize: 20, // ≥ 18pt guideline
     fontWeight: 'bold',
     color: '#FFFFFF',
     textAlign: 'center',

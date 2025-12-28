@@ -421,6 +421,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: theme.spacing[2],
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    paddingVertical: theme.spacing[2],
+    paddingHorizontal: theme.spacing[5],
+    borderRadius: 20,
+    ...theme.shadows.md,
   },
   gameTitle: {
     ...theme.textStyles.h2,

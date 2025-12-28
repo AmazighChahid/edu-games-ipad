@@ -722,9 +722,11 @@ Pour l'implémentation technique et pédagogique.
 - **Indice** : [Comment l'aide est présentée]
 ```
 
-### 6.2 FICHE_PARENT.md
+### 6.2 FICHE_PARENT.md (Documentation Markdown)
 
-Guide pour les parents.
+Guide d'accompagnement pour les parents (fichier Markdown, pas du code).
+
+> ⚠️ **Distinction** : La "Fiche Parent" (`FICHE_PARENT.md`) est de la **documentation**. L'"Espace Parent" est le **dashboard dans l'app** (voir `src/types/parent.types.ts`).
 
 ```markdown
 # Fiche Parent — [Nom du Jeu]

@@ -178,25 +178,145 @@ Architecture à 3 niveaux maximum :
 
 ---
 
-## 8. ESPACE PARENT
+## 8. ESPACES PARENTS
 
-### Accès sécurisé
+L'application propose **deux espaces parents distincts** avec des objectifs complémentaires :
 
-- **Gate parentale** : Problème mathématique simple (ex: "15 + 27 = ?") ou PIN 4 chiffres
-- **FaceID/TouchID** : Option pour accès rapide
-- **Icône discrète** : Petit cadenas en haut à droite, pas proéminent
+| Espace | Objectif | Accès |
+|--------|----------|-------|
+| **Global (Dashboard)** | Vue d'ensemble, stats, paramètres | Icône cadenas sur Home |
+| **Par Activité (In-Game)** | Guide pédagogique contextuel | Bouton "?" dans chaque jeu |
+
+---
+
+### 8.1 Espace Parent Global (Dashboard)
+
+#### Accès sécurisé
+
+- **Gate parentale** : Calcul mathématique simple (ex: "15 + 27 = ?")
+- **PIN 4 chiffres** : Alternative au calcul (à implémenter)
+- **FaceID/TouchID** : Option pour accès rapide (à implémenter)
+- **Icône discrète** : Petit cadenas en haut à droite du Home, pas proéminent
 
 > **Référence** : Toca Boca utilise un "parent gate" pour protéger les paramètres
 
-### Contenu de l'espace parent
+#### Contenu du Dashboard
 
-| FONCTIONNALITÉ | DESCRIPTION |
-|----------------|-------------|
-| **Tableau de bord** | Temps de jeu, activités complétées, progression par compétence |
-| **Fiches pédagogiques** | Explication des objectifs de chaque activité, compétences visées |
-| **Conseils d'accompagnement** | Comment aider sans interférer, questions à poser |
-| **Paramètres de temps** | Limite quotidienne, rappels de pause, horaires autorisés |
-| **Transfert vie quotidienne** | Suggestions d'activités réelles liées aux apprentissages |
+| ONGLET | FONCTIONNALITÉS |
+|--------|-----------------|
+| **Overview** | Stats globales, temps de jeu aujourd'hui, activités récentes |
+| **Activities** | Timeline détaillée, historique des sessions par jeu |
+| **Skills** | Radar des compétences (4 axes), niveaux de maîtrise |
+| **Goals** | Objectifs parentaux personnalisés, suivi progression |
+
+#### Composants principaux
+
+| COMPOSANT | RÔLE |
+|-----------|------|
+| `SkillsRadarV2` | Visualisation 4 compétences (Logique, Résolution, Concentration, Persévérance) |
+| `ActivityTimeline` | Historique chronologique des sessions |
+| `ScreenTimeCard` | Monitoring du temps d'écran quotidien/hebdomadaire |
+| `GoalsSection` | Définition et suivi des objectifs parentaux |
+| `BadgesGallery` | Collection des récompenses non-compétitives |
+| `BehaviorInsights` | Analyse IA du style d'apprentissage |
+
+---
+
+### 8.2 Espace Parent par Activité (In-Game)
+
+#### Principe
+
+Zone intégrée dans chaque jeu permettant aux parents de :
+- Comprendre l'objectif pédagogique de l'activité
+- Savoir comment accompagner sans interférer
+- Suivre la progression en temps réel
+- Poser les bonnes questions après l'activité
+
+#### Bouton d'accès
+
+| SPEC | VALEUR |
+|------|--------|
+| Position | Coin supérieur droit de l'écran de jeu |
+| Design | Icône "?" ou "👨‍👩‍👧" discret |
+| Taille | 44×44 dp minimum |
+| Comportement | Ouvre ParentZone ou ParentDrawer |
+
+#### Option A : ParentZone (panneau collapsible)
+
+Panneau compact pour consultations rapides.
+
+| SPEC | VALEUR |
+|------|--------|
+| Hauteur | 380 px |
+| Position | Bas de l'écran |
+| Animation | spring (damping: 20, stiffness: 150) |
+| Couleur header | `#4A9FE8` |
+
+**3 onglets :**
+
+| ONGLET | CONTENU |
+|--------|---------|
+| 📖 **Méthode** | Objectif du jeu, règles d'or, stratégie, formule mathématique |
+| 💡 **Conseils** | Comment accompagner (À faire ✓ / À éviter ✗) |
+| 🎮 **Modes** | Découverte, Défi, Expert + bouton indice + stats en cours |
+
+#### Option B : ParentDrawer (bottom-sheet complet)
+
+Drawer exhaustif pour accompagnement approfondi.
+
+| SPEC | VALEUR |
+|------|--------|
+| Hauteur | 90% de l'écran |
+| Backdrop | `rgba(0, 0, 0, 0.3)` |
+| Animation ouverture | spring (damping: 20, stiffness: 150) |
+| Animation fermeture | timing (300ms) |
+| Fermeture | Tap backdrop OU swipe down (seuil: 100px ou vélocité > 0.5) |
+| Haptic feedback | Sur changement d'onglet |
+
+**5 onglets (scroll horizontal) :**
+
+| ONGLET | CONTENU |
+|--------|---------|
+| 🎯 **Objectif & Règles** | But du jeu, 3 règles d'or, stratégie, solution optimale |
+| 🧠 **Compétences** | Skills développés avec étoiles, base scientifique |
+| 💬 **Questions à poser** | Pendant le jeu + après l'activité (métacognition) |
+| 🏠 **Vie quotidienne** | Transfert des apprentissages, phrases types |
+| 📈 **Progression** | Stats temps réel, modes de jeu, bouton indice |
+
+#### Source du contenu pédagogique
+
+Le contenu des espaces parent provient des fiches `FICHE_PARENT.md` situées dans :
+```
+/Fiches Educatives/{XX-NomJeu}/FICHE_PARENT.md
+```
+
+Ces fiches contiennent :
+- Objectifs détaillés avec base scientifique
+- Compétences mobilisées (tableau détaillé)
+- Conseils d'accompagnement (À faire / À éviter)
+- Questions métacognitives à poser
+- Signaux de progression et d'alerte
+- Activités de transfert vie quotidienne
+
+---
+
+### 8.3 Checklist Validation Espaces Parents
+
+#### Espace Global
+- [ ] Gate parentale avec calcul mathématique fonctionnelle
+- [ ] PIN 4 chiffres comme alternative
+- [ ] FaceID/TouchID option (iOS)
+- [ ] Icône cadenas visible sur écran Home enfant
+- [ ] Dashboard 4 onglets fonctionnel
+- [ ] Données persistées (AsyncStorage)
+
+#### Espace par Activité
+- [ ] Bouton "?" visible dans chaque jeu
+- [ ] ParentZone OU ParentDrawer intégré
+- [ ] Contenu pédagogique alimenté par FICHE_PARENT.md
+- [ ] 3 modes de jeu (Découverte, Défi, Expert)
+- [ ] Haptic feedback sur interactions
+- [ ] Responsive iPad/iPhone
 
 ---
 
