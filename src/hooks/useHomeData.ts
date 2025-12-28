@@ -250,8 +250,10 @@ export function useHomeData(): HomeData {
       return getMedalFromProgress(completed);
     };
 
-    return buildGameCategories(getMedalForGame);
-  }, [gameProgress]);
+    // Filtrer les jeux par tranche d'âge du profil actif
+    const ageGroup = activeProfile?.ageGroup;
+    return buildGameCategories(getMedalForGame, ageGroup);
+  }, [gameProgress, activeProfile?.ageGroup]);
 
   return {
     profile,

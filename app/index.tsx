@@ -27,6 +27,10 @@ import { useHomeData } from '@/hooks/useHomeData';
 import { ParentDashboard } from '@/components/parent/ParentDashboard';
 import { useStore } from '@/store';
 
+// Profile switching
+import { ProfileSwitcherModal, ProfileCreationFlow } from '@/components/profile';
+import { useProfileSwitcher } from '@/hooks/useProfileSwitcher';
+
 // Game color mapping
 const GAME_COLORS: Record<string, 'blue' | 'purple' | 'orange' | 'teal' | 'pink' | 'indigo' | 'coral' | 'cyan' | 'amber'> = {
   hanoi: 'blue',
@@ -130,6 +134,20 @@ export default function HomeScreen() {
   // Parent dashboard state
   const [isParentDashboardVisible, setIsParentDashboardVisible] = useState(false);
 
+  // Profile switching
+  const {
+    isModalVisible: isProfileSwitcherVisible,
+    isCreationFlowVisible,
+    profiles,
+    activeProfile,
+    openSwitcher,
+    closeSwitcher,
+    openCreationFlow,
+    closeCreationFlow,
+    switchProfile,
+    handleCreateProfile,
+  } = useProfileSwitcher();
+
   // Get game progress for parent drawer stats
   const gameProgress = useStore((state) => state.gameProgress);
 
@@ -231,6 +249,7 @@ export default function HomeScreen() {
           <HomeHeaderV10
             profile={profile}
             onParentPress={handleParentPress}
+            onAvatarPress={openSwitcher}
           />
         </View>
 
@@ -291,6 +310,23 @@ export default function HomeScreen() {
         childName={profile.name}
         levelsCompleted={totalGames}
         successRate={totalGames > 0 ? Math.round((successfulGames / totalGames) * 100) : 0}
+      />
+
+      {/* Profile switcher modal */}
+      <ProfileSwitcherModal
+        visible={isProfileSwitcherVisible}
+        onClose={closeSwitcher}
+        profiles={profiles}
+        activeProfileId={activeProfile?.id ?? null}
+        onSwitchProfile={switchProfile}
+        onCreateProfile={openCreationFlow}
+      />
+
+      {/* Profile creation flow */}
+      <ProfileCreationFlow
+        visible={isCreationFlowVisible}
+        onClose={closeCreationFlow}
+        onComplete={handleCreateProfile}
       />
     </View>
   );
