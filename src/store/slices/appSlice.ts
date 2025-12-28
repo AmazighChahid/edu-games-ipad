@@ -25,6 +25,9 @@ export interface AppState {
   // Tutorial flags
   hasSeenHanoiTutorial: boolean;
 
+  // Favorite games
+  favoriteGameIds: string[];
+
   // Hydration status
   hasHydrated: boolean;
 }
@@ -44,6 +47,10 @@ export interface AppActions {
   updateLastOpened: () => void;
   setHasHydrated: (hydrated: boolean) => void;
   setHasSeenHanoiTutorial: () => void;
+
+  // Favorite games actions
+  toggleFavoriteGame: (gameId: string) => void;
+  isGameFavorite: (gameId: string) => boolean;
 }
 
 export type AppSlice = AppState & AppActions;
@@ -62,10 +69,11 @@ export const initialAppState: AppState = {
   hasCompletedOnboarding: false,
   lastOpenedAt: null,
   hasSeenHanoiTutorial: false,
+  favoriteGameIds: [],
   hasHydrated: false,
 };
 
-export const createAppSlice: StateCreator<AppSlice, [], [], AppSlice> = (set) => ({
+export const createAppSlice: StateCreator<AppSlice, [], [], AppSlice> = (set, get) => ({
   ...initialAppState,
 
   setSoundEnabled: (enabled) => set({ soundEnabled: enabled }),
@@ -82,4 +90,16 @@ export const createAppSlice: StateCreator<AppSlice, [], [], AppSlice> = (set) =>
   updateLastOpened: () => set({ lastOpenedAt: Date.now() }),
   setHasHydrated: (hydrated) => set({ hasHydrated: hydrated }),
   setHasSeenHanoiTutorial: () => set({ hasSeenHanoiTutorial: true }),
+
+  // Favorite games
+  toggleFavoriteGame: (gameId) =>
+    set((state) => {
+      const isFavorite = state.favoriteGameIds.includes(gameId);
+      return {
+        favoriteGameIds: isFavorite
+          ? state.favoriteGameIds.filter((id) => id !== gameId)
+          : [...state.favoriteGameIds, gameId],
+      };
+    }),
+  isGameFavorite: (gameId) => get().favoriteGameIds.includes(gameId),
 });

@@ -128,7 +128,7 @@ export function SudokuIntroScreen() {
     setGameConfig(config);
 
     // Animations
-    selectorY.value = withTiming(-200, { duration: 400, easing: Easing.out(Easing.quad) });
+    selectorY.value = withTiming(-150, { duration: 400, easing: Easing.out(Easing.quad) });
     selectorOpacity.value = withTiming(0, { duration: 300 });
     gameOpacity.value = withTiming(1, { duration: 400 });
 
@@ -537,17 +537,17 @@ const styles = StyleSheet.create({
     marginBottom: spacing[2],
   },
   headerButton: {
-    width: touchTargets.medium,
-    height: touchTargets.medium,
-    borderRadius: borderRadius.round,
-    backgroundColor: colors.background.card,
+    width: touchTargets.large,
+    height: touchTargets.large,
+    borderRadius: 16,
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
     alignItems: 'center',
     justifyContent: 'center',
-    ...shadows.sm,
+    ...shadows.md,
   },
   headerButtonText: {
     fontSize: 24,
-    color: colors.text.primary,
+    color: colors.primary.main,
   },
   headerTitleContainer: {
     flexDirection: 'row',
@@ -819,9 +819,9 @@ const styles = StyleSheet.create({
     gap: spacing[3],
   },
   floatingButton: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
+    width: 64,
+    height: 64,
+    borderRadius: 32,
     backgroundColor: colors.secondary.main,
     alignItems: 'center',
     justifyContent: 'center',

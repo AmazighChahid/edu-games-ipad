@@ -21,6 +21,8 @@ import {
   CollectionFloating,
   HomeHeaderV10,
   GameCardV10,
+  CategoryFilterBar,
+  CategoryFilterId,
 } from '../src/components/home-v10';
 import { HomeV10Layout, EdokiWidgetLayout } from '../src/theme/home-v10-colors';
 import type { EdokiTheme } from '../src/components/home-v10/GameCardV10';
@@ -135,6 +137,9 @@ export default function HomeScreen() {
   // Parent dashboard state
   const [isParentDashboardVisible, setIsParentDashboardVisible] = useState(false);
 
+  // Category filter state
+  const [selectedCategory, setSelectedCategory] = useState<CategoryFilterId>('all');
+
   // Parallax scroll value for game cards
   const scrollX = useSharedValue(0);
   const onScrollHandler = useAnimatedScrollHandler({
@@ -145,6 +150,10 @@ export default function HomeScreen() {
 
   // Get game progress for parent drawer stats
   const gameProgress = useStore((state) => state.gameProgress);
+
+  // Favorite games
+  const favoriteGameIds = useStore((state) => state.favoriteGameIds);
+  const toggleFavoriteGame = useStore((state) => state.toggleFavoriteGame);
 
   // Calculate stats for parent drawer
   const totalGames = Object.values(gameProgress).reduce(
@@ -161,15 +170,17 @@ export default function HomeScreen() {
       theme: EdokiTheme;
       progress: number; // 0-4 segments
       isFavorite: boolean;
+      categoryId: string;
     }> = [];
 
-    // Carte fictive pour tester la vidéo en arrière-plan
+    // Carte fictive pour tester la vidéo en arrière-plan (toujours visible)
     games.push({
       id: 'video-demo',
       title: 'Video Demo',
       theme: 'video' as EdokiTheme,
       progress: 0,
       isFavorite: false,
+      categoryId: 'all',
     });
 
     gameCategories.forEach((category) => {
@@ -189,13 +200,32 @@ export default function HomeScreen() {
           title: game.name,
           theme: GAME_THEME_MAPPING[game.id] || 'barres',
           progress,
-          isFavorite: false, // TODO: intégrer avec le store des favoris
+          isFavorite: favoriteGameIds.includes(game.id),
+          categoryId: category.id,
         });
       });
     });
 
     return games;
-  }, [gameCategories]);
+  }, [gameCategories, favoriteGameIds]);
+
+  // Filtered games based on selected category
+  const filteredGames = useMemo(() => {
+    if (selectedCategory === 'all') {
+      return allGames;
+    }
+    if (selectedCategory === 'favorites') {
+      return allGames.filter((game) => game.isFavorite);
+    }
+    return allGames.filter(
+      (game) => game.categoryId === selectedCategory || game.categoryId === 'all'
+    );
+  }, [allGames, selectedCategory]);
+
+  // Handler for toggling favorite
+  const handleToggleFavorite = useCallback((gameId: string) => {
+    toggleFavoriteGame(gameId);
+  }, [toggleFavoriteGame]);
 
   // Handlers
   const handleParentPress = useCallback(() => {
@@ -222,6 +252,10 @@ export default function HomeScreen() {
   const handleCollectionPress = useCallback(() => {
     router.push('/(games)/collection' as any);
   }, [router]);
+
+  const handleCategoryChange = useCallback((category: CategoryFilterId) => {
+    setSelectedCategory(category);
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -285,7 +319,7 @@ export default function HomeScreen() {
             onScroll={onScrollHandler}
             scrollEventThrottle={16}
           >
-            {allGames.map((game, index) => (
+            {filteredGames.map((game, index) => (
               <GameCardV10
                 key={game.id}
                 id={game.id}
@@ -295,13 +329,19 @@ export default function HomeScreen() {
                 isFavorite={game.isFavorite}
                 onPress={() => handleGamePress(game.id)}
                 onPlayAudio={() => {/* TODO: play audio description */}}
-                onToggleFavorite={() => {/* TODO: toggle favorite */}}
+                onToggleFavorite={() => handleToggleFavorite(game.id)}
                 scrollX={scrollX}
                 index={index}
               />
             ))}
           </Animated.ScrollView>
         </ScrollView>
+
+        {/* Category filter bar at the bottom */}
+        <CategoryFilterBar
+          selectedCategory={selectedCategory}
+          onSelectCategory={handleCategoryChange}
+        />
       </ForestBackgroundV10>
 
       {/* Parent dashboard modal */}

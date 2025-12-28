@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>La Fabrique de Réactions - Jeu</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: 'Nunito', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: #1a1a2e;
+      padding: 20px;
+    }
+    
+    .ipad-frame {
+      width: 1194px;
+      height: 834px;
+      background: linear-gradient(180deg, #FFF5E6 0%, #FFE8D6 50%, #FFD9B3 100%);
+      border-radius: 24px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 25px 80px rgba(0,0,0,0.4);
+    }
+    
+    /* ========== FOND ATELIER ========== */
+    .workshop-bg {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+    }
+    
+    .wall {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 100%;
+      background: linear-gradient(180deg, #D4A574 0%, #C49A6C 60%, #8B5A2B 100%);
+    }
+    
+    .wall-panel {
+      position: absolute;
+      top: 20px;
+      width: 150px;
+      height: 200px;
+      background: #B8956A;
+      border-radius: 6px;
+      border: 3px solid #8B5A2B;
+    }
+    .wall-panel-1 { left: 20px; }
+    .wall-panel-2 { right: 20px; }
+    
+    .deco-gear {
+      position: absolute;
+      font-size: 40px;
+      opacity: 0.2;
+      animation: gear-spin 12s linear infinite;
+    }
+    .deco-gear-1 { top: 40px; left: 50px; }
+    .deco-gear-2 { top: 100px; right: 60px; animation-direction: reverse; }
+    .deco-gear-3 { bottom: 180px; left: 30px; font-size: 30px; }
+    
+    @keyframes gear-spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    
+    /* ========== CONTENU ========== */
+    .content {
+      position: relative;
+      z-index: 10;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      padding: 16px 24px;
+    }
+    
+    /* Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    
+    .back-btn {
+      width: 52px;
+      height: 52px;
+      background: rgba(255,255,255,0.95);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .back-btn:hover {
+      transform: translateY(-2px);
+    }
+    
+    .level-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .world-badge {
+      background: linear-gradient(135deg, #F1C40F, #D4AC0D);
+      padding: 8px 14px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .world-badge-icon { font-size: 18px; }
+    .world-badge-text {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: #fff;
+    }
+    
+    .level-number {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: #4A3728;
+    }
+    
+    .header-center {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    
+    .stars-display {
+      display: flex;
+      gap: 8px;
+    }
+    .star-slot {
+      width: 44px;
+      height: 44px;
+      background: rgba(255,255,255,0.3);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      transition: all 0.3s;
+    }
+    .star-slot.potential {
+      background: rgba(241, 196, 15, 0.3);
+      animation: star-pulse 2s ease-in-out infinite;
+    }
+    .star-slot.empty { opacity: 0.4; }
+    
+    @keyframes star-pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+    
+    .attempts-counter {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.9);
+      padding: 10px 16px;
+      border-radius: 12px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    }
+    .attempts-icon { font-size: 20px; }
+    .attempts-value {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: #4A3728;
+    }
+    .attempts-label {
+      font-size: 12px;
+      color: #8B5A2B;
+    }
+    
+    .header-right {
+      display: flex;
+      gap: 10px;
+    }
+    
+    .action-btn {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+    }
+    .action-btn:hover {
+      transform: translateY(-2px);
+    }
+    
+    .btn-hint {
+      background: linear-gradient(135deg, #F39C12, #E67E22);
+      box-shadow: 0 4px 12px rgba(243,156,18,0.4);
+      animation: hint-glow 2s ease-in-out infinite;
+    }
+    @keyframes hint-glow {
+      0%, 100% { box-shadow: 0 4px 12px rgba(243,156,18,0.4); }
+      50% { box-shadow: 0 4px 20px rgba(243,156,18,0.6); }
+    }
+    
+    .btn-reset {
+      background: rgba(255,255,255,0.9);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    
+    .btn-settings {
+      background: rgba(255,255,255,0.9);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    
+    /* Zone principale */
+    .main-area {
+      flex: 1;
+      display: flex;
+      gap: 20px;
+    }
+    
+    /* Zone de construction */
+    .build-zone {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .machine-canvas {
+      flex: 1;
+      background: rgba(255,255,255,0.85);
+      border-radius: 24px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+      position: relative;
+      overflow: hidden;
+      padding: 20px;
+    }
+    
+    /* Grille de placement */
+    .placement-grid {
+      display: grid;
+      grid-template-columns: repeat(8, 90px);
+      grid-template-rows: repeat(4, 90px);
+      gap: 10px;
+      justify-content: center;
+      align-content: center;
+      height: 100%;
+    }
+    
+    .grid-cell {
+      background: rgba(241, 196, 15, 0.1);
+      border: 2px dashed rgba(241, 196, 15, 0.3);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+    
+    .grid-cell.drop-target {
+      background: rgba(241, 196, 15, 0.3);
+      border-color: #F1C40F;
+      transform: scale(1.05);
+    }
+    
+    .grid-cell.occupied {
+      background: transparent;
+      border: none;
+    }
+    
+    .grid-cell.fixed {
+      background: transparent;
+      border: none;
+    }
+    
+    .grid-cell.empty-slot {
+      background: rgba(241, 196, 15, 0.15);
+      border: 3px dashed #F1C40F;
+    }
+    .grid-cell.empty-slot::before {
+      content: '?';
+      font-family: 'Fredoka', sans-serif;
+      font-size: 36px;
+      color: rgba(241, 196, 15, 0.5);
+      font-weight: 700;
+    }
+    
+    /* Éléments de machine */
+    .machine-element {
+      width: 80px;
+      height: 80px;
+      border-radius: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: grab;
+      transition: all 0.2s;
+      position: relative;
+    }
+    .machine-element:hover {
+      transform: scale(1.08);
+    }
+    .machine-element:active {
+      cursor: grabbing;
+    }
+    
+    .machine-element.fixed {
+      cursor: default;
+    }
+    .machine-element.fixed:hover {
+      transform: none;
+    }
+    
+    .element-icon {
+      font-size: 42px;
+      line-height: 1;
+    }
+    
+    .element-glow {
+      position: absolute;
+      inset: -5px;
+      border-radius: 20px;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    
+    .machine-element.source .element-glow {
+      background: radial-gradient(circle, rgba(46,204,113,0.4) 0%, transparent 70%);
+    }
+    .machine-element.source.active .element-glow {
+      opacity: 1;
+      animation: glow-pulse 1s ease-in-out infinite;
+    }
+    
+    .machine-element.effect .element-glow {
+      background: radial-gradient(circle, rgba(241,196,15,0.4) 0%, transparent 70%);
+    }
+    
+    @keyframes glow-pulse {
+      0%, 100% { opacity: 0.6; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.1); }
+    }
+    
+    /* Lignes de connexion */
+    .connection-line {
+      position: absolute;
+      height: 4px;
+      background: linear-gradient(90deg, #E67E22, #F1C40F);
+      border-radius: 2px;
+      transform-origin: left center;
+      opacity: 0.6;
+    }
+    
+    .energy-particle {
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      background: radial-gradient(circle, #F1C40F 0%, #E67E22 100%);
+      border-radius: 50%;
+      box-shadow: 0 0 15px #F1C40F;
+      animation: energy-flow 2s linear infinite;
+    }
+    
+    @keyframes energy-flow {
+      0% { left: 0; opacity: 1; }
+      100% { left: calc(100% - 12px); opacity: 0.5; }
+    }
+    
+    /* Machine de démo */
+    .demo-machine {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+    
+    .demo-element {
+      width: 85px;
+      height: 85px;
+      border-radius: 18px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      transition: all 0.3s;
+    }
+    
+    .demo-element.source {
+      background: linear-gradient(135deg, rgba(46,204,113,0.2), rgba(39,174,96,0.1));
+      border: 3px solid #27AE60;
+    }
+    .demo-element.transmission {
+      background: linear-gradient(135deg, rgba(230,126,34,0.2), rgba(211,84,0,0.1));
+      border: 3px solid #E67E22;
+    }
+    .demo-element.effect {
+      background: linear-gradient(135deg, rgba(241,196,15,0.2), rgba(243,156,18,0.1));
+      border: 3px solid #F1C40F;
+    }
+    .demo-element.empty {
+      background: rgba(241, 196, 15, 0.15);
+      border: 3px dashed #F1C40F;
+    }
+    .demo-element.empty::before {
+      content: '?';
+      font-family: 'Fredoka', sans-serif;
+      font-size: 40px;
+      color: rgba(241, 196, 15, 0.5);
+      font-weight: 700;
+    }
+    
+    .demo-icon {
+      font-size: 40px;
+    }
+    
+    .demo-connector {
+      width: 40px;
+      height: 6px;
+      background: linear-gradient(90deg, #E67E22, #F1C40F);
+      border-radius: 3px;
+      position: relative;
+    }
+    
+    .demo-particle {
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      background: radial-gradient(circle, #FFD93D 0%, #F1C40F 100%);
+      border-radius: 50%;
+      top: 50%;
+      transform: translateY(-50%);
+      box-shadow: 0 0 12px #F1C40F;
+      animation: particle-move 1.5s ease-in-out infinite;
+    }
+    
+    @keyframes particle-move {
+      0% { left: -5px; opacity: 1; }
+      100% { left: calc(100% - 9px); opacity: 0.6; }
+    }
+    
+    /* Zone mascotte */
+    .mascot-zone {
+      width: 280px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    
+    .mascot-container {
+      background: rgba(255,255,255,0.9);
+      border-radius: 20px;
+      padding: 16px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+    }
+    
+    .gedeon-mini {
+      width: 120px;
+      height: 130px;
+      margin: 0 auto 12px;
+      position: relative;
+      animation: gedeon-idle 2s ease-in-out infinite;
+    }
+    
+    @keyframes gedeon-idle {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+    }
+    
+    .gedeon-mini-body {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(180deg, #C9A86C 0%, #A68B5B 100%);
+      border-radius: 50% 50% 45% 45%;
+      position: relative;
+    }
+    
+    .gedeon-mini-belly {
+      position: absolute;
+      bottom: 15px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 70px;
+      height: 50px;
+      background: #F5E6D3;
+      border-radius: 50%;
+    }
+    
+    .gedeon-mini-eye {
+      position: absolute;
+      top: 30px;
+      width: 26px;
+      height: 26px;
+      background: #fff;
+      border-radius: 50%;
+    }
+    .gedeon-mini-eye.left { left: 18px; }
+    .gedeon-mini-eye.right { right: 18px; }
+    .gedeon-mini-eye::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 12px;
+      height: 12px;
+      background: #2C1810;
+      border-radius: 50%;
+    }
+    
+    .gedeon-mini-nose {
+      position: absolute;
+      top: 55px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 16px;
+      height: 12px;
+      background: #2C1810;
+      border-radius: 50%;
+    }
+    
+    .gedeon-mini-helmet {
+      position: absolute;
+      top: -18px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 70px;
+      height: 40px;
+      background: linear-gradient(180deg, #F1C40F, #D4AC0D);
+      border-radius: 50% 50% 10% 10%;
+    }
+    
+    .gedeon-mini-wrench {
+      position: absolute;
+      bottom: 20px;
+      right: -25px;
+      font-size: 32px;
+      transform: rotate(-30deg);
+    }
+    
+    .mascot-speech {
+      background: linear-gradient(135deg, #FFF9F0, #FFF5E6);
+      border-radius: 16px;
+      padding: 14px;
+      border-left: 4px solid #F1C40F;
+    }
+    .mascot-speech p {
+      font-size: 15px;
+      color: #4A3728;
+      line-height: 1.45;
+    }
+    .mascot-speech p strong {
+      color: #E67E22;
+    }
+    
+    /* Conseil du niveau */
+    .tip-box {
+      background: rgba(255,255,255,0.9);
+      border-radius: 16px;
+      padding: 14px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    }
+    .tip-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .tip-icon {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, #3498DB, #2980B9);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+    .tip-title {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: #4A3728;
+    }
+    .tip-content {
+      font-size: 13px;
+      color: #666;
+      line-height: 1.4;
+    }
+    
+    /* Objectif du niveau */
+    .objective-box {
+      background: linear-gradient(135deg, rgba(241,196,15,0.15), rgba(230,126,34,0.1));
+      border: 2px solid #F1C40F;
+      border-radius: 16px;
+      padding: 14px;
+    }
+    .objective-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .objective-icon { font-size: 22px; }
+    .objective-title {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      color: #4A3728;
+    }
+    .objective-text {
+      font-size: 14px;
+      color: #666;
+    }
+    .objective-text strong {
+      color: #E67E22;
+    }
+    
+    /* Palette d'éléments */
+    .palette-section {
+      margin-top: 12px;
+    }
+    
+    .palette-container {
+      background: rgba(255,255,255,0.95);
+      border-radius: 20px;
+      padding: 14px 20px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+    }
+    
+    .palette-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .palette-title {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      color: #4A3728;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .palette-title-icon { font-size: 20px; }
+    
+    .palette-grid {
+      display: flex;
+      gap: 12px;
+      overflow-x: auto;
+      padding-bottom: 6px;
+    }
+    .palette-grid::-webkit-scrollbar { height: 4px; }
+    .palette-grid::-webkit-scrollbar-track { background: transparent; }
+    .palette-grid::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 2px; }
+    
+    .palette-item {
+      min-width: 80px;
+      height: 90px;
+      background: linear-gradient(180deg, #FFF, #F8F8F8);
+      border: 3px solid #E0E0E0;
+      border-radius: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: grab;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+    .palette-item:hover {
+      transform: translateY(-4px);
+      border-color: #F1C40F;
+      box-shadow: 0 8px 20px rgba(241,196,15,0.3);
+    }
+    .palette-item:active {
+      cursor: grabbing;
+      transform: scale(0.95);
+    }
+    
+    .palette-item.used {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+    .palette-item.used:hover {
+      transform: none;
+      border-color: #E0E0E0;
+      box-shadow: none;
+    }
+    
+    .palette-item-icon { font-size: 36px; }
+    .palette-item-name {
+      font-size: 11px;
+      color: #666;
+      margin-top: 4px;
+      text-align: center;
+    }
+    
+    /* Boutons footer */
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 12px;
+    }
+    
+    .footer-left {
+      display: flex;
+      gap: 12px;
+    }
+    
+    .undo-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.9);
+      padding: 12px 20px;
+      border-radius: 14px;
+      font-family: 'Fredoka', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      color: #4A3728;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .undo-btn:hover {
+      transform: translateY(-2px);
+    }
+    .undo-btn-icon { font-size: 20px; }
+    
+    .reset-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(231, 76, 60, 0.1);
+      border: 2px solid #E74C3C;
+      padding: 12px 20px;
+      border-radius: 14px;
+      font-family: 'Fredoka', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      color: #E74C3C;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .reset-btn:hover {
+      background: rgba(231, 76, 60, 0.2);
+    }
+    .reset-btn-icon { font-size: 20px; }
+    
+    .test-btn {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: linear-gradient(135deg, #27AE60, #1E8449);
+      color: #fff;
+      padding: 16px 50px;
+      border-radius: 18px;
+      font-family: 'Fredoka', sans-serif;
+      font-size: 22px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 6px 25px rgba(39,174,96,0.4);
+      border: none;
+    }
+    .test-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 35px rgba(39,174,96,0.5);
+    }
+    .test-btn-icon { font-size: 28px; }
+    
+    /* Animation de test en cours */
+    .test-btn.testing {
+      background: linear-gradient(135deg, #F39C12, #E67E22);
+      animation: testing-pulse 0.5s ease-in-out infinite;
+    }
+    @keyframes testing-pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.02); }
+    }
+    
+    /* État simulation réussie */
+    .demo-element.activated {
+      animation: element-activate 0.5s ease-out forwards;
+    }
+    @keyframes element-activate {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.15); }
+      100% { transform: scale(1); }
+    }
+    
+    .demo-element.activated .demo-glow {
+      position: absolute;
+      inset: -8px;
+      background: radial-gradient(circle, rgba(241,196,15,0.5) 0%, transparent 70%);
+      border-radius: 24px;
+      animation: glow-active 1s ease-in-out infinite;
+    }
+    
+    @keyframes glow-active {
+      0%, 100% { opacity: 0.5; }
+      50% { opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+  <div class="ipad-frame">
+    <!-- Fond Atelier -->
+    <div class="workshop-bg">
+      <div class="wall">
+        <div class="wall-panel wall-panel-1"></div>
+        <div class="wall-panel wall-panel-2"></div>
+      </div>
+      <span class="deco-gear deco-gear-1">⚙️</span>
+      <span class="deco-gear deco-gear-2">⚙️</span>
+      <span class="deco-gear deco-gear-3">⚙️</span>
+    </div>
+    
+    <!-- Contenu -->
+    <div class="content">
+      <!-- Header -->
+      <header class="header">
+        <div class="header-left">
+          <div class="back-btn">←</div>
+          <div class="level-info">
+            <div class="world-badge">
+              <span class="world-badge-icon">🏠</span>
+              <span class="world-badge-text">Atelier</span>
+            </div>
+            <span class="level-number">Niveau 12</span>
+          </div>
+        </div>
+        
+        <div class="header-center">
+          <div class="stars-display">
+            <div class="star-slot potential">⭐</div>
+            <div class="star-slot potential">⭐</div>
+            <div class="star-slot potential">⭐</div>
+          </div>
+          
+          <div class="attempts-counter">
+            <span class="attempts-icon">🔄</span>
+            <span class="attempts-value">0</span>
+            <span class="attempts-label">essais</span>
+          </div>
+        </div>
+        
+        <div class="header-right">
+          <button class="action-btn btn-hint">💡</button>
+          <button class="action-btn btn-reset">🔄</button>
+          <button class="action-btn btn-settings">⚙️</button>
+        </div>
+      </header>
+      
+      <!-- Zone principale -->
+      <div class="main-area">
+        <!-- Zone de construction -->
+        <div class="build-zone">
+          <div class="machine-canvas">
+            <!-- Machine de démo simplifiée -->
+            <div class="demo-machine">
+              <!-- Source : Hamster -->
+              <div class="demo-element source">
+                <span class="demo-icon">🐹</span>
+                <div class="demo-glow"></div>
+              </div>
+              
+              <div class="demo-connector">
+                <div class="demo-particle"></div>
+              </div>
+              
+              <!-- Transmission : Roue -->
+              <div class="demo-element transmission">
+                <span class="demo-icon">🔄</span>
+              </div>
+              
+              <div class="demo-connector">
+                <div class="demo-particle" style="animation-delay: 0.3s;"></div>
+              </div>
+              
+              <!-- Emplacement vide -->
+              <div class="demo-element empty"></div>
+              
+              <div class="demo-connector" style="opacity: 0.3;">
+              </div>
+              
+              <!-- Transmission : Engrenage -->
+              <div class="demo-element transmission">
+                <span class="demo-icon">⚙️</span>
+              </div>
+              
+              <div class="demo-connector" style="opacity: 0.3;">
+              </div>
+              
+              <!-- Emplacement vide -->
+              <div class="demo-element empty"></div>
+              
+              <div class="demo-connector" style="opacity: 0.3;">
+              </div>
+              
+              <!-- Effet : Lumière -->
+              <div class="demo-element effect">
+                <span class="demo-icon">💡</span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Palette d'éléments -->
+          <div class="palette-section">
+            <div class="palette-container">
+              <div class="palette-header">
+                <h3 class="palette-title">
+                  <span class="palette-title-icon">🧰</span>
+                  Boîte à Outils
+                </h3>
+              </div>
+              
+              <div class="palette-grid">
+                <div class="palette-item">
+                  <span class="palette-item-icon">🔗</span>
+                  <span class="palette-item-name">Courroie</span>
+                </div>
+                <div class="palette-item">
+                  <span class="palette-item-icon">⚙️</span>
+                  <span class="palette-item-name">Engrenage</span>
+                </div>
+                <div class="palette-item used">
+                  <span class="palette-item-icon">🔄</span>
+                  <span class="palette-item-name">Roue</span>
+                </div>
+                <div class="palette-item">
+                  <span class="palette-item-icon">🎚️</span>
+                  <span class="palette-item-name">Levier</span>
+                </div>
+                <div class="palette-item">
+                  <span class="palette-item-icon">🔘</span>
+                  <span class="palette-item-name">Bouton</span>
+                </div>
+                <div class="palette-item">
+                  <span class="palette-item-icon">📐</span>
+                  <span class="palette-item-name">Rampe</span>
+                </div>
+                <div class="palette-item">
+                  <span class="palette-item-icon">⚽</span>
+                  <span class="palette-item-name">Balle</span>
+                </div>
+                <div class="palette-item">
+                  <span class="palette-item-icon">🀱</span>
+                  <span class="palette-item-name">Dominos</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Zone mascotte -->
+        <div class="mascot-zone">
+          <div class="mascot-container">
+            <div class="gedeon-mini">
+              <div class="gedeon-mini-body">
+                <div class="gedeon-mini-helmet"></div>
+                <div class="gedeon-mini-eye left"></div>
+                <div class="gedeon-mini-eye right"></div>
+                <div class="gedeon-mini-nose"></div>
+                <div class="gedeon-mini-belly"></div>
+                <span class="gedeon-mini-wrench">🔧</span>
+              </div>
+            </div>
+            
+            <div class="mascot-speech">
+              <p>Cette machine a besoin de <strong>2 éléments</strong> pour fonctionner !<br><br>
+              Choisis dans ta boîte à outils et glisse-les aux bons endroits. 🔧</p>
+            </div>
+          </div>
+          
+          <div class="objective-box">
+            <div class="objective-header">
+              <span class="objective-icon">🎯</span>
+              <span class="objective-title">Objectif</span>
+            </div>
+            <p class="objective-text">Fais voyager l'énergie du <strong>hamster</strong> jusqu'à la <strong>lumière</strong> !</p>
+          </div>
+          
+          <div class="tip-box">
+            <div class="tip-header">
+              <div class="tip-icon">💡</div>
+              <span class="tip-title">Conseil</span>
+            </div>
+            <p class="tip-content">Les engrenages transmettent la <strong>rotation</strong>. Cherche ce qui peut connecter les éléments entre eux !</p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Footer -->
+      <footer class="footer">
+        <div class="footer-left">
+          <button class="undo-btn">
+            <span class="undo-btn-icon">↩️</span>
+            <span>Annuler</span>
+          </button>
+          <button class="reset-btn">
+            <span class="reset-btn-icon">🗑️</span>
+            <span>Tout effacer</span>
+          </button>
+        </div>
+        
+        <button class="test-btn">
+          <span class="test-btn-icon">▶️</span>
+          <span>TESTER !</span>
+        </button>
+      </footer>
+    </div>
+  </div>
+</body>
+</html>

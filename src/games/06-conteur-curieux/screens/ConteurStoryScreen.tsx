@@ -494,16 +494,16 @@ const styles = StyleSheet.create({
     gap: spacing[3],
   },
   headerButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: '#FFFFFF',
+    width: 64,
+    height: 64,
+    borderRadius: 16,
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
     alignItems: 'center',
     justifyContent: 'center',
-    ...shadows.sm,
+    ...shadows.md,
   },
   headerButtonText: {
-    fontSize: 20,
+    fontSize: 24,
   },
   progressContainer: {
     flex: 1,

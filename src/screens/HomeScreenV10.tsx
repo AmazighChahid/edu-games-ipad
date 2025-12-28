@@ -3,15 +3,21 @@
  * Immersive animated forest background with floating widgets and game grid
  */
 
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import { View, ScrollView, StyleSheet, Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { ForestBackgroundV10 } from '../components/home-v10';
+import { ForestBackgroundV10, CategoryFilterBar, CategoryFilterId } from '../components/home-v10';
 import { HomeV10Layout } from '../theme/home-v10-colors';
 
 export const HomeScreenV10: React.FC = () => {
   const insets = useSafeAreaInsets();
+  const [selectedCategory, setSelectedCategory] = useState<CategoryFilterId>('all');
+
+  const handleCategoryChange = useCallback((category: CategoryFilterId) => {
+    setSelectedCategory(category);
+    // TODO: Filtrer les jeux selon la catégorie sélectionnée
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -48,6 +54,12 @@ export const HomeScreenV10: React.FC = () => {
             </Text>
           </View>
         </ScrollView>
+
+        {/* Barre de filtres par catégorie en bas */}
+        <CategoryFilterBar
+          selectedCategory={selectedCategory}
+          onSelectCategory={handleCategoryChange}
+        />
       </ForestBackgroundV10>
     </View>
   );

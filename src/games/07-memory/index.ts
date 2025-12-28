@@ -13,6 +13,9 @@ export * from './logic';
 // Components
 export * from './components';
 
+// Screens
+export { MemoryIntroScreen } from './screens';
+
 // Hooks
 export { useMemoryGame } from './hooks/useMemoryGame';
 

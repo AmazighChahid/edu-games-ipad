@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>La Fabrique de Réactions - Intro</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: 'Nunito', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: #1a1a2e;
+      padding: 20px;
+    }
+    
+    .ipad-frame {
+      width: 1194px;
+      height: 834px;
+      background: linear-gradient(180deg, #FFF5E6 0%, #FFE8D6 50%, #FFD9B3 100%);
+      border-radius: 24px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 25px 80px rgba(0,0,0,0.4);
+    }
+    
+    /* ========== FOND ATELIER ========== */
+    .workshop-bg {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+    }
+    
+    /* Mur du fond */
+    .wall {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 60%;
+      background: linear-gradient(180deg, #D4A574 0%, #C49A6C 100%);
+    }
+    
+    .wall-panel {
+      position: absolute;
+      top: 20px;
+      width: 200px;
+      height: 250px;
+      background: #B8956A;
+      border-radius: 8px;
+      border: 4px solid #8B5A2B;
+    }
+    .wall-panel-1 { left: 50px; }
+    .wall-panel-2 { left: 280px; }
+    .wall-panel-3 { right: 280px; }
+    .wall-panel-4 { right: 50px; }
+    
+    /* Étagères avec outils */
+    .shelf {
+      position: absolute;
+      height: 15px;
+      background: linear-gradient(180deg, #8B5A2B, #6B4423);
+      border-radius: 3px;
+    }
+    .shelf-1 { top: 120px; left: 520px; width: 180px; }
+    .shelf-2 { top: 180px; right: 520px; width: 160px; }
+    
+    .tool {
+      position: absolute;
+      font-size: 28px;
+    }
+    .tool-1 { top: 85px; left: 540px; }
+    .tool-2 { top: 85px; left: 580px; }
+    .tool-3 { top: 85px; left: 620px; }
+    .tool-4 { top: 145px; right: 540px; }
+    .tool-5 { top: 145px; right: 580px; }
+    
+    /* Lampe suspendue */
+    .lamp {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    .lamp-cord {
+      width: 3px;
+      height: 60px;
+      background: #333;
+      margin: 0 auto;
+    }
+    .lamp-shade {
+      width: 80px;
+      height: 50px;
+      background: linear-gradient(180deg, #F1C40F, #D4AC0D);
+      border-radius: 0 0 40px 40px;
+      position: relative;
+    }
+    .lamp-glow {
+      position: absolute;
+      bottom: -100px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 300px;
+      height: 200px;
+      background: radial-gradient(ellipse, rgba(241,196,15,0.3) 0%, transparent 70%);
+      animation: lamp-flicker 3s ease-in-out infinite;
+    }
+    
+    @keyframes lamp-flicker {
+      0%, 100% { opacity: 0.8; }
+      50% { opacity: 1; }
+    }
+    
+    /* Sol en bois */
+    .floor {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 40%;
+      background: linear-gradient(180deg, #8B5A2B 0%, #6B4423 100%);
+    }
+    
+    .floor-plank {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 60px;
+      border-bottom: 3px solid rgba(0,0,0,0.2);
+    }
+    .floor-plank-1 { bottom: 0; }
+    .floor-plank-2 { bottom: 60px; }
+    .floor-plank-3 { bottom: 120px; }
+    .floor-plank-4 { bottom: 180px; }
+    .floor-plank-5 { bottom: 240px; }
+    
+    /* Établi */
+    .workbench {
+      position: absolute;
+      bottom: 60px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 500px;
+      height: 80px;
+      background: linear-gradient(180deg, #A0522D, #8B4513);
+      border-radius: 8px 8px 0 0;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+    .workbench-leg {
+      position: absolute;
+      bottom: -60px;
+      width: 30px;
+      height: 60px;
+      background: #6B4423;
+    }
+    .workbench-leg-left { left: 30px; }
+    .workbench-leg-right { right: 30px; }
+    
+    /* Objets sur l'établi */
+    .bench-items {
+      position: absolute;
+      bottom: 145px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 30px;
+      font-size: 36px;
+    }
+    
+    /* Engrenages décoratifs */
+    .deco-gear {
+      position: absolute;
+      font-size: 50px;
+      opacity: 0.3;
+      animation: gear-rotate 10s linear infinite;
+    }
+    .deco-gear-1 { top: 80px; left: 30px; animation-duration: 15s; }
+    .deco-gear-2 { top: 200px; right: 40px; animation-duration: 12s; animation-direction: reverse; }
+    .deco-gear-3 { bottom: 280px; left: 100px; animation-duration: 18s; font-size: 40px; }
+    
+    @keyframes gear-rotate {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    
+    /* Copeaux animés */
+    .wood-shaving {
+      position: absolute;
+      width: 8px;
+      height: 3px;
+      background: #D2B48C;
+      border-radius: 50%;
+      animation: shaving-float 8s ease-in-out infinite;
+    }
+    .shaving-1 { bottom: 250px; left: 45%; animation-delay: 0s; }
+    .shaving-2 { bottom: 270px; left: 48%; animation-delay: 1s; }
+    .shaving-3 { bottom: 260px; left: 52%; animation-delay: 2s; }
+    .shaving-4 { bottom: 280px; left: 55%; animation-delay: 0.5s; }
+    
+    @keyframes shaving-float {
+      0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.6; }
+      50% { transform: translateY(-15px) rotate(180deg); opacity: 1; }
+    }
+    
+    /* ========== CONTENU ========== */
+    .content {
+      position: relative;
+      z-index: 10;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      padding: 20px 32px;
+    }
+    
+    /* Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    
+    .back-btn {
+      width: 56px;
+      height: 56px;
+      background: rgba(255,255,255,0.95);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .back-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+    }
+    
+    .title-section {
+      text-align: center;
+    }
+    .game-title {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 36px;
+      font-weight: 700;
+      color: #4A3728;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .game-subtitle {
+      font-size: 16px;
+      color: #8B5A2B;
+      margin-top: 4px;
+    }
+    
+    .header-stats {
+      display: flex;
+      gap: 12px;
+    }
+    .stat-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,255,255,0.95);
+      padding: 10px 16px;
+      border-radius: 14px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .stat-badge-icon { font-size: 20px; }
+    .stat-badge-value {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: #4A3728;
+    }
+    
+    /* Zone principale */
+    .main-area {
+      flex: 1;
+      display: flex;
+      gap: 24px;
+    }
+    
+    /* Section Gédéon */
+    .mascot-section {
+      width: 320px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .gedeon-container {
+      position: relative;
+      animation: gedeon-bounce 2s ease-in-out infinite;
+    }
+    
+    @keyframes gedeon-bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    
+    .gedeon-body {
+      width: 180px;
+      height: 200px;
+      background: linear-gradient(180deg, #C9A86C 0%, #A68B5B 100%);
+      border-radius: 50% 50% 45% 45%;
+      position: relative;
+    }
+    
+    .gedeon-belly {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 110px;
+      height: 80px;
+      background: #F5E6D3;
+      border-radius: 50%;
+    }
+    
+    .gedeon-eye {
+      position: absolute;
+      top: 45px;
+      width: 40px;
+      height: 40px;
+      background: #fff;
+      border-radius: 50%;
+    }
+    .gedeon-eye.left { left: 25px; }
+    .gedeon-eye.right { right: 25px; }
+    .gedeon-eye::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 20px;
+      height: 20px;
+      background: #2C1810;
+      border-radius: 50%;
+    }
+    .gedeon-eye::before {
+      content: '';
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 8px;
+      height: 8px;
+      background: #fff;
+      border-radius: 50%;
+      z-index: 2;
+    }
+    
+    .gedeon-nose {
+      position: absolute;
+      top: 85px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 25px;
+      height: 18px;
+      background: #2C1810;
+      border-radius: 50%;
+    }
+    
+    .gedeon-mouth {
+      position: absolute;
+      top: 105px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 30px;
+      height: 15px;
+      border-bottom: 4px solid #2C1810;
+      border-radius: 0 0 50% 50%;
+    }
+    
+    .gedeon-ear {
+      position: absolute;
+      top: -15px;
+      width: 40px;
+      height: 45px;
+      background: #C9A86C;
+      border-radius: 50% 50% 30% 30%;
+    }
+    .gedeon-ear.left { left: 20px; transform: rotate(-15deg); }
+    .gedeon-ear.right { right: 20px; transform: rotate(15deg); }
+    .gedeon-ear::after {
+      content: '';
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 25px;
+      height: 28px;
+      background: #F5DEB3;
+      border-radius: 50% 50% 30% 30%;
+    }
+    
+    /* Casque de Gédéon */
+    .gedeon-helmet {
+      position: absolute;
+      top: -30px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100px;
+      height: 60px;
+      background: linear-gradient(180deg, #F1C40F, #D4AC0D);
+      border-radius: 50% 50% 10% 10%;
+      z-index: 3;
+    }
+    .gedeon-helmet::before {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: -10px;
+      right: -10px;
+      height: 15px;
+      background: #D4AC0D;
+      border-radius: 0 0 8px 8px;
+    }
+    
+    /* Lunettes de protection */
+    .gedeon-goggles {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90px;
+      height: 35px;
+      z-index: 4;
+    }
+    .goggle-lens {
+      position: absolute;
+      top: 0;
+      width: 38px;
+      height: 35px;
+      background: rgba(52, 152, 219, 0.5);
+      border: 4px solid #333;
+      border-radius: 50%;
+    }
+    .goggle-lens.left { left: 0; }
+    .goggle-lens.right { right: 0; }
+    .goggle-bridge {
+      position: absolute;
+      top: 12px;
+      left: 38px;
+      width: 14px;
+      height: 8px;
+      background: #333;
+      border-radius: 4px;
+    }
+    
+    /* Outil en main */
+    .gedeon-wrench {
+      position: absolute;
+      bottom: 30px;
+      right: -40px;
+      font-size: 50px;
+      transform: rotate(-30deg);
+      animation: wrench-wiggle 1s ease-in-out infinite;
+    }
+    
+    @keyframes wrench-wiggle {
+      0%, 100% { transform: rotate(-30deg); }
+      50% { transform: rotate(-20deg); }
+    }
+    
+    /* Bulle de dialogue */
+    .speech-bubble {
+      background: #fff;
+      border-radius: 20px;
+      padding: 16px 20px;
+      margin-top: 20px;
+      max-width: 280px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+      position: relative;
+    }
+    .speech-bubble::before {
+      content: '';
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-left: 15px solid transparent;
+      border-right: 15px solid transparent;
+      border-bottom: 15px solid #fff;
+    }
+    .speech-bubble p {
+      font-size: 16px;
+      color: #4A3728;
+      line-height: 1.4;
+      text-align: center;
+    }
+    .speech-bubble p strong {
+      color: #F1C40F;
+      font-weight: 700;
+    }
+    
+    /* Section Mondes */
+    .worlds-section {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .section-title {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 22px;
+      font-weight: 600;
+      color: #4A3728;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section-title-icon { font-size: 26px; }
+    
+    /* Grille des mondes */
+    .worlds-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 16px;
+      flex: 1;
+    }
+    
+    .world-card {
+      background: #fff;
+      border-radius: 20px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+      position: relative;
+      overflow: hidden;
+    }
+    .world-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+    }
+    
+    .world-card.active {
+      border: 4px solid #F1C40F;
+    }
+    
+    .world-card.locked {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    .world-card.locked:hover {
+      transform: none;
+    }
+    
+    .world-icon-container {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 40px;
+      margin-bottom: 12px;
+      position: relative;
+    }
+    
+    .world-card:nth-child(1) .world-icon-container { background: linear-gradient(135deg, #FFE8D6, #FFD9B3); }
+    .world-card:nth-child(2) .world-icon-container { background: linear-gradient(135deg, #E8F6FF, #B3E0FF); }
+    .world-card:nth-child(3) .world-icon-container { background: linear-gradient(135deg, #F0F0F0, #D0D0D0); }
+    .world-card:nth-child(4) .world-icon-container { background: linear-gradient(135deg, #2D2D4A, #1A1A2E); }
+    .world-card:nth-child(5) .world-icon-container { background: linear-gradient(135deg, #F8E8FF, #E8D6FF); }
+    
+    .world-name {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      color: #4A3728;
+      text-align: center;
+      margin-bottom: 8px;
+    }
+    
+    .world-progress {
+      width: 100%;
+    }
+    .progress-text {
+      font-size: 12px;
+      color: #8B5A2B;
+      text-align: center;
+      margin-bottom: 6px;
+    }
+    .progress-bar {
+      height: 8px;
+      background: #EEE;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.5s ease;
+    }
+    .world-card:nth-child(1) .progress-fill { background: linear-gradient(90deg, #F1C40F, #E67E22); width: 75%; }
+    .world-card:nth-child(2) .progress-fill { background: linear-gradient(90deg, #3498DB, #2980B9); width: 40%; }
+    .world-card:nth-child(3) .progress-fill { background: linear-gradient(90deg, #95A5A6, #7F8C8D); width: 10%; }
+    .world-card:nth-child(4) .progress-fill { background: linear-gradient(90deg, #9B59B6, #8E44AD); width: 0%; }
+    .world-card:nth-child(5) .progress-fill { background: linear-gradient(90deg, #E056FD, #9B59B6); width: 0%; }
+    
+    .world-stars {
+      display: flex;
+      gap: 3px;
+      margin-top: 8px;
+      font-size: 14px;
+    }
+    .star-empty { opacity: 0.3; }
+    
+    .lock-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(255,255,255,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 40px;
+    }
+    
+    .unlock-requirement {
+      position: absolute;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 11px;
+      color: #999;
+      white-space: nowrap;
+    }
+    
+    /* Section niveaux du monde sélectionné */
+    .levels-section {
+      margin-top: 16px;
+      background: rgba(255,255,255,0.9);
+      border-radius: 20px;
+      padding: 16px 20px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+    }
+    
+    .levels-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .levels-title {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 18px;
+      font-weight: 600;
+      color: #4A3728;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .levels-title-icon { font-size: 22px; }
+    
+    .levels-grid {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+    }
+    .levels-grid::-webkit-scrollbar { height: 4px; }
+    .levels-grid::-webkit-scrollbar-track { background: transparent; }
+    .levels-grid::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 2px; }
+    
+    .level-btn {
+      min-width: 56px;
+      height: 56px;
+      border-radius: 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+    .level-btn:hover {
+      transform: scale(1.1);
+    }
+    
+    .level-btn.completed {
+      background: linear-gradient(135deg, #27AE60, #1E8449);
+      color: #fff;
+    }
+    .level-btn.current {
+      background: linear-gradient(135deg, #F1C40F, #D4AC0D);
+      color: #fff;
+      box-shadow: 0 0 0 4px rgba(241,196,15,0.3);
+      animation: level-pulse 2s ease-in-out infinite;
+    }
+    .level-btn.locked {
+      background: #E0E0E0;
+      color: #999;
+      cursor: not-allowed;
+    }
+    .level-btn.locked:hover {
+      transform: none;
+    }
+    
+    @keyframes level-pulse {
+      0%, 100% { box-shadow: 0 0 0 4px rgba(241,196,15,0.3); }
+      50% { box-shadow: 0 0 0 8px rgba(241,196,15,0.1); }
+    }
+    
+    .level-number {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+    }
+    .level-stars {
+      font-size: 10px;
+      margin-top: 2px;
+    }
+    .level-lock { font-size: 18px; }
+    
+    /* Footer avec bouton jouer */
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 16px;
+    }
+    
+    .current-level-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .level-badge {
+      background: linear-gradient(135deg, #F1C40F, #D4AC0D);
+      padding: 8px 16px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .level-badge-icon { font-size: 20px; }
+    .level-badge-text {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      color: #fff;
+    }
+    
+    .mode-selector {
+      display: flex;
+      gap: 8px;
+    }
+    .mode-btn {
+      padding: 10px 16px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 2px solid transparent;
+    }
+    .mode-btn.active {
+      background: #4A3728;
+      color: #fff;
+    }
+    .mode-btn:not(.active) {
+      background: rgba(255,255,255,0.8);
+      color: #4A3728;
+      border-color: #D4A574;
+    }
+    .mode-btn:not(.active):hover {
+      background: #fff;
+    }
+    
+    .play-btn {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: linear-gradient(135deg, #27AE60, #1E8449);
+      color: #fff;
+      padding: 16px 40px;
+      border-radius: 20px;
+      font-family: 'Fredoka', sans-serif;
+      font-size: 22px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 6px 20px rgba(39,174,96,0.4);
+      border: none;
+    }
+    .play-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 30px rgba(39,174,96,0.5);
+    }
+    .play-btn-icon { font-size: 26px; }
+    
+    /* Décorations animées */
+    .floating-gear {
+      position: absolute;
+      font-size: 30px;
+      opacity: 0.2;
+      animation: float-gear 6s ease-in-out infinite;
+    }
+    .floating-gear-1 { top: 150px; right: 50px; animation-delay: 0s; }
+    .floating-gear-2 { bottom: 200px; left: 30px; animation-delay: 2s; }
+    .floating-gear-3 { top: 250px; left: 70px; animation-delay: 4s; }
+    
+    @keyframes float-gear {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-20px) rotate(180deg); }
+    }
+    
+    /* Particules d'étincelles */
+    .spark {
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      background: #F1C40F;
+      border-radius: 50%;
+      animation: spark-fly 2s ease-out infinite;
+    }
+    .spark-1 { bottom: 160px; left: 48%; animation-delay: 0s; }
+    .spark-2 { bottom: 165px; left: 50%; animation-delay: 0.3s; }
+    .spark-3 { bottom: 158px; left: 52%; animation-delay: 0.6s; }
+    .spark-4 { bottom: 162px; left: 46%; animation-delay: 0.9s; }
+    
+    @keyframes spark-fly {
+      0% { opacity: 1; transform: translateY(0) scale(1); }
+      100% { opacity: 0; transform: translateY(-40px) scale(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="ipad-frame">
+    <!-- Fond Atelier -->
+    <div class="workshop-bg">
+      <div class="wall">
+        <div class="wall-panel wall-panel-1"></div>
+        <div class="wall-panel wall-panel-2"></div>
+        <div class="wall-panel wall-panel-3"></div>
+        <div class="wall-panel wall-panel-4"></div>
+        
+        <div class="shelf shelf-1"></div>
+        <div class="shelf shelf-2"></div>
+        
+        <span class="tool tool-1">🔧</span>
+        <span class="tool tool-2">🔨</span>
+        <span class="tool tool-3">🪛</span>
+        <span class="tool tool-4">⚙️</span>
+        <span class="tool tool-5">🔩</span>
+      </div>
+      
+      <div class="lamp">
+        <div class="lamp-cord"></div>
+        <div class="lamp-shade">
+          <div class="lamp-glow"></div>
+        </div>
+      </div>
+      
+      <div class="floor">
+        <div class="floor-plank floor-plank-1"></div>
+        <div class="floor-plank floor-plank-2"></div>
+        <div class="floor-plank floor-plank-3"></div>
+        <div class="floor-plank floor-plank-4"></div>
+        <div class="floor-plank floor-plank-5"></div>
+      </div>
+      
+      <div class="workbench">
+        <div class="workbench-leg workbench-leg-left"></div>
+        <div class="workbench-leg workbench-leg-right"></div>
+      </div>
+      
+      <div class="bench-items">
+        <span>⚙️</span>
+        <span>🔩</span>
+        <span>🔧</span>
+        <span>💡</span>
+        <span>🔌</span>
+      </div>
+      
+      <span class="deco-gear deco-gear-1">⚙️</span>
+      <span class="deco-gear deco-gear-2">⚙️</span>
+      <span class="deco-gear deco-gear-3">⚙️</span>
+      
+      <div class="wood-shaving shaving-1"></div>
+      <div class="wood-shaving shaving-2"></div>
+      <div class="wood-shaving shaving-3"></div>
+      <div class="wood-shaving shaving-4"></div>
+      
+      <span class="floating-gear floating-gear-1">⚙️</span>
+      <span class="floating-gear floating-gear-2">⚙️</span>
+      <span class="floating-gear floating-gear-3">⚙️</span>
+      
+      <div class="spark spark-1"></div>
+      <div class="spark spark-2"></div>
+      <div class="spark spark-3"></div>
+      <div class="spark spark-4"></div>
+    </div>
+    
+    <!-- Contenu -->
+    <div class="content">
+      <!-- Header -->
+      <header class="header">
+        <div class="back-btn">←</div>
+        
+        <div class="title-section">
+          <h1 class="game-title">⚙️ La Fabrique de Réactions ⚙️</h1>
+          <p class="game-subtitle">Construis des machines extraordinaires !</p>
+        </div>
+        
+        <div class="header-stats">
+          <div class="stat-badge">
+            <span class="stat-badge-icon">⭐</span>
+            <span class="stat-badge-value">127</span>
+          </div>
+          <div class="stat-badge">
+            <span class="stat-badge-icon">🏆</span>
+            <span class="stat-badge-value">28/75</span>
+          </div>
+        </div>
+      </header>
+      
+      <!-- Zone principale -->
+      <div class="main-area">
+        <!-- Mascotte Gédéon -->
+        <div class="mascot-section">
+          <div class="gedeon-container">
+            <div class="gedeon-body">
+              <div class="gedeon-helmet"></div>
+              <div class="gedeon-goggles">
+                <div class="goggle-lens left"></div>
+                <div class="goggle-lens right"></div>
+                <div class="goggle-bridge"></div>
+              </div>
+              <div class="gedeon-ear left"></div>
+              <div class="gedeon-ear right"></div>
+              <div class="gedeon-eye left"></div>
+              <div class="gedeon-eye right"></div>
+              <div class="gedeon-nose"></div>
+              <div class="gedeon-mouth"></div>
+              <div class="gedeon-belly"></div>
+              <span class="gedeon-wrench">🔧</span>
+            </div>
+          </div>
+          
+          <div class="speech-bubble">
+            <p>Salut, petit inventeur ! 🐹<br>
+            Prêt à construire des <strong>machines incroyables</strong> ?<br>
+            Choisis un monde et c'est parti !</p>
+          </div>
+        </div>
+        
+        <!-- Mondes -->
+        <div class="worlds-section">
+          <h2 class="section-title">
+            <span class="section-title-icon">🌍</span>
+            Choisis ton Monde
+          </h2>
+          
+          <div class="worlds-grid">
+            <div class="world-card active">
+              <div class="world-icon-container">🏠</div>
+              <div class="world-name">L'Atelier de Gédéon</div>
+              <div class="world-progress">
+                <div class="progress-text">11/15 niveaux</div>
+                <div class="progress-bar">
+                  <div class="progress-fill"></div>
+                </div>
+              </div>
+              <div class="world-stars">
+                <span>⭐</span><span>⭐</span><span>⭐</span>
+                <span>⭐</span><span>⭐</span><span>⭐</span>
+                <span>⭐</span><span>⭐</span><span class="star-empty">⭐</span>
+              </div>
+            </div>
+            
+            <div class="world-card">
+              <div class="world-icon-container">🧪</div>
+              <div class="world-name">Le Laboratoire Fou</div>
+              <div class="world-progress">
+                <div class="progress-text">6/15 niveaux</div>
+                <div class="progress-bar">
+                  <div class="progress-fill"></div>
+                </div>
+              </div>
+              <div class="world-stars">
+                <span>⭐</span><span>⭐</span><span>⭐</span>
+                <span>⭐</span><span class="star-empty">⭐</span><span class="star-empty">⭐</span>
+              </div>
+            </div>
+            
+            <div class="world-card">
+              <div class="world-icon-container">🏭</div>
+              <div class="world-name">L'Usine Magique</div>
+              <div class="world-progress">
+                <div class="progress-text">2/15 niveaux</div>
+                <div class="progress-bar">
+                  <div class="progress-fill"></div>
+                </div>
+              </div>
+              <div class="world-stars">
+                <span>⭐</span><span class="star-empty">⭐</span><span class="star-empty">⭐</span>
+              </div>
+            </div>
+            
+            <div class="world-card locked">
+              <div class="world-icon-container">🚀</div>
+              <div class="world-name">Station Spatiale</div>
+              <div class="world-progress">
+                <div class="progress-text">0/15 niveaux</div>
+                <div class="progress-bar">
+                  <div class="progress-fill"></div>
+                </div>
+              </div>
+              <div class="lock-overlay">🔒</div>
+              <span class="unlock-requirement">Besoin de 80 ⭐</span>
+            </div>
+            
+            <div class="world-card locked">
+              <div class="world-icon-container">✨</div>
+              <div class="world-name">Monde des Rêves</div>
+              <div class="world-progress">
+                <div class="progress-text">0/15 niveaux</div>
+                <div class="progress-bar">
+                  <div class="progress-fill"></div>
+                </div>
+              </div>
+              <div class="lock-overlay">🔒</div>
+              <span class="unlock-requirement">Besoin de 120 ⭐</span>
+            </div>
+          </div>
+          
+          <!-- Niveaux du monde sélectionné -->
+          <div class="levels-section">
+            <div class="levels-header">
+              <h3 class="levels-title">
+                <span class="levels-title-icon">🏠</span>
+                L'Atelier de Gédéon - Niveaux
+              </h3>
+            </div>
+            
+            <div class="levels-grid">
+              <div class="level-btn completed">
+                <span class="level-number">1</span>
+                <span class="level-stars">⭐⭐⭐</span>
+              </div>
+              <div class="level-btn completed">
+                <span class="level-number">2</span>
+                <span class="level-stars">⭐⭐⭐</span>
+              </div>
+              <div class="level-btn completed">
+                <span class="level-number">3</span>
+                <span class="level-stars">⭐⭐⭐</span>
+              </div>
+              <div class="level-btn completed">
+                <span class="level-number">4</span>
+                <span class="level-stars">⭐⭐☆</span>
+              </div>
+              <div class="level-btn completed">
+                <span class="level-number">5</span>
+                <span class="level-stars">⭐⭐⭐</span>
+              </div>
+              <div class="level-btn completed">
+                <span class="level-number">6</span>
+                <span class="level-stars">⭐⭐☆</span>
+              </div>
+              <div class="level-btn completed">
+                <span class="level-number">7</span>
+                <span class="level-stars">⭐⭐⭐</span>
+              </div>
+              <div class="level-btn completed">
+                <span class="level-number">8</span>
+                <span class="level-stars">⭐☆☆</span>
+              </div>
+              <div class="level-btn completed">
+                <span class="level-number">9</span>
+                <span class="level-stars">⭐⭐☆</span>
+              </div>
+              <div class="level-btn completed">
+                <span class="level-number">10</span>
+                <span class="level-stars">⭐⭐⭐</span>
+              </div>
+              <div class="level-btn completed">
+                <span class="level-number">11</span>
+                <span class="level-stars">⭐⭐☆</span>
+              </div>
+              <div class="level-btn current">
+                <span class="level-number">12</span>
+                <span class="level-stars">☆☆☆</span>
+              </div>
+              <div class="level-btn locked">
+                <span class="level-lock">🔒</span>
+              </div>
+              <div class="level-btn locked">
+                <span class="level-lock">🔒</span>
+              </div>
+              <div class="level-btn locked">
+                <span class="level-lock">🔒</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Footer -->
+      <footer class="footer">
+        <div class="current-level-info">
+          <div class="level-badge">
+            <span class="level-badge-icon">🎯</span>
+            <span class="level-badge-text">Niveau 12</span>
+          </div>
+          
+          <div class="mode-selector">
+            <button class="mode-btn active">🧩 Complète</button>
+            <button class="mode-btn">🔢 Ordre</button>
+            <button class="mode-btn">🔍 Erreur</button>
+            <button class="mode-btn">🏗️ Créatif</button>
+          </div>
+        </div>
+        
+        <button class="play-btn">
+          <span class="play-btn-icon">▶️</span>
+          <span>C'est parti !</span>
+        </button>
+      </footer>
+    </div>
+  </div>
+</body>
+</html>

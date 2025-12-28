@@ -1,6 +1,9 @@
 // Export principal
 export { LabyrintheGame } from './LabyrintheGame';
 
+// Export des écrans
+export { LabyrintheIntroScreen } from './screens';
+
 // Export des types
 export type { LevelConfig, SessionStats, ThemeType } from './types';
 

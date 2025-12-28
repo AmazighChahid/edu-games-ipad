@@ -13,6 +13,8 @@ export { CollectionFloating } from './CollectionFloating';
 // UI Components
 export { HomeHeaderV10 } from './HomeHeaderV10';
 export { GameCardV10 } from './GameCardV10';
+export { CategoryFilterBar } from './CategoryFilterBar';
+export type { CategoryFilterId } from './CategoryFilterBar';
 
 // Layers (for advanced usage)
 export * from './layers';

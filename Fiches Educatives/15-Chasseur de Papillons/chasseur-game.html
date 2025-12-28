@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chasseur de Papillons - Jeu</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: 'Nunito', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: #1a3a1a;
+      padding: 20px;
+    }
+    
+    .ipad-frame {
+      width: 1194px;
+      height: 834px;
+      background: linear-gradient(180deg, #87CEEB 0%, #B8E6FF 40%, #A8E6CF 80%, #7AC77A 100%);
+      border-radius: 24px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 25px 80px rgba(0,0,0,0.4);
+    }
+    
+    /* ========== FOND PRAIRIE ========== */
+    .prairie-bg {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+    }
+    
+    /* Soleil */
+    .sun {
+      position: absolute;
+      top: 30px;
+      right: 60px;
+      width: 70px;
+      height: 70px;
+      background: radial-gradient(circle, #FFD93D 30%, rgba(255,217,61,0.2) 70%, transparent 100%);
+      border-radius: 50%;
+    }
+    
+    /* Nuages lents */
+    .cloud {
+      position: absolute;
+      background: rgba(255,255,255,0.7);
+      border-radius: 40px;
+    }
+    .cloud-1 { width: 100px; height: 35px; top: 10%; left: 10%; }
+    .cloud-2 { width: 80px; height: 28px; top: 15%; right: 25%; }
+    
+    /* Tournesols en bas */
+    .sunflower {
+      position: absolute;
+      bottom: 40px;
+      font-size: 50px;
+    }
+    .sunflower:nth-child(3) { left: 3%; }
+    .sunflower:nth-child(4) { left: 12%; font-size: 45px; bottom: 50px; }
+    .sunflower:nth-child(5) { right: 3%; }
+    .sunflower:nth-child(6) { right: 12%; font-size: 42px; bottom: 55px; }
+    
+    /* Herbe */
+    .grass {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 60px;
+      background: linear-gradient(180deg, #6AB06A 0%, #5A9A5A 100%);
+      border-radius: 100% 100% 0 0 / 30px 30px 0 0;
+    }
+    
+    /* ========== CONTENU ========== */
+    .content {
+      position: relative;
+      z-index: 10;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      padding: 16px 24px;
+    }
+    
+    /* Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    
+    .back-btn {
+      width: 50px;
+      height: 50px;
+      background: rgba(255,255,255,0.9);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      color: #2D5A27;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    
+    .level-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .world-badge {
+      background: linear-gradient(135deg, #FFD93D, #F1C40F);
+      padding: 8px 14px;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 3px 10px rgba(241,196,15,0.3);
+    }
+    .world-badge-icon { font-size: 18px; }
+    .world-badge-text {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: #5A4A00;
+    }
+    .level-number {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: #2D5A27;
+    }
+    
+    /* Séquence */
+    .sequence-zone {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    
+    .sequence-label {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 14px;
+      color: #2D5A27;
+      margin-bottom: 8px;
+      letter-spacing: 1px;
+    }
+    
+    .sequence-bar {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      background: rgba(255,255,255,0.9);
+      padding: 12px 30px;
+      border-radius: 30px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+    }
+    
+    .sequence-slot {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .slot-butterfly {
+      width: 55px;
+      height: 55px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      border: 4px solid transparent;
+      transition: all 0.3s;
+    }
+    .slot-butterfly.blue { background: linear-gradient(135deg, #3498DB, #2980B9); }
+    .slot-butterfly.yellow { background: linear-gradient(135deg, #F1C40F, #D4AC0D); }
+    .slot-butterfly.pink { background: linear-gradient(135deg, #E91E8C, #C71585); }
+    
+    .slot-butterfly.completed {
+      border-color: #27AE60;
+      box-shadow: 0 0 15px rgba(39,174,96,0.4);
+    }
+    .slot-butterfly.current {
+      border-color: #FFD93D;
+      box-shadow: 0 0 20px rgba(255,217,61,0.6);
+      animation: slot-pulse 1s ease-in-out infinite;
+    }
+    .slot-butterfly.pending {
+      opacity: 0.5;
+    }
+    
+    @keyframes slot-pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+    
+    .slot-status {
+      font-size: 16px;
+    }
+    
+    .sequence-arrow {
+      font-size: 24px;
+      color: #5A8F5A;
+    }
+    
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    
+    .timer {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.9);
+      padding: 10px 20px;
+      border-radius: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .timer-icon { font-size: 22px; }
+    .timer-value {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 24px;
+      font-weight: 700;
+      color: #2D5A27;
+    }
+    .timer.warning .timer-value { color: #E74C3C; }
+    
+    .stars-display {
+      display: flex;
+      gap: 6px;
+    }
+    .star-slot {
+      width: 40px;
+      height: 40px;
+      background: rgba(255,255,255,0.9);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    }
+    .star-slot.potential {
+      background: linear-gradient(135deg, rgba(255,217,61,0.3), rgba(255,217,61,0.1));
+    }
+    .star-slot.empty { opacity: 0.4; }
+    
+    /* Zone de jeu */
+    .game-area {
+      flex: 1;
+      position: relative;
+      margin: 16px 0;
+      border-radius: 24px;
+      overflow: hidden;
+    }
+    
+    /* Papillons */
+    .butterfly {
+      position: absolute;
+      width: 80px;
+      height: 60px;
+      cursor: pointer;
+      transition: transform 0.1s;
+      animation: butterfly-fly 4s ease-in-out infinite;
+    }
+    .butterfly:hover {
+      transform: scale(1.2);
+    }
+    
+    @keyframes butterfly-fly {
+      0%, 100% { transform: translateY(0) rotate(-5deg); }
+      25% { transform: translateY(-15px) rotate(5deg); }
+      50% { transform: translateY(-5px) rotate(-3deg); }
+      75% { transform: translateY(-20px) rotate(3deg); }
+    }
+    
+    .butterfly-body {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+    
+    .butterfly-wing {
+      position: absolute;
+      width: 35px;
+      height: 50px;
+      border-radius: 50% 50% 40% 40%;
+      top: 5px;
+    }
+    .butterfly-wing.left {
+      left: 5px;
+      transform-origin: right center;
+      animation: wing-flap-l 0.15s ease-in-out infinite;
+    }
+    .butterfly-wing.right {
+      right: 5px;
+      transform-origin: left center;
+      animation: wing-flap-r 0.15s ease-in-out infinite;
+    }
+    
+    @keyframes wing-flap-l {
+      0%, 100% { transform: rotateY(0deg); }
+      50% { transform: rotateY(50deg); }
+    }
+    @keyframes wing-flap-r {
+      0%, 100% { transform: rotateY(0deg); }
+      50% { transform: rotateY(-50deg); }
+    }
+    
+    .butterfly.blue .butterfly-wing { background: linear-gradient(135deg, #3498DB, #5DADE2); }
+    .butterfly.yellow .butterfly-wing { background: linear-gradient(135deg, #F1C40F, #F9E79F); }
+    .butterfly.pink .butterfly-wing { background: linear-gradient(135deg, #E91E8C, #F48FB1); }
+    .butterfly.green .butterfly-wing { background: linear-gradient(135deg, #27AE60, #58D68D); }
+    .butterfly.orange .butterfly-wing { background: linear-gradient(135deg, #E67E22, #F5B041); }
+    
+    .butterfly-center {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 12px;
+      height: 40px;
+      background: linear-gradient(180deg, #5A4A00 0%, #3A2A00 100%);
+      border-radius: 6px;
+    }
+    
+    .butterfly-antenna {
+      position: absolute;
+      top: 0;
+      width: 2px;
+      height: 15px;
+      background: #3A2A00;
+    }
+    .butterfly-antenna.left {
+      left: 35%;
+      transform: rotate(-20deg);
+    }
+    .butterfly-antenna.right {
+      right: 35%;
+      transform: rotate(20deg);
+    }
+    .butterfly-antenna::after {
+      content: '';
+      position: absolute;
+      top: -4px;
+      left: -2px;
+      width: 6px;
+      height: 6px;
+      background: #3A2A00;
+      border-radius: 50%;
+    }
+    
+    /* Papillon cible (highlight) */
+    .butterfly.target::after {
+      content: '';
+      position: absolute;
+      inset: -10px;
+      border: 3px dashed #FFD93D;
+      border-radius: 50%;
+      animation: target-pulse 1s ease-in-out infinite;
+    }
+    
+    @keyframes target-pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.1); }
+    }
+    
+    /* Abeille distracteur */
+    .bee {
+      position: absolute;
+      font-size: 40px;
+      cursor: pointer;
+      animation: bee-buzz 0.5s ease-in-out infinite;
+    }
+    
+    @keyframes bee-buzz {
+      0%, 100% { transform: translateX(0) rotate(-5deg); }
+      50% { transform: translateX(5px) rotate(5deg); }
+    }
+    
+    /* Positions des papillons */
+    .butterfly:nth-of-type(1) { top: 15%; left: 20%; animation-delay: 0s; }
+    .butterfly:nth-of-type(2) { top: 30%; left: 60%; animation-delay: 0.5s; }
+    .butterfly:nth-of-type(3) { top: 50%; left: 35%; animation-delay: 1s; }
+    .butterfly:nth-of-type(4) { top: 25%; right: 15%; animation-delay: 1.5s; }
+    .butterfly:nth-of-type(5) { top: 60%; left: 70%; animation-delay: 0.3s; }
+    .bee { top: 40%; left: 50%; }
+    
+    /* Zone mascotte et stats */
+    .bottom-zone {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+    
+    .mascot-zone {
+      display: flex;
+      align-items: flex-end;
+      gap: 16px;
+    }
+    
+    .flora-mini {
+      width: 100px;
+      height: 130px;
+      position: relative;
+      animation: flora-bounce 2s ease-in-out infinite;
+    }
+    
+    @keyframes flora-bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+    
+    .flora-mini-wings {
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90px;
+      height: 60px;
+    }
+    .mini-wing {
+      position: absolute;
+      width: 35px;
+      height: 50px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.6), rgba(255,182,193,0.4));
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.8);
+      animation: mini-flutter 0.4s ease-in-out infinite;
+    }
+    .mini-wing.left { left: 0; transform-origin: right center; }
+    .mini-wing.right { right: 0; transform-origin: left center; animation-delay: 0.05s; }
+    
+    @keyframes mini-flutter {
+      0%, 100% { transform: rotateY(0); }
+      50% { transform: rotateY(25deg); }
+    }
+    
+    .flora-mini-body {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    .flora-mini-dress {
+      width: 50px;
+      height: 55px;
+      background: linear-gradient(180deg, #FFB7C5, #FF91A4);
+      border-radius: 25px 25px 30px 30px;
+    }
+    .flora-mini-head {
+      width: 35px;
+      height: 35px;
+      background: #FFE4C4;
+      border-radius: 50%;
+      position: absolute;
+      top: -30px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    .flora-mini-hair {
+      position: absolute;
+      top: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 42px;
+      height: 22px;
+      background: linear-gradient(180deg, #90EE90, #7CCD7C);
+      border-radius: 20px 20px 5px 5px;
+    }
+    .flora-mini-eyes {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 8px;
+    }
+    .flora-mini-eye {
+      width: 6px;
+      height: 8px;
+      background: #4A3728;
+      border-radius: 50%;
+    }
+    
+    .mascot-speech {
+      background: rgba(255,255,255,0.95);
+      border-radius: 16px;
+      padding: 12px 18px;
+      max-width: 220px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      border-left: 4px solid #FFB7C5;
+    }
+    .mascot-speech p {
+      font-size: 14px;
+      color: #2D5A27;
+      line-height: 1.4;
+    }
+    .mascot-speech strong { color: #E91E8C; }
+    
+    /* Stats zone */
+    .stats-zone {
+      display: flex;
+      gap: 16px;
+    }
+    
+    .stat-box {
+      background: rgba(255,255,255,0.9);
+      border-radius: 16px;
+      padding: 12px 20px;
+      text-align: center;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    .stat-box-label {
+      font-size: 11px;
+      color: #5A8F5A;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 4px;
+    }
+    .stat-box-value {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 24px;
+      font-weight: 700;
+      color: #2D5A27;
+    }
+    .stat-box-value.success { color: #27AE60; }
+    .stat-box-value.error { color: #E74C3C; }
+  </style>
+</head>
+<body>
+  <div class="ipad-frame">
+    <!-- Fond prairie -->
+    <div class="prairie-bg">
+      <div class="sun"></div>
+      <div class="cloud cloud-1"></div>
+      <div class="cloud cloud-2"></div>
+      <div class="sunflower">🌻</div>
+      <div class="sunflower">🌻</div>
+      <div class="sunflower">🌻</div>
+      <div class="sunflower">🌻</div>
+      <div class="grass"></div>
+    </div>
+    
+    <!-- Contenu -->
+    <div class="content">
+      <!-- Header -->
+      <header class="header">
+        <div class="header-left">
+          <div class="back-btn">←</div>
+          <div class="level-info">
+            <div class="world-badge">
+              <span class="world-badge-icon">🌻</span>
+              <span class="world-badge-text">Prairie</span>
+            </div>
+            <span class="level-number">Niveau 9</span>
+          </div>
+        </div>
+        
+        <!-- Séquence -->
+        <div class="sequence-zone">
+          <div class="sequence-label">ATTRAPE DANS L'ORDRE :</div>
+          <div class="sequence-bar">
+            <div class="sequence-slot">
+              <div class="slot-butterfly blue completed">🦋</div>
+              <span class="slot-status">✓</span>
+            </div>
+            <span class="sequence-arrow">→</span>
+            <div class="sequence-slot">
+              <div class="slot-butterfly yellow current">🦋</div>
+              <span class="slot-status">●</span>
+            </div>
+            <span class="sequence-arrow">→</span>
+            <div class="sequence-slot">
+              <div class="slot-butterfly pink pending">🦋</div>
+              <span class="slot-status">○</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="header-right">
+          <div class="timer">
+            <span class="timer-icon">⏱️</span>
+            <span class="timer-value">00:28</span>
+          </div>
+          <div class="stars-display">
+            <div class="star-slot potential">⭐</div>
+            <div class="star-slot potential">⭐</div>
+            <div class="star-slot potential">⭐</div>
+          </div>
+        </div>
+      </header>
+      
+      <!-- Zone de jeu -->
+      <div class="game-area">
+        <!-- Papillon Bleu -->
+        <div class="butterfly blue" style="top: 15%; left: 20%;">
+          <div class="butterfly-body">
+            <div class="butterfly-antenna left"></div>
+            <div class="butterfly-antenna right"></div>
+            <div class="butterfly-wing left"></div>
+            <div class="butterfly-wing right"></div>
+            <div class="butterfly-center"></div>
+          </div>
+        </div>
+        
+        <!-- Papillon Jaune (cible actuelle) -->
+        <div class="butterfly yellow target" style="top: 30%; left: 55%;">
+          <div class="butterfly-body">
+            <div class="butterfly-antenna left"></div>
+            <div class="butterfly-antenna right"></div>
+            <div class="butterfly-wing left"></div>
+            <div class="butterfly-wing right"></div>
+            <div class="butterfly-center"></div>
+          </div>
+        </div>
+        
+        <!-- Papillon Rose -->
+        <div class="butterfly pink" style="top: 50%; left: 30%;">
+          <div class="butterfly-body">
+            <div class="butterfly-antenna left"></div>
+            <div class="butterfly-antenna right"></div>
+            <div class="butterfly-wing left"></div>
+            <div class="butterfly-wing right"></div>
+            <div class="butterfly-center"></div>
+          </div>
+        </div>
+        
+        <!-- Papillon Vert -->
+        <div class="butterfly green" style="top: 20%; right: 20%;">
+          <div class="butterfly-body">
+            <div class="butterfly-antenna left"></div>
+            <div class="butterfly-antenna right"></div>
+            <div class="butterfly-wing left"></div>
+            <div class="butterfly-wing right"></div>
+            <div class="butterfly-center"></div>
+          </div>
+        </div>
+        
+        <!-- Papillon Orange -->
+        <div class="butterfly orange" style="top: 55%; right: 25%;">
+          <div class="butterfly-body">
+            <div class="butterfly-antenna left"></div>
+            <div class="butterfly-antenna right"></div>
+            <div class="butterfly-wing left"></div>
+            <div class="butterfly-wing right"></div>
+            <div class="butterfly-center"></div>
+          </div>
+        </div>
+        
+        <!-- Abeille (distracteur) -->
+        <div class="bee" style="top: 35%; left: 45%;">🐝</div>
+      </div>
+      
+      <!-- Zone bas -->
+      <div class="bottom-zone">
+        <div class="mascot-zone">
+          <div class="flora-mini">
+            <div class="flora-mini-wings">
+              <div class="mini-wing left"></div>
+              <div class="mini-wing right"></div>
+            </div>
+            <div class="flora-mini-body">
+              <div class="flora-mini-head">
+                <div class="flora-mini-hair"></div>
+                <div class="flora-mini-eyes">
+                  <div class="flora-mini-eye"></div>
+                  <div class="flora-mini-eye"></div>
+                </div>
+              </div>
+              <div class="flora-mini-dress"></div>
+            </div>
+          </div>
+          
+          <div class="mascot-speech">
+            <p>Super ! Maintenant le <strong>jaune</strong> !<br>Je le vois là-haut ! 🦋</p>
+          </div>
+        </div>
+        
+        <div class="stats-zone">
+          <div class="stat-box">
+            <div class="stat-box-label">Capturés</div>
+            <div class="stat-box-value success">1/3</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-box-label">Erreurs</div>
+            <div class="stat-box-value error">0</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-box-label">Score</div>
+            <div class="stat-box-value">150</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

@@ -39,3 +39,13 @@ export { PerformanceStats } from './PerformanceStats';
 export type { PerformanceLevel, PerformanceTip } from './PerformanceStats';
 export { HintButton } from './HintButton';
 export type { HintButtonProps, HintButtonSize, HintButtonColorScheme } from './HintButton';
+
+// Game Intro Template (December 2024 - Hanoi pattern unification)
+export { GameIntroTemplate, calculateLevelsForAge, generateDefaultLevels, DEFAULT_ANIMATION_CONFIG } from './GameIntroTemplate';
+export type {
+  GameIntroTemplateProps,
+  LevelConfig,
+  TrainingConfig,
+  TrainingParam,
+  IntroAnimationConfig,
+} from './GameIntroTemplate.types';

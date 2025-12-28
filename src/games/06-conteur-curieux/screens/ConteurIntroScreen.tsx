@@ -162,14 +162,23 @@ export function ConteurIntroScreen({ onStartStory }: ConteurIntroScreenProps) {
         style={styles.header}
         entering={shouldAnimate ? FadeIn.duration(getDuration(300)) : undefined}
       >
-        <Pressable style={styles.backButton} onPress={handleBack}>
-          <Text style={styles.backButtonText}>{'<'} Retour</Text>
+        {/* Back button */}
+        <Pressable style={styles.headerButton} onPress={handleBack}>
+          <Text style={styles.headerButtonText}>←</Text>
         </Pressable>
 
-        <Text style={styles.title}>Le Conteur Curieux</Text>
+        {/* Title centered */}
+        <View style={styles.headerTitleWrapper}>
+          <View style={styles.headerTitleContainer}>
+            <Text style={styles.headerEmoji}>📖</Text>
+            <Text style={styles.title}>Le Conteur Curieux</Text>
+          </View>
+        </View>
 
+        {/* Parent button */}
         <Pressable style={styles.parentButton} onPress={handleOpenParent}>
-          <Text style={styles.parentButtonText}>Espace Parent</Text>
+          <Text style={styles.parentButtonIcon}>👨‍👩‍👧</Text>
+          <Text style={styles.parentButtonText}>Parent</Text>
         </Pressable>
       </Animated.View>
 
@@ -263,18 +272,40 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: spacing[4],
     paddingVertical: spacing[3],
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0,0,0,0.05)',
+    zIndex: 100,
   },
-  backButton: {
+  headerButton: {
+    width: 64,
+    height: 64,
+    borderRadius: 16,
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...shadows.md,
+  },
+  headerButtonText: {
+    fontSize: 24,
+    color: colors.primary.main,
+  },
+  headerTitleWrapper: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+    zIndex: -1,
+  },
+  headerTitleContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: spacing[2],
+    gap: spacing[2],
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    paddingVertical: spacing[2],
+    paddingHorizontal: spacing[5],
+    borderRadius: 20,
+    ...shadows.md,
   },
-  backButtonText: {
-    fontSize: 16,
-    color: colors.primary.main,
-    fontFamily: fontFamily.medium,
+  headerEmoji: {
+    fontSize: 24,
   },
   title: {
     fontSize: 20,
@@ -282,15 +313,22 @@ const styles = StyleSheet.create({
     color: '#9B59B6', // Purple theme
   },
   parentButton: {
-    backgroundColor: 'rgba(155,89,182,0.1)',
-    paddingHorizontal: spacing[3],
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing[2],
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
     paddingVertical: spacing[2],
-    borderRadius: borderRadius.lg,
+    paddingHorizontal: spacing[4],
+    borderRadius: borderRadius.md,
+    ...shadows.md,
+  },
+  parentButtonIcon: {
+    fontSize: 18,
   },
   parentButtonText: {
     fontSize: 14,
-    fontFamily: fontFamily.medium,
-    color: '#9B59B6',
+    fontFamily: fontFamily.semiBold,
+    color: '#7A7A7A',
   },
 
   // Content
