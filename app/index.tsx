@@ -34,6 +34,10 @@ import { useHomeData } from '../src/hooks/useHomeData';
 import { ParentDashboard } from '../src/components/parent/ParentDashboard';
 import { useStore } from '../src/store';
 
+// Profile switching
+import { ProfileSwitcherModal, ProfileCreationFlow } from '@/components/profile';
+import { useProfileSwitcher } from '@/hooks/useProfileSwitcher';
+
 // Mapping des jeux vers les thèmes Edoki (avec illustrations SVG dédiées)
 const GAME_THEME_MAPPING: Record<string, EdokiTheme> = {
   hanoi: 'hanoi',
@@ -147,6 +151,20 @@ export default function HomeScreen() {
       scrollX.value = event.contentOffset.x;
     },
   });
+
+  // Profile switching
+  const {
+    isModalVisible: isProfileSwitcherVisible,
+    isCreationFlowVisible,
+    profiles,
+    activeProfile,
+    openSwitcher,
+    closeSwitcher,
+    openCreationFlow,
+    closeCreationFlow,
+    switchProfile,
+    handleCreateProfile,
+  } = useProfileSwitcher();
 
   // Get game progress for parent drawer stats
   const gameProgress = useStore((state) => state.gameProgress);
@@ -277,6 +295,7 @@ export default function HomeScreen() {
           <HomeHeaderV10
             profile={profile}
             onParentPress={handleParentPress}
+            onAvatarPress={openSwitcher}
           />
         </View>
 
@@ -351,6 +370,23 @@ export default function HomeScreen() {
         childName={profile.name}
         levelsCompleted={totalGames}
         successRate={totalGames > 0 ? Math.round((successfulGames / totalGames) * 100) : 0}
+      />
+
+      {/* Profile switcher modal */}
+      <ProfileSwitcherModal
+        visible={isProfileSwitcherVisible}
+        onClose={closeSwitcher}
+        profiles={profiles}
+        activeProfileId={activeProfile?.id ?? null}
+        onSwitchProfile={switchProfile}
+        onCreateProfile={openCreationFlow}
+      />
+
+      {/* Profile creation flow */}
+      <ProfileCreationFlow
+        visible={isCreationFlowVisible}
+        onClose={closeCreationFlow}
+        onComplete={handleCreateProfile}
       />
     </View>
   );

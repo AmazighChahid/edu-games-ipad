@@ -7,11 +7,14 @@
 // CHILD PROFILE
 // ============================================
 
+export type AgeGroup = '3-5' | '6-7' | '8-10';
+
 export interface ChildProfile {
   id: string;
   name: string;
   avatar: string; // emoji
-  birthDate?: number; // timestamp
+  ageGroup: AgeGroup; // tranche d'âge
+  birthDate?: number; // timestamp (optional, kept for backwards compatibility)
   createdAt: number;
   isActive: boolean;
 }

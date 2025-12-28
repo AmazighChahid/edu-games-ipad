@@ -3,7 +3,8 @@
  * Maps games to categories with visual properties
  */
 
-import { GameCategoryV9, GameV9, GameColor, MedalType } from '../types/home.types';
+import { GameCategoryV9, GameV9, GameColor, MedalType } from '@/types/home.types';
+import type { AgeGroup } from '@/types';
 
 // ============ GAME DEFINITIONS ============
 
@@ -15,6 +16,7 @@ export interface GameDefinition {
   categoryId: string;
   badge?: 'new' | 'hot' | 'soon';
   isLocked?: boolean;
+  ageGroups: AgeGroup[]; // Tranches d'âge compatibles
 }
 
 export const GAMES_DEFINITIONS: GameDefinition[] = [
@@ -25,6 +27,7 @@ export const GAMES_DEFINITIONS: GameDefinition[] = [
     icon: '🏰',
     color: 'blue',
     categoryId: 'logic',
+    ageGroups: ['6-7', '8-10'],
   },
   {
     id: 'suites-logiques',
@@ -32,6 +35,7 @@ export const GAMES_DEFINITIONS: GameDefinition[] = [
     icon: '🎲',
     color: 'indigo',
     categoryId: 'logic',
+    ageGroups: ['3-5', '6-7', '8-10'],
   },
   {
     id: 'logix-grid',
@@ -40,6 +44,7 @@ export const GAMES_DEFINITIONS: GameDefinition[] = [
     color: 'teal',
     categoryId: 'logic',
     badge: 'new',
+    ageGroups: ['6-7', '8-10'],
   },
 
   // Chiffres
@@ -50,6 +55,7 @@ export const GAMES_DEFINITIONS: GameDefinition[] = [
     color: 'green',
     categoryId: 'numbers',
     badge: 'hot',
+    ageGroups: ['3-5', '6-7', '8-10'],
   },
   {
     id: 'sudoku',
@@ -57,6 +63,7 @@ export const GAMES_DEFINITIONS: GameDefinition[] = [
     icon: '🎯',
     color: 'teal',
     categoryId: 'numbers',
+    ageGroups: ['8-10'],
   },
 
   // Formes
@@ -67,6 +74,7 @@ export const GAMES_DEFINITIONS: GameDefinition[] = [
     color: 'purple',
     categoryId: 'shapes',
     badge: 'new',
+    ageGroups: ['3-5', '6-7', '8-10'],
   },
   {
     id: 'labyrinthe',
@@ -74,6 +82,7 @@ export const GAMES_DEFINITIONS: GameDefinition[] = [
     icon: '🗺️',
     color: 'pink',
     categoryId: 'shapes',
+    ageGroups: ['3-5', '6-7', '8-10'],
   },
 
   // Mémoire
@@ -83,6 +92,7 @@ export const GAMES_DEFINITIONS: GameDefinition[] = [
     icon: '🧠',
     color: 'orange',
     categoryId: 'memory',
+    ageGroups: ['3-5', '6-7', '8-10'],
   },
 
   // Mots
@@ -92,6 +102,7 @@ export const GAMES_DEFINITIONS: GameDefinition[] = [
     icon: '📝',
     color: 'red',
     categoryId: 'words',
+    ageGroups: ['6-7', '8-10'],
   },
   {
     id: 'conteur-curieux',
@@ -100,6 +111,7 @@ export const GAMES_DEFINITIONS: GameDefinition[] = [
     color: 'purple',
     categoryId: 'words',
     badge: 'new',
+    ageGroups: ['6-7', '8-10'],
   },
 
   // Équilibre
@@ -109,6 +121,7 @@ export const GAMES_DEFINITIONS: GameDefinition[] = [
     icon: '⚖️',
     color: 'amber',
     categoryId: 'logic',
+    ageGroups: ['6-7', '8-10'],
   },
 
   // Matrices
@@ -119,6 +132,7 @@ export const GAMES_DEFINITIONS: GameDefinition[] = [
     color: 'cyan',
     categoryId: 'logic',
     badge: 'new',
+    ageGroups: ['8-10'],
   },
 ];
 
@@ -156,12 +170,22 @@ export function getGamesForCategory(categoryId: string): GameDefinition[] {
 
 /**
  * Build categories with games and medal data
+ * @param getMedalForGame Function to get medal for a game
+ * @param ageGroup Optional age group to filter games
  */
 export function buildGameCategories(
-  getMedalForGame: (gameId: string) => MedalType
+  getMedalForGame: (gameId: string) => MedalType,
+  ageGroup?: AgeGroup
 ): GameCategoryV9[] {
   return CATEGORIES_DEFINITIONS.map((category) => {
-    const categoryGames = getGamesForCategory(category.id);
+    let categoryGames = getGamesForCategory(category.id);
+
+    // Filtrer par tranche d'âge si spécifiée
+    if (ageGroup) {
+      categoryGames = categoryGames.filter((game) =>
+        game.ageGroups.includes(ageGroup)
+      );
+    }
 
     const games: GameV9[] = categoryGames.map((game) => ({
       id: game.id,
@@ -179,7 +203,7 @@ export function buildGameCategories(
       title: category.title,
       games,
     };
-  });
+  }).filter((category) => category.games.length > 0); // Supprimer les catégories vides
 }
 
 /**
