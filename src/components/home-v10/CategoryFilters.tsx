@@ -57,11 +57,11 @@ interface FilterButtonProps {
 // CONSTANTES
 // ========================================
 
-const BUTTON_HEIGHT = 48;
-const BUTTON_MIN_WIDTH = 110;
+const BUTTON_HEIGHT = 50;
+const BUTTON_MIN_WIDTH = 150;
 const BUTTON_GAP = 10;
-const ICON_SIZE = 22;
-const TEXT_SIZE = 20;
+const ICON_SIZE = 35;
+const TEXT_SIZE = 25;
 
 const ANIMATION_CONFIG = {
   duration: 280,
@@ -278,7 +278,7 @@ const styles = StyleSheet.create({
   },
   container: {
     paddingVertical: 8,
-    paddingHorizontal: 16,
+    paddingHorizontal: 50,
     zIndex: 100,
   },
   filterRow: {
@@ -304,10 +304,11 @@ const styles = StyleSheet.create({
     borderWidth: 2,
   },
   iconContainer: {
-    width: ICON_SIZE,
-    height: ICON_SIZE,
+    width: 24,
+    height: 24,
     alignItems: 'center',
     justifyContent: 'center',
+    overflow: 'visible',
   },
   filterText: {
     fontFamily: fontFamily.display,
