@@ -70,11 +70,13 @@ export function useSequenceGenerator(theme: ThemeType) {
       const missingIndex = elements.length;
 
       // Générer les distracteurs (3 mauvaises réponses)
+      // On passe les éléments de base utilisés dans le pattern pour créer des distracteurs pertinents
       const distractors = generateDistractors(
         themeElements,
         correctAnswer,
         3,
-        pattern
+        pattern,
+        baseElements // Les formes utilisées dans la séquence
       );
 
       return {

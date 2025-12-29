@@ -6,6 +6,7 @@ import { Theme, ThemeType, SequenceElement } from '../types';
 
 export const THEMES: Record<ThemeType, Theme> = {
   // Thème par défaut - disponible dès le départ
+  // Chaque forme existe en plusieurs couleurs pour créer des distracteurs difficiles
   shapes: {
     id: 'shapes',
     name: 'Formes',
@@ -13,33 +14,117 @@ export const THEMES: Record<ThemeType, Theme> = {
     ageRange: [6, 10],
     unlockCondition: { type: 'default' },
     elements: [
+      // Carrés en différentes couleurs
       {
-        id: 'circle',
+        id: 'square_orange',
         type: 'shape',
-        value: 'circle',
-        displayAsset: '#5B8DEE',
-        label: 'Cercle'
-      },
-      {
-        id: 'square',
-        type: 'shape',
-        value: 'square',
+        value: 'square_orange',
+        shape: 'square',
+        color: '#FFB347',
         displayAsset: '#FFB347',
-        label: 'Carré'
+        label: 'Carré orange'
       },
       {
-        id: 'triangle',
+        id: 'square_blue',
         type: 'shape',
-        value: 'triangle',
+        value: 'square_blue',
+        shape: 'square',
+        color: '#5B8DEE',
+        displayAsset: '#5B8DEE',
+        label: 'Carré bleu'
+      },
+      {
+        id: 'square_green',
+        type: 'shape',
+        value: 'square_green',
+        shape: 'square',
+        color: '#7BC74D',
         displayAsset: '#7BC74D',
-        label: 'Triangle'
+        label: 'Carré vert'
+      },
+      // Losanges en différentes couleurs
+      {
+        id: 'diamond_orange',
+        type: 'shape',
+        value: 'diamond_orange',
+        shape: 'diamond',
+        color: '#FFB347',
+        displayAsset: '#FFB347',
+        label: 'Losange orange'
       },
       {
-        id: 'diamond',
+        id: 'diamond_purple',
         type: 'shape',
-        value: 'diamond',
+        value: 'diamond_purple',
+        shape: 'diamond',
+        color: '#E056FD',
         displayAsset: '#E056FD',
-        label: 'Losange'
+        label: 'Losange violet'
+      },
+      {
+        id: 'diamond_blue',
+        type: 'shape',
+        value: 'diamond_blue',
+        shape: 'diamond',
+        color: '#5B8DEE',
+        displayAsset: '#5B8DEE',
+        label: 'Losange bleu'
+      },
+      // Cercles en différentes couleurs
+      {
+        id: 'circle_blue',
+        type: 'shape',
+        value: 'circle_blue',
+        shape: 'circle',
+        color: '#5B8DEE',
+        displayAsset: '#5B8DEE',
+        label: 'Cercle bleu'
+      },
+      {
+        id: 'circle_orange',
+        type: 'shape',
+        value: 'circle_orange',
+        shape: 'circle',
+        color: '#FFB347',
+        displayAsset: '#FFB347',
+        label: 'Cercle orange'
+      },
+      {
+        id: 'circle_green',
+        type: 'shape',
+        value: 'circle_green',
+        shape: 'circle',
+        color: '#7BC74D',
+        displayAsset: '#7BC74D',
+        label: 'Cercle vert'
+      },
+      // Triangles en différentes couleurs
+      {
+        id: 'triangle_green',
+        type: 'shape',
+        value: 'triangle_green',
+        shape: 'triangle',
+        color: '#7BC74D',
+        displayAsset: '#7BC74D',
+        label: 'Triangle vert'
+      },
+      {
+        id: 'triangle_orange',
+        type: 'shape',
+        value: 'triangle_orange',
+        shape: 'triangle',
+        color: '#FFB347',
+        displayAsset: '#FFB347',
+        label: 'Triangle orange'
+      },
+      {
+        id: 'triangle_purple',
+        type: 'shape',
+        value: 'triangle_purple',
+        shape: 'triangle',
+        color: '#E056FD',
+        displayAsset: '#E056FD',
+        label: 'Triangle violet'
       },
     ],
   },

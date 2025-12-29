@@ -304,6 +304,6 @@ const styles = StyleSheet.create({
   },
   diskWrapper: {
     alignItems: 'center',
-    marginTop: -2,
+    marginTop: spacing[0], // 4px gap between disks
   },
 });

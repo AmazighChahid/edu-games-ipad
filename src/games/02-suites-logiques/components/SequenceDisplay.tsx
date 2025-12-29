@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, ScrollView, StyleSheet } from 'react-native';
+import React, { useMemo } from 'react';
+import { View, StyleSheet, Text, useWindowDimensions } from 'react-native';
 import Animated, { FadeInRight } from 'react-native-reanimated';
 import { Sequence, SequenceElement as ElementType, GameStatus } from '../types';
 import { SequenceElement } from './SequenceElement';
@@ -26,6 +26,31 @@ export const SequenceDisplay: React.FC<Props> = ({
   hintLevel,
   onDropInSlot,
 }) => {
+  const { width: screenWidth } = useWindowDimensions();
+
+  // Calculer la taille optimale des éléments selon le nombre d'éléments
+  const elementSize = useMemo(() => {
+    // Nombre total d'éléments à afficher (séquence + slot manquant)
+    const totalElements = sequence.elements.length + 1;
+
+    // Espace disponible (largeur écran - padding container - marges)
+    const containerPadding = DIMENSIONS.spacing.lg * 2; // padding du container
+    const horizontalPadding = DIMENSIONS.spacing.sm * 2; // padding du scrollContent
+    const availableWidth = screenWidth - containerPadding - horizontalPadding - 32; // 32 pour marges supplémentaires
+
+    // Espace entre les éléments
+    const totalSpacing = DIMENSIONS.sequenceElement.spacing * (totalElements - 1);
+
+    // Taille maximale possible pour que tout rentre sans scroll
+    const maxSizeForFit = (availableWidth - totalSpacing) / totalElements;
+
+    // Limiter entre une taille min (60) et max (120) pour rester lisible
+    const minSize = 60;
+    const maxSize = 120;
+
+    return Math.max(minSize, Math.min(maxSize, Math.floor(maxSizeForFit)));
+  }, [sequence.elements.length, screenWidth]);
+
   // Déterminer quels éléments doivent pulser (pour les indices)
   const shouldElementPulse = (element: ElementType, index: number): boolean => {
     if (hintLevel < 2) return false;
@@ -61,6 +86,7 @@ export const SequenceDisplay: React.FC<Props> = ({
             index={index}
             isPulsing={isPulsing}
             isHighlighted={isHighlighted}
+            size={elementSize}
           />
         </Animated.View>
       );
@@ -69,11 +95,8 @@ export const SequenceDisplay: React.FC<Props> = ({
 
   return (
     <View style={styles.container}>
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
-      >
+      <Text style={styles.instructionText}>QUELLE FORME VIENT APRÈS ?</Text>
+      <View style={styles.sequenceWrapper}>
         <View style={styles.sequenceRow}>
           {renderElements()}
 
@@ -83,9 +106,10 @@ export const SequenceDisplay: React.FC<Props> = ({
             placedElement={status === 'success' ? sequence.correctAnswer : selectedAnswer}
             status={status}
             onDrop={onDropInSlot}
+            size={elementSize}
           />
         </View>
-      </ScrollView>
+      </View>
     </View>
   );
 };
@@ -97,12 +121,22 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.5)',
     borderRadius: 20,
   },
-  scrollContent: {
-    paddingHorizontal: DIMENSIONS.spacing.sm,
+  instructionText: {
+    fontSize: 18,
+    fontFamily: 'Nunito-Bold',
+    color: '#888888',
+    textAlign: 'center',
+    marginBottom: DIMENSIONS.spacing.md,
+    letterSpacing: 1,
+  },
+  sequenceWrapper: {
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   sequenceRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     gap: DIMENSIONS.sequenceElement.spacing,
   },
 });

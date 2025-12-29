@@ -50,3 +50,7 @@ export type {
   TrainingParam,
   IntroAnimationConfig,
 } from './GameIntroTemplate.types';
+
+// Petals Indicator (replaces stars)
+export { PetalsIndicator } from './PetalsIndicator';
+export type { PetalsIndicatorProps } from './PetalsIndicator';

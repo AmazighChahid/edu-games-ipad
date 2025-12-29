@@ -13,12 +13,23 @@ export type PatternType =
   | 'ABC'           // Cycle de 3
   | 'ABBC'          // Cycle complexe
   | 'AABBCC'        // Doublons triples
+  | 'AABBC'         // Cycle 5 éléments
+  | 'ABCBA'         // Miroir symétrique
+  | 'ABCDCBA'       // Miroir long
   | 'increasing'    // Croissant (taille, quantité)
   | 'decreasing'    // Décroissant
   | 'rotation'      // Rotation progressive
+  | 'rotation_45'   // Rotation par 45°
+  | 'rotation_complex'  // Rotation complexe
   | 'numeric_add'   // Suite +n
   | 'numeric_mult'  // Suite ×n
+  | 'numeric_square' // Carrés parfaits
   | 'fibonacci'     // Suite de Fibonacci
+  | 'prime'         // Nombres premiers
+  | 'mirror'        // Pattern miroir
+  | 'size_color'    // Double transformation taille/couleur
+  | 'nested'        // Pattern imbriqué
+  | 'complex_pattern' // Pattern complexe
   | 'custom';       // Pattern personnalisé
 
 // Types de thèmes
@@ -42,6 +53,8 @@ export interface SequenceElement {
   label?: string;                 // Pour accessibilité
   size?: 'small' | 'medium' | 'large';  // Pour patterns de taille
   rotation?: number;              // Pour patterns de rotation (degrés)
+  shape?: string;                 // Type de forme (square, circle, triangle, diamond)
+  color?: string;                 // Couleur hex de la forme
 }
 
 // ============================================
@@ -53,7 +66,7 @@ export interface PatternDefinition {
   cycle: number[];                // Ex: [0, 1] pour ABAB, [0, 1, 2] pour ABC
   transform?: 'none' | 'size' | 'rotation' | 'numeric';
   step?: number;                  // Pour suites numériques (+2, ×2, etc.)
-  difficulty: 1 | 2 | 3 | 4 | 5;
+  difficulty: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
 }
 
 // ============================================

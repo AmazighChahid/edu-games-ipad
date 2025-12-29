@@ -158,10 +158,13 @@ export const SequenceElement: React.FC<Props> = ({
   // Rendu pour les formes géométriques
   const renderShapeElement = () => {
     const shapeSize = size - 16;
-    const color = element.displayAsset;
+    // Utiliser element.color si disponible, sinon displayAsset (rétrocompatibilité)
+    const color = element.color || element.displayAsset;
     const rotation = element.rotation || 0;
+    // Utiliser element.shape si disponible, sinon element.value (rétrocompatibilité)
+    const shapeType = element.shape || element.value;
 
-    switch (element.value) {
+    switch (shapeType) {
       case 'circle':
         return <CircleSVG size={shapeSize} color={color} rotation={rotation} />;
       case 'square':

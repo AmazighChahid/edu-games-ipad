@@ -27,3 +27,7 @@ export { MascotOwl } from './MascotOwl';
 export { ProgressPanel } from './ProgressPanel';
 export { TowerLabel } from './TowerLabel';
 export { FloatingButtons } from './FloatingButtons';
+
+// New refactored components (GameIntroTemplate pattern)
+export { HanoiMascot } from './HanoiMascot';
+export { HanoiLevelCard } from './HanoiLevelCard';

@@ -88,6 +88,11 @@ export function CrosswordCell({
   const { springConfig } = useAccessibilityAnimations();
   const scale = useSharedValue(1);
 
+  // Style animé - doit être appelé AVANT tout return conditionnel
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
+
   // Ne pas afficher les cellules bloquées
   if (cell.isBlocked) {
     return (
@@ -112,11 +117,6 @@ export function CrosswordCell({
 
     onPress();
   };
-
-  // Style animé
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }],
-  }));
 
   // Obtenir les couleurs SUTOM selon le statut
   const sutomStatus = cell.letterStatus || 'neutral';

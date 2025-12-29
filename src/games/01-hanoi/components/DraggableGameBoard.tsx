@@ -3,7 +3,7 @@
  * Clean wooden platform design
  */
 
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { View, StyleSheet, useWindowDimensions, LayoutChangeEvent, Platform } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
@@ -33,6 +33,8 @@ export function DraggableGameBoard({
   const [dragSource, setDragSource] = useState<TowerId | null>(null);
   const boardXRef = useRef(0);
 
+  const boardRef = useRef<View>(null);
+
   const isLandscape = width > height;
   const availableWidth = isLandscape ? width * 0.85 : width * 0.92;
   const availableHeight = isLandscape ? height * 0.55 : height * 0.45;
@@ -45,25 +47,37 @@ export function DraggableGameBoard({
   const diskHeight = Math.min(42, (availableHeight - 80) / (maxDisks + 1));
   const towerHeight = diskHeight * (maxDisks + 2) + 50;
 
-  const handleBoardLayout = useCallback((event: LayoutChangeEvent) => {
-    const { x, width: w } = event.nativeEvent.layout;
-
-    if (Platform.OS === 'web') {
-      // On web, use the layout event data directly
-      // The x coordinate from layout is relative to parent
-      const target = event.target as unknown as HTMLElement;
-      if (target && target.getBoundingClientRect) {
-        const rect = target.getBoundingClientRect();
-        boardXRef.current = rect.x;
+  // Function to recalculate tower centers (called on layout and before drop on web)
+  const recalculateTowerCenters = useCallback((element: any): number[] => {
+    if (Platform.OS === 'web' && element) {
+      const htmlElement = element as unknown as HTMLElement;
+      if (htmlElement.getBoundingClientRect) {
+        const rect = htmlElement.getBoundingClientRect();
+        // On web, absoluteX from gesture handler is relative to the page (includes scroll)
+        // getBoundingClientRect gives viewport-relative coords
+        // Add scroll offset to match absoluteX behavior
+        const scrollX = window.scrollX || 0;
+        const boardX = rect.x + scrollX;
+        boardXRef.current = boardX;
         const towerSpacing = rect.width / 3;
         const centers = [
-          rect.x + towerSpacing * 0.5,
-          rect.x + towerSpacing * 1.5,
-          rect.x + towerSpacing * 2.5,
+          boardX + towerSpacing * 0.5,
+          boardX + towerSpacing * 1.5,
+          boardX + towerSpacing * 2.5,
         ];
-        console.log('Tower centers set (web):', centers, 'rect:', rect);
-        setTowerCenters(centers);
+        console.log('Recalculated centers:', centers, 'scrollX:', scrollX, 'rect.x:', rect.x);
+        return centers;
       }
+    }
+    return towerCenters;
+  }, [towerCenters]);
+
+  const handleBoardLayout = useCallback((event: LayoutChangeEvent) => {
+    if (Platform.OS === 'web') {
+      // On web, use getBoundingClientRect for accurate viewport coordinates
+      const centers = recalculateTowerCenters(event.target);
+      console.log('Tower centers set (web):', centers);
+      setTowerCenters(centers);
     } else {
       // On native, use measureInWindow
       (event.target as any).measureInWindow((mx: number, my: number, mw: number, mh: number) => {
@@ -77,7 +91,39 @@ export function DraggableGameBoard({
         setTowerCenters(centers);
       });
     }
-  }, []);
+  }, [recalculateTowerCenters]);
+
+  // Recalculate tower centers on window resize (web only)
+  useEffect(() => {
+    if (Platform.OS !== 'web') return;
+
+    const handleResize = () => {
+      if (boardRef.current) {
+        const centers = recalculateTowerCenters(boardRef.current);
+        setTowerCenters(centers);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [recalculateTowerCenters]);
+
+  // Force recalculate on mount for web (layout may not fire immediately)
+  useEffect(() => {
+    if (Platform.OS !== 'web') return;
+
+    // Delay to ensure DOM is ready
+    const timer = setTimeout(() => {
+      if (boardRef.current) {
+        const centers = recalculateTowerCenters(boardRef.current);
+        if (centers.some(c => c > 0)) {
+          setTowerCenters(centers);
+        }
+      }
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, [recalculateTowerCenters]);
 
   const handleDiskDragStart = useCallback((disk: Disk, towerId: TowerId) => {
     setIsDragging(true);
@@ -112,6 +158,7 @@ export function DraggableGameBoard({
       <View style={styles.container}>
         {/* Towers area */}
         <View
+          ref={boardRef}
           onLayout={handleBoardLayout}
           style={[
             styles.board,

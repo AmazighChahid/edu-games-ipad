@@ -151,10 +151,21 @@ export function DraggableDiskEnhanced({
     // Debug log to help identify the issue
     console.log('handleDragEnd called:', { absoluteX, towerCenters, towerWidth });
 
-    const halfWidth = towerWidth / 2;
+    // Check if tower centers are properly initialized
+    const centersValid = towerCenters.some(c => c > 0);
+    if (!centersValid) {
+      console.log('Tower centers not initialized, cancelling drop');
+      triggerHaptic('error');
+      shakeAnimation();
+      onDragEnd(null);
+      return;
+    }
+
+    // Use a more generous hit detection zone (60% of tower width)
+    const hitZone = towerWidth * 0.6;
     for (let i = 0; i < towerCenters.length; i++) {
       const center = towerCenters[i];
-      if (absoluteX >= center - halfWidth && absoluteX <= center + halfWidth) {
+      if (absoluteX >= center - hitZone && absoluteX <= center + hitZone) {
         console.log('Found target tower:', i);
         triggerHaptic('end');
         onDragEnd(i as TowerId);
@@ -169,6 +180,7 @@ export function DraggableDiskEnhanced({
 
   const panGesture = Gesture.Pan()
     .enabled(true) // ✅ Always enabled - selection check is done in onStart
+    .minDistance(0) // ✅ Start immediately on web (no minimum drag distance)
     .onStart(() => {
       'worklet';
       // Check if this disk can be dragged (must be top disk and selectable)
@@ -262,16 +274,13 @@ export function DraggableDiskEnhanced({
             shadowStyle
           ]}
         >
-          {/* Main disk with gradient */}
+          {/* Main disk with gradient - no highlight stripe */}
           <LinearGradient
             colors={[colors.light, colors.main]}
             start={{ x: 0.3, y: 0 }}
             end={{ x: 0.7, y: 1 }}
             style={styles.disk}
           >
-            {/* Static highlight */}
-            <View style={[styles.highlight, { width: width * 0.5 }]} />
-
             {/* Shimmer effect */}
             <Animated.View style={[styles.shimmer, shimmerStyle]}>
               <LinearGradient
@@ -304,14 +313,6 @@ const styles = StyleSheet.create({
     width: '100%',
     overflow: 'hidden',
     backgroundColor: 'transparent',
-  },
-  highlight: {
-    position: 'absolute',
-    top: 4,
-    left: '15%',
-    height: 6,
-    backgroundColor: 'rgba(255, 255, 255, 0.4)',
-    borderRadius: 3,
   },
   shimmer: {
     position: 'absolute',

@@ -245,9 +245,6 @@ export function SudokuIntroScreen() {
 
           // Victory
           isVictory={intro.isVictory}
-
-          // Animations
-          selectorAnimatedStyle={intro.selectorStyle}
         />
 
         {/* Victory Overlay */}

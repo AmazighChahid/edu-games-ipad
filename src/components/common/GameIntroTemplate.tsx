@@ -39,16 +39,17 @@
  * />
  */
 
-import React, { useCallback, useMemo } from 'react';
-import { View, Text, StyleSheet, Pressable } from 'react-native';
+import React, { useCallback, useMemo, useEffect, useRef } from 'react';
+import { View, Text, StyleSheet, Pressable, LayoutChangeEvent } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
   withDelay,
-  withSpring,
   Easing,
+  interpolate,
+  SharedValue,
 } from 'react-native-reanimated';
 
 import {
@@ -115,6 +116,82 @@ const DEFAULT_ANIM_CONFIG: IntroAnimationConfig = {
   mascotSlideDistance: -180,
   springDamping: 15,
   springStiffness: 150,
+};
+
+// ============================================
+// TYPES POUR ANIMATION DE REGROUPEMENT
+// ============================================
+
+interface CardPosition {
+  x: number;
+  y: number;
+}
+
+// ============================================
+// COMPOSANT: CARTE ANIMÉE (wrapper pour regroupement)
+// ============================================
+
+interface AnimatedLevelCardWrapperProps {
+  children: React.ReactNode;
+  index: number;
+  isPlaying: boolean;
+  cardPositions: React.MutableRefObject<CardPosition[]>;
+  animProgress: SharedValue<number>;
+  selectedLevelIndex: number;
+}
+
+/**
+ * Wrapper animé pour les cartes de niveau.
+ * Gère l'animation de regroupement vers le niveau sélectionné.
+ */
+const AnimatedLevelCardWrapper: React.FC<AnimatedLevelCardWrapperProps> = ({
+  children,
+  index,
+  cardPositions,
+  animProgress,
+  selectedLevelIndex,
+}) => {
+  const handleLayout = useCallback((event: LayoutChangeEvent) => {
+    const { x, y } = event.nativeEvent.layout;
+    cardPositions.current[index] = { x, y };
+  }, [index, cardPositions]);
+
+  const animatedStyle = useAnimatedStyle(() => {
+    const progress = animProgress.value;
+
+    // Si c'est la carte sélectionnée, elle reste en place et disparait
+    if (index === selectedLevelIndex) {
+      return {
+        opacity: interpolate(progress, [0, 0.5, 1], [1, 1, 0]),
+        transform: [
+          { scale: interpolate(progress, [0, 0.3, 1], [1, 1.1, 0.8]) },
+        ],
+      };
+    }
+
+    // Calculer le décalage vers la carte sélectionnée
+    const positions = cardPositions.current;
+    const targetPos = positions[selectedLevelIndex] || { x: 0, y: 0 };
+    const currentPos = positions[index] || { x: 0, y: 0 };
+
+    const deltaX = targetPos.x - currentPos.x;
+    const deltaY = targetPos.y - currentPos.y;
+
+    return {
+      opacity: interpolate(progress, [0, 0.6, 1], [1, 0.5, 0]),
+      transform: [
+        { translateX: interpolate(progress, [0, 1], [0, deltaX]) },
+        { translateY: interpolate(progress, [0, 1], [0, deltaY]) },
+        { scale: interpolate(progress, [0, 0.5, 1], [1, 0.9, 0.6]) },
+      ],
+    };
+  }, [index, selectedLevelIndex]);
+
+  return (
+    <Animated.View style={animatedStyle} onLayout={handleLayout}>
+      {children}
+    </Animated.View>
+  );
 };
 
 // ============================================
@@ -268,8 +345,19 @@ export const GameIntroTemplate: React.FC<GameIntroTemplateProps> = ({
   // VALEURS ANIMÉES (Reanimated)
   // ============================================
 
-  // Vue 1 → Vue 2 : La grille de niveaux slide vers le haut et disparait
-  const selectorY = useSharedValue(0);
+  // Animation de regroupement des cartes (0 = étalé, 1 = regroupé)
+  const cardGroupProgress = useSharedValue(0);
+
+  // Ref pour stocker les positions des cartes
+  const cardPositionsRef = useRef<CardPosition[]>([]);
+
+  // Index du niveau sélectionné (pour le regroupement)
+  const selectedLevelIndex = useMemo(() => {
+    if (!selectedLevel) return 0;
+    return levels.findIndex(l => l.id === selectedLevel.id);
+  }, [selectedLevel, levels]);
+
+  // Vue 1 → Vue 2 : La grille de niveaux (container) fade out après regroupement
   const selectorOpacity = useSharedValue(1);
 
   // Vue 2 : Le panneau de progression apparait
@@ -279,9 +367,8 @@ export const GameIntroTemplate: React.FC<GameIntroTemplateProps> = ({
   // STYLES ANIMÉS
   // ============================================
 
-  /** Style animé pour la grille de sélection de niveaux */
+  /** Style animé pour la grille de sélection de niveaux (fade uniquement, les cartes se regroupent individuellement) */
   const selectorAnimatedStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: selectorY.value }],
     opacity: selectorOpacity.value,
   }));
 
@@ -297,46 +384,92 @@ export const GameIntroTemplate: React.FC<GameIntroTemplateProps> = ({
   /**
    * Transition VUE 1 → VUE 2
    * Appelée quand l'enfant clique sur "C'est parti !"
+   *
+   * Animation en 2 phases :
+   * 1. Les cartes se regroupent vers le niveau sélectionné (cardGroupProgress 0→1)
+   * 2. Le container disparait et le panneau de progression apparait
    */
   const transitionToPlayMode = useCallback(() => {
     if (isPlaying) return;
 
-    // Grille de niveaux : slide up + fade out
-    selectorY.value = withTiming(animConfig.selectorSlideDistance, {
+    // Phase 1 : Regroupement des cartes vers le niveau sélectionné
+    cardGroupProgress.value = withTiming(1, {
       duration: animConfig.selectorSlideDuration,
-      easing: Easing.out(Easing.quad),
-    });
-    selectorOpacity.value = withTiming(0, {
-      duration: animConfig.selectorFadeDuration,
+      easing: Easing.inOut(Easing.quad),
     });
 
-    // Panneau de progression : fade in (avec délai)
+    // Phase 2 : Fade out du container (après le regroupement)
+    selectorOpacity.value = withDelay(
+      animConfig.selectorSlideDuration - 100,
+      withTiming(0, { duration: 200 })
+    );
+
+    // Panneau de progression : fade in (après le regroupement)
     progressOpacity.value = withDelay(
-      animConfig.progressDelayDuration,
+      animConfig.selectorSlideDuration,
       withTiming(1, { duration: animConfig.selectorFadeDuration })
     );
 
     // Notifier le parent
     onStartPlaying?.();
-  }, [isPlaying, animConfig, selectorY, selectorOpacity, progressOpacity, onStartPlaying]);
+  }, [isPlaying, animConfig, cardGroupProgress, selectorOpacity, progressOpacity, onStartPlaying]);
 
   /**
    * Transition VUE 2 → VUE 1
    * Appelée quand l'enfant clique sur le bouton retour pendant le jeu
    */
   const transitionToSelectionMode = useCallback(() => {
-    // Grille de niveaux : revient avec effet spring
-    selectorY.value = withSpring(0, {
-      damping: animConfig.springDamping,
-      stiffness: animConfig.springStiffness,
+    // Reset le regroupement des cartes
+    cardGroupProgress.value = withTiming(0, {
+      duration: animConfig.selectorSlideDuration,
+      easing: Easing.out(Easing.quad),
     });
+
+    // Container : fade in
     selectorOpacity.value = withTiming(1, {
       duration: animConfig.selectorFadeDuration,
     });
 
     // Panneau de progression : fade out
     progressOpacity.value = withTiming(0, { duration: 200 });
-  }, [animConfig, selectorY, selectorOpacity, progressOpacity]);
+  }, [animConfig, cardGroupProgress, selectorOpacity, progressOpacity]);
+
+  // ============================================
+  // SYNC ANIMATIONS WITH isPlaying PROP
+  // ============================================
+
+  /**
+   * Synchronise les animations quand isPlaying change depuis l'extérieur.
+   * Cela permet aux jeux comme Hanoi de déclencher le mode play
+   * en faisant un mouvement direct (sans passer par le bouton "C'est parti").
+   */
+  useEffect(() => {
+    if (isPlaying) {
+      // Animer vers le mode play avec regroupement
+      cardGroupProgress.value = withTiming(1, {
+        duration: animConfig.selectorSlideDuration,
+        easing: Easing.inOut(Easing.quad),
+      });
+      selectorOpacity.value = withDelay(
+        animConfig.selectorSlideDuration - 100,
+        withTiming(0, { duration: 200 })
+      );
+      progressOpacity.value = withDelay(
+        animConfig.selectorSlideDuration,
+        withTiming(1, { duration: animConfig.selectorFadeDuration })
+      );
+    } else {
+      // Animer vers le mode sélection
+      cardGroupProgress.value = withTiming(0, {
+        duration: animConfig.selectorSlideDuration,
+        easing: Easing.out(Easing.quad),
+      });
+      selectorOpacity.value = withTiming(1, {
+        duration: animConfig.selectorFadeDuration,
+      });
+      progressOpacity.value = withTiming(0, { duration: 200 });
+    }
+  }, [isPlaying, animConfig, cardGroupProgress, selectorOpacity, progressOpacity]);
 
   // ============================================
   // HANDLERS
@@ -362,32 +495,39 @@ export const GameIntroTemplate: React.FC<GameIntroTemplateProps> = ({
   // RENDER HELPERS
   // ============================================
 
-  /** Rendu de la grille de niveaux (Vue 1) */
+  /** Rendu de la grille de niveaux (Vue 1) avec animation de regroupement */
   const renderLevelGrid = () => (
     <View style={styles.levelGrid}>
-      {levels.slice(0, 10).map((level) => {
+      {levels.slice(0, 10).map((level, index) => {
         const isSelected = selectedLevel?.id === level.id;
 
-        // Si un renderLevelCard custom est fourni, l'utiliser
-        if (renderLevelCard) {
-          return (
-            <Pressable
-              key={level.id}
-              onPress={() => level.isUnlocked && onSelectLevel(level)}
-            >
-              {renderLevelCard(level, isSelected)}
-            </Pressable>
-          );
-        }
-
-        // Sinon, utiliser la carte par défaut
-        return (
+        // Contenu de la carte (custom ou par défaut)
+        const cardContent = renderLevelCard ? (
+          <Pressable
+            onPress={() => level.isUnlocked && onSelectLevel(level)}
+          >
+            {renderLevelCard(level, isSelected)}
+          </Pressable>
+        ) : (
           <DefaultLevelCard
-            key={level.id}
             level={level}
             isSelected={isSelected}
             onPress={() => onSelectLevel(level)}
           />
+        );
+
+        // Wrapper animé pour le regroupement
+        return (
+          <AnimatedLevelCardWrapper
+            key={level.id}
+            index={index}
+            isPlaying={isPlaying}
+            cardPositions={cardPositionsRef}
+            animProgress={cardGroupProgress}
+            selectedLevelIndex={selectedLevelIndex}
+          >
+            {cardContent}
+          </AnimatedLevelCardWrapper>
         );
       })}
     </View>
@@ -455,7 +595,7 @@ export const GameIntroTemplate: React.FC<GameIntroTemplateProps> = ({
 
       <View style={styles.mainContainer}>
         {/* ================================================
-            VUE 2 - PANNEAU DE PROGRESSION
+            VUE 2 - PANNEAU DE PROGRESSION + BADGE NIVEAU
             Visible uniquement quand isPlaying = true
             Position : juste sous le header
             ================================================ */}
@@ -464,6 +604,20 @@ export const GameIntroTemplate: React.FC<GameIntroTemplateProps> = ({
             style={[styles.progressContainer, progressAnimatedStyle]}
             pointerEvents={isPlaying ? 'auto' : 'none'}
           >
+            {/* Badge niveau sélectionné flottant */}
+            {selectedLevel && (
+              <View style={styles.floatingLevelBadge}>
+                <LinearGradient
+                  colors={[colors.primary.main, colors.primary.dark]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={styles.floatingLevelGradient}
+                >
+                  <Text style={styles.floatingLevelLabel}>NIVEAU</Text>
+                  <Text style={styles.floatingLevelNumber}>{selectedLevel.number}</Text>
+                </LinearGradient>
+              </View>
+            )}
             {renderProgress?.()}
           </Animated.View>
         )}
@@ -880,6 +1034,35 @@ const styles = StyleSheet.create({
   },
   floatingButtonEmoji: {
     fontSize: 28,
+  },
+
+  // =====================
+  // 7. BADGE NIVEAU FLOTTANT
+  // (visible quand isPlaying = true)
+  // =====================
+  floatingLevelBadge: {
+    alignSelf: 'flex-start',
+    marginBottom: spacing[2],
+  },
+  floatingLevelGradient: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing[2],
+    paddingVertical: spacing[2],
+    paddingHorizontal: spacing[4],
+    borderRadius: borderRadius.lg,
+    ...shadows.md,
+  },
+  floatingLevelLabel: {
+    fontSize: 12,
+    fontFamily: fontFamily.semiBold,
+    color: 'rgba(255, 255, 255, 0.8)',
+    letterSpacing: 1,
+  },
+  floatingLevelNumber: {
+    fontSize: 24,
+    fontFamily: fontFamily.bold,
+    color: '#FFFFFF',
   },
 });
 

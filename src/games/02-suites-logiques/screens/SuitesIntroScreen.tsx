@@ -13,14 +13,14 @@
 import React, { useCallback } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
+import { LinearGradient } from 'expo-linear-gradient';
 
-import { GameIntroTemplate, type LevelConfig } from '../../../components/common';
+import { GameIntroTemplate, type LevelConfig, PetalsIndicator } from '../../../components/common';
 import { ParentDrawer } from '../../../components/parent/ParentDrawer';
 import { SequenceDisplay } from '../components/SequenceDisplay';
 import { ChoicePanel } from '../components/ChoicePanel';
 import { MascotRobot } from '../components/MascotRobot';
 import { useSuitesIntro } from '../hooks/useSuitesIntro';
-import { THEMES } from '../data/themes';
 import { suitesParentGuideData } from '../data/parentGuideData';
 import {
   colors,
@@ -32,6 +32,7 @@ import {
 
 // ============================================
 // CUSTOM LEVEL CARD (spécifique à Suites Logiques)
+// Avec barres de difficulté visuelles
 // ============================================
 
 interface LevelCardProps {
@@ -39,24 +40,71 @@ interface LevelCardProps {
   isSelected: boolean;
 }
 
+// Mapping difficulté → nombre de barres (1-3)
+const getDifficultyLevel = (difficulty: LevelConfig['difficulty']): 1 | 2 | 3 => {
+  switch (difficulty) {
+    case 'easy':
+      return 1;
+    case 'medium':
+      return 2;
+    case 'hard':
+    case 'expert':
+      return 3;
+    default:
+      return 1;
+  }
+};
+
+// Couleurs des barres de difficulté
+const DIFFICULTY_COLORS = {
+  easy: '#7BC74D',    // Vert
+  medium: '#FFB347',  // Orange
+  hard: '#FF6B6B',    // Rouge
+  empty: '#E0E0E0',   // Gris
+};
+
 const SuitesLevelCard: React.FC<LevelCardProps> = ({ level, isSelected }) => {
-  const themeIcon = THEMES['shapes']?.icon || '🔷';
+  const difficultyLevel = getDifficultyLevel(level.difficulty);
 
-  return (
-    <View
-      style={[
-        styles.levelCard,
-        level.isCompleted && styles.levelCardCompleted,
-        isSelected && styles.levelCardSelected,
-        !level.isUnlocked && styles.levelCardLocked,
-      ]}
-    >
-      {/* Icône thème */}
-      <Text style={styles.levelThemeIcon}>
-        {level.isUnlocked ? themeIcon : '🔒'}
-      </Text>
+  // Rendu des barres de difficulté
+  const renderDifficultyBars = () => {
+    const bars = [
+      { height: 14, filled: difficultyLevel >= 1, color: DIFFICULTY_COLORS.easy },
+      { height: 21, filled: difficultyLevel >= 2, color: DIFFICULTY_COLORS.medium },
+      { height: 28, filled: difficultyLevel >= 3, color: DIFFICULTY_COLORS.hard },
+    ];
 
-      {/* Numéro niveau */}
+    return (
+      <View style={styles.difficultyBarsContainer}>
+        {bars.map((bar, index) => (
+          <View
+            key={index}
+            style={[
+              styles.difficultyBar,
+              { height: bar.height },
+              bar.filled
+                ? { backgroundColor: isSelected ? '#FFFFFF' : bar.color }
+                : { backgroundColor: isSelected ? 'rgba(255,255,255,0.3)' : DIFFICULTY_COLORS.empty },
+            ]}
+          />
+        ))}
+      </View>
+    );
+  };
+
+  // Rendu des pétales (score)
+  const renderPetals = () => (
+    <PetalsIndicator
+      filledCount={(level.stars || 0) as 0 | 1 | 2 | 3}
+      size="small"
+      isSelected={isSelected}
+    />
+  );
+
+  // Contenu de la carte
+  const cardContent = (
+    <>
+      {renderDifficultyBars()}
       <Text
         style={[
           styles.levelNumber,
@@ -64,24 +112,39 @@ const SuitesLevelCard: React.FC<LevelCardProps> = ({ level, isSelected }) => {
           !level.isUnlocked && styles.levelNumberLocked,
         ]}
       >
-        {level.number}
+        {level.isUnlocked ? level.number : '🔒'}
       </Text>
-
-      {/* Étoiles si complété */}
-      {level.isCompleted && level.stars !== undefined && (
-        <View style={styles.starsRow}>
-          {[1, 2, 3].map((star) => (
-            <Text
-              key={star}
-              style={star <= (level.stars || 0) ? styles.starFilled : styles.starEmpty}
-            >
-              ★
-            </Text>
-          ))}
+      {level.isUnlocked && renderPetals()}
+      {level.isCompleted && !isSelected && (
+        <View style={styles.checkBadge}>
+          <Text style={styles.checkBadgeText}>✓</Text>
         </View>
       )}
-    </View>
+    </>
   );
+
+  // Style de base de la carte
+  const containerStyle = [
+    styles.levelCard,
+    level.isCompleted && styles.levelCardCompleted,
+    !level.isUnlocked && styles.levelCardLocked,
+  ];
+
+  // Rendu avec gradient si sélectionné, sinon View normale
+  if (isSelected) {
+    return (
+      <LinearGradient
+        colors={['#5B8DEE', '#4A7BD9']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={[containerStyle, styles.levelCardSelected]}
+      >
+        {cardContent}
+      </LinearGradient>
+    );
+  }
+
+  return <View style={containerStyle}>{cardContent}</View>;
 };
 
 // ============================================
@@ -300,60 +363,89 @@ export default function SuitesIntroScreen() {
 // ============================================
 
 const styles = StyleSheet.create({
-  // Custom Level Card
+  // Custom Level Card - Design avec barres de difficulté
   levelCard: {
+    width: 80,
     backgroundColor: colors.background.card,
-    borderRadius: borderRadius.xl,
-    paddingVertical: spacing[4],
-    paddingHorizontal: spacing[5],
-    alignItems: 'center',
-    minWidth: 100,
-    minHeight: 120,
+    borderRadius: borderRadius.lg,
     borderWidth: 3,
-    borderColor: colors.background.secondary,
+    borderColor: '#E8F5E9',
+    paddingVertical: 14,
+    paddingHorizontal: 10,
+    alignItems: 'center',
+    gap: 6,
     ...shadows.md,
+    overflow: 'visible',
   },
   levelCardCompleted: {
-    backgroundColor: '#E8F5E9',
-    borderColor: '#7BC74D',
+    borderColor: '#81C784',
   },
   levelCardSelected: {
-    backgroundColor: colors.primary.light,
-    borderColor: colors.primary.main,
-    transform: [{ scale: 1.05 }],
+    borderColor: '#3D6BC9',
+    shadowColor: '#5B8DEE',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.4,
+    shadowRadius: 24,
+    elevation: 12,
+    transform: [{ scale: 1.08 }],
   },
   levelCardLocked: {
-    backgroundColor: colors.background.secondary,
+    backgroundColor: '#F5F5F5',
+    borderColor: '#E0E0E0',
     opacity: 0.6,
   },
-  levelThemeIcon: {
-    fontSize: 24,
-    marginBottom: spacing[1],
+
+  // Barres de difficulté
+  difficultyBarsContainer: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    gap: 3,
+    height: 24,
+    marginBottom: 6,
   },
+  difficultyBar: {
+    width: 8,
+    borderRadius: 4,
+  },
+
+  // Numéro de niveau
   levelNumber: {
-    fontSize: 32,
     fontFamily: fontFamily.bold,
-    color: colors.text.primary,
+    fontSize: 24,
+    fontWeight: '800',
+    color: '#5D4E6D',
+    lineHeight: 28,
   },
   levelNumberSelected: {
-    color: colors.primary.main,
+    color: '#FFFFFF',
   },
   levelNumberLocked: {
-    fontSize: 24,
-    color: colors.text.muted,
+    fontSize: 28,
   },
-  starsRow: {
-    flexDirection: 'row',
-    marginTop: spacing[1],
+
+  // Badge check complété
+  checkBadge: {
+    position: 'absolute',
+    top: -6,
+    right: -6,
+    width: 22,
+    height: 22,
+    backgroundColor: '#7BC74D',
+    borderRadius: 11,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: '#FFFFFF',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 3,
   },
-  starFilled: {
-    fontSize: 14,
-    color: colors.secondary.main,
-  },
-  starEmpty: {
-    fontSize: 14,
-    color: colors.text.muted,
-    opacity: 0.3,
+  checkBadgeText: {
+    fontSize: 12,
+    color: '#FFFFFF',
+    fontWeight: '700',
   },
 
   // Game Area
