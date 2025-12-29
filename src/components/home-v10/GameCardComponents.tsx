@@ -9,8 +9,8 @@
  * - CategoryBadge: Badge de catégorie
  */
 
-import React, { memo } from 'react';
-import { View, Text, Pressable } from 'react-native';
+import React, { memo, useCallback } from 'react';
+import { View, Text, Pressable, Platform, GestureResponderEvent } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -108,6 +108,9 @@ ProgressBar.displayName = 'ProgressBar';
 /**
  * ActionButton - Bouton d'action animé (play, favorite, add)
  * Touch target: 64dp (conformité guidelines UX enfant)
+ *
+ * Note: On web, we avoid using Pressable with accessibilityRole="button"
+ * when nested inside another Pressable to prevent nested <button> HTML error.
  */
 export const ActionButton = memo(({
   type,
@@ -131,6 +134,12 @@ export const ActionButton = memo(({
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
   }));
+
+  // Stop propagation to prevent parent card press from triggering
+  const handlePress = useCallback((e: GestureResponderEvent) => {
+    e.stopPropagation();
+    onPress?.();
+  }, [onPress]);
 
   const renderIcon = () => {
     switch (type) {
@@ -160,18 +169,38 @@ export const ActionButton = memo(({
     }
   };
 
+  const accessibilityLabel =
+    type === 'play' ? 'Jouer' :
+    type === 'favorite' ? (isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris') :
+    'Ajouter';
+
+  // On web, use a div-based approach to avoid nested button HTML error
+  if (Platform.OS === 'web') {
+    return (
+      <Pressable
+        onPress={handlePress}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+        style={styles.actionButtonPressable}
+        // Use 'none' role on web to prevent rendering as <button>
+        accessibilityRole={undefined}
+        aria-label={accessibilityLabel}
+      >
+        <Animated.View style={[styles.actionButton, animatedStyle]}>
+          {renderIcon()}
+        </Animated.View>
+      </Pressable>
+    );
+  }
+
   return (
     <Pressable
-      onPress={onPress}
+      onPress={handlePress}
       onPressIn={handlePressIn}
       onPressOut={handlePressOut}
       style={styles.actionButtonPressable}
       accessibilityRole="button"
-      accessibilityLabel={
-        type === 'play' ? 'Jouer' :
-        type === 'favorite' ? (isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris') :
-        'Ajouter'
-      }
+      accessibilityLabel={accessibilityLabel}
     >
       <Animated.View style={[styles.actionButton, animatedStyle]}>
         {renderIcon()}

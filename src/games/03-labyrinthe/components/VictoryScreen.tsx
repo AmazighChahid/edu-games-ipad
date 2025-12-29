@@ -1,5 +1,6 @@
 import React from 'react';
 import { useRouter } from 'expo-router';
+import { Icons } from '@/constants/icons';
 import { SessionStats } from '../types';
 import { VictoryCard, type VictoryBadge } from '../../../components/common';
 
@@ -14,13 +15,13 @@ interface Props {
 // Fonction pour calculer le badge non-compétitif du Labyrinthe
 const getLabyrintheBadge = (stats: SessionStats): VictoryBadge => {
   if (stats.stars === 3 && stats.hintsUsed === 0) {
-    return { icon: '🐿️', label: 'Explorateur Expert' };
+    return { icon: Icons.squirrel, label: 'Explorateur Expert' };
   } else if (stats.stars >= 2) {
-    return { icon: '🗺️', label: 'Aventurier' };
+    return { icon: Icons.map, label: 'Aventurier' };
   } else if (stats.hintsUsed >= 3) {
     return { icon: '💪', label: 'Persévérant' };
   } else {
-    return { icon: '🌟', label: 'Curieux' };
+    return { icon: Icons.star, label: 'Curieux' };
   }
 };
 
@@ -44,14 +45,14 @@ export const VictoryScreen: React.FC<Props> = ({ stats, onReplay, onNext, onExit
   customStats.push({
     label: 'Exploration',
     value: `${stats.explorationPercent}%`,
-    icon: '🗺️',
+    icon: Icons.map,
   });
 
   if (stats.gemsCollected > 0) {
     customStats.push({
       label: 'Gemmes',
       value: stats.gemsCollected,
-      icon: '💎',
+      icon: Icons.gem,
     });
   }
 
@@ -70,7 +71,7 @@ export const VictoryScreen: React.FC<Props> = ({ stats, onReplay, onNext, onExit
       title="Victoire !"
       message="Tu as trouvé la sortie !"
       mascot={{
-        emoji: '🐿️',
+        emoji: Icons.squirrel,
         message: getMascotMessage(stats),
       }}
       stats={{

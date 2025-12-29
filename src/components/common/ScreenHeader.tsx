@@ -196,11 +196,13 @@ export const ScreenHeader: React.FC<ScreenHeaderProps> = (props) => {
         {/* Back button - utilise le composant BackButton standardisé */}
         {onBack && <BackButton onPress={onBack} />}
 
-        {/* Title */}
-        <View style={styles.gameTitleContainer}>
-          {gameProps.emoji && <Text style={styles.gameEmoji}>{gameProps.emoji}</Text>}
-          <Text style={styles.gameTitle}>{gameProps.title}</Text>
-          {gameProps.emoji && <Text style={styles.gameEmoji}>✨</Text>}
+        {/* Title - absolument positionné pour être centré indépendamment des boutons */}
+        <View style={styles.gameTitleWrapper}>
+          <View style={styles.gameTitleContainer}>
+            {gameProps.emoji && <Text style={styles.gameEmoji}>{gameProps.emoji}</Text>}
+            <Text style={styles.gameTitle}>{gameProps.title}</Text>
+            {gameProps.emoji && <Text style={styles.gameEmoji}>✨</Text>}
+          </View>
         </View>
 
         {/* Right buttons */}
@@ -440,6 +442,13 @@ const styles = StyleSheet.create({
   // ============================================
   // GAME VARIANT - Title
   // ============================================
+  gameTitleWrapper: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+    zIndex: -1,
+  },
   gameTitleContainer: {
     flexDirection: 'row',
     alignItems: 'center',

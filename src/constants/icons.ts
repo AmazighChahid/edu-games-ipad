@@ -90,6 +90,17 @@ export const Icons = {
   colors: '🎨',
   game: '🎮',
 
+  // Labyrinthe - Objets
+  key: '🔑',
+  door: '🚪',
+  gem: '💎',
+  ice: '❄️',
+  garden: '🌸',
+  cave: '🦇',
+  candle: '🕯️',
+  crown: '👑',
+  tent: '🏕️',
+
   // ============================================
   // MASCOTTE & ANIMAUX
   // ============================================

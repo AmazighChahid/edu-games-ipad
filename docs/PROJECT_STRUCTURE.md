@@ -1,7 +1,7 @@
 # Architecture du Projet Hello Guys
 
 > Application éducative pour enfants (6-10 ans) - React Native / Expo
-> **Version** : 2.1 — 28 Décembre 2024
+> **Version** : 2.2 — 29 Décembre 2024
 
 ---
 
@@ -97,9 +97,21 @@ app/
 │   │   ├── play.tsx            # Écran de jeu → MathPlayScreen
 │   │   └── victory.tsx         # Écran de victoire
 │   │
-│   ├── 12-matrices-magiques/   # Jeu Matrices Magiques (🔜 coming soon)
+│   ├── 12-matrices-magiques/   # Jeu Matrices Magiques
 │   │   ├── _layout.tsx         # Stack navigator du jeu
 │   │   └── index.tsx           # Point d'entrée
+│   │
+│   ├── 13-embouteillage/       # Jeu Embouteillage (🔜 STUB)
+│   │   ├── _layout.tsx
+│   │   └── index.tsx
+│   │
+│   ├── 14-fabrique-reactions/  # Jeu La Fabrique de Réactions (🔜 STUB)
+│   │   ├── _layout.tsx
+│   │   └── index.tsx
+│   │
+│   ├── 15-chasseur-papillons/  # Jeu Chasseur de Papillons (🔜 STUB)
+│   │   ├── _layout.tsx
+│   │   └── index.tsx
 │   │
 │   └── collection/             # Système de collection de cartes
 │       └── index.tsx           # Écran de la collection
@@ -175,17 +187,27 @@ src/components/
 │   ├── CollectionCard.tsx      # Carte individuelle
 │   └── CollectionPage.tsx      # Page de collection
 │
-├── common/                     # Composants UI communs
-│   ├── index.ts                # Exports
-│   ├── BackButton.tsx          # Bouton retour
+├── common/                     # Composants UI communs (17 exports)
+│   ├── index.ts                # Exports centralisés
+│   ├── BackButton.tsx          # Bouton retour (variants: icon, text)
 │   ├── Button.tsx              # Bouton standard (variants: primary, secondary, ghost)
-│   ├── GameModal.tsx           # Modal générique pour les jeux
+│   ├── CardFlip.tsx            # ⭐ Animation retournement carte
+│   ├── Confetti.tsx            # ⭐ Animation confettis célébration
+│   ├── GameActionButtons.tsx   # ⭐ Groupe boutons actions jeu
+│   ├── GameIntroTemplate.tsx   # ⭐⭐ TEMPLATE intro jeux (2 vues)
+│   ├── GameIntroTemplate.types.ts # Types pour GameIntroTemplate
+│   ├── GameModal.tsx           # Modal générique (variants: info, choice, demo)
+│   ├── HintButton.tsx          # ⭐ Bouton indices avec compteur
 │   ├── IconButton.tsx          # Bouton avec icône
+│   ├── MascotBubble.tsx        # ⭐⭐ Bulle dialogue mascotte (typewriter)
 │   ├── PageContainer.tsx       # Container de page avec SafeArea
 │   ├── ParentGate.tsx          # Porte parentale (vérification adulte)
+│   ├── PerformanceStats.tsx    # ⭐ Stats de performance
+│   ├── ProgressIndicator.tsx   # ⭐ Indicateur progression
 │   ├── ScreenBackground.tsx    # Fond d'écran générique
-│   ├── ScreenHeader.tsx        # En-tête d'écran
-│   └── VictoryCard.tsx         # Carte de victoire réutilisable
+│   ├── ScreenHeader.tsx        # En-tête d'écran (variants: home, game, parent)
+│   ├── VictoryCard.tsx         # Carte de victoire réutilisable
+│   └── VictoryOverlayBase.tsx  # ⭐ Base overlay victoire
 │
 ├── decorations/                # Éléments décoratifs (alternative)
 │   ├── index.ts                # Exports
@@ -427,6 +449,30 @@ src/theme/
 
 ---
 
+### `/src/constants/` - Constantes Centralisées
+
+```
+src/constants/
+├── icons.ts                    # ⭐ ICÔNES EMOJI CENTRALISÉES (78 emojis)
+│                               # - Icons.star, Icons.trophy, etc.
+│                               # - Type IconName pour autocomplétion
+│                               # - getIcon(name, fallback) helper
+└── ...                         # Autres constantes
+```
+
+> **Import obligatoire pour emojis** :
+> ```typescript
+> import { Icons } from '@/constants/icons';
+>
+> // Usage
+> <Text>{Icons.star}</Text>  // ⭐
+> <Text>{Icons.trophy}</Text> // 🏆
+> ```
+>
+> **⚠️ NE PAS hardcoder d'emojis** : utiliser `Icons.xxx` à la place.
+
+---
+
 ### `/src/types/` - Définitions TypeScript
 
 ```
@@ -506,15 +552,25 @@ assets/
 
 ```
 docs/
+├── 00-INDEX_UPDATED.md         # ⭐ Index + pré-prompts Claude Code
 ├── PROJECT_STRUCTURE.md        # Ce fichier
-├── DESIGN_SYSTEM.md            # Système de design
+├── DESIGN_SYSTEM.md            # Système de design (tokens, couleurs, typo)
+├── UI_COMPONENTS_CATALOG.md    # ⭐ Catalogue composants (17 exports)
 ├── UI_PATTERNS.md              # Patterns UI réutilisables
-├── GUIDELINES_AUDIT.md         # Audit des guidelines
-├── MASCOT_ROBOT_IMPLEMENTATION.md  # Implémentation mascotte robot
-├── ROBOT_VISUAL_GUIDE.md       # Guide visuel du robot
-├── SYNTHESE_STANDARDISATION.md # Synthèse standardisation
-├── CHANGELOG_SUITES_LOGIQUES.md    # Changelog Suites Logiques
-└── RAPPORT_VERIFICATION_MASCOTTES_COMPETENCES.md
+├── GAME_ARCHITECTURE.md        # ⭐ Architecture hook+template jeux
+├── GUIDELINES_AUDIT.md         # Audit conformité UX (91%)
+├── MASCOTTES_REGISTRY.md       # Registre mascottes par jeu
+├── ICONS_REGISTRY.md           # ⭐ Registre 78 icônes centralisées
+├── TRAME_REFERENTIEL.md        # Architecture activités, types universels
+├── PROMPT_REFACTORING.md       # Prompts homogénéisation
+├── AUDIO_IMPROVEMENTS.md       # Système sonore
+├── GUIDE_UX_UI_APP_EDUCATIVE.md # Principes UX enfant 6-10 ans
+├── INSTRUCTIONS_PROJET_APP_EDUCATIVE.md # Vision pédagogique
+├── AUDIT_DOCUMENTATION.md      # Méthodologie audit
+└── Etat-Historique/            # Rapports et historiques
+    ├── IMPLEMENTATION_SUMMARY.md
+    ├── SYNTHESE_STANDARDISATION.md
+    └── RAPPORT_VERIFICATION_MASCOTTES_COMPETENCES.md
 ```
 
 ---

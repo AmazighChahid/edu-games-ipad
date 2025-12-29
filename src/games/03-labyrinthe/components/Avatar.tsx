@@ -1,6 +1,7 @@
 import React from 'react';
-import { Text, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import Animated, { useAnimatedStyle, SharedValue } from 'react-native-reanimated';
+import { Icons } from '@/constants/icons';
 import { GameStatus, Direction } from '../types';
 
 interface Props {
@@ -43,12 +44,12 @@ export const Avatar: React.FC<Props> = ({ animatedPosition, direction, cellSize,
     switch (status) {
       case 'blocked':
       case 'door_locked':
-        return '😕';
+        return Icons.thinking;
       case 'victory':
-        return '🎉';
+        return Icons.celebration;
       case 'interacting':
       case 'door_opening':
-        return '✨';
+        return Icons.sparkles;
       default:
         return '🧒';
     }

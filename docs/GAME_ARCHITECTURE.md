@@ -1,8 +1,13 @@
 # Architecture des Jeux Éducatifs
 
+> **Dernière mise à jour** : 29 Décembre 2024
+
 ## Pattern Hook + Template
 
-Chaque jeu éducatif suit une architecture standardisée pour maximiser le code partagé et minimiser la duplication.
+Chaque jeu éducatif **devrait** suivre une architecture standardisée pour maximiser le code partagé et minimiser la duplication.
+
+> **⚠️ IMPORTANT** : Actuellement, seul **02-suites-logiques** implémente l'architecture complète.
+> C'est la **RÉFÉRENCE** à suivre pour tous les nouveaux jeux.
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -381,8 +386,114 @@ interface VictoryCardProps {
 
 ## Exemples d'implémentation
 
-- **Suites Logiques** : `src/games/02-suites-logiques/`
-- **Tour de Hanoi** : `src/games/01-hanoi/`
+- **Suites Logiques** : `src/games/02-suites-logiques/` — **RÉFÉRENCE COMPLÈTE** ✅
+- **Tour de Hanoi** : `src/games/01-hanoi/` — Architecture partielle
+
+---
+
+## 📊 État de conformité des 15 jeux
+
+| # | Jeu | useXxxGame | useXxxSound | useXxxIntro | GameIntroTemplate | Mascotte | Statut |
+|---|-----|:---:|:---:|:---:|:---:|:---:|:---:|
+| 01 | hanoi | ✅ | ❌ | ❌ | ❌ | ✅ MascotOwl | Partiel |
+| 02 | suites-logiques | ✅ | ✅ | ✅ | ✅ | ✅ MascotRobot | **RÉFÉRENCE** |
+| 03 | labyrinthe | ✅ | ❌ | ❌ | ✅ | ❌ | Partiel |
+| 04 | balance | ✅ | ❌ | ❌ | ✅ | ✅ DrHibou | Partiel |
+| 05 | sudoku | ✅ | ❌ | ❌ | ❌ | ✅ ProfessorHoo | Partiel |
+| 06 | conteur-curieux | ✅ | ❌ | ❌ | ❌ | ✅ PlumeMascot | Partiel |
+| 07 | memory | ✅ | ❌ | ❌ | ✅ | ❌ TBD | Partiel |
+| 08 | tangram | ✅ | ❌ | ❌ | ❌ | ❌ TBD | Partiel |
+| 09 | logix-grid | ✅ | ❌ | ❌ | ❌ | ❌ TBD | Partiel |
+| 10 | mots-croises | ✅ | ❌ | ❌ | ❌ | ❌ TBD | Partiel |
+| 11 | math-blocks | ✅ | ❌ | ❌ | ✅ | ❌ TBD | Partiel |
+| 12 | matrices-magiques | ✅ | ❌ | ❌ | ❌ | ✅ PixelMascot | Partiel |
+| 13 | embouteillage | ❌ | ❌ | ❌ | ❌ | ❌ | **STUB** |
+| 14 | fabrique-reactions | ❌ | ❌ | ❌ | ❌ | ❌ | **STUB** |
+| 15 | chasseur-papillons | ❌ | ❌ | ❌ | ❌ | ❌ | **STUB** |
+
+### Légende
+
+- **✅** : Implémenté
+- **❌** : Non implémenté
+- **TBD** : Mascotte planifiée mais pas encore créée
+- **STUB** : Jeu en placeholder (uniquement types.ts + index.ts)
+- **RÉFÉRENCE** : Architecture complète à suivre
+- **Partiel** : Architecture incomplète, à refactoriser
+
+### Résumé
+
+- **1 jeu** avec architecture complète (02-suites-logiques)
+- **5 jeux** utilisant GameIntroTemplate (02, 03, 04, 07, 11)
+- **6 jeux** avec mascottes implémentées
+- **3 jeux** en stub/placeholder (13-15)
+- **11 jeux** nécessitent useXxxSound.ts
+- **11 jeux** nécessitent useXxxIntro.ts
+
+---
+
+## Points d'attention critiques
+
+### 1. Gestion du BackButton
+
+Le template `GameIntroTemplate` DOIT toujours appeler `onBack()` :
+
+```typescript
+// GameIntroTemplate.tsx
+const handleBack = useCallback(() => {
+  if (isPlaying && !isVictory) {
+    transitionToSelectionMode(); // Animation locale
+  }
+  onBack(); // TOUJOURS appeler
+}, [...]);
+```
+
+Le hook `useXxxIntro` gère les deux cas :
+
+```typescript
+// useXxxIntro.ts
+const handleBack = useCallback(() => {
+  if (isPlaying) {
+    transitionToSelectionMode(); // setIsPlaying(false)
+    // NE PAS naviguer !
+  } else {
+    router.replace('/');
+  }
+}, [...]);
+```
+
+### 2. Centrage sur iPad
+
+Ne JAMAIS utiliser `width: '100%'` avec `maxWidth` :
+
+```typescript
+// ❌ MAUVAIS
+gameContainer: {
+  maxWidth: 600,
+  width: '100%', // Annule maxWidth !
+}
+
+// ✅ BON
+gameContainer: {
+  maxWidth: 600,
+  alignSelf: 'center',
+}
+```
+
+### 3. Organisation des styles
+
+```typescript
+// Couleurs spécifiques en constante
+const COLORS = {
+  buttonPrimary: '#5B8DEE',
+};
+
+const styles = StyleSheet.create({
+  // ============================================
+  // SECTION NAME
+  // ============================================
+  element: { /* ... */ },
+});
+```
 
 ---
 

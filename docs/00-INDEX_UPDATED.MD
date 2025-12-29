@@ -1,6 +1,6 @@
 # 📚 INDEX DOCUMENTATION — Hello Guys
 
-> **Version** : 3.3 — Décembre 2024 | **Conformité UI** : 89%
+> **Version** : 3.5 — Décembre 2024 | **Conformité UI** : 91%
 
 ---
 
@@ -35,33 +35,68 @@
 
 ## 🚀 Pré-prompts Claude Code
 
+### Sommaire des pré-prompts
+
+| # | Pré-prompt | Usage |
+|---|------------|-------|
+| 1 | [🆕 Nouveau composant UI](#-nouveau-composant-ui) | Créer un composant visuel |
+| 2 | [🎮 Nouveau jeu](#-nouveau-jeu) | Ajouter une nouvelle activité |
+| 3 | [🔧 Refactoring écran](#-refactoring-écran) | Homogénéiser un écran existant |
+| 4 | [💬 Ajouter dialogue mascotte](#-ajouter-dialogue-mascotte) | Intégrer MascotBubble |
+| 5 | [🐛 Corriger un bug](#-corriger-un-bug) | Fix ciblé et minimal |
+| 6 | [🐵 Ajouter/modifier mascotte](#-ajoutermodifier-une-mascotte) | Créer ou éditer une mascotte |
+| 7 | [🏠 Espace Parent (Dashboard)](#-espace-parent-dashboard-app) | Modifier le dashboard app |
+| 8 | [📊 Modifier Espace Parent](#-modifier-espace-parent) | Éditer fonctionnalités parent |
+| 9 | [📝 Créer Fiche Parent](#-créer-fiche-parent-documentation-activité) | Rédiger doc accompagnement |
+| 10 | [✏️ Modifier Fiche Parent](#️-modifier-fiche-parent-existante) | Mettre à jour doc existante |
+| 11 | [📝 Créer fiche éducative](#-créer-fiche-éducative-complète) | 4 fichiers documentation jeu |
+| 12 | [🔊 Système audio](#-système-audio) | Sons et hook useSound |
+| 13 | [🔍 Audit projet](#-audit-projet) | Audit conformité global |
+| 14 | [🔄 Synchroniser documentation](#-synchroniser-documentation) | Mettre à jour tous les docs |
+
+---
+
 ### 🆕 Nouveau composant UI
 ```
-LIRE : CLAUDE_CODE_RULES.md, UI_COMPONENTS_CATALOG.md, DESIGN_SYSTEM.md
+LIRE : docs/CLAUDE_CODE_RULES.md, docs/UI_COMPONENTS_CATALOG.md, docs/DESIGN_SYSTEM.md, docs/ICONS_REGISTRY.md
 
 RÈGLES :
 - Import : `import { theme } from '@/theme'`
 - Touch targets : ≥ 64dp | Texte : ≥ 18pt
 - Polices : Fredoka (titres) + Nunito (corps)
-- NE PAS recréer : BackButton, ScreenHeader, PageContainer, GameModal, VictoryCard
+- Icônes : `import { Icons } from '@/constants/icons'` — NE PAS hardcoder d'emojis
+- NE PAS recréer : BackButton, ScreenHeader, PageContainer, GameModal, VictoryCard, GameIntroTemplate, MascotBubble, HintButton
 
 → Confirmer lecture, poser questions, planifier.
 ```
 
 ### 🎮 Nouveau jeu
 ```
-LIRE : TRAME_REFERENTIEL.md (OBLIGATOIRE), PROJECT_STRUCTURE.md, MASCOTTES_REGISTRY.md, CLAUDE_CODE_RULES.md, GUIDE_UX_UI_APP_EDUCATIVE.md, Fiches Educatives/ (si existante)
+LIRE : docs/TRAME_REFERENTIEL.md (OBLIGATOIRE), docs/GAME_ARCHITECTURE.md, docs/PROJECT_STRUCTURE.md, docs/MASCOTTES_REGISTRY.md, docs/ICONS_REGISTRY.md, "Fiches Educatives/{XX-nom}/" (si existante)
+
+RÉFÉRENCE : src/games/02-suites-logiques/ (seul jeu avec architecture complète)
 
 STRUCTURE OBLIGATOIRE :
-/src/games/{nom}/
+/src/games/{XX-nom}/
 ├── index.ts, types.ts
-├── components/, hooks/use{Nom}Game.ts
+├── hooks/
+│   ├── useXxxGame.ts       # Logique de jeu pure
+│   ├── useXxxSound.ts      # Sons
+│   └── useXxxIntro.ts      # ORCHESTRATEUR (progression, UI, navigation)
+├── components/
+│   └── XxxMascot.tsx       # Mascotte spécifique
 ├── data/assistantScripts.ts
-└── screens/{Nom}IntroScreen.tsx
+└── screens/XxxIntroScreen.tsx  # Utilise GameIntroTemplate (~100-150 lignes)
+
+UTILISER :
+- GameIntroTemplate pour l'écran d'intro
+- MascotBubble pour les dialogues mascotte
+- Icons de '@/constants/icons' pour les emojis
+- HintButton pour les indices
 
 APRÈS : Ajouter dans registry.ts + app/(games)/{XX-nom}/
 
-FICHES À CRÉER dans /Fiches Educatives/{XX-nom}/ :
+FICHES À CRÉER dans "Fiches Educatives/{XX-nom}/" :
 - FICHE_ACTIVITE.md, FICHE_PARENT.md, DIALOGUES_IA.md, SPECS_TECHNIQUES.md
 
 → Confirmer lecture, poser questions, planifier.
@@ -69,19 +104,47 @@ FICHES À CRÉER dans /Fiches Educatives/{XX-nom}/ :
 
 ### 🔧 Refactoring écran
 ```
-LIRE : PROMPT_REFACTORING.md, GUIDELINES_AUDIT.md
+LIRE : docs/PROMPT_REFACTORING.md, docs/GUIDELINES_AUDIT.md, docs/ICONS_REGISTRY.md
 
 CHECKLIST :
 - [ ] Imports /constants/ → /theme/
-- [ ] Utiliser ScreenHeader, PageContainer
+- [ ] Utiliser ScreenHeader, PageContainer, GameIntroTemplate (si écran jeu)
 - [ ] Touch targets ≥ 64dp, fontSize ≥ 18pt
+- [ ] Emojis hardcodés → Icons de '@/constants/icons'
+- [ ] Utiliser MascotBubble pour dialogues mascotte
+
+→ Confirmer lecture, poser questions, planifier.
+```
+
+### 💬 Ajouter dialogue mascotte
+```
+LIRE : docs/UI_COMPONENTS_CATALOG.md (section MascotBubble), docs/MASCOTTES_REGISTRY.md
+
+IMPORT :
+import { MascotBubble, bubbleTextStyles } from '@/components/common';
+
+FEATURES :
+- message: texte ou JSX avec highlights (bubbleTextStyles.highlightOrange/Gold/Blue)
+- typing: effet frappe progressive
+- tailPosition: 'left' | 'right' | 'bottom' | 'top'
+- buttonText + onPress: bouton CTA optionnel
+- showDecorations, showSparkles: décorations visuelles
+
+EXEMPLE :
+<MascotBubble
+  message={<>Bravo ! Tu as trouvé <Text style={bubbleTextStyles.highlightGold}>3 étoiles</Text> !</>}
+  buttonText="Niveau suivant"
+  buttonIcon="🚀"
+  onPress={handleNext}
+  typing
+/>
 
 → Confirmer lecture, poser questions, planifier.
 ```
 
 ### 🐛 Corriger un bug
 ```
-LIRE : CLAUDE_CODE_RULES.md (conventions), fichiers concernés
+LIRE : docs/CLAUDE_CODE_RULES.md (conventions), fichiers concernés
 
 ÉTAPES :
 1. Reproduire et comprendre le bug
@@ -94,21 +157,21 @@ LIRE : CLAUDE_CODE_RULES.md (conventions), fichiers concernés
 
 ### 🐵 Ajouter/modifier une mascotte
 ```
-LIRE : MASCOTTES_REGISTRY.md, GUIDE_UX_UI_APP_EDUCATIVE.md (section feedback)
+LIRE : docs/MASCOTTES_REGISTRY.md, docs/GUIDE_UX_UI_APP_EDUCATIVE.md (section feedback)
 
 ÉLÉMENTS À DÉFINIR :
 - Nom, emoji, personnalité (3 traits)
 - Scripts dialogue par âge (6-7, 8-9, 9-10)
 - Ton : encourageant, jamais punitif
 
-APRÈS : Mettre à jour MASCOTTES_REGISTRY.md
+APRÈS : Mettre à jour docs/MASCOTTES_REGISTRY.md
 
 → Confirmer lecture, poser questions, planifier.
 ```
 
 ### 🏠 Espace Parent (Dashboard App)
 ```
-LIRE : GUIDE_UX_UI_APP_EDUCATIVE.md (section Espace Parent), UI_PATTERNS.md, src/types/parent.types.ts
+LIRE : docs/GUIDE_UX_UI_APP_EDUCATIVE.md (section Espace Parent), docs/UI_PATTERNS.md, src/types/parent.types.ts
 
 ⚠️ DISTINCTION IMPORTANTE :
 - "Espace Parent" = Dashboard DANS l'app (code TypeScript/React)
@@ -139,7 +202,7 @@ RÈGLES :
 
 ### 📊 Modifier Espace Parent
 ```
-LIRE : src/types/parent.types.ts, src/screens/parent/, GUIDE_UX_UI_APP_EDUCATIVE.md
+LIRE : src/types/parent.types.ts, src/screens/parent/, docs/GUIDE_UX_UI_APP_EDUCATIVE.md
 
 FICHIERS CONCERNÉS :
 - src/types/parent.types.ts : types TypeScript
@@ -164,7 +227,7 @@ RÈGLES :
 
 ### 📝 Créer Fiche Parent (Documentation Activité)
 ```
-LIRE : Fiches Educatives/01-Tour de Hanoï/FICHE_PARENT.md (template), INSTRUCTIONS_PROJET_APP_EDUCATIVE.md
+LIRE : "Fiches Educatives/01-Tour de Hanoï/FICHE_PARENT.md" (template), docs/INSTRUCTIONS_PROJET_APP_EDUCATIVE.md
 
 ⚠️ DISTINCTION IMPORTANTE :
 - "Fiche Parent" = Documentation MARKDOWN pour accompagner l'enfant
@@ -192,7 +255,7 @@ TON :
 
 ### ✏️ Modifier Fiche Parent existante
 ```
-LIRE : Fiches Educatives/{XX-nom}/FICHE_PARENT.md, FICHE_ACTIVITE.md, SPECS_TECHNIQUES.md
+LIRE : "Fiches Educatives/{XX-nom}/FICHE_PARENT.md", "Fiches Educatives/{XX-nom}/FICHE_ACTIVITE.md", "Fiches Educatives/{XX-nom}/SPECS_TECHNIQUES.md"
 
 VÉRIFICATIONS :
 - Cohérence avec FICHE_ACTIVITE.md (règles, niveaux)
@@ -210,9 +273,9 @@ SECTIONS À METTRE À JOUR :
 
 ### 📝 Créer fiche éducative complète
 ```
-LIRE : Fiches Educatives/01-Tour de Hanoï/ (template complet), INSTRUCTIONS_PROJET_APP_EDUCATIVE.md
+LIRE : "Fiches Educatives/01-Tour de Hanoï/" (template complet), docs/INSTRUCTIONS_PROJET_APP_EDUCATIVE.md
 
-4 FICHIERS À CRÉER dans /Fiches Educatives/{XX-nom}/ :
+4 FICHIERS À CRÉER dans "Fiches Educatives/{XX-nom}/" :
 
 1. FICHE_ACTIVITE.md :
    - Objectif pédagogique, tranche âge
@@ -238,7 +301,7 @@ LIRE : Fiches Educatives/01-Tour de Hanoï/ (template complet), INSTRUCTIONS_PRO
 
 ### 🔊 Système audio
 ```
-LIRE : AUDIO_IMPROVEMENTS.md
+LIRE : docs/AUDIO_IMPROVEMENTS.md
 
 RÈGLES :
 - Sons courts (<2s), jamais stridents
@@ -250,7 +313,7 @@ RÈGLES :
 
 ### 🔍 Audit projet
 ```
-LIRE : AUDIT_DOCUMENTATION.md, CLAUDE_CODE_RULES.md, DESIGN_SYSTEM.md
+LIRE : docs/AUDIT_DOCUMENTATION.md, docs/CLAUDE_CODE_RULES.md, docs/DESIGN_SYSTEM.md
 
 CATÉGORIES À AUDITER :
 - Structure, Codification, Performance, Homogénéité UI
@@ -287,7 +350,7 @@ ACTIONS :
 1. Corriger les références obsolètes
 2. Ajouter les nouveautés non documentées
 3. Supprimer les docs de fichiers supprimés
-4. Mettre à jour 00-INDEX_UPDATED.md
+4. Mettre à jour docs/00-INDEX_UPDATED.md
 
 → Confirmer lecture, poser questions, planifier.
 ```
@@ -296,7 +359,9 @@ ACTIONS :
 
 ## 📁 Documents disponibles
 
-### /docs/
+> **Note** : Tous les chemins sont relatifs à la racine du projet (`hello-guys/`)
+
+### docs/
 
 | Fichier | Description |
 |---------|-------------|
@@ -313,9 +378,10 @@ ACTIONS :
 | **GUIDE_UX_UI_APP_EDUCATIVE.md** | Principes UX enfant 6-10 ans |
 | **INSTRUCTIONS_PROJET_APP_EDUCATIVE.md** | Vision pédagogique, missions |
 | **AUDIT_DOCUMENTATION.md** | Méthodologie audit documentation |
+| **ICONS_REGISTRY.md** | **NOUVEAU** — Registre des 110 icônes centralisées |
 | **00-INDEX_UPDATED.md** | Index documentation et pré-prompts Claude Code |
 
-### /docs/Etat-Historique/
+### docs/Etat-Historique/
 
 | Fichier | Description |
 |---------|-------------|
@@ -325,7 +391,7 @@ ACTIONS :
 
 > **Règle** : Tout document d'état, rapport ou historique doit être créé dans ce dossier.
 
-### /Fiches Educatives/
+### "Fiches Educatives/"
 
 | Statut | Jeux |
 |--------|------|
@@ -366,15 +432,19 @@ ACTIONS :
 | Règle | Valeur |
 |-------|--------|
 | Import thème | `import { theme } from '@/theme'` |
+| Import icônes | `import { Icons } from '@/constants/icons'` |
 | Touch targets | ≥ 64dp |
 | Texte courant | ≥ 18pt |
 | Polices | Fredoka (titres) + Nunito (corps) |
 | Animations | Reanimated 3 + spring |
 | Imports obsolètes | ❌ `/constants/` → ✅ `/theme/` |
+| Emojis hardcodés | ❌ `"🎮"` → ✅ `Icons.game` |
+| Écran intro jeu | Utiliser `GameIntroTemplate` |
+| Dialogue mascotte | Utiliser `MascotBubble` |
 
 ---
 
-*v3.3 — 28 Décembre 2024*
+*v3.5 — 29 Décembre 2024*
 
 ---
 

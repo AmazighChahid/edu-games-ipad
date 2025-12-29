@@ -9,6 +9,7 @@ import {
 import { GAME_CONFIG } from '../constants/gameConfig';
 import { useSequenceGenerator } from './useSequenceGenerator';
 import { useStreakTracker } from './useStreakTracker';
+import { suitesLogiquesLevels } from '../data/levels';
 
 // ============================================
 // HOOK PRINCIPAL DU JEU
@@ -97,15 +98,33 @@ export function useSuitesGame({
           isComplete: true,
         }));
 
-        setSessionState(prev => ({
-          ...prev,
-          sequencesCompleted: prev.sequencesCompleted + 1,
-          sequencesCorrectFirstTry:
-            prev.sequencesCorrectFirstTry + (wasFirstTry ? 1 : 0),
-          totalAttempts: prev.totalAttempts + gameState.attempts + 1,
-          currentStreak: streak + 1,
-          maxStreak: Math.max(prev.maxStreak, streak + 1),
-        }));
+        setSessionState(prev => {
+          const newState = {
+            ...prev,
+            sequencesCompleted: prev.sequencesCompleted + 1,
+            sequencesCorrectFirstTry:
+              prev.sequencesCorrectFirstTry + (wasFirstTry ? 1 : 0),
+            totalAttempts: prev.totalAttempts + gameState.attempts + 1,
+            currentStreak: streak + 1,
+            maxStreak: Math.max(prev.maxStreak, streak + 1),
+          };
+
+          // Vérifier si on peut monter de niveau
+          const { sequences, successRate, maxHintRate } = GAME_CONFIG.levelUpThreshold;
+          const currentSuccessRate = newState.sequencesCorrectFirstTry / newState.sequencesCompleted || 0;
+          const currentHintRate = newState.totalHints / newState.sequencesCompleted || 0;
+
+          if (
+            newState.sequencesCompleted >= sequences &&
+            currentSuccessRate >= successRate &&
+            currentHintRate <= maxHintRate &&
+            newState.currentLevel < suitesLogiquesLevels.length
+          ) {
+            newState.currentLevel = prev.currentLevel + 1;
+          }
+
+          return newState;
+        });
       } else {
         // Erreur
         const newAttempts = gameState.attempts + 1;
@@ -170,8 +189,12 @@ export function useSuitesGame({
   }, [gameState.currentHintLevel]);
 
   // Passer à la séquence suivante
-  const nextSequence = useCallback(() => {
-    const newSequence = generateSequence(sessionState.currentLevel);
+  // levelOverride permet de forcer un niveau (utile au premier appel)
+  const nextSequence = useCallback((levelOverride?: number) => {
+    const levelToUse = levelOverride ?? sessionState.currentLevel;
+    console.log('[nextSequence] levelOverride:', levelOverride, 'sessionState.currentLevel:', sessionState.currentLevel, '→ levelToUse:', levelToUse);
+    const newSequence = generateSequence(levelToUse);
+    console.log('[nextSequence] Generated sequence with difficulty:', newSequence.difficulty, 'pattern:', newSequence.patternDef?.type);
 
     setGameState({
       currentSequence: newSequence,
@@ -200,7 +223,7 @@ export function useSuitesGame({
       currentLevelSequences >= sequences &&
       currentSuccessRate >= successRate &&
       currentHintRate <= maxHintRate &&
-      sessionState.currentLevel < 5
+      sessionState.currentLevel < suitesLogiquesLevels.length
     ) {
       setSessionState(prev => ({
         ...prev,

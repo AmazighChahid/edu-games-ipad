@@ -60,7 +60,7 @@ export default function SuitesLogiquesVictoryScreen() {
   const totalTime = parseInt(params.totalTime ?? '0', 10);
   const currentLevel = parseInt(params.level ?? '1', 10);
   const hintsUsed = parseInt(params.hintsUsed ?? '0', 10);
-  const nextLevel = currentLevel < 5 ? currentLevel + 1 : null;
+  const nextLevel = currentLevel < 10 ? currentLevel + 1 : null;
 
   // Calculs
   const successRate = Math.round((correctFirstTry / completed) * 100);

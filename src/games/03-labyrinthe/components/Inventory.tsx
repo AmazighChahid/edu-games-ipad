@@ -1,5 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { theme } from '@/theme';
+import { Icons } from '@/constants/icons';
 import { InventoryItem } from '../types';
 
 interface Props {
@@ -7,9 +9,9 @@ interface Props {
   maxSlots?: number;
 }
 
-const ELEMENT_ICONS = {
-  key: '🔑',
-  gem: '💎',
+const ELEMENT_ICONS: Record<string, string> = {
+  key: Icons.key,
+  gem: Icons.gem,
 };
 
 const COLOR_STYLES = {
@@ -53,31 +55,30 @@ export const Inventory: React.FC<Props> = ({ items, maxSlots = 5 }) => {
 
 const styles = StyleSheet.create({
   container: {
-    padding: 12,
+    padding: theme.spacing[4],
     backgroundColor: 'rgba(255, 255, 255, 0.9)',
-    borderRadius: 12,
-    boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
-    elevation: 3,
+    borderRadius: theme.borderRadius.lg,
+    ...theme.shadows.sm,
   },
   title: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#2D3748',
-    marginBottom: 8,
+    fontSize: theme.fontSize.lg,
+    fontFamily: theme.fontFamily.bold,
+    color: theme.colors.text.primary,
+    marginBottom: theme.spacing[2],
     textAlign: 'center',
   },
   slots: {
     flexDirection: 'row',
     justifyContent: 'center',
-    gap: 8,
+    gap: theme.spacing[2],
   },
   slot: {
-    width: 48,
-    height: 48,
-    borderRadius: 8,
-    backgroundColor: '#FFF',
+    width: theme.touchTargets.large,
+    height: theme.touchTargets.large,
+    borderRadius: theme.borderRadius.md,
+    backgroundColor: theme.colors.background.primary,
     borderWidth: 2,
-    borderColor: '#CBD5E0',
+    borderColor: theme.colors.ui.border,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -87,17 +88,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   itemIcon: {
-    fontSize: 28,
+    fontSize: 32,
   },
   colorDot: {
     position: 'absolute',
     top: -8,
     right: -8,
-    width: 12,
-    height: 12,
-    borderRadius: 6,
+    width: 14,
+    height: 14,
+    borderRadius: 7,
     borderWidth: 2,
-    borderColor: '#FFF',
+    borderColor: theme.colors.background.primary,
   },
   emptySlot: {
     width: '100%',

@@ -1,6 +1,33 @@
 # 🔧 PROMPT REFACTORING HOMOGÉNÉISATION
 
-> **Copier-coller ce prompt dans Claude Code pour homogénéiser les interfaces**
+> **Guide complet pour refactoriser les activités vers le pattern Hook + Template**
+> Basé sur l'expérience de refactoring de Suites Logiques (Décembre 2024)
+
+---
+
+## Architecture Cible : Hook + Template
+
+Chaque activité DOIT suivre cette architecture :
+
+```
+src/games/XX-nom-jeu/
+├── hooks/
+│   ├── useXxxGame.ts       # Logique de jeu PURE (règles, état, validation)
+│   ├── useXxxSound.ts      # Chargement et lecture des sons
+│   └── useXxxIntro.ts      # ORCHESTRATEUR : progression, UI state, navigation
+├── screens/
+│   └── XxxIntroScreen.tsx  # Assemblage MINIMAL (~100-150 lignes)
+├── components/
+│   ├── XxxMascot.tsx       # Mascotte spécifique au jeu
+│   └── ...                 # Composants visuels spécifiques
+├── data/
+│   ├── levels.ts           # Définition des niveaux
+│   └── parentGuideData.ts  # Données fiche pédagogique
+└── types/
+    └── index.ts            # Types TypeScript
+```
+
+**Objectif :** Screen de ~100-150 lignes qui utilise `GameIntroTemplate`
 
 ---
 
@@ -23,15 +50,20 @@ Tu DOIS utiliser ces composants de `@/components/common` — NE JAMAIS les recr�
 - `VictoryCard` → pour TOUT écran victoire
 - `Button` → pour TOUT bouton
 - `IconButton` → pour TOUT bouton icône
+- `GameIntroTemplate` → pour TOUT écran intro de jeu (2 views: selection/play)
+- `MascotBubble` → pour TOUTE bulle de dialogue mascotte
+- `HintButton` → pour TOUT bouton indice avec compteur
 
 ### 2. IMPORTS OBLIGATOIRES
 ```tsx
 // ✅ TOUJOURS
 import { theme } from '@/theme';
-import { ScreenHeader, PageContainer, GameModal, Button } from '@/components/common';
+import { ScreenHeader, PageContainer, GameModal, Button, GameIntroTemplate, MascotBubble, HintButton } from '@/components/common';
+import { Icons } from '@/constants/icons';
 
 // ❌ JAMAIS
 import { Colors } from '@/constants/theme'; // DEPRECATED
+// ❌ JAMAIS hardcoder d'emoji - utiliser Icons.xxx
 ```
 
 ### 3. TOKENS THEME UNIQUEMENT
@@ -128,20 +160,17 @@ const styles = StyleSheet.create({
 
 ## FICHIERS À REFACTORISER
 
-Commence par ces fichiers dans l'ordre :
+### ✅ Déjà refactorisés (référence)
+- `src/games/02-suites-logiques/` - **RÉFÉRENCE COMPLÈTE**
+- `src/games/01-hanoi/` - Architecture similaire
 
-1. `src/games/hanoi/screens/HanoiIntroScreen.tsx`
-2. `src/games/hanoi/screens/HanoiGameScreen.tsx`
-3. `src/games/sudoku/screens/SudokuIntroScreen.tsx`
-4. `src/games/sudoku/screens/SudokuGameScreen.tsx`
-5. `src/games/math-blocks/screens/MathIntroScreen.tsx`
-6. `src/games/math-blocks/screens/MathPlayScreen.tsx`
-7. `src/games/balance/screens/BalanceIntroScreen.tsx`
-8. `src/games/memory/screens/MemoryIntroScreen.tsx`
-9. `src/games/labyrinthe/screens/LabyrintheIntroScreen.tsx`
-10. `src/games/logix-grid/screens/LogixGridIntroScreen.tsx`
-11. `src/games/suites-logiques/screens/SuitesLogiquesIntroScreen.tsx`
-12. Tous les écrans Victory (`*VictoryScreen.tsx`)
+### 🔄 À refactoriser (par priorité)
+1. `src/games/sudoku/` → créer `useSudokuIntro.ts`
+2. `src/games/math-blocks/` → créer `useMathIntro.ts`
+3. `src/games/balance/` → créer `useBalanceIntro.ts`
+4. `src/games/memory/` → créer `useMemoryIntro.ts`
+5. `src/games/labyrinthe/` → créer `useLabyrintheIntro.ts`
+6. `src/games/logix-grid/` → créer `useLogixIntro.ts`
 
 ## RAPPORT
 
@@ -322,3 +351,339 @@ Corrige immédiatement.
 ---
 
 *Ces prompts garantissent l'homogénéité UI sur l'ensemble du projet.*
+
+---
+
+## 🎯 COMPOSANTS CLÉS POUR REFACTORING
+
+### GameIntroTemplate - Template principal pour écrans intro
+
+```tsx
+import { GameIntroTemplate } from '@/components/common';
+
+<GameIntroTemplate
+  // --- View Control ---
+  isPlaying={isPlaying}           // true = mode jeu, false = sélection
+  isVictory={isVictory}
+
+  // --- Header ---
+  title="Nom du Jeu"
+  emoji={Icons.puzzle}            // Utiliser Icons.xxx
+  onBack={handleBack}
+  onReset={handleReset}
+
+  // --- Mascot ---
+  mascotComponent={<MaMascotte emotion={mascotEmotion} />}
+  mascotMessage={mascotMessage}
+  mascotHighlights={['mot clé']}  // Mots en surbrillance
+  onMascotMessageComplete={() => {}}
+
+  // --- Level Selector (view selection) ---
+  levelSelectorComponent={<MonSelecteur />}
+
+  // --- Game Content (view play) ---
+  gameComponent={<MonJeu />}
+
+  // --- Actions ---
+  hintButton={<HintButton remaining={hints} onPress={handleHint} />}
+  actionButtons={<MesActions />}
+
+  // --- Animations ---
+  selectorAnimatedStyle={selectorAnimatedStyle}
+  progressPanelAnimatedStyle={progressPanelAnimatedStyle}
+/>
+```
+
+### MascotBubble - Bulle de dialogue avec typewriter
+
+```tsx
+import { MascotBubble, bubbleTextStyles } from '@/components/common';
+
+<MascotBubble
+  message="Bienvenue ! Choisis un niveau."
+  highlights={['niveau']}           // Mots mis en évidence
+  onComplete={() => {}}             // Callback fin d'animation
+  typingSpeed={30}                  // Vitesse (ms par caractère)
+  emotion="happy"                   // Affecte le style
+/>
+
+// Pour le highlight personnalisé dans le message :
+// Utiliser bubbleTextStyles.highlight pour le style du mot
+```
+
+### HintButton - Bouton indice avec compteur
+
+```tsx
+import { HintButton } from '@/components/common';
+
+<HintButton
+  remaining={3}                     // Indices restants
+  maxHints={3}                      // Total d'indices
+  onPress={handleShowHint}
+  disabled={remaining === 0}
+/>
+```
+
+---
+
+## 🔴 POINTS D'ATTENTION CRITIQUES (Apprentissages Suites Logiques)
+
+### 1. Gestion du BackButton en mode jeu
+
+**PROBLÈME RENCONTRÉ :** Le BackButton ne retournait pas à la sélection des niveaux quand `isPlaying=true`.
+
+**CAUSE :** Le template `GameIntroTemplate` interceptait le clic et appelait `onReset` au lieu de `onBack`.
+
+**SOLUTION :** Le template DOIT toujours appeler `onBack()` :
+
+```typescript
+// GameIntroTemplate.tsx - handleBack
+const handleBack = useCallback(() => {
+  if (isPlaying && !isVictory) {
+    transitionToSelectionMode(); // Animation locale
+  }
+  onBack(); // TOUJOURS appeler pour que le hook gère l'état
+}, [isPlaying, isVictory, transitionToSelectionMode, onBack]);
+```
+
+Le hook `useXxxIntro` doit gérer les deux cas :
+
+```typescript
+// useXxxIntro.ts - handleBack
+const handleBack = useCallback(() => {
+  if (isPlaying) {
+    // Retour à la sélection depuis le mode jeu
+    transitionToSelectionMode(); // Fait setIsPlaying(false)
+    setMascotMessage("On recommence ?");
+    // NE PAS naviguer !
+  } else {
+    // Retour à l'accueil depuis la sélection
+    router.replace('/');
+  }
+}, [isPlaying, router, transitionToSelectionMode]);
+```
+
+### 2. Centrage sur iPad avec maxWidth
+
+**PROBLÈME RENCONTRÉ :** Les éléments n'étaient pas centrés sur iPad malgré `maxWidth: 600`.
+
+**CAUSE :** `width: '100%'` annule l'effet de `maxWidth`.
+
+**SOLUTION :**
+
+```typescript
+// ❌ MAUVAIS - annule maxWidth
+gameContainer: {
+  maxWidth: 600,
+  alignSelf: 'center',
+  width: '100%', // PROBLÈME !
+}
+
+// ✅ BON - respecte maxWidth et centre
+gameContainer: {
+  maxWidth: 600,
+  alignSelf: 'center',
+  // PAS de width: '100%'
+}
+```
+
+### 3. Centrage du titre indépendamment des boutons
+
+**PROBLÈME RENCONTRÉ :** Le titre n'était pas centré car il dépendait des boutons gauche/droite.
+
+**SOLUTION :** Utiliser `position: absolute` pour le titre :
+
+```typescript
+// ScreenHeader.tsx
+gameTitleWrapper: {
+  position: 'absolute',
+  left: 0,
+  right: 0,
+  alignItems: 'center',
+  zIndex: -1, // Derrière les boutons
+},
+```
+
+### 4. Organisation des styles
+
+**BONNE PRATIQUE :** Organiser les styles par section avec commentaires :
+
+```typescript
+// ============================================
+// COULEURS SPÉCIFIQUES AU COMPOSANT
+// ============================================
+const COLORS = {
+  pedagogyButtonBackground: '#90c695',
+  helpButtonBackground: '#eb9532',
+};
+
+const styles = StyleSheet.create({
+  // ============================================
+  // CONTAINERS
+  // ============================================
+  container: { /* ... */ },
+
+  // ============================================
+  // GAME VARIANT - Title
+  // ============================================
+  gameTitle: { /* ... */ },
+
+  // ============================================
+  // GAME VARIANT - Buttons
+  // ============================================
+  button: { /* ... */ },
+});
+```
+
+### 5. Structure du hook useXxxIntro
+
+**Template complet basé sur useSuitesIntro.ts :**
+
+```typescript
+export function useXxxIntro(): UseXxxIntroReturn {
+  // 1. Router et params URL
+  const router = useRouter();
+  const params = useLocalSearchParams<{ level?: string }>();
+
+  // 2. Store - progression persistante
+  const gameProgress = useGameProgress('xxx-game');
+
+  // 3. Hooks de jeu existants
+  const game = useXxxGame({ /* ... */ });
+  const { playSelect, playCorrect } = useXxxSound();
+
+  // 4. État local UI
+  const [selectedLevel, setSelectedLevel] = useState<LevelConfig | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [mascotMessage, setMascotMessage] = useState("Bienvenue !");
+  const [mascotEmotion, setMascotEmotion] = useState<EmotionType>('neutral');
+
+  // 5. Animations Reanimated
+  const selectorY = useSharedValue(0);
+  const selectorOpacity = useSharedValue(1);
+  const progressPanelOpacity = useSharedValue(0);
+
+  // 6. Transitions animées
+  const transitionToPlayMode = useCallback(() => {
+    selectorY.value = withTiming(-150, { duration: 400 });
+    selectorOpacity.value = withTiming(0, { duration: 300 });
+    progressPanelOpacity.value = withDelay(200, withTiming(1, { duration: 300 }));
+    setIsPlaying(true);
+  }, []);
+
+  const transitionToSelectionMode = useCallback(() => {
+    selectorY.value = withSpring(0, { damping: 15, stiffness: 150 });
+    selectorOpacity.value = withTiming(1, { duration: 300 });
+    progressPanelOpacity.value = withTiming(0, { duration: 200 });
+    setIsPlaying(false);
+  }, []);
+
+  // 7. Handlers
+  const handleBack = useCallback(() => {
+    if (isPlaying) {
+      transitionToSelectionMode();
+      setMascotMessage("On recommence ?");
+    } else {
+      router.replace('/');
+    }
+  }, [isPlaying, router, transitionToSelectionMode]);
+
+  // 8. Return
+  return {
+    levels, selectedLevel, handleSelectLevel,
+    isPlaying, isVictory,
+    mascotMessage, mascotEmotion,
+    handleBack, handleStartPlaying, handleReset,
+    // ...
+  };
+}
+```
+
+---
+
+## Checklist Finale de Validation
+
+### Structure
+- [ ] Screen ≤ 150 lignes
+- [ ] Hook `useXxxIntro.ts` orchestre tout
+- [ ] Hook `useXxxGame.ts` = logique pure (pas d'UI)
+- [ ] Hook `useXxxSound.ts` = sons uniquement
+- [ ] Utilise `GameIntroTemplate`
+- [ ] Mascotte via `MascotBubble` (pas de bulle custom)
+
+### Fonctionnalités
+- [ ] Sélection de niveau fonctionne
+- [ ] Transition play ↔ selection fluide
+- [ ] BackButton : mode jeu → sélection (pas navigation)
+- [ ] BackButton : sélection → accueil (navigation)
+- [ ] Mascotte réagit aux événements (message + emotion)
+- [ ] Indices via `HintButton` avec compteur
+- [ ] Victoire déclenche navigation
+
+### UX Enfant
+- [ ] Touch targets ≥ 64dp
+- [ ] fontSize ≥ 18pt (texte courant)
+- [ ] Centré sur iPad (pas de `width: 100%` avec `maxWidth`)
+- [ ] Titre centré indépendamment des boutons
+- [ ] Animations fluides (spring)
+
+### Code Quality
+- [ ] Pas de couleurs hardcodées dans le JSX
+- [ ] Couleurs spécifiques en constante `COLORS`
+- [ ] Import depuis `@/theme`
+- [ ] Styles organisés par section
+- [ ] Types TypeScript complets
+- [ ] **Aucun emoji hardcodé** — utiliser `Icons.xxx`
+- [ ] Import `{ Icons } from '@/constants/icons'`
+
+---
+
+## 🎨 ICÔNES CENTRALISÉES
+
+**RÈGLE :** Ne JAMAIS hardcoder d'emoji. Toujours utiliser `Icons.xxx`.
+
+```tsx
+import { Icons } from '@/constants/icons';
+
+// ✅ BON
+<Text>{Icons.star}</Text>
+<GameCard emoji={Icons.puzzle} />
+const message = `Bravo ! ${Icons.trophy}`;
+
+// ❌ MAUVAIS
+<Text>⭐</Text>
+<GameCard emoji="🧩" />
+const message = `Bravo ! 🏆`;
+```
+
+**Catégories disponibles (78 icônes) :**
+- Navigation : `Icons.home`, `Icons.back`, `Icons.settings`
+- Récompenses : `Icons.star`, `Icons.trophy`, `Icons.sparkles`
+- Jeux : `Icons.hanoi`, `Icons.puzzle`, `Icons.brain`, `Icons.math`
+- Mascottes : `Icons.owl`, `Icons.robot`, `Icons.squirrel`
+- Feedback : `Icons.success`, `Icons.error`, `Icons.warning`
+
+**Voir** : `docs/ICONS_REGISTRY.md` pour la liste complète.
+
+---
+
+## Référence : Fichiers Clés
+
+| Fichier | Rôle |
+|---------|------|
+| `src/games/02-suites-logiques/hooks/useSuitesIntro.ts` | Hook orchestrateur **RÉFÉRENCE** |
+| `src/games/02-suites-logiques/screens/SuitesIntroScreen.tsx` | Screen minimal **RÉFÉRENCE** |
+| `src/components/common/GameIntroTemplate.tsx` | Template partagé |
+| `src/components/common/MascotBubble.tsx` | Bulle dialogue avec typewriter |
+| `src/components/common/HintButton.tsx` | Bouton indice |
+| `src/components/common/ScreenHeader.tsx` | Header avec titre centré |
+| `src/constants/icons.ts` | **78 icônes centralisées** |
+| `docs/ICONS_REGISTRY.md` | Documentation icônes |
+| `docs/UI_COMPONENTS_CATALOG.md` | Catalogue composants |
+| `docs/GAME_ARCHITECTURE.md` | Architecture complète |
+
+---
+
+*Document mis à jour - Décembre 2024*
+*Basé sur le refactoring de Suites Logiques*
+*Complété avec MascotBubble, HintButton, Icons (29 Déc 2024)*

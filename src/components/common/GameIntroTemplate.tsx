@@ -344,17 +344,19 @@ export const GameIntroTemplate: React.FC<GameIntroTemplateProps> = ({
 
   /**
    * Gestion du bouton retour :
-   * - Si en train de jouer : retour à la sélection (pas de popup)
-   * - Sinon : retour à l'écran précédent
+   * - Si en train de jouer : anime la transition + délègue au parent (onBack)
+   * - Sinon : retour à l'écran précédent (onBack)
+   *
+   * Note: Le parent (hook) gère setIsPlaying(false) dans son handleBack
    */
   const handleBack = useCallback(() => {
     if (isPlaying && !isVictory) {
+      // Animation de retour à la sélection
       transitionToSelectionMode();
-      onReset?.();
-    } else {
-      onBack();
     }
-  }, [isPlaying, isVictory, transitionToSelectionMode, onReset, onBack]);
+    // Toujours appeler onBack pour que le parent gère la logique
+    onBack();
+  }, [isPlaying, isVictory, transitionToSelectionMode, onBack]);
 
   // ============================================
   // RENDER HELPERS

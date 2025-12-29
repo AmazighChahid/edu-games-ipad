@@ -63,28 +63,6 @@ export const LEVELS: LevelConfig[] = [
     timeLimits: { threeStars: 45, twoStars: 90, oneStar: 180 },
   },
 
-  // Niveaux 6-10 : Exploration (7×7)
-  {
-    id: 6,
-    name: 'Carrefours',
-    width: 7,
-    height: 7,
-    difficulty: 2,
-    theme: 'forest',
-    hasKeys: false,
-    keyCount: 0,
-    hasButtons: false,
-    hasGems: true,
-    gemCount: 3,
-    hasTeleporters: false,
-    showMiniMap: true,
-    showPathTrail: true,
-    controlMode: 'swipe',
-    unlocked: true,
-    stars: 0,
-    timeLimits: { threeStars: 60, twoStars: 120, oneStar: 180 },
-  },
-
   // Niveaux 4-5 : Introduction suite (5×5)
   {
     id: 4,

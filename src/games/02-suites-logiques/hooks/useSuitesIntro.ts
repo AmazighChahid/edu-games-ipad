@@ -296,7 +296,8 @@ export function useSuitesIntro(): UseSuitesIntroReturn {
     if (selectedLevel && !hasInitializedRef.current) {
       hasInitializedRef.current = true;
       const timer = setTimeout(() => {
-        nextSequence();
+        // Passer le niveau explicitement pour éviter la race condition
+        nextSequence(selectedLevel.number);
       }, 100);
       return () => clearTimeout(timer);
     }
@@ -332,7 +333,8 @@ export function useSuitesIntro(): UseSuitesIntroReturn {
             },
           });
         } else {
-          nextSequence();
+          // Passer le niveau sélectionné pour éviter de revenir au niveau 1
+          nextSequence(selectedLevel?.number);
           const startMessages = PIXEL_MESSAGES.start;
           setMascotMessage(startMessages[Math.floor(Math.random() * startMessages.length)]);
           setMascotEmotion('neutral');
@@ -373,7 +375,7 @@ export function useSuitesIntro(): UseSuitesIntroReturn {
       }`
     );
     setMascotEmotion('happy');
-    nextSequence();
+    nextSequence(level.number);
   }, [nextSequence]);
 
   const handleStartPlaying = useCallback(() => {
@@ -404,10 +406,10 @@ export function useSuitesIntro(): UseSuitesIntroReturn {
   }, []);
 
   const handleReset = useCallback(() => {
-    nextSequence();
+    nextSequence(selectedLevel?.number);
     setMascotMessage("Nouvelle suite ! Observe bien...");
     setMascotEmotion('neutral');
-  }, [nextSequence]);
+  }, [nextSequence, selectedLevel]);
 
   const handleHint = useCallback(() => {
     requestHint();

@@ -9,6 +9,7 @@
 ```
 02-suites-logiques/
 ├── index.ts                          # Point d'entrée du module
+├── ARCHITECTURE_SuitesLogiques.md    # Ce document
 │
 ├── types/
 │   └── index.ts                      # Définitions TypeScript
@@ -20,20 +21,22 @@
 │   ├── patterns.ts                   # Définitions des 30+ patterns
 │   ├── levels.ts                     # Configuration des 10 niveaux
 │   ├── themes.ts                     # 6 thèmes visuels
-│   └── assistantScripts.ts           # Dialogues de Pixel le Robot
+│   ├── assistantScripts.ts           # Dialogues de Pixel le Robot
+│   └── parentGuideData.ts            # Données fiche parent (ParentDrawer)
 │
 ├── utils/
 │   └── patternUtils.ts               # Fonctions utilitaires patterns
 │
 ├── hooks/
 │   ├── useSuitesGame.ts              # Logique principale du jeu
+│   ├── useSuitesIntro.ts             # Hook orchestrateur (écran intro)
 │   ├── useSequenceGenerator.ts       # Génération des séquences
 │   ├── useSuitesSound.ts             # Gestion des sons
 │   └── useStreakTracker.ts           # Suivi des séries
 │
 ├── screens/
 │   ├── index.ts                      # Export écran
-│   └── SuitesIntroScreen.tsx         # Écran principal (pattern Hanoi)
+│   └── SuitesIntroScreen.tsx         # Écran principal (GameIntroTemplate)
 │
 ├── components/
 │   ├── SuitesLogiquesGame.tsx        # Composant principal standalone
@@ -223,6 +226,29 @@ Exporte :
 
 ---
 
+#### 📄 parentGuideData.ts
+**Données pédagogiques pour le ParentDrawer**
+
+Contient toutes les données structurées pour la fiche parent de l'activité :
+
+| Export | Type | Description |
+|--------|------|-------------|
+| `suitesGameData` | `GameObjectiveData` | Objectif, règles, stratégie, tip |
+| `suitesAppBehavior` | `AppBehaviorData` | Ce que fait / ne fait pas l'app |
+| `suitesCompetences` | `CompetenceData[]` | 6 compétences (raisonnement inductif, classification, abstraction, mémoire, attention, patience) |
+| `suitesScienceData` | `ScienceData` | Références scientifiques (Clements, Diamond, Rittle-Johnson) |
+| `suitesAdvices` | `AdviceData[]` | 5 conseils situation → réponse parent |
+| `suitesQuestionsDuring` | `QuestionData[]` | Questions pendant le jeu |
+| `suitesQuestionsAfter` | `QuestionData[]` | Questions après le jeu |
+| `suitesDailyActivities` | `DailyActivityData[]` | 4 activités quotidiennes (table, perles, voiture, frises) |
+| `suitesResources` | `ResourceData[]` | Jeux recommandés (Dobble, Uno, Rummikub) |
+| `suitesBadges` | `BadgeData[]` | Badges (observateur, persévérant, explicateur) |
+| `suitesAgeExpectations` | `AgeExpectationData[]` | Attentes par âge (6-10 ans) |
+| `suitesSettings` | `SettingData[]` | Paramètres parent (indices auto, voix, animations) |
+| `suitesParentGuideData` | `object` | Export complet pour ParentDrawer |
+
+---
+
 ### 📁 utils/
 
 #### 📄 patternUtils.ts
@@ -330,42 +356,129 @@ interface UseSuitesGameProps {
 
 ---
 
-### 📁 screens/
+#### 📄 useSuitesIntro.ts
+**Hook orchestrateur pour l'écran d'introduction**
 
-#### 📄 SuitesIntroScreen.tsx
-**Écran principal du jeu (pattern Hanoi)**
+Encapsule toute la logique métier de l'écran d'introduction :
+- Progression store (lecture/écriture)
+- Paramètres URL
+- Génération des niveaux
+- Messages mascotte
+- Sons
+- Animations de transition
+- Navigation
 
-**Vue 1 - Sélection :**
-- Grille de 10 niveaux (cartes avec icône thème, numéro, étoiles si complété)
-- Mascotte centrée avec message d'accueil
-- Preview de la séquence courante
-- Bouton "C'est parti !" pour démarrer
+**Type de retour : `UseSuitesIntroReturn`**
 
-**Vue 2 - Jeu :**
-- Transition animée : sélecteur slide up + fade out
-- `ProgressPanel` en haut (séquences complétées / 8)
-- Mascotte à gauche avec bulle de dialogue
-- Zone séquence avec slot manquant
-- Panneau de 4 choix avec bouton "Valider"
-- Boutons flottants : 🔄 reset, 💡 indice (avec badge compteur)
+| Propriété | Type | Description |
+|-----------|------|-------------|
+| `levels` | `LevelConfig[]` | Niveaux générés selon l'âge |
+| `selectedLevel` | `LevelConfig \| null` | Niveau sélectionné |
+| `handleSelectLevel` | `(level) => void` | Sélectionner un niveau |
+| `isPlaying` | `boolean` | Mode jeu actif |
+| `isVictory` | `boolean` | Session terminée |
+| `showParentDrawer` | `boolean` | Fiche parent visible |
+| `setShowParentDrawer` | `(show) => void` | Afficher/masquer fiche parent |
+| `selectorStyle` | `AnimatedStyle` | Style animé du sélecteur |
+| `progressPanelStyle` | `AnimatedStyle` | Style animé du panel progression |
+| `mascotMessage` | `string` | Message de Pixel |
+| `mascotEmotion` | `EmotionType` | Émotion actuelle |
+| `gameState` | `GameState` | État du jeu (depuis useSuitesGame) |
+| `sessionState` | `SessionState` | État de la session |
+| `currentSequence` | `Sequence \| null` | Séquence en cours |
+| `progressData` | `object` | Données pour ProgressPanel |
+| `handleSelectAnswer` | `(element) => void` | Sélectionner une réponse |
+| `handleConfirm` | `() => void` | Confirmer la réponse |
+| `handleReset` | `() => void` | Nouvelle séquence |
+| `handleHint` | `() => void` | Demander un indice |
+| `handleBack` | `() => void` | Retour (jeu → sélection ou home) |
+| `handleStartPlaying` | `() => void` | Démarrer le mode jeu |
+| `handleParentPress` | `() => void` | Ouvrir fiche parent |
+| `handleHelpPress` | `() => void` | Afficher aide |
+| `handleForceComplete` | `() => void` | DEV: Forcer fin niveau |
+| `hintsRemaining` | `number` | Indices restants (4 - hintLevel) |
+| `canPlayAudio` | `boolean` | Audio autorisé (= isPlaying) |
 
-**Animations (react-native-reanimated) :**
-| Animation | Description |
-|-----------|-------------|
+**Animations :**
+| Valeur partagée | Description |
+|-----------------|-------------|
 | `selectorY` | Translation Y du sélecteur (0 → -150) |
 | `selectorOpacity` | Opacité du sélecteur (1 → 0) |
 | `progressPanelOpacity` | Opacité du panel progression (0 → 1) |
 
-**Handlers :**
-| Handler | Description |
-|---------|-------------|
-| `handleBack()` | Retour (mode jeu → sélection, ou router.back) |
-| `handleSelectLevel(level)` | Sélectionne un niveau, génère nouvelle séquence |
-| `handleStartPlaying()` | Lance la transition vers le mode jeu |
-| `handleSelectAnswer(element)` | Sélectionne une réponse, transition si nécessaire |
-| `handleConfirm()` | Confirme la réponse sélectionnée |
-| `handleHint()` | Demande un indice |
-| `handleReset()` | Génère une nouvelle séquence |
+**Constants :**
+```typescript
+const ANIMATION_CONFIG = {
+  selectorSlideDuration: 400,
+  selectorFadeDuration: 300,
+  progressDelayDuration: 200,
+  selectorSlideDistance: -150,
+  springDamping: 15,
+  springStiffness: 150,
+};
+const TOTAL_SEQUENCES = 8;
+```
+
+---
+
+### 📁 screens/
+
+#### 📄 SuitesIntroScreen.tsx
+**Écran principal du jeu (architecture Hook + Template)**
+
+Utilise le pattern **Hook + Template** :
+- `useSuitesIntro()` : toute la logique métier
+- `GameIntroTemplate` : UI partagée avec les autres jeux
+- Composants spécifiques : `MascotRobot`, `SequenceDisplay`, `ChoicePanel`
+- `ParentDrawer` : fiche pédagogique pour les parents
+
+**Structure du composant :**
+```tsx
+<GameIntroTemplate
+  // Header
+  title="Suites Logiques"
+  emoji="🔮"
+  onBack, onParentPress, onHelpPress
+  showParentButton, showHelpButton
+
+  // Niveaux
+  levels, selectedLevel, onSelectLevel
+  renderLevelCard={SuitesLevelCard}
+
+  // Jeu
+  renderGame, isPlaying, onStartPlaying
+
+  // Progress
+  renderProgress
+
+  // Mascot
+  mascotComponent={<MascotRobot />}
+
+  // Floating buttons
+  showResetButton, onReset
+  showHintButton, onHint
+  hintsRemaining, hintsDisabled
+  onForceComplete (DEV)
+
+  // Victory
+  isVictory
+/>
+<ParentDrawer {...suitesParentGuideData} />
+```
+
+**Composant SuitesLevelCard :**
+- Carte personnalisée pour la grille de niveaux
+- Affiche icône thème (🔷 ou 🔒), numéro, étoiles si complété
+- États visuels : normal, complété (vert), sélectionné (bleu), verrouillé (grisé)
+
+**renderGame() :**
+- Si pas de séquence : message "Sélectionne un niveau"
+- Zone séquence : `SequenceDisplay` + `MissingSlot`
+- Zone choix (si isPlaying) : `ChoicePanel` avec animation FadeIn
+
+**renderProgress() :**
+- Panel de stats style Hanoi : COUPS | RÉUSSIES | ERREURS | RECORD
+- Barre de progression + message d'encouragement
 
 ---
 
@@ -722,8 +835,23 @@ interface MascotRobotProps {
 | `react-native-svg` | Rendu des formes et illustrations |
 | `expo-audio` | Lecture des sons (useAudioPlayer) |
 | `expo-linear-gradient` | Dégradés de fond |
-| `expo-router` | Navigation |
+| `expo-router` | Navigation (useRouter, useLocalSearchParams) |
 | `react-native-safe-area-context` | Gestion des zones sûres |
+
+---
+
+## Composants partagés utilisés
+
+| Composant | Source | Usage |
+|-----------|--------|-------|
+| `GameIntroTemplate` | `components/common` | Template UI pour écran intro (header, niveaux, jeu, progress) |
+| `LevelConfig` | `components/common` | Type pour configuration des niveaux |
+| `generateDefaultLevels` | `components/common` | Génère les 10 niveaux selon l'âge |
+| `ParentDrawer` | `components/parent/ParentDrawer` | Tiroir avec fiche pédagogique |
+| `useStore` | `store/useStore` | Store Zustand (profils, progression) |
+| `useActiveProfile` | `store/useStore` | Profil enfant actif |
+| `useGameProgress` | `store/useStore` | Progression pour ce jeu |
+| `colors`, `spacing`, etc. | `theme` | Constantes de design |
 
 ---
 
@@ -753,3 +881,42 @@ interface MascotRobotProps {
 | Level up - séquences | 5 minimum | Séquences réussies requises |
 | Level up - taux succès | 60% | Réussites au premier essai |
 | Level up - taux indices | 1 max | Moyenne indices par séquence |
+
+---
+
+## Navigation (expo-router)
+
+**Routes :**
+| Route | Fichier | Description |
+|-------|---------|-------------|
+| `/(games)/02-suites-logiques` | `SuitesIntroScreen.tsx` | Écran principal |
+| `/(games)/02-suites-logiques/victory` | `victory.tsx` | Écran de victoire |
+
+**Paramètres URL :**
+
+*Entrée (depuis victory.tsx) :*
+| Param | Type | Description |
+|-------|------|-------------|
+| `level` | `string` | Niveau à pré-sélectionner |
+
+*Sortie (vers victory.tsx) :*
+| Param | Type | Description |
+|-------|------|-------------|
+| `completed` | `string` | Séquences complétées |
+| `correctFirstTry` | `string` | Réussies au premier essai |
+| `maxStreak` | `string` | Meilleure série |
+| `totalTime` | `string` | Temps total (ms) |
+| `level` | `string` | Niveau joué |
+| `hintsUsed` | `string` | Indices utilisés |
+
+**Navigation :**
+```typescript
+// Vers victory
+router.push({
+  pathname: '/(games)/02-suites-logiques/victory',
+  params: { completed, correctFirstTry, maxStreak, totalTime, level, hintsUsed }
+});
+
+// Retour à l'accueil
+router.replace('/');
+```

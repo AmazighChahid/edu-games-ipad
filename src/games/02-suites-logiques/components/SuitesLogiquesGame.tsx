@@ -27,7 +27,7 @@ interface Props {
 
 export const SuitesLogiquesGame: React.FC<Props> = ({
   theme = 'shapes',
-  initialLevel = 1,
+  initialLevel = 10, // TODO: remettre à 1 après tests
   onSessionEnd,
   onExit,
 }) => {
@@ -61,7 +61,8 @@ export const SuitesLogiquesGame: React.FC<Props> = ({
   useEffect(() => {
     setMascotMessage("Bip bip ! Trouve ce qui vient après et clique sur Valider !");
     setMascotEmotion('encouraging');
-    nextSequence();
+    // Passer initialLevel explicitement pour éviter la race condition
+    nextSequence(initialLevel);
 
     // Nettoyage : arrêter le fond sonore quand on quitte
     return () => {
