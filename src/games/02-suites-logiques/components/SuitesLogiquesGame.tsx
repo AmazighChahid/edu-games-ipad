@@ -6,13 +6,33 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { SequenceDisplay } from './SequenceDisplay';
 import { ChoicePanel } from './ChoicePanel';
 import { MascotRobot } from './MascotRobot';
-import { useSuitesGame } from '../hooks/useSuitesGame';
+import { useSuitesGameV2 as useSuitesGame } from '../hooks/useSuitesGameV2';
 import { useSuitesSound } from '../hooks/useSuitesSound';
 import { ThemeType, SessionStats, SequenceElement } from '../types';
 import { PIXEL_MESSAGES } from '../constants/gameConfig';
+import { getErrorHintMessage, getHintLevelMessage } from '../utils/patternHintMessages';
 import { colors, spacing, textStyles, touchTargets, borderRadius, shadows } from '../../../theme';
 
 type EmotionType = 'neutral' | 'happy' | 'thinking' | 'excited' | 'encouraging';
+
+// Mapping du statut GameStatus -> StatusType pour ChoicePanel
+const mapGameStatusToChoiceStatus = (status: string): 'playing' | 'checking' | 'success' | 'error' | 'hint' => {
+  switch (status) {
+    case 'idle':
+    case 'selected':
+      return 'playing';
+    case 'checking':
+      return 'checking';
+    case 'success':
+      return 'success';
+    case 'error':
+      return 'error';
+    case 'hint':
+      return 'hint';
+    default:
+      return 'playing';
+  }
+};
 
 // ============================================
 // COMPOSANT PRINCIPAL - SUITES LOGIQUES GAME
@@ -40,6 +60,13 @@ export const SuitesLogiquesGame: React.FC<Props> = ({
     requestHint,
     nextSequence,
     isSessionComplete,
+    // Nouvelles données depuis levels.ts
+    currentLevelInfo,
+    hintsRemaining,
+    // Nouvelles données du moteur adaptatif
+    lastHint,
+    // Puzzle pour accéder au pattern
+    currentPuzzle,
   } = useSuitesGame({ theme, initialLevel });
 
   // Hook pour les sons
@@ -104,26 +131,64 @@ export const SuitesLogiquesGame: React.FC<Props> = ({
       // Jouer le son d'erreur
       playError();
 
-      const messages = PIXEL_MESSAGES.error;
-      setMascotMessage(messages[Math.floor(Math.random() * messages.length)]);
+      // DEBUG: Voir ce qui arrive lors d'une erreur
+      console.log('[ERROR DEBUG] currentPuzzle:', currentPuzzle);
+      console.log('[ERROR DEBUG] currentPuzzle?.pattern:', currentPuzzle?.pattern);
+      console.log('[ERROR DEBUG] currentPuzzle?.pattern?.type:', currentPuzzle?.pattern?.type);
+      console.log('[ERROR DEBUG] currentPuzzle?.pattern?.cycle:', currentPuzzle?.pattern?.cycle);
+      console.log('[ERROR DEBUG] attempts:', gameState.attempts);
+
+      // Utiliser le message contextuel basé sur le pattern si disponible
+      if (currentPuzzle?.pattern) {
+        const contextualMessage = getErrorHintMessage(
+          currentPuzzle.pattern,
+          gameState.attempts
+        );
+        console.log('[ERROR DEBUG] Using contextualMessage:', contextualMessage);
+        setMascotMessage(contextualMessage);
+      } else {
+        console.log('[ERROR DEBUG] No pattern, using generic message');
+        // Fallback sur les anciens messages génériques
+        const messages = PIXEL_MESSAGES.error;
+        setMascotMessage(messages[Math.floor(Math.random() * messages.length)]);
+      }
       setMascotEmotion('encouraging'); // Encourager après une erreur
     } else if (gameState.status === 'hint') {
       // Jouer le son de réflexion
       playThinking();
 
       setMascotEmotion('thinking'); // Réfléchit pour donner un indice
-      // Messages d'indices selon le niveau
-      if (gameState.currentHintLevel === 1) {
-        setMascotMessage(PIXEL_MESSAGES.hint1);
-      } else if (gameState.currentHintLevel === 2) {
-        setMascotMessage(PIXEL_MESSAGES.hint2);
-      } else if (gameState.currentHintLevel === 3) {
-        setMascotMessage(PIXEL_MESSAGES.hint3);
-      } else if (gameState.currentHintLevel === 4) {
-        setMascotMessage(PIXEL_MESSAGES.hint4);
+
+      // DEBUG: Voir ce qui arrive
+      console.log('[HINT DEBUG] lastHint:', lastHint);
+      console.log('[HINT DEBUG] currentPuzzle?.pattern:', currentPuzzle?.pattern);
+      console.log('[HINT DEBUG] hintLevel:', gameState.currentHintLevel);
+
+      // Utiliser le hint Montessori adapté du moteur si disponible
+      if (lastHint?.message) {
+        console.log('[HINT DEBUG] Using lastHint.message:', lastHint.message);
+        setMascotMessage(lastHint.message);
+      } else if (currentPuzzle?.pattern && gameState.currentHintLevel >= 1 && gameState.currentHintLevel <= 3) {
+        // Utiliser les messages contextuels basés sur le pattern
+        const hintMessage = getHintLevelMessage(
+          currentPuzzle.pattern,
+          gameState.currentHintLevel as 1 | 2 | 3
+        );
+        setMascotMessage(hintMessage);
+      } else {
+        // Fallback sur les anciens messages génériques
+        if (gameState.currentHintLevel === 1) {
+          setMascotMessage(PIXEL_MESSAGES.hint1);
+        } else if (gameState.currentHintLevel === 2) {
+          setMascotMessage(PIXEL_MESSAGES.hint2);
+        } else if (gameState.currentHintLevel === 3) {
+          setMascotMessage(PIXEL_MESSAGES.hint3);
+        } else if (gameState.currentHintLevel === 4) {
+          setMascotMessage(PIXEL_MESSAGES.hint4);
+        }
       }
     }
-  }, [gameState.status, gameState.currentHintLevel]);
+  }, [gameState.status, gameState.currentHintLevel, lastHint, currentPuzzle]);
 
   // Sélection d'un élément
   const handleSelect = useCallback(
@@ -195,7 +260,9 @@ export const SuitesLogiquesGame: React.FC<Props> = ({
             </View>
 
             <View style={styles.levelIndicator}>
-              <Text style={styles.levelText}>Niveau {sessionState.currentLevel}</Text>
+              <Text style={styles.levelText}>
+                {currentLevelInfo?.name ?? `Niveau ${sessionState.currentLevel}`}
+              </Text>
               <Text style={styles.progressText}>
                 {sessionState.sequencesCompleted} / 8
               </Text>
@@ -231,7 +298,7 @@ export const SuitesLogiquesGame: React.FC<Props> = ({
               disabled={gameState.status === 'checking' || gameState.status === 'success'}
               hintLevel={gameState.currentHintLevel}
               correctAnswerId={currentSequence.correctAnswer.id}
-              status={gameState.status}
+              status={mapGameStatusToChoiceStatus(gameState.status)}
             />
           </View>
 
@@ -239,14 +306,16 @@ export const SuitesLogiquesGame: React.FC<Props> = ({
           <View style={styles.actions}>
             <Pressable
               onPress={handleHint}
-              disabled={gameState.currentHintLevel >= 4}
+              disabled={hintsRemaining <= 0 || gameState.currentHintLevel >= 4}
               style={[
                 styles.hintButton,
-                gameState.currentHintLevel >= 4 && styles.disabledButton,
+                (hintsRemaining <= 0 || gameState.currentHintLevel >= 4) && styles.disabledButton,
               ]}
             >
               <Text style={styles.hintButtonText}>💡</Text>
-              <Text style={styles.hintButtonLabel}>Indice</Text>
+              <Text style={styles.hintButtonLabel}>
+                Indice ({hintsRemaining})
+              </Text>
             </Pressable>
           </View>
 

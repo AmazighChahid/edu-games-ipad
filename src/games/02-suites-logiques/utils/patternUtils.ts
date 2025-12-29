@@ -62,6 +62,16 @@ function getPrime(n: number): number {
   return primes[n];
 }
 
+// Stocker la valeur de départ pour la session courante (pour varier les suites)
+let currentNumericStartValue: number | null = null;
+let currentNumericStartOffset: number | null = null;
+
+// Réinitialiser les valeurs de départ (appelé au début de chaque nouvelle séquence)
+export function resetNumericStartValues(): void {
+  currentNumericStartValue = null;
+  currentNumericStartOffset = null;
+}
+
 // Transformer un élément en nombre (pour suites numériques)
 export function applyNumericTransform(
   element: SequenceElement,
@@ -71,30 +81,56 @@ export function applyNumericTransform(
 ): SequenceElement {
   let value: number;
 
+  // Générer une valeur de départ aléatoire au premier index
+  if (index === 0) {
+    currentNumericStartValue = null;
+    currentNumericStartOffset = null;
+  }
+
   switch (patternType) {
     case 'numeric_add':
-      // Suite arithmétique : +step
-      value = (index + 1) * step;
+      // Suite arithmétique : start + n*step
+      // Valeur de départ aléatoire entre 1 et 20
+      if (currentNumericStartValue === null) {
+        currentNumericStartValue = Math.floor(Math.random() * 20) + 1;
+      }
+      value = currentNumericStartValue + index * step;
       break;
 
     case 'numeric_mult':
-      // Suite géométrique : ×step
-      value = Math.pow(step, index);
+      // Suite géométrique : start × step^n
+      // Valeur de départ aléatoire : 1, 2, 3, 4, ou 5
+      if (currentNumericStartValue === null) {
+        currentNumericStartValue = Math.floor(Math.random() * 5) + 1;
+      }
+      value = currentNumericStartValue * Math.pow(step, index);
       break;
 
     case 'fibonacci':
-      // Suite de Fibonacci
-      value = fibonacci(index);
+      // Suite de Fibonacci avec offset aléatoire
+      // Commencer à un index aléatoire de Fibonacci (0-4)
+      if (currentNumericStartOffset === null) {
+        currentNumericStartOffset = Math.floor(Math.random() * 5);
+      }
+      value = fibonacci(index + currentNumericStartOffset);
       break;
 
     case 'prime':
-      // Nombres premiers : 2, 3, 5, 7, 11, 13...
-      value = getPrime(index);
+      // Nombres premiers avec offset aléatoire
+      // Commencer à un index aléatoire (0-5)
+      if (currentNumericStartOffset === null) {
+        currentNumericStartOffset = Math.floor(Math.random() * 6);
+      }
+      value = getPrime(index + currentNumericStartOffset);
       break;
 
     case 'numeric_square':
-      // Carrés parfaits : 1, 4, 9, 16, 25...
-      value = Math.pow(index + 1, 2);
+      // Carrés parfaits avec offset aléatoire
+      // Commencer à (n+offset)² où offset est 0-4
+      if (currentNumericStartOffset === null) {
+        currentNumericStartOffset = Math.floor(Math.random() * 5);
+      }
+      value = Math.pow(index + 1 + currentNumericStartOffset, 2);
       break;
 
     default:
@@ -156,7 +192,48 @@ export function generateDistractors(
   };
 
   // Stratégie différente selon le type de pattern
-  if (pattern.transform === 'numeric') {
+  if (pattern.transform === 'rotation') {
+    // Pour les patterns de rotation, les distracteurs doivent être
+    // la MÊME forme avec des rotations DIFFÉRENTES (fausses)
+    const correctRotation = correctAnswer.rotation || 0;
+    const step = pattern.step || 90;
+
+    // Générer des rotations incorrectes mais plausibles
+    const possibleRotations = [
+      (correctRotation - step + 360) % 360,  // Rotation précédente
+      (correctRotation + step) % 360,        // Rotation suivante (trop loin)
+      (correctRotation - step * 2 + 360) % 360, // 2 pas en arrière
+      (correctRotation + step / 2) % 360,    // Demi-pas
+      (360 - correctRotation) % 360,         // Rotation miroir
+      (correctRotation + 180) % 360,         // Opposé
+    ].filter(r => r !== correctRotation);
+
+    // Supprimer les doublons
+    const uniqueRotations = [...new Set(possibleRotations)];
+    const shuffledRotations = uniqueRotations.sort(() => Math.random() - 0.5);
+
+    for (const rotation of shuffledRotations.slice(0, count)) {
+      distractors.push({
+        ...correctAnswer,
+        id: `distractor_rot_${rotation}_${Date.now()}_${Math.random()}`,
+        rotation,
+      });
+    }
+  } else if (pattern.transform === 'size') {
+    // Pour les patterns de taille, les distracteurs doivent être
+    // la MÊME forme avec des tailles DIFFÉRENTES
+    const sizes: ('small' | 'medium' | 'large')[] = ['small', 'medium', 'large'];
+    const correctSize = correctAnswer.size || 'medium';
+    const otherSizes = sizes.filter(s => s !== correctSize);
+
+    for (const size of otherSizes.slice(0, count)) {
+      distractors.push({
+        ...correctAnswer,
+        id: `distractor_size_${size}_${Date.now()}_${Math.random()}`,
+        size,
+      });
+    }
+  } else if (pattern.transform === 'numeric') {
     // Pour les suites numériques, générer des distracteurs intelligents
     // basés sur le TYPE de suite pour tromper l'enfant
     const correctValue = correctAnswer.value as number;

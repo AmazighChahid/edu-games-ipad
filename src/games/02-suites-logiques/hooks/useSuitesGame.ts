@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import {
   GameState,
   SessionState,
@@ -9,7 +9,7 @@ import {
 import { GAME_CONFIG } from '../constants/gameConfig';
 import { useSequenceGenerator } from './useSequenceGenerator';
 import { useStreakTracker } from './useStreakTracker';
-import { suitesLogiquesLevels } from '../data/levels';
+import { suitesLogiquesLevels, getLevelByOrder, SuitesLogiquesLevel } from '../data/levels';
 
 // ============================================
 // HOOK PRINCIPAL DU JEU
@@ -47,6 +47,14 @@ export function useSuitesGame({
     startTime: new Date(),
     theme,
   });
+
+  // Récupérer les informations du niveau actuel depuis levels.ts
+  const currentLevelInfo: SuitesLogiquesLevel | undefined = useMemo(() => {
+    return getLevelByOrder(sessionState.currentLevel);
+  }, [sessionState.currentLevel]);
+
+  // Nombre d'indices disponibles pour ce niveau (depuis levels.ts)
+  const maxHintsForLevel = currentLevelInfo?.hintsAvailable ?? 3;
 
   // Générateur de séquences
   const { generateSequence } = useSequenceGenerator(theme);
@@ -162,7 +170,10 @@ export function useSuitesGame({
   }, [gameState, incrementStreak, resetStreak, streak]);
 
   // Demander un indice manuellement
+  // Limite basée sur hintsAvailable du niveau (depuis levels.ts)
   const requestHint = useCallback(() => {
+    // Vérifier si on a atteint la limite d'indices pour ce niveau
+    if (gameState.hintsUsed >= maxHintsForLevel) return;
     if (gameState.currentHintLevel >= 4) return;
 
     setGameState(prev => ({
@@ -186,7 +197,7 @@ export function useSuitesGame({
     setTimeout(() => {
       setGameState(prev => ({ ...prev, status: 'idle' }));
     }, GAME_CONFIG.animationDurations.hint);
-  }, [gameState.currentHintLevel]);
+  }, [gameState.currentHintLevel, gameState.hintsUsed, maxHintsForLevel]);
 
   // Passer à la séquence suivante
   // levelOverride permet de forcer un niveau (utile au premier appel)
@@ -244,5 +255,9 @@ export function useSuitesGame({
     nextSequence,
     isSessionComplete,
     checkLevelUp,
+    // Nouvelles données depuis levels.ts
+    currentLevelInfo,
+    maxHintsForLevel,
+    hintsRemaining: maxHintsForLevel - gameState.hintsUsed,
   };
 }

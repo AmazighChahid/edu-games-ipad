@@ -16,6 +16,7 @@ export type PatternType =
   | 'AABBC'         // Cycle 5 éléments
   | 'ABCBA'         // Miroir symétrique
   | 'ABCDCBA'       // Miroir long
+  | 'ABCDEDCBA'     // Miroir très long (9 éléments)
   | 'increasing'    // Croissant (taille, quantité)
   | 'decreasing'    // Décroissant
   | 'rotation'      // Rotation progressive
@@ -185,3 +186,33 @@ export interface SessionStats {
   maxStreak: number;
   totalTime: number;
 }
+
+// ============================================
+// RE-EXPORTS FROM ENGINE
+// ============================================
+
+export type {
+  LogicFamily,
+  ErrorType,
+  HintType,
+  HighlightKey,
+  QualityIssue,
+  SequencePuzzle,
+  AttemptResult,
+  HintPayload,
+  HintTemplate,
+  RollingStats,
+  PlayerModel,
+  DifficultySelection,
+  QualityReport,
+  EngineConfig,
+  SeededRandom,
+} from '../engine/types';
+
+export {
+  PATTERN_TO_FAMILY,
+  getPatternFamily,
+  DEFAULT_ENGINE_CONFIG,
+  createSeededRandom,
+  defaultRandom,
+} from '../engine/types';

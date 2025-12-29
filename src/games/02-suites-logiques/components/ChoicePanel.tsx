@@ -1,5 +1,5 @@
 import React, { useMemo, useRef, useEffect } from 'react';
-import { View, StyleSheet, Pressable, Text } from 'react-native';
+import { View, StyleSheet, Pressable, Text, ScrollView } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -168,16 +168,23 @@ export const ChoicePanel: React.FC<Props> = ({
         containerAnimStyle,
       ]}
     >
-      <View style={styles.choicesRow}>
-        {visibleChoices.map(choice => (
-          <ChoiceButton
-            key={choice.id}
-            element={choice}
-            isSelected={choice.id === selectedId}
-            isRevealed={hintLevel >= 4 && choice.id === correctAnswerId}
-          />
-        ))}
-      </View>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+        style={styles.scrollView}
+      >
+        <View style={styles.choicesRow}>
+          {visibleChoices.map(choice => (
+            <ChoiceButton
+              key={choice.id}
+              element={choice}
+              isSelected={choice.id === selectedId}
+              isRevealed={hintLevel >= 4 && choice.id === correctAnswerId}
+            />
+          ))}
+        </View>
+      </ScrollView>
 
       {/* Bouton Valider - apparaît quand une réponse est sélectionnée */}
       {selectedId && !disabled && onConfirm && (
@@ -204,14 +211,20 @@ const styles = StyleSheet.create({
     padding: DIMENSIONS.spacing.md,
     backgroundColor: 'rgba(255,255,255,0.8)',
     borderRadius: 20,
-    marginHorizontal: DIMENSIONS.spacing.lg,
+  },
+  scrollView: {
+    flexGrow: 0,
+  },
+  scrollContent: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: DIMENSIONS.spacing.sm,
   },
   choicesRow: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
     gap: DIMENSIONS.choice.spacing,
-    flexWrap: 'wrap',
   },
   choiceButton: {
     borderRadius: DIMENSIONS.choice.borderRadius,

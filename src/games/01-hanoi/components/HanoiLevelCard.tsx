@@ -66,7 +66,7 @@ export function HanoiLevelCard({ level, isSelected }: HanoiLevelCardProps) {
           // i=0 → rendered first (top) → smallest disk
           // i=diskCount-1 → rendered last (bottom) → largest disk
           const diskSize = i + 1; // 1 = smallest (top), diskCount = largest (bottom)
-          const width = 20 + diskSize * 12;
+          const width = 16 + diskSize * 8; // Smaller disks to fit card
           const colorIndex = i % DISK_COLORS.length;
 
           return (
@@ -121,13 +121,12 @@ export function HanoiLevelCard({ level, isSelected }: HanoiLevelCardProps) {
 const styles = StyleSheet.create({
   card: {
     backgroundColor: colors.background.card,
-    borderRadius: borderRadius.xl,
-    paddingVertical: spacing[6],
-    paddingHorizontal: spacing[6],
+    borderRadius: borderRadius.lg,
+    padding: spacing[2],
     alignItems: 'center',
-    minWidth: 140,
-    minHeight: 160,
-    borderWidth: 4,
+    width: 100,
+    height: 120,
+    borderWidth: 2,
     borderColor: colors.background.secondary,
     ...shadows.md,
   },
@@ -148,19 +147,19 @@ const styles = StyleSheet.create({
   // Mini disks preview
   disksStack: {
     alignItems: 'center',
-    gap: 4,
-    marginBottom: spacing[4],
-    minHeight: 80,
+    gap: 2,
+    marginBottom: spacing[1],
+    minHeight: 40,
     justifyContent: 'flex-end',
   },
   miniDisk: {
-    height: 10,
-    borderRadius: 5,
+    height: 6,
+    borderRadius: 3,
   },
 
   // Level number
   levelNumber: {
-    fontSize: 48,
+    fontSize: 28,
     fontFamily: fontFamily.bold,
     fontWeight: 'bold',
     color: colors.text.primary,
@@ -169,7 +168,7 @@ const styles = StyleSheet.create({
     color: colors.primary.main,
   },
   levelNumberLocked: {
-    fontSize: 32,
+    fontSize: 24,
     color: colors.text.muted,
   },
 

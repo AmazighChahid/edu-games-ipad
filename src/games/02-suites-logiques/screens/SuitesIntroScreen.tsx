@@ -387,7 +387,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.4,
     shadowRadius: 24,
     elevation: 12,
-    transform: [{ scale: 1.08 }],
   },
   levelCardLocked: {
     backgroundColor: '#F5F5F5',

@@ -1,11 +1,11 @@
 /**
  * PetalsIndicator
  * ===============
- * Indicateur de score sous forme de pétales/feuilles.
- * Remplace les étoiles ⭐ pour un style flat et cohérent avec le thème forêt.
+ * Indicateur de score sous forme d'étoiles outline (contour uniquement).
+ * Style flat et cohérent avec le thème de l'app.
  *
  * @example
- * // État normal (2/3 pétales)
+ * // État normal (2/3 étoiles)
  * <PetalsIndicator filledCount={2} />
  *
  * // Dans une card sélectionnée (couleurs blanches)
@@ -16,7 +16,8 @@
  */
 
 import React, { useEffect, useMemo } from 'react';
-import { View, StyleSheet, ViewStyle } from 'react-native';
+import { View, StyleSheet } from 'react-native';
+import Svg, { Polygon } from 'react-native-svg';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -56,28 +57,75 @@ export interface PetalsIndicatorProps {
 // ============================================
 
 const SIZES = {
-  small: { width: 8, height: 13, gap: 3, radiusTop: 8, radiusBottom: 3 },
-  medium: { width: 10, height: 16, gap: 4, radiusTop: 10, radiusBottom: 4 },
-  large: { width: 14, height: 22, gap: 6, radiusTop: 14, radiusBottom: 5 },
+  small: { size: 17, strokeWidth: 1.5, gap: 3 },
+  medium: { size: 21, strokeWidth: 2, gap: 4 },
+  large: { size: 27, strokeWidth: 2.5, gap: 6 },
 };
 
 const COLORS = {
-  filled: '#7BC74D', // Vert nature
-  empty: '#E0E0E0', // Gris neutre
+  filled: '#fff000', // Or/Jaune pour étoile remplie
+  empty: '#D0D0D0', // Gris pour contour vide
   selectedFilled: '#FFFFFF',
-  selectedEmpty: 'rgba(255, 255, 255, 0.3)',
+  selectedEmpty: 'rgba(255, 255, 255, 0.4)',
+};
+
+// Générer les points d'une étoile à 5 branches
+const generateStarPoints = (cx: number, cy: number, outerRadius: number, innerRadius: number): string => {
+  const points = [];
+  for (let i = 0; i < 10; i++) {
+    const radius = i % 2 === 0 ? outerRadius : innerRadius;
+    const angle = (Math.PI * 2 * i) / 10 - Math.PI / 2;
+    const x = cx + radius * Math.cos(angle);
+    const y = cy + radius * Math.sin(angle);
+    points.push(`${x},${y}`);
+  }
+  return points.join(' ');
 };
 
 // ============================================
-// SOUS-COMPOSANT: PÉTALE ANIMÉ
+// SOUS-COMPOSANT: ÉTOILE SVG
 // ============================================
 
-interface AnimatedPetalProps {
-  index: number;
-  style: ViewStyle;
+interface StarSVGProps {
+  size: number;
+  strokeWidth: number;
+  strokeColor: string;
+  filled: boolean;
 }
 
-const AnimatedPetal: React.FC<AnimatedPetalProps> = ({ index, style }) => {
+const StarSVG: React.FC<StarSVGProps> = ({ size, strokeWidth, strokeColor, filled }) => {
+  const cx = size / 2;
+  const cy = size / 2;
+  const outerRadius = (size / 2) - strokeWidth;
+  const innerRadius = outerRadius * 0.4;
+  const points = generateStarPoints(cx, cy, outerRadius, innerRadius);
+
+  return (
+    <Svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+      <Polygon
+        points={points}
+        fill={filled ? strokeColor : 'none'}
+        stroke={strokeColor}
+        strokeWidth={strokeWidth}
+        strokeLinejoin="round"
+      />
+    </Svg>
+  );
+};
+
+// ============================================
+// SOUS-COMPOSANT: ÉTOILE ANIMÉE
+// ============================================
+
+interface AnimatedStarProps {
+  index: number;
+  size: number;
+  strokeWidth: number;
+  strokeColor: string;
+  filled: boolean;
+}
+
+const AnimatedStar: React.FC<AnimatedStarProps> = ({ index, size, strokeWidth, strokeColor, filled }) => {
   const scale = useSharedValue(0);
   const opacity = useSharedValue(0);
 
@@ -98,7 +146,11 @@ const AnimatedPetal: React.FC<AnimatedPetalProps> = ({ index, style }) => {
     opacity: opacity.value,
   }));
 
-  return <Animated.View style={[style, animatedStyle]} />;
+  return (
+    <Animated.View style={animatedStyle}>
+      <StarSVG size={size} strokeWidth={strokeWidth} strokeColor={strokeColor} filled={filled} />
+    </Animated.View>
+  );
 };
 
 // ============================================
@@ -127,43 +179,44 @@ export const PetalsIndicator: React.FC<PetalsIndicatorProps> = ({
     [isSelected, filledColor, emptyColor]
   );
 
-  // Style de base pour un pétale
-  const getPetalStyle = (isFilled: boolean): ViewStyle => ({
-    width: sizeConfig.width,
-    height: sizeConfig.height,
-    backgroundColor: isFilled ? colors.filled : colors.empty,
-    borderTopLeftRadius: sizeConfig.radiusTop,
-    borderTopRightRadius: sizeConfig.radiusTop,
-    borderBottomLeftRadius: sizeConfig.radiusBottom,
-    borderBottomRightRadius: sizeConfig.radiusBottom,
-  });
-
-  // Rendu des pétales
-  const renderPetals = () => {
+  // Rendu des étoiles
+  const renderStars = () => {
     return Array.from({ length: totalCount }, (_, index) => {
       const isFilled = index < filledCount;
+      const strokeColor = isFilled ? colors.filled : colors.empty;
 
       if (animated) {
         return (
-          <AnimatedPetal
+          <AnimatedStar
             key={index}
             index={index}
-            style={getPetalStyle(isFilled)}
+            size={sizeConfig.size}
+            strokeWidth={sizeConfig.strokeWidth}
+            strokeColor={strokeColor}
+            filled={isFilled}
           />
         );
       }
 
-      return <View key={index} style={getPetalStyle(isFilled)} />;
+      return (
+        <StarSVG
+          key={index}
+          size={sizeConfig.size}
+          strokeWidth={sizeConfig.strokeWidth}
+          strokeColor={strokeColor}
+          filled={isFilled}
+        />
+      );
     });
   };
 
   return (
     <View
       style={[styles.container, { gap: sizeConfig.gap }]}
-      accessibilityLabel={`${filledCount} pétales sur ${totalCount}`}
+      accessibilityLabel={`${filledCount} étoiles sur ${totalCount}`}
       accessibilityRole="text"
     >
-      {renderPetals()}
+      {renderStars()}
     </View>
   );
 };

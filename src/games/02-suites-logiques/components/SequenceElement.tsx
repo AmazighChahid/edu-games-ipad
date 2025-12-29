@@ -179,18 +179,49 @@ export const SequenceElement: React.FC<Props> = ({
   };
 
   // Rendu pour les nombres
+  // Police constante, largeur adaptée au contenu
   const renderNumberElement = () => {
+    // Taille de police fixe basée sur la hauteur du conteneur
     const fontSize = size * 0.5;
+
     return (
-      <Text style={[styles.numberText, { fontSize }]}>{element.value}</Text>
+      <Text style={[styles.numberText, { fontSize }]}>
+        {element.value}
+      </Text>
     );
+  };
+
+  // Calcul de la largeur du conteneur pour les nombres
+  // La largeur s'adapte au nombre de chiffres pour que tout rentre
+  const getContainerStyle = () => {
+    if (element.type === 'number') {
+      const valueStr = String(element.value);
+      const numDigits = valueStr.length;
+
+      // Largeur basée sur le nombre de chiffres
+      // Environ 0.6 * fontSize par chiffre + padding
+      const fontSize = size * 0.5;
+      const charWidth = fontSize * 0.65; // Largeur approximative d'un chiffre
+      const padding = 24; // Padding horizontal total
+      const calculatedWidth = Math.max(size, numDigits * charWidth + padding);
+
+      return {
+        width: calculatedWidth,
+        height: size,
+        minWidth: size,
+      };
+    }
+    return {
+      width: size,
+      height: size,
+    };
   };
 
   return (
     <Animated.View
       style={[
         styles.container,
-        { width: size, height: size },
+        getContainerStyle(),
         isHighlighted && styles.highlighted,
         pulseStyle,
       ]}
@@ -209,6 +240,7 @@ const styles = StyleSheet.create({
     borderRadius: DIMENSIONS.sequenceElement.borderRadius,
     boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
     elevation: 3,
+    paddingHorizontal: 8, // Padding pour les grands nombres
   },
   highlighted: {
     borderWidth: 3,
@@ -221,5 +253,6 @@ const styles = StyleSheet.create({
   numberText: {
     fontWeight: 'bold',
     color: ELEMENT_COLORS.text,
+    textAlign: 'center',
   },
 });

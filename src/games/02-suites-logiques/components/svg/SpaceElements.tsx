@@ -55,7 +55,7 @@ export const MoonSVG: React.FC<SpaceElementProps> = ({ size = 60 }) => {
   );
 };
 
-// Étoile
+// Étoile (contour uniquement)
 export const StarSpaceSVG: React.FC<SpaceElementProps> = ({ size = 60 }) => {
   const cx = 30;
   const cy = 30;
@@ -74,15 +74,14 @@ export const StarSpaceSVG: React.FC<SpaceElementProps> = ({ size = 60 }) => {
   return (
     <View>
       <Svg width={size} height={size} viewBox="0 0 60 60">
-        {/* Étoile principale */}
+        {/* Étoile contour uniquement */}
         <Polygon
           points={points.join(' ')}
-          fill="#FFD700"
-          stroke="#FFA500"
-          strokeWidth="2"
+          fill="none"
+          stroke="#FFD700"
+          strokeWidth="3"
+          strokeLinejoin="round"
         />
-        {/* Brillance */}
-        <Circle cx="30" cy="30" r="6" fill="#FFF9E6" opacity="0.7" />
       </Svg>
     </View>
   );

@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { View, StyleSheet, Text, useWindowDimensions } from 'react-native';
+import { View, StyleSheet, Text, useWindowDimensions, ScrollView } from 'react-native';
 import Animated, { FadeInRight } from 'react-native-reanimated';
 import { Sequence, SequenceElement as ElementType, GameStatus } from '../types';
 import { SequenceElement } from './SequenceElement';
@@ -28,28 +28,21 @@ export const SequenceDisplay: React.FC<Props> = ({
 }) => {
   const { width: screenWidth } = useWindowDimensions();
 
-  // Calculer la taille optimale des éléments selon le nombre d'éléments
+  // Calculer la largeur du conteneur (95% de l'écran avec marge)
+  const containerWidth = useMemo(() => {
+    return screenWidth - DIMENSIONS.spacing.lg * 2; // Marge de chaque côté
+  }, [screenWidth]);
+
+  // Taille fixe des éléments pour garantir la lisibilité
+  // On privilégie une bonne taille plutôt que de tout faire rentrer
   const elementSize = useMemo(() => {
-    // Nombre total d'éléments à afficher (séquence + slot manquant)
-    const totalElements = sequence.elements.length + 1;
+    // Sur iPad (écran large), on peut avoir des éléments plus grands
+    const isLargeScreen = screenWidth > 768;
 
-    // Espace disponible (largeur écran - padding container - marges)
-    const containerPadding = DIMENSIONS.spacing.lg * 2; // padding du container
-    const horizontalPadding = DIMENSIONS.spacing.sm * 2; // padding du scrollContent
-    const availableWidth = screenWidth - containerPadding - horizontalPadding - 32; // 32 pour marges supplémentaires
-
-    // Espace entre les éléments
-    const totalSpacing = DIMENSIONS.sequenceElement.spacing * (totalElements - 1);
-
-    // Taille maximale possible pour que tout rentre sans scroll
-    const maxSizeForFit = (availableWidth - totalSpacing) / totalElements;
-
-    // Limiter entre une taille min (60) et max (120) pour rester lisible
-    const minSize = 60;
-    const maxSize = 120;
-
-    return Math.max(minSize, Math.min(maxSize, Math.floor(maxSizeForFit)));
-  }, [sequence.elements.length, screenWidth]);
+    // Taille fixe selon la taille de l'écran
+    // Le scroll horizontal s'activera si nécessaire
+    return isLargeScreen ? 120 : 80;
+  }, [screenWidth]);
 
   // Déterminer quels éléments doivent pulser (pour les indices)
   const shouldElementPulse = (element: ElementType, index: number): boolean => {
@@ -70,46 +63,81 @@ export const SequenceDisplay: React.FC<Props> = ({
     return false;
   };
 
-  // Rendu des éléments de la séquence
-  const renderElements = () => {
-    return sequence.elements.map((element, index) => {
-      const isPulsing = shouldElementPulse(element, index);
-      const isHighlighted = hintLevel >= 1 && index < 2; // Mettre en évidence les 2 premiers
+  // Rendu des éléments de la séquence avec le slot manquant à la bonne position
+  const renderSequenceWithSlot = () => {
+    const items: React.ReactNode[] = [];
+    let elementIndex = 0;
 
-      return (
-        <Animated.View
-          key={element.id}
-          entering={FadeInRight.delay(index * 100).springify()}
-        >
-          <SequenceElement
-            element={element}
-            index={index}
-            isPulsing={isPulsing}
-            isHighlighted={isHighlighted}
-            size={elementSize}
-          />
-        </Animated.View>
-      );
-    });
+    // Nombre total d'items = éléments visibles + 1 slot manquant
+    const totalItems = sequence.elements.length + 1;
+
+    for (let position = 0; position < totalItems; position++) {
+      if (position === sequence.missingIndex) {
+        // Insérer le slot manquant à cette position
+        items.push(
+          <Animated.View
+            key="missing-slot"
+            entering={FadeInRight.delay(position * 100).springify()}
+          >
+            <MissingSlot
+              expectedElement={sequence.correctAnswer}
+              placedElement={status === 'success' ? sequence.correctAnswer : selectedAnswer}
+              status={status}
+              onDrop={onDropInSlot}
+              size={elementSize}
+            />
+          </Animated.View>
+        );
+      } else {
+        // Insérer un élément visible
+        const element = sequence.elements[elementIndex];
+        const isPulsing = shouldElementPulse(element, position);
+        const isHighlighted = hintLevel >= 1 && position < 2;
+
+        items.push(
+          <Animated.View
+            key={element.id}
+            entering={FadeInRight.delay(position * 100).springify()}
+          >
+            <SequenceElement
+              element={element}
+              index={position}
+              isPulsing={isPulsing}
+              isHighlighted={isHighlighted}
+              size={elementSize}
+            />
+          </Animated.View>
+        );
+        elementIndex++;
+      }
+    }
+
+    return items;
+  };
+
+  // Déterminer l'instruction selon la position du slot manquant
+  const getInstruction = () => {
+    const totalItems = sequence.elements.length + 1;
+    const isAtEnd = sequence.missingIndex === totalItems - 1;
+
+    if (isAtEnd) {
+      return 'QUEL ÉLÉMENT VIENT APRÈS ?';
+    }
+    return 'QUEL ÉLÉMENT MANQUE ?';
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.instructionText}>QUELLE FORME VIENT APRÈS ?</Text>
-      <View style={styles.sequenceWrapper}>
+    <View style={[styles.container, { width: containerWidth }]}>
+      <Text style={styles.instructionText}>{getInstruction()}</Text>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+      >
         <View style={styles.sequenceRow}>
-          {renderElements()}
-
-          {/* Zone manquante */}
-          <MissingSlot
-            expectedElement={sequence.correctAnswer}
-            placedElement={status === 'success' ? sequence.correctAnswer : selectedAnswer}
-            status={status}
-            onDrop={onDropInSlot}
-            size={elementSize}
-          />
+          {renderSequenceWithSlot()}
         </View>
-      </View>
+      </ScrollView>
     </View>
   );
 };
@@ -129,9 +157,11 @@ const styles = StyleSheet.create({
     marginBottom: DIMENSIONS.spacing.md,
     letterSpacing: 1,
   },
-  sequenceWrapper: {
-    alignItems: 'center',
+  scrollContent: {
+    flexGrow: 1,
     justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: DIMENSIONS.spacing.sm,
   },
   sequenceRow: {
     flexDirection: 'row',
