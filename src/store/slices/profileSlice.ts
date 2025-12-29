@@ -4,7 +4,7 @@
  */
 
 import { StateCreator } from 'zustand';
-import type { ChildProfile } from '../../types';
+import type { ChildProfile, AgeGroup } from '@/types';
 
 export interface ProfileState {
   profiles: ChildProfile[];
@@ -13,10 +13,15 @@ export interface ProfileState {
 
 export interface ProfileActions {
   // Profile management
-  createProfile: (name: string, avatar: string, birthDate?: number) => string;
+  createProfile: (name: string, avatar: string, ageGroup: AgeGroup, birthDate?: number) => string;
   updateProfile: (id: string, updates: Partial<Omit<ChildProfile, 'id' | 'createdAt'>>) => void;
   deleteProfile: (id: string) => void;
   setActiveProfile: (id: string) => void;
+
+  // Sync methods (for Supabase integration)
+  setProfiles: (profiles: ChildProfile[]) => void;
+  addProfile: (profile: ChildProfile) => void;
+  setActiveProfileId: (id: string | null) => void;
 
   // Getters
   getActiveProfile: () => ChildProfile | null;
@@ -34,6 +39,7 @@ const createDefaultProfile = (): ChildProfile => ({
   id: 'default_profile',
   name: 'Mon Enfant',
   avatar: '👦',
+  ageGroup: '6-7',
   createdAt: Date.now(),
   isActive: true,
 });
@@ -49,12 +55,13 @@ export const createProfileSlice: StateCreator<ProfileSlice, [], [], ProfileSlice
 ) => ({
   ...initialProfileState,
 
-  createProfile: (name, avatar, birthDate) => {
+  createProfile: (name, avatar, ageGroup, birthDate) => {
     const id = generateId();
     const newProfile: ChildProfile = {
       id,
       name,
       avatar,
+      ageGroup,
       birthDate,
       createdAt: Date.now(),
       isActive: false,
@@ -102,6 +109,21 @@ export const createProfileSlice: StateCreator<ProfileSlice, [], [], ProfileSlice
         isActive: profile.id === id,
       })),
     }));
+  },
+
+  // Sync methods for Supabase
+  setProfiles: (profiles) => {
+    set({ profiles });
+  },
+
+  addProfile: (profile) => {
+    set((state) => ({
+      profiles: [...state.profiles, profile],
+    }));
+  },
+
+  setActiveProfileId: (id) => {
+    set({ activeProfileId: id });
   },
 
   getActiveProfile: () => {
