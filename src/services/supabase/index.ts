@@ -8,3 +8,5 @@ export {
   getSupabaseUrl,
   checkSupabaseConnection,
 } from './supabaseClient';
+
+export { profileService } from './profileService';

@@ -21,6 +21,7 @@ import { createProfileSlice, type ProfileSlice, initialProfileState } from './sl
 import { createGoalsSlice, type GoalsSlice, initialGoalsState } from './slices/goalsSlice';
 import { createScreenTimeSlice, type ScreenTimeSlice, initialScreenTimeState } from './slices/screenTimeSlice';
 import { createCollectionSlice, type CollectionSlice, initialCollectionState } from './slices/collectionSlice';
+import { createAuthSlice, type AuthSlice, initialAuthState } from './slices/authSlice';
 
 // Combined store type
 export type RootStore = AppSlice &
@@ -30,7 +31,8 @@ export type RootStore = AppSlice &
   ProfileSlice &
   GoalsSlice &
   ScreenTimeSlice &
-  CollectionSlice;
+  CollectionSlice &
+  AuthSlice;
 
 // Keys to persist (exclude ephemeral state)
 const PERSISTED_KEYS: (keyof RootStore)[] = [
@@ -59,6 +61,10 @@ const PERSISTED_KEYS: (keyof RootStore)[] = [
   'collectionData',
   'newCardIds',
   'favoriteCardIds',
+  // AuthSlice
+  'isAuthenticated',
+  'userId',
+  'userEmail',
 ];
 
 export const useStore = create<RootStore>()(
@@ -72,6 +78,7 @@ export const useStore = create<RootStore>()(
       ...createGoalsSlice(...args),
       ...createScreenTimeSlice(...args),
       ...createCollectionSlice(...args),
+      ...createAuthSlice(...args),
     }),
     {
       name: 'edu-games-storage',

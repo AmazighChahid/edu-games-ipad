@@ -18,6 +18,11 @@ export interface ProfileActions {
   deleteProfile: (id: string) => void;
   setActiveProfile: (id: string) => void;
 
+  // Sync methods (for Supabase integration)
+  setProfiles: (profiles: ChildProfile[]) => void;
+  addProfile: (profile: ChildProfile) => void;
+  setActiveProfileId: (id: string | null) => void;
+
   // Getters
   getActiveProfile: () => ChildProfile | null;
   getProfile: (id: string) => ChildProfile | undefined;
@@ -104,6 +109,21 @@ export const createProfileSlice: StateCreator<ProfileSlice, [], [], ProfileSlice
         isActive: profile.id === id,
       })),
     }));
+  },
+
+  // Sync methods for Supabase
+  setProfiles: (profiles) => {
+    set({ profiles });
+  },
+
+  addProfile: (profile) => {
+    set((state) => ({
+      profiles: [...state.profiles, profile],
+    }));
+  },
+
+  setActiveProfileId: (id) => {
+    set({ activeProfileId: id });
   },
 
   getActiveProfile: () => {
