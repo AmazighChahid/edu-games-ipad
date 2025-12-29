@@ -5,7 +5,24 @@
 
 // Existing components
 export { ParentZone, type GameMode } from './ParentZone';
-export { ParentDrawer, type GameMode as ParentDrawerGameMode } from './ParentDrawer';
+export {
+  ParentDrawer,
+  type GameMode as ParentDrawerGameMode,
+  type ParentDrawerProps,
+  type GameObjectiveData,
+  type AppBehaviorData,
+  type CompetenceData,
+  type ScienceData,
+  type AdviceData,
+  type QuestionData,
+  type DailyActivityData,
+  type ResourceData,
+  type BadgeData,
+  type AgeExpectationData,
+  type SettingData,
+  type StatsData,
+  type ProgressData,
+} from './ParentDrawer';
 export { SkillsRadar } from './SkillsRadar';
 export { ProgressChart } from './ProgressChart';
 

@@ -8,10 +8,10 @@ import { View, StyleSheet } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 
 import { colors, spacing } from '../../../src/theme';
-import { VictoryCard, PageContainer, type VictoryBadge } from '../../../src/components/common';
+import { VictoryCard, PageContainer, Confetti, type VictoryBadge } from '../../../src/components/common';
 import { CardUnlockScreen } from '../../../src/components/collection';
 import { useCardUnlock } from '../../../src/hooks';
-import { useCollection } from '../../../src/store';
+import { useCollection, useStore } from '../../../src/store';
 
 // ============================================
 // BADGES NON-COMPÉTITIFS
@@ -42,6 +42,7 @@ const getSuitesLogBadge = (
 export default function SuitesLogiquesVictoryScreen() {
   const router = useRouter();
   const { getUnlockedCardsCount } = useCollection();
+  const recordCompletion = useStore((state) => state.recordCompletion);
 
   const params = useLocalSearchParams<{
     completed: string;
@@ -59,7 +60,7 @@ export default function SuitesLogiquesVictoryScreen() {
   const totalTime = parseInt(params.totalTime ?? '0', 10);
   const currentLevel = parseInt(params.level ?? '1', 10);
   const hintsUsed = parseInt(params.hintsUsed ?? '0', 10);
-  const nextLevel = currentLevel < 5 ? currentLevel + 1 : null;
+  const nextLevel = currentLevel < 10 ? currentLevel + 1 : null;
 
   // Calculs
   const successRate = Math.round((correctFirstTry / completed) * 100);
@@ -78,6 +79,23 @@ export default function SuitesLogiquesVictoryScreen() {
     levelNumber: currentLevel,
     isOptimal,
   });
+
+  // Sauvegarder la progression du niveau complété
+  const [hasRecordedCompletion, setHasRecordedCompletion] = useState(false);
+
+  useEffect(() => {
+    if (!hasRecordedCompletion) {
+      recordCompletion({
+        gameId: 'suites-logiques',
+        levelId: `level_${currentLevel}`,
+        completedAt: Date.now(),
+        moveCount: completed, // Nombre de séquences complétées
+        timeSeconds: Math.floor(totalTime / 1000),
+        hintsUsed: hintsUsed,
+      });
+      setHasRecordedCompletion(true);
+    }
+  }, [hasRecordedCompletion, recordCompletion, currentLevel, completed, totalTime, hintsUsed]);
 
   // Check pour déblocage de carte
   const [hasCheckedUnlock, setHasCheckedUnlock] = useState(false);
@@ -136,6 +154,9 @@ export default function SuitesLogiquesVictoryScreen() {
 
   return (
     <PageContainer variant="playful" showDecorations={false}>
+      {/* Animation confetti */}
+      <Confetti type="emoji" count={30} loop={false} />
+
       <View style={styles.content}>
         <VictoryCard
           title="Bravo !"

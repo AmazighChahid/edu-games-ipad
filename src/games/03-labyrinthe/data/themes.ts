@@ -50,4 +50,14 @@ export const THEMES: Record<ThemeType, Theme> = {
     endIcon: '🦋',
     backgroundColor: '#90EE90',
   },
+
+  cave: {
+    id: 'cave',
+    name: 'Grotte Mystérieuse',
+    wallColor: '#4A4A4A',
+    pathColor: '#8B7355',
+    startIcon: '🕯️',
+    endIcon: '💎',
+    backgroundColor: '#2D2D2D',
+  },
 };

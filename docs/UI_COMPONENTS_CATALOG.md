@@ -674,3 +674,488 @@ import { theme } from '@/theme';
 ---
 
 *Ce catalogue doit être consulté AVANT de créer tout composant UI.*
+
+---
+
+## 🎮 GameIntroTemplate ⭐ NOUVEAU
+
+> **Template unifié pour tous les écrans d'introduction de jeux**
+
+### Import
+
+```tsx
+import { GameIntroTemplate, LevelConfig } from '@/components/common';
+```
+
+### Architecture à 2 vues
+
+| Vue | Description | Éléments |
+|-----|-------------|----------|
+| **SELECTION** | L'enfant choisit son niveau | Header, grille niveaux, mascotte centrale, bouton "C'est parti !" |
+| **PLAY** | L'enfant joue | Header, panneau progression, mascotte latérale, zone de jeu, boutons flottants |
+
+### Props principales
+
+```tsx
+interface GameIntroTemplateProps {
+  // Header
+  title: string;
+  emoji: string;
+  onBack: () => void;
+  onParentPress?: () => void;
+  onHelpPress?: () => void;
+  showParentButton?: boolean;
+  showHelpButton?: boolean;
+
+  // Niveaux
+  levels: LevelConfig[];
+  selectedLevel: LevelConfig | null;
+  onSelectLevel: (level: LevelConfig) => void;
+  renderLevelCard?: (level: LevelConfig, isSelected: boolean) => ReactNode;
+  levelColumns?: number;
+
+  // Mode entraînement
+  showTrainingMode?: boolean;
+  trainingConfig?: TrainingConfig;
+  onTrainingPress?: () => void;
+  isTrainingMode?: boolean;
+
+  // Zone de jeu
+  renderGame: () => ReactNode;
+  isPlaying: boolean;
+  onStartPlaying?: () => void;
+
+  // Progression
+  renderProgress?: () => ReactNode;
+
+  // Mascotte
+  mascotComponent?: ReactNode;
+  mascotMessage?: string;
+  mascotMessageType?: 'intro' | 'hint' | 'error' | 'encourage' | 'victory';
+
+  // Boutons flottants
+  showResetButton?: boolean;
+  onReset?: () => void;
+  showHintButton?: boolean;
+  onHint?: () => void;
+  hintsRemaining?: number;
+  hintsDisabled?: boolean;
+  showForceCompleteButton?: boolean;
+  onForceComplete?: () => void;
+
+  // Victoire
+  isVictory?: boolean;
+  victoryComponent?: ReactNode;
+
+  // Bouton jouer
+  showPlayButton?: boolean;
+  playButtonText?: string;
+  playButtonEmoji?: string;
+}
+```
+
+### Usage standard
+
+```tsx
+export default function MonJeuIntroScreen() {
+  const intro = useMonJeuIntro(); // Hook orchestrateur
+
+  const renderGame = useCallback(() => (
+    <MonJeuGameArea {...intro} />
+  ), [intro]);
+
+  return (
+    <GameIntroTemplate
+      // Header
+      title="Mon Super Jeu"
+      emoji="🎮"
+      onBack={intro.handleBack}
+      onParentPress={intro.handleParentPress}
+      onHelpPress={intro.handleHelpPress}
+
+      // Niveaux
+      levels={intro.levels}
+      selectedLevel={intro.selectedLevel}
+      onSelectLevel={intro.handleSelectLevel}
+
+      // Jeu
+      renderGame={renderGame}
+      isPlaying={intro.isPlaying}
+      onStartPlaying={intro.handleStartPlaying}
+
+      // Mascotte
+      mascotComponent={
+        <MonJeuMascot
+          message={intro.mascotMessage}
+          emotion={intro.mascotEmotion}
+        />
+      }
+
+      // Boutons flottants
+      onReset={intro.handleReset}
+      onHint={intro.handleHint}
+      hintsRemaining={intro.hintsRemaining}
+
+      // Victoire
+      isVictory={intro.isVictory}
+    />
+  );
+}
+```
+
+### Helpers exportés
+
+```tsx
+// Calcule les niveaux débloqués selon l'âge
+calculateLevelsForAge(age: number): number
+
+// Génère une config de niveaux par défaut
+generateDefaultLevels(count?: number): LevelConfig[]
+
+// Configuration d'animation par défaut
+DEFAULT_ANIMATION_CONFIG: IntroAnimationConfig
+```
+
+---
+
+## 💬 MascotBubble ⭐ NOUVEAU
+
+> **Bulle de dialogue style panneau bois pour les mascottes**
+
+### Import
+
+```tsx
+import { MascotBubble, bubbleTextStyles } from '@/components/common';
+```
+
+### Props
+
+```tsx
+interface MascotBubbleProps {
+  /** Message (texte ou JSX avec highlights) */
+  message: React.ReactNode;
+  /** Texte du bouton CTA */
+  buttonText?: string;
+  /** Icône emoji du bouton */
+  buttonIcon?: string;
+  /** Callback au press */
+  onPress?: () => void;
+  /** Couleur du bouton */
+  buttonVariant?: 'orange' | 'blue' | 'green';
+  /** Décorations (gland, champignon, feuille) */
+  showDecorations?: boolean;
+  /** Sparkles animés */
+  showSparkles?: boolean;
+  /** Position de la queue */
+  tailPosition?: 'left' | 'right' | 'bottom' | 'top';
+  /** Masquer la queue */
+  hideTail?: boolean;
+  /** Largeur max (défaut: 380) */
+  maxWidth?: number;
+  /** Effet frappe progressive */
+  typing?: boolean;
+  /** Vitesse frappe ms/caractère (défaut: 25) */
+  typingSpeed?: number;
+  /** Callback fin de frappe */
+  onTypingComplete?: () => void;
+}
+```
+
+### Usage basique
+
+```tsx
+<MascotBubble
+  message="Bonjour ! Prêt à jouer ?"
+  buttonText="C'est parti !"
+  onPress={() => startGame()}
+/>
+```
+
+### Avec highlights
+
+```tsx
+import { MascotBubble, bubbleTextStyles } from '@/components/common';
+
+<MascotBubble
+  message={
+    <>
+      Tu es à <Text style={bubbleTextStyles.highlightOrange}>2 niveaux</Text> du rang{' '}
+      <Text style={bubbleTextStyles.highlightGold}>Or</Text> !
+    </>
+  }
+  buttonText="C'est parti !"
+  buttonIcon="🎯"
+  onPress={handleStart}
+  showDecorations
+  showSparkles
+/>
+```
+
+### Avec effet typewriter
+
+```tsx
+<MascotBubble
+  message="Analyse du pattern en cours..."
+  typing
+  typingSpeed={30}
+  onTypingComplete={() => setReady(true)}
+  tailPosition="left"
+/>
+```
+
+---
+
+## 💡 HintButton ⭐ NOUVEAU
+
+> **Bouton d'indices animé avec indicateur de restants**
+
+### Import
+
+```tsx
+import { HintButton } from '@/components/common';
+```
+
+### Props
+
+```tsx
+interface HintButtonProps {
+  /** Indices restants (requis) */
+  hintsRemaining: number;
+  /** Maximum d'indices (défaut: 3) */
+  maxHints?: number;
+  /** Callback au clic (requis) */
+  onPress: () => void;
+  /** Désactivé */
+  disabled?: boolean;
+  /** Taille */
+  size?: 'small' | 'medium' | 'large';
+  /** Schéma de couleur */
+  colorScheme?: 'orange' | 'blue' | 'green' | 'purple';
+  /** Afficher label texte */
+  showLabel?: boolean;
+  /** Position du label */
+  labelPosition?: 'right' | 'bottom';
+  /** Texte label personnalisé */
+  customLabel?: string;
+  /** Icône (défaut: '💡') */
+  icon?: string;
+  /** Désactiver vibrations */
+  disableHaptics?: boolean;
+}
+```
+
+### Usage
+
+```tsx
+// Standard
+<HintButton
+  hintsRemaining={3}
+  maxHints={3}
+  onPress={handleHint}
+/>
+
+// Compact avec couleur
+<HintButton
+  hintsRemaining={2}
+  maxHints={3}
+  onPress={handleHint}
+  size="small"
+  colorScheme="blue"
+/>
+
+// Avec label
+<HintButton
+  hintsRemaining={1}
+  maxHints={3}
+  onPress={handleHint}
+  showLabel
+  labelPosition="right"
+/>
+```
+
+---
+
+## 🎊 Confetti ⭐ NOUVEAU
+
+> **Animation de confettis pour les célébrations**
+
+### Import
+
+```tsx
+import { Confetti } from '@/components/common';
+```
+
+### Usage
+
+```tsx
+<Confetti
+  active={showVictory}
+  count={50}
+  duration={3000}
+/>
+```
+
+---
+
+## 🃏 CardFlip ⭐ NOUVEAU
+
+> **Animation de retournement de carte**
+
+### Import
+
+```tsx
+import { CardFlip } from '@/components/common';
+```
+
+### Usage
+
+```tsx
+<CardFlip
+  isFlipped={cardFlipped}
+  frontContent={<CardFront />}
+  backContent={<CardBack />}
+  duration={300}
+/>
+```
+
+---
+
+## 📊 ProgressIndicator ⭐ NOUVEAU
+
+> **Indicateur de progression avec statistiques**
+
+### Import
+
+```tsx
+import { ProgressIndicator } from '@/components/common';
+```
+
+### Usage
+
+```tsx
+<ProgressIndicator
+  current={5}
+  total={10}
+  label="Niveau"
+  showPercentage
+/>
+```
+
+---
+
+## 🎮 GameActionButtons ⭐ NOUVEAU
+
+> **Groupe de boutons d'actions de jeu (reset, hint, etc.)**
+
+### Import
+
+```tsx
+import { GameActionButtons } from '@/components/common';
+```
+
+### Usage
+
+```tsx
+<GameActionButtons
+  onReset={handleReset}
+  onHint={handleHint}
+  hintsRemaining={2}
+  showForceComplete={isDev}
+  onForceComplete={handleForceComplete}
+/>
+```
+
+---
+
+## 📈 PerformanceStats ⭐ NOUVEAU
+
+> **Affichage des statistiques de performance**
+
+### Import
+
+```tsx
+import { PerformanceStats } from '@/components/common';
+```
+
+### Usage
+
+```tsx
+<PerformanceStats
+  moves={15}
+  optimalMoves={7}
+  timeElapsed={125}
+  hintsUsed={2}
+/>
+```
+
+---
+
+## 🏆 VictoryOverlayBase ⭐ NOUVEAU
+
+> **Base pour les overlays de victoire personnalisés**
+
+### Import
+
+```tsx
+import { VictoryOverlayBase } from '@/components/common';
+```
+
+### Usage
+
+```tsx
+<VictoryOverlayBase
+  visible={isVictory}
+  onClose={handleClose}
+>
+  <CustomVictoryContent />
+</VictoryOverlayBase>
+```
+
+---
+
+## 🔒 ParentGate ⭐ NOUVEAU
+
+> **Protection d'accès parental**
+
+### Import
+
+```tsx
+import { ParentGate } from '@/components/common';
+```
+
+### Usage
+
+```tsx
+<ParentGate
+  onSuccess={() => router.push('/(parent)')}
+  onCancel={() => setShowGate(false)}
+/>
+```
+
+---
+
+## 🖼️ ScreenBackground ⭐ NOUVEAU
+
+> **Fond d'écran avec variantes**
+
+### Import
+
+```tsx
+import { ScreenBackground } from '@/components/common';
+```
+
+### Variantes
+
+```tsx
+// Fond ludique
+<ScreenBackground variant="playful" />
+
+// Fond neutre
+<ScreenBackground variant="neutral" />
+
+// Fond parent
+<ScreenBackground variant="parent" />
+
+// Transparent (custom)
+<ScreenBackground variant="transparent" />
+```

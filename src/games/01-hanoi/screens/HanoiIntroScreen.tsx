@@ -41,6 +41,7 @@ import {
 import { useHanoiGame } from '../hooks/useHanoiGame';
 import { hanoiLevels } from '../data/levels';
 import { ParentDrawer, type GameMode } from '../../../components/parent/ParentDrawer';
+import { hanoiParentGuideData } from '../data/parentGuideData';
 import { useStore } from '../../../store';
 import type { HanoiLevelConfig, TowerId } from '../types';
 
@@ -587,13 +588,46 @@ export function HanoiIntroScreen() {
       <ParentDrawer
         isVisible={showParentZone}
         onClose={() => setShowParentZone(false)}
-        currentMoves={moveCount}
-        optimalMoves={level.optimalMoves ?? 7}
-        hintsRemaining={hintsRemaining}
-        maxHints={maxHints}
+        // Activity data from parentGuideData
+        activityName={hanoiParentGuideData.activityName}
+        activityEmoji={hanoiParentGuideData.activityEmoji}
+        gameData={hanoiParentGuideData.gameData}
+        appBehavior={hanoiParentGuideData.appBehavior}
+        competences={hanoiParentGuideData.competences}
+        scienceData={hanoiParentGuideData.scienceData}
+        advices={hanoiParentGuideData.advices}
+        warningText={hanoiParentGuideData.warningText}
+        teamMessage={hanoiParentGuideData.teamMessage}
+        questionsDuring={hanoiParentGuideData.questionsDuring}
+        questionsAfter={hanoiParentGuideData.questionsAfter}
+        questionsWarning={hanoiParentGuideData.questionsWarning}
+        dailyActivities={hanoiParentGuideData.dailyActivities}
+        transferPhrases={hanoiParentGuideData.transferPhrases}
+        resources={hanoiParentGuideData.resources}
+        badges={hanoiParentGuideData.badges}
+        ageExpectations={hanoiParentGuideData.ageExpectations}
+        settings={hanoiParentGuideData.settings}
+        // Dynamic game state
+        stats={{
+          totalGames: 12,
+          successfulGames: 8,
+          totalTime: '45min',
+        }}
+        progress={{
+          currentLevel: level.diskCount,
+          maxLevel: 8,
+          progressPercent: Math.round((level.diskCount / 8) * 100),
+          nextObjective: `Prochain objectif : ${level.diskCount + 1} disques`,
+        }}
         currentMode={gameMode}
         onModeChange={handleModeChange}
+        childAge={8}
+        hintsRemaining={hintsRemaining}
+        maxHints={maxHints}
         onHintPress={handleHint}
+        // Legacy props
+        currentMoves={moveCount}
+        optimalMoves={level.optimalMoves ?? 7}
         currentLevel={level.diskCount}
       />
 

@@ -112,7 +112,7 @@ const levels4x4: SudokuLevel[] = [
     idealTime: 90,
     optimalMoves: 6,
     ageRange: '6-7',
-    locked: true,
+    locked: false,
     unlockCondition: 'Complete sudoku-4x4-02',
   },
   {
@@ -126,7 +126,7 @@ const levels4x4: SudokuLevel[] = [
     idealTime: 120,
     optimalMoves: 8,
     ageRange: '6-7',
-    locked: true,
+    locked: false,
     unlockCondition: 'Complete sudoku-4x4-03',
   },
   {
@@ -140,7 +140,7 @@ const levels4x4: SudokuLevel[] = [
     idealTime: 120,
     optimalMoves: 8,
     ageRange: '6-7',
-    locked: true,
+    locked: false,
     unlockCondition: 'Complete sudoku-4x4-04',
   },
   {
@@ -154,7 +154,7 @@ const levels4x4: SudokuLevel[] = [
     idealTime: 180,
     optimalMoves: 10,
     ageRange: '6-7',
-    locked: true,
+    locked: false,
     unlockCondition: 'Complete sudoku-4x4-05 twice',
   },
 ];
@@ -175,7 +175,7 @@ const levels6x6: SudokuLevel[] = [
     idealTime: 180,
     optimalMoves: 12,
     ageRange: '7-8',
-    locked: true,
+    locked: false,
     unlockCondition: 'Complete all 4x4 levels',
   },
   {
@@ -189,7 +189,7 @@ const levels6x6: SudokuLevel[] = [
     idealTime: 210,
     optimalMoves: 14,
     ageRange: '7-8',
-    locked: true,
+    locked: false,
     unlockCondition: 'Complete sudoku-6x6-01',
   },
   {
@@ -203,7 +203,7 @@ const levels6x6: SudokuLevel[] = [
     idealTime: 240,
     optimalMoves: 16,
     ageRange: '7-8',
-    locked: true,
+    locked: false,
     unlockCondition: 'Complete sudoku-6x6-02',
   },
   {
@@ -217,7 +217,7 @@ const levels6x6: SudokuLevel[] = [
     idealTime: 300,
     optimalMoves: 18,
     ageRange: '7-8',
-    locked: true,
+    locked: false,
     unlockCondition: 'Complete sudoku-6x6-03',
   },
   {
@@ -231,7 +231,7 @@ const levels6x6: SudokuLevel[] = [
     idealTime: 360,
     optimalMoves: 20,
     ageRange: '7-8',
-    locked: true,
+    locked: false,
     unlockCondition: 'Complete sudoku-6x6-04',
   },
   {
@@ -245,7 +245,7 @@ const levels6x6: SudokuLevel[] = [
     idealTime: 420,
     optimalMoves: 22,
     ageRange: '7-8',
-    locked: true,
+    locked: false,
     unlockCondition: 'Complete sudoku-6x6-05 twice',
   },
 ];
@@ -266,7 +266,7 @@ const levels9x9: SudokuLevel[] = [
     idealTime: 300,
     optimalMoves: 36,
     ageRange: '9-10',
-    locked: true,
+    locked: false,
     unlockCondition: 'Complete all 6x6 levels',
   },
   {
@@ -280,7 +280,7 @@ const levels9x9: SudokuLevel[] = [
     idealTime: 360,
     optimalMoves: 39,
     ageRange: '9-10',
-    locked: true,
+    locked: false,
     unlockCondition: 'Complete sudoku-9x9-01',
   },
   {
@@ -294,7 +294,7 @@ const levels9x9: SudokuLevel[] = [
     idealTime: 420,
     optimalMoves: 43,
     ageRange: '9-10',
-    locked: true,
+    locked: false,
     unlockCondition: 'Complete sudoku-9x9-02',
   },
   {
@@ -308,7 +308,7 @@ const levels9x9: SudokuLevel[] = [
     idealTime: 480,
     optimalMoves: 46,
     ageRange: '9-10',
-    locked: true,
+    locked: false,
     unlockCondition: 'Complete sudoku-9x9-03',
   },
   {
@@ -322,7 +322,7 @@ const levels9x9: SudokuLevel[] = [
     idealTime: 600,
     optimalMoves: 49,
     ageRange: '9-10',
-    locked: true,
+    locked: false,
     unlockCondition: 'Complete sudoku-9x9-04',
   },
   {
@@ -336,7 +336,7 @@ const levels9x9: SudokuLevel[] = [
     idealTime: 720,
     optimalMoves: 53,
     ageRange: '9-10',
-    locked: true,
+    locked: false,
     unlockCondition: 'Complete sudoku-9x9-05 twice',
   },
 ];

@@ -17,6 +17,7 @@ import type {
   Badge,
 } from '../types';
 import { gameRegistry } from '../games/registry';
+import { Icons } from '../constants/icons';
 
 // ============================================
 // DATE HELPERS
@@ -327,7 +328,7 @@ export function analyzeStrengthsWeaknesses(
         description: 'Cette catégorie pourrait être plus explorée',
         level: 'focus',
         skill: category,
-        icon: '📈',
+        icon: Icons.badgeProgress,
       });
     }
   });
@@ -341,7 +342,7 @@ export function analyzeStrengthsWeaknesses(
       description: `Sessions moyennes de ${avgSessionMinutes} min`,
       level: avgSessionMinutes >= 15 ? 'excellent' : 'good',
       skill: 'concentration',
-      icon: '🎯',
+      icon: Icons.target,
     });
   }
 
@@ -354,7 +355,7 @@ export function analyzeStrengthsWeaknesses(
       description: `${currentStreak} jours consécutifs de jeu`,
       level: currentStreak >= 7 ? 'excellent' : 'good',
       skill: 'perseverance',
-      icon: '🔥',
+      icon: Icons.fire,
     });
   }
 
@@ -615,7 +616,7 @@ export function getAllBadges(
       id: 'first_step',
       name: 'Premier pas',
       description: 'Compléter son premier niveau',
-      icon: '🎉',
+      icon: Icons.celebration,
       category: 'milestone',
       isLocked: totalLevels < 1,
       unlockCondition: '1 niveau complété',
@@ -635,7 +636,7 @@ export function getAllBadges(
       id: 'streak_5',
       name: '5 jours d\'affilée',
       description: 'Jouer 5 jours consécutifs',
-      icon: '🔥',
+      icon: Icons.fire,
       category: 'streak',
       isLocked: currentStreak < 5,
       unlockCondition: '5 jours consécutifs',
@@ -645,7 +646,7 @@ export function getAllBadges(
       id: 'hanoi_master',
       name: 'Maître des Tours',
       description: 'Compléter 5 niveaux de la Tour de Hanoï',
-      icon: '🗼',
+      icon: Icons.hanoi,
       category: 'mastery',
       isLocked: (gameProgress['hanoi']?.completedLevels
         ? Object.keys(gameProgress['hanoi'].completedLevels).length
@@ -663,7 +664,7 @@ export function getAllBadges(
       id: 'logic_brain',
       name: 'Cerveau logique',
       description: 'Compléter 10 niveaux de jeux de logique',
-      icon: '🧠',
+      icon: Icons.brain,
       category: 'skill',
       isLocked: totalLevels < 10,
       unlockCondition: '10 niveaux de logique',
@@ -673,7 +674,7 @@ export function getAllBadges(
       id: 'champion',
       name: 'Champion',
       description: 'Compléter 25 niveaux au total',
-      icon: '🏆',
+      icon: Icons.trophy,
       category: 'milestone',
       isLocked: totalLevels < 25,
       unlockCondition: '25 niveaux complétés',
@@ -683,7 +684,7 @@ export function getAllBadges(
       id: 'perfectionist',
       name: 'Perfectionniste',
       description: 'Réussir un niveau avec le score optimal',
-      icon: '⭐',
+      icon: Icons.star,
       category: 'special',
       isLocked: !unlockedCards.includes('perfectionist'),
       unlockCondition: 'Score optimal',
@@ -713,26 +714,26 @@ function getCategoryName(category: string): string {
 }
 
 function getCategoryIcon(category: string): string {
-  const icons: Record<string, string> = {
-    logic: '🧩',
+  const categoryIcons: Record<string, string> = {
+    logic: Icons.puzzle,
     spatial: '📐',
-    math: '🔢',
-    memory: '🧠',
-    language: '📝',
+    math: Icons.math,
+    memory: Icons.brain,
+    language: Icons.writing,
   };
-  return icons[category] || '📚';
+  return categoryIcons[category] || Icons.book;
 }
 
 function getGameIcon(gameId: string): string {
-  const icons: Record<string, string> = {
-    hanoi: '🗼',
-    sudoku: '🔢',
-    'suites-logiques': '🧩',
-    balance: '⚖️',
-    'math-blocks': '🧱',
-    labyrinthe: '🌀',
-    memory: '🃏',
+  const gameIcons: Record<string, string> = {
+    hanoi: Icons.hanoi,
+    sudoku: Icons.math,
+    'suites-logiques': Icons.puzzle,
+    balance: Icons.balance,
+    'math-blocks': Icons.blocks,
+    labyrinthe: Icons.spiral,
+    memory: Icons.cards,
     tangram: '📐',
   };
-  return icons[gameId] || '🎮';
+  return gameIcons[gameId] || Icons.game;
 }

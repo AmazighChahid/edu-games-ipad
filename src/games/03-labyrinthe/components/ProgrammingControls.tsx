@@ -6,6 +6,7 @@ import Animated, {
   withSpring,
 } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
+import { theme } from '@/theme';
 import { Direction } from '../types';
 
 interface Props {
@@ -197,8 +198,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-around',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingHorizontal: theme.spacing[4],
+    paddingVertical: theme.spacing[3],
     backgroundColor: 'rgba(255, 255, 255, 0.95)',
     borderTopWidth: 1,
     borderTopColor: 'rgba(91, 141, 238, 0.2)',
@@ -208,30 +209,29 @@ const styles = StyleSheet.create({
   },
   row: {
     flexDirection: 'row',
-    gap: 4,
+    gap: theme.spacing[1],
   },
   directionButton: {
-    width: 56,
-    height: 56,
-    borderRadius: 14,
+    width: theme.touchTargets.large,
+    height: theme.touchTargets.large,
+    borderRadius: theme.borderRadius.md,
     justifyContent: 'center',
     alignItems: 'center',
-    boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.2)',
-    elevation: 3,
+    ...theme.shadows.sm,
   },
   directionIcon: {
     fontSize: 28,
-    fontWeight: '700',
-    color: '#FFFFFF',
+    fontFamily: theme.fontFamily.bold,
+    color: theme.colors.background.primary,
   },
   spacer: {
-    width: 56,
-    height: 56,
+    width: theme.touchTargets.large,
+    height: theme.touchTargets.large,
   },
   centerButton: {
-    width: 56,
-    height: 56,
-    borderRadius: 14,
+    width: theme.touchTargets.large,
+    height: theme.touchTargets.large,
+    borderRadius: theme.borderRadius.md,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'rgba(91, 141, 238, 0.1)',
@@ -241,34 +241,34 @@ const styles = StyleSheet.create({
   },
   centerIcon: {
     fontSize: 24,
-    fontWeight: '700',
+    fontFamily: theme.fontFamily.bold,
     color: 'rgba(91, 141, 238, 0.5)',
   },
   disabledButton: {
     opacity: 0.5,
   },
   actionButtons: {
-    gap: 12,
+    gap: theme.spacing[3],
   },
   actionButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 14,
-    borderRadius: 14,
-    gap: 8,
-    boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.2)',
-    elevation: 3,
+    paddingHorizontal: theme.spacing[5],
+    paddingVertical: theme.spacing[3],
+    borderRadius: theme.borderRadius.md,
+    gap: theme.spacing[2],
+    ...theme.shadows.sm,
     minWidth: 140,
+    minHeight: theme.touchTargets.large,
   },
   actionIcon: {
-    fontSize: 20,
-    color: '#FFFFFF',
+    fontSize: 22,
+    color: theme.colors.background.primary,
   },
   actionLabel: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#FFFFFF',
+    fontSize: theme.fontSize.lg,
+    fontFamily: theme.fontFamily.bold,
+    color: theme.colors.background.primary,
   },
 });

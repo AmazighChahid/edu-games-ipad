@@ -164,12 +164,24 @@ export interface GameIntroTemplateProps {
   hintsRemaining?: number;
   /** Whether hints are disabled */
   hintsDisabled?: boolean;
+  /** Callback to force complete/validate level */
+  onForceComplete?: () => void;
+  /** Show force complete button (default: true if onForceComplete provided) */
+  showForceCompleteButton?: boolean;
 
   // === VICTORY ===
   /** Whether the game is won */
   isVictory?: boolean;
   /** Victory overlay component */
   victoryComponent?: ReactNode;
+
+  // === PLAY BUTTON ===
+  /** Show play button when level is selected but not playing (default: true) */
+  showPlayButton?: boolean;
+  /** Text for play button (default: "C'est parti !") */
+  playButtonText?: string;
+  /** Emoji for play button (default: "🚀") */
+  playButtonEmoji?: string;
 }
 
 // ============================================
@@ -217,8 +229,6 @@ export function generateDefaultLevels(
   birthDate?: number,
   completedLevels: string[] = []
 ): LevelConfig[] {
-  const { startingDifficulty, unlockedCount } = calculateLevelsForAge(birthDate);
-
   const difficultyMap: Record<number, LevelConfig['difficulty']> = {
     1: 'easy',
     2: 'easy',
@@ -237,16 +247,11 @@ export function generateDefaultLevels(
     const levelId = `${gameId}_level_${levelNumber}`;
     const isCompleted = completedLevels.includes(levelId);
 
-    // Unlock logic: first N levels OR any level after a completed one
-    const previousLevelCompleted =
-      i === 0 || completedLevels.includes(`${gameId}_level_${levelNumber - 1}`);
-    const isUnlocked = levelNumber <= unlockedCount || previousLevelCompleted || isCompleted;
-
     return {
       id: levelId,
       number: levelNumber,
       difficulty: difficultyMap[levelNumber],
-      isUnlocked,
+      isUnlocked: true, // All levels unlocked by default
       isCompleted,
       stars: isCompleted ? Math.floor(Math.random() * 3) + 1 : undefined, // Placeholder
     };

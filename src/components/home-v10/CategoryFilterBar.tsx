@@ -1,7 +1,7 @@
 /**
  * CategoryFilterBar - Filtre compact par catégorie
- * Une icône à gauche qui s'expand horizontalement pour afficher toutes les catégories
- * Cliquer ailleurs referme le menu
+ * Une icône principale à gauche, cliquer dessus déroule horizontalement les autres catégories
+ * Cliquer ailleurs referme le menu (les icônes se regroupent)
  */
 
 import React, { memo } from 'react';
@@ -9,18 +9,15 @@ import { View, StyleSheet, Pressable, Text, TouchableWithoutFeedback } from 'rea
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
-  withSpring,
-  FadeIn,
-  FadeOut,
-  SlideInLeft,
-  SlideOutLeft,
-  LinearTransition,
+  withTiming,
+  Easing,
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 
 import { fontFamily } from '../../theme/typography';
+import { Icons } from '../../constants/icons';
 
 // ========================================
 // TYPES
@@ -47,47 +44,58 @@ interface CategoryFilterConfig {
 const FILTER_CATEGORIES: CategoryFilterConfig[] = [
   {
     id: 'all',
-    icon: '🏠',
+    icon: Icons.categoryAll,
     label: 'Tous',
     gradient: ['#90CAF9', '#42A5F5'],
   },
   {
     id: 'favorites',
-    icon: '❤️',
+    icon: Icons.categoryFavorites,
     label: 'Favoris',
     gradient: ['#F8BBD9', '#E91E63'],
   },
   {
     id: 'logic',
-    icon: '🧠',
+    icon: Icons.categoryLogic,
     label: 'Logique',
     gradient: ['#FFB74D', '#F57C00'],
   },
   {
     id: 'numbers',
-    icon: '🔢',
+    icon: Icons.categoryMath,
     label: 'Chiffres',
     gradient: ['#5C6BC0', '#3F51B5'],
   },
   {
     id: 'words',
-    icon: '📖',
+    icon: Icons.categoryReading,
     label: 'Mots',
     gradient: ['#81C784', '#4CAF50'],
   },
   {
     id: 'memory',
-    icon: '🎯',
+    icon: Icons.categoryTarget,
     label: 'Mémoire',
     gradient: ['#4DB6AC', '#009688'],
   },
   {
     id: 'shapes',
-    icon: '🧩',
+    icon: Icons.categoryPuzzle,
     label: 'Formes',
     gradient: ['#EF5350', '#E53935'],
   },
 ];
+
+// ========================================
+// CONSTANTES
+// ========================================
+
+const ICON_SIZE = 48;
+const ICON_GAP = 8;
+const ANIMATION_CONFIG = {
+  duration: 300,
+  easing: Easing.out(Easing.cubic),
+};
 
 // ========================================
 // HELPER
@@ -101,31 +109,25 @@ const getCategoryConfig = (id: CategoryFilterId): CategoryFilterConfig => {
 // COMPOSANT ICÔNE DE CATÉGORIE
 // ========================================
 
-const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
-
 interface CategoryIconProps {
   config: CategoryFilterConfig;
-  size?: number;
-  onPress?: () => void;
   isSelected?: boolean;
-  index?: number;
+  onPress?: () => void;
 }
 
 const CategoryIcon = memo(({
   config,
-  size = 48,
-  onPress,
   isSelected = false,
-  index = 0,
+  onPress,
 }: CategoryIconProps) => {
   const scale = useSharedValue(1);
 
   const handlePressIn = () => {
-    scale.value = withSpring(0.9, { damping: 15, stiffness: 300 });
+    scale.value = withTiming(0.9, { duration: 100 });
   };
 
   const handlePressOut = () => {
-    scale.value = withSpring(1, { damping: 15, stiffness: 300 });
+    scale.value = withTiming(1, { duration: 100 });
   };
 
   const handlePress = () => {
@@ -133,39 +135,30 @@ const CategoryIcon = memo(({
     onPress?.();
   };
 
-  const containerStyle = useAnimatedStyle(() => ({
+  const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
   }));
 
   return (
-    <Animated.View
-      entering={SlideInLeft.delay(index * 40).springify().damping(14).stiffness(120)}
-      exiting={SlideOutLeft.delay((FILTER_CATEGORIES.length - 1 - index) * 30).duration(150)}
-    >
-      <AnimatedPressable
+    <Animated.View style={animatedStyle}>
+      <Pressable
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
         onPress={handlePress}
-        style={[styles.iconButton, containerStyle]}
         accessibilityRole="button"
         accessibilityLabel={`Filtrer par ${config.label}`}
       >
-        <View style={[
-          styles.iconRing,
-          isSelected && styles.iconRingSelected,
-        ]}>
+        <View style={[styles.iconRing, isSelected && styles.iconRingSelected]}>
           <LinearGradient
             colors={config.gradient}
-            style={[styles.iconGradient, { width: size, height: size, borderRadius: size / 2 }]}
+            style={styles.iconGradient}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
           >
-            <Text style={[styles.iconEmoji, { fontSize: size * 0.5 }]}>
-              {config.icon}
-            </Text>
+            <Text style={styles.iconEmoji}>{config.icon}</Text>
           </LinearGradient>
         </View>
-      </AnimatedPressable>
+      </Pressable>
     </Animated.View>
   );
 });
@@ -183,77 +176,85 @@ export const CategoryFilterBar = memo(({
   const insets = useSafeAreaInsets();
   const [isExpanded, setIsExpanded] = React.useState(false);
 
+  // Animation value: 0 = collapsed, 1 = expanded
+  const expandProgress = useSharedValue(0);
+
   const selectedConfig = getCategoryConfig(selectedCategory);
+
+  // Réorganiser les catégories : la sélectionnée en premier, puis les autres
+  const orderedCategories = React.useMemo(() => {
+    const selected = FILTER_CATEGORIES.find(c => c.id === selectedCategory);
+    const others = FILTER_CATEGORIES.filter(c => c.id !== selectedCategory);
+    return selected ? [selected, ...others] : FILTER_CATEGORIES;
+  }, [selectedCategory]);
 
   const handleToggle = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     setIsExpanded(true);
+    expandProgress.value = withTiming(1, ANIMATION_CONFIG);
   };
 
   const handleClose = () => {
-    setIsExpanded(false);
+    expandProgress.value = withTiming(0, ANIMATION_CONFIG);
+    // Délai pour laisser l'animation se terminer
+    setTimeout(() => setIsExpanded(false), ANIMATION_CONFIG.duration);
   };
 
   const handleSelect = (categoryId: CategoryFilterId) => {
     onSelectCategory(categoryId);
-    setIsExpanded(false);
+    handleClose();
   };
+
+  // Style animé pour le container des icônes supplémentaires
+  const expandedContainerStyle = useAnimatedStyle(() => {
+    const totalWidth = (FILTER_CATEGORIES.length - 1) * (ICON_SIZE + ICON_GAP);
+    return {
+      width: expandProgress.value * totalWidth,
+      opacity: expandProgress.value,
+    };
+  });
 
   return (
     <>
       {/* Overlay pour fermer quand on clique ailleurs */}
       {isExpanded && (
         <TouchableWithoutFeedback onPress={handleClose}>
-          <Animated.View
-            entering={FadeIn.duration(200)}
-            exiting={FadeOut.duration(150)}
-            style={styles.overlay}
-          />
+          <View style={styles.overlay} />
         </TouchableWithoutFeedback>
       )}
 
       {/* Container du filtre */}
       <View style={[styles.container, { bottom: insets.bottom + 20 }]}>
-        {isExpanded ? (
-          // Mode expandé : toutes les catégories en ligne horizontale
-          <Animated.View
-            style={styles.expandedRow}
-            layout={LinearTransition.springify().damping(15).stiffness(120)}
-          >
-            {FILTER_CATEGORIES.map((category, index) => (
-              <CategoryIcon
-                key={category.id}
-                config={category}
-                size={50}
-                isSelected={selectedCategory === category.id}
-                onPress={() => handleSelect(category.id)}
-                index={index}
-              />
-            ))}
-          </Animated.View>
-        ) : (
-          // Mode collapsed : juste l'icône sélectionnée
-          <Animated.View
-            entering={FadeIn.duration(200)}
-            exiting={FadeOut.duration(100)}
-            layout={LinearTransition.springify()}
-          >
-            <Pressable onPress={handleToggle} style={styles.collapsedButton}>
-              <LinearGradient
-                colors={selectedConfig.gradient}
-                style={styles.collapsedGradient}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-              >
-                <Text style={styles.collapsedEmoji}>{selectedConfig.icon}</Text>
-              </LinearGradient>
-              <View style={styles.labelBadge}>
-                <Text style={styles.labelBadgeText}>{selectedConfig.label}</Text>
-                <Text style={styles.chevron}>›</Text>
-              </View>
+        <View style={styles.filterRow}>
+          {/* Icône principale (toujours visible) */}
+          <CategoryIcon
+            config={selectedConfig}
+            isSelected={true}
+            onPress={isExpanded ? () => handleSelect(selectedConfig.id) : handleToggle}
+          />
+
+          {/* Icônes supplémentaires (déroulées) */}
+          {isExpanded && (
+            <Animated.View style={[styles.expandedContainer, expandedContainerStyle]}>
+              {orderedCategories.slice(1).map((category) => (
+                <CategoryIcon
+                  key={category.id}
+                  config={category}
+                  isSelected={false}
+                  onPress={() => handleSelect(category.id)}
+                />
+              ))}
+            </Animated.View>
+          )}
+
+          {/* Label de la catégorie (visible quand fermé) */}
+          {!isExpanded && (
+            <Pressable onPress={handleToggle} style={styles.labelBadge}>
+              <Text style={styles.labelBadgeText}>{selectedConfig.label}</Text>
+              <Text style={styles.chevron}>›</Text>
             </Pressable>
-          </Animated.View>
-        )}
+          )}
+        </View>
       </View>
     </>
   );
@@ -265,8 +266,6 @@ CategoryFilterBar.displayName = 'CategoryFilterBar';
 // STYLES
 // ========================================
 
-const ICON_SIZE = 50;
-
 const styles = StyleSheet.create({
   overlay: {
     ...StyleSheet.absoluteFillObject,
@@ -277,27 +276,41 @@ const styles = StyleSheet.create({
     left: 16,
     zIndex: 100,
   },
-
-  // Mode collapsed
-  collapsedButton: {
+  filterRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
   },
-  collapsedGradient: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
+  expandedContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: ICON_GAP,
+    marginLeft: ICON_GAP,
+    overflow: 'hidden',
+  },
+  iconRing: {
+    padding: 2,
+    borderWidth: 2,
+    borderColor: 'transparent',
+    borderRadius: (ICON_SIZE + 8) / 2,
+  },
+  iconRingSelected: {
+    borderColor: '#4CAF50',
+  },
+  iconGradient: {
+    width: ICON_SIZE,
+    height: ICON_SIZE,
+    borderRadius: ICON_SIZE / 2,
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
-    elevation: 8,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
   },
-  collapsedEmoji: {
-    fontSize: 28,
+  iconEmoji: {
+    fontSize: ICON_SIZE * 0.5,
+    textAlign: 'center',
   },
   labelBadge: {
     flexDirection: 'row',
@@ -307,6 +320,7 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     borderRadius: 16,
     gap: 4,
+    marginLeft: 8,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.15,
@@ -323,37 +337,6 @@ const styles = StyleSheet.create({
     fontFamily: fontFamily.bold,
     color: '#718096',
     marginLeft: 2,
-  },
-
-  // Mode expanded
-  expandedRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  iconButton: {
-    // Container pour l'icône
-  },
-  iconRing: {
-    padding: 2,
-    borderWidth: 2,
-    borderColor: 'transparent',
-    borderRadius: (ICON_SIZE + 8) / 2,
-  },
-  iconRingSelected: {
-    borderColor: '#4CAF50',
-  },
-  iconGradient: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-  iconEmoji: {
-    textAlign: 'center',
   },
 });
 

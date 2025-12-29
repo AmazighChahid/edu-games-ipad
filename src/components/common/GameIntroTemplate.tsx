@@ -1,18 +1,46 @@
 /**
  * GameIntroTemplate
- * Unified template for game intro screens following the Hanoi pattern:
- * - Level selection visible at top
- * - Game preview always visible below
- * - Animated transition when game starts (selector slides up, fades out)
- * - Progress panel appears when playing
- * - Mascot moves up to fill space
+ * =================
+ * Template unifié pour les écrans d'introduction des jeux éducatifs.
  *
- * @see HanoiIntroScreen.tsx for reference implementation
+ * ARCHITECTURE À 2 VUES :
+ * -----------------------
+ * VUE 1 - SELECTION : L'enfant choisit son niveau
+ *   - Header avec titre du jeu
+ *   - Grille de sélection des niveaux (1-10)
+ *   - Mascotte en position centrale
+ *   - Aperçu du jeu
+ *   - Bouton "C'est parti !"
+ *
+ * VUE 2 - PLAY : L'enfant joue
+ *   - Header (même)
+ *   - Panneau de progression (remplace la grille)
+ *   - Mascotte en position latérale (à gauche)
+ *   - Zone de jeu active
+ *   - Boutons flottants (reset, indice, terminer)
+ *
+ * TRANSITION :
+ * La transition entre les vues est gérée par la prop `isPlaying`.
+ * Quand isPlaying passe à true :
+ *   - La grille de niveaux disparait (slide up + fade)
+ *   - Le panneau de progression apparait (fade in)
+ *   - La mascotte se déplace à gauche
+ *
+ * @example
+ * <GameIntroTemplate
+ *   title="Suites Logiques"
+ *   emoji="🔮"
+ *   levels={levels}
+ *   selectedLevel={selectedLevel}
+ *   onSelectLevel={handleSelectLevel}
+ *   isPlaying={isPlaying}
+ *   renderGame={() => <MonJeu />}
+ *   mascotComponent={<MaMascotte />}
+ * />
  */
 
 import React, { useCallback, useMemo } from 'react';
-import { View, Text, StyleSheet, Pressable, ScrollView } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, {
   useSharedValue,
@@ -23,30 +51,53 @@ import Animated, {
   Easing,
 } from 'react-native-reanimated';
 
-import { colors, spacing, textStyles, borderRadius, shadows, fontFamily } from '../../theme';
-import { ScreenBackground } from './ScreenBackground';
+import {
+  colors,
+  spacing,
+  textStyles,
+  borderRadius,
+  shadows,
+  fontFamily,
+  touchTargets,
+} from '../../theme';
+import { PageContainer } from './PageContainer';
+import { ScreenHeader } from './ScreenHeader';
+import { HintButton } from './HintButton';
 import type {
   GameIntroTemplateProps,
   LevelConfig,
   IntroAnimationConfig,
+} from './GameIntroTemplate.types';
+
+// ============================================
+// RE-EXPORTS (pour import simplifié)
+// ============================================
+
+export type {
+  GameIntroTemplateProps,
+  LevelConfig,
+  TrainingConfig,
+  TrainingParam,
+} from './GameIntroTemplate.types';
+export {
+  calculateLevelsForAge,
+  generateDefaultLevels,
   DEFAULT_ANIMATION_CONFIG,
 } from './GameIntroTemplate.types';
 
-// Re-export types for convenience
-export type { GameIntroTemplateProps, LevelConfig, TrainingConfig, TrainingParam } from './GameIntroTemplate.types';
-export { calculateLevelsForAge, generateDefaultLevels, DEFAULT_ANIMATION_CONFIG } from './GameIntroTemplate.types';
-
 // ============================================
-// CONSTANTS
+// CONSTANTES
 // ============================================
 
+/** Couleurs associées à chaque niveau de difficulté */
 const DIFFICULTY_COLORS: Record<LevelConfig['difficulty'], string> = {
-  easy: colors.feedback.success,
-  medium: colors.secondary.main,
-  hard: colors.primary.main,
-  expert: colors.home.categories.spatial,
+  easy: colors.feedback.success,    // Vert
+  medium: colors.secondary.main,    // Orange
+  hard: colors.primary.main,        // Bleu
+  expert: colors.home.categories.spatial, // Violet
 };
 
+/** Labels français pour les difficultés */
 const DIFFICULTY_LABELS: Record<LevelConfig['difficulty'], string> = {
   easy: 'Facile',
   medium: 'Moyen',
@@ -54,8 +105,20 @@ const DIFFICULTY_LABELS: Record<LevelConfig['difficulty'], string> = {
   expert: 'Expert',
 };
 
+/** Configuration d'animation par défaut */
+const DEFAULT_ANIM_CONFIG: IntroAnimationConfig = {
+  selectorSlideDuration: 400,
+  selectorFadeDuration: 300,
+  progressDelayDuration: 200,
+  mascotSlideDuration: 400,
+  selectorSlideDistance: -150,
+  mascotSlideDistance: -180,
+  springDamping: 15,
+  springStiffness: 150,
+};
+
 // ============================================
-// DEFAULT LEVEL CARD COMPONENT
+// COMPOSANT: CARTE DE NIVEAU (par défaut)
 // ============================================
 
 interface DefaultLevelCardProps {
@@ -64,6 +127,10 @@ interface DefaultLevelCardProps {
   onPress: () => void;
 }
 
+/**
+ * Carte de niveau par défaut.
+ * Peut être remplacée via la prop `renderLevelCard`.
+ */
 const DefaultLevelCard: React.FC<DefaultLevelCardProps> = ({
   level,
   isSelected,
@@ -77,15 +144,16 @@ const DefaultLevelCard: React.FC<DefaultLevelCardProps> = ({
       disabled={!level.isUnlocked}
       style={[
         styles.levelCard,
+        level.isCompleted && styles.levelCardCompleted,
         isSelected && styles.levelCardSelected,
         !level.isUnlocked && styles.levelCardLocked,
         isSelected && { borderColor: difficultyColor },
       ]}
       accessible
-      accessibilityLabel={`Niveau ${level.number}${!level.isUnlocked ? ', verrouillé' : ''}`}
+      accessibilityLabel={`Niveau ${level.number}${level.isCompleted ? ', complété' : ''}${!level.isUnlocked ? ', verrouillé' : ''}`}
       accessibilityRole="button"
     >
-      {/* Stars indicator */}
+      {/* Étoiles (si niveau complété) */}
       {level.isCompleted && level.stars !== undefined && (
         <View style={styles.starsContainer}>
           {[1, 2, 3].map((star) => (
@@ -102,7 +170,7 @@ const DefaultLevelCard: React.FC<DefaultLevelCardProps> = ({
         </View>
       )}
 
-      {/* Level number */}
+      {/* Numéro du niveau */}
       <Text
         style={[
           styles.levelNumber,
@@ -113,7 +181,7 @@ const DefaultLevelCard: React.FC<DefaultLevelCardProps> = ({
         {level.isUnlocked ? level.number : '🔒'}
       </Text>
 
-      {/* Difficulty indicator */}
+      {/* Badge de difficulté */}
       <View
         style={[
           styles.difficultyBadge,
@@ -129,11 +197,11 @@ const DefaultLevelCard: React.FC<DefaultLevelCardProps> = ({
 };
 
 // ============================================
-// MAIN COMPONENT
+// COMPOSANT PRINCIPAL
 // ============================================
 
 export const GameIntroTemplate: React.FC<GameIntroTemplateProps> = ({
-  // Header
+  // --- HEADER ---
   title,
   emoji,
   onBack,
@@ -142,80 +210,98 @@ export const GameIntroTemplate: React.FC<GameIntroTemplateProps> = ({
   showParentButton = true,
   showHelpButton = true,
 
-  // Level selection
+  // --- VUE 1: SELECTION DE NIVEAU ---
   levels,
   selectedLevel,
   onSelectLevel,
   renderLevelCard,
-  levelColumns = 5,
 
-  // Training mode
-  showTrainingMode = true,
+  // --- MODE ENTRAINEMENT (optionnel) ---
+  showTrainingMode = false,
   trainingConfig,
   onTrainingPress,
   isTrainingMode = false,
 
-  // Game
+  // --- JEU ---
   renderGame,
   isPlaying,
   onStartPlaying,
 
-  // Progress
+  // --- VUE 2: PROGRESSION (visible quand isPlaying) ---
   renderProgress,
 
-  // Mascot
+  // --- MASCOTTE ---
   mascotComponent,
-  mascotMessage,
-  mascotMessageType = 'intro',
 
-  // Customization
-  backgroundComponent,
-  backgroundColor,
-
-  // Animation
+  // --- ANIMATION (optionnel) ---
   animationConfig: customAnimationConfig,
 
-  // Floating buttons
+  // --- BOUTONS FLOTTANTS (VUE 2) ---
   showResetButton = true,
   onReset,
   showHintButton = true,
   onHint,
   hintsRemaining = 0,
   hintsDisabled = false,
+  onForceComplete,
+  showForceCompleteButton = true,
 
-  // Victory
+  // --- VICTOIRE ---
   isVictory = false,
   victoryComponent,
-}) => {
-  const insets = useSafeAreaInsets();
 
-  // Merge animation config with defaults
-  const animConfig: IntroAnimationConfig = useMemo(
-    () => ({
-      selectorSlideDuration: 400,
-      selectorFadeDuration: 300,
-      progressDelayDuration: 200,
-      mascotSlideDuration: 400,
-      selectorSlideDistance: -150,
-      mascotSlideDistance: -180,
-      springDamping: 15,
-      springStiffness: 150,
-      ...customAnimationConfig,
-    }),
+  // --- BOUTON PLAY (VUE 1) ---
+  showPlayButton = true,
+  playButtonText = "C'est parti !",
+  playButtonEmoji = '🚀',
+}) => {
+  // ============================================
+  // CONFIGURATION ANIMATION
+  // ============================================
+
+  const animConfig = useMemo<IntroAnimationConfig>(
+    () => ({ ...DEFAULT_ANIM_CONFIG, ...customAnimationConfig }),
     [customAnimationConfig]
   );
 
-  // Animation shared values
+  // ============================================
+  // VALEURS ANIMÉES (Reanimated)
+  // ============================================
+
+  // Vue 1 → Vue 2 : La grille de niveaux slide vers le haut et disparait
   const selectorY = useSharedValue(0);
   const selectorOpacity = useSharedValue(1);
-  const progressPanelOpacity = useSharedValue(0);
-  const mascotY = useSharedValue(0);
 
-  // Transition to play mode
+  // Vue 2 : Le panneau de progression apparait
+  const progressOpacity = useSharedValue(0);
+
+  // ============================================
+  // STYLES ANIMÉS
+  // ============================================
+
+  /** Style animé pour la grille de sélection de niveaux */
+  const selectorAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: selectorY.value }],
+    opacity: selectorOpacity.value,
+  }));
+
+  /** Style animé pour le panneau de progression */
+  const progressAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: progressOpacity.value,
+  }));
+
+  // ============================================
+  // TRANSITIONS
+  // ============================================
+
+  /**
+   * Transition VUE 1 → VUE 2
+   * Appelée quand l'enfant clique sur "C'est parti !"
+   */
   const transitionToPlayMode = useCallback(() => {
     if (isPlaying) return;
 
-    // Slide selector up and fade out
+    // Grille de niveaux : slide up + fade out
     selectorY.value = withTiming(animConfig.selectorSlideDistance, {
       duration: animConfig.selectorSlideDuration,
       easing: Easing.out(Easing.quad),
@@ -224,25 +310,22 @@ export const GameIntroTemplate: React.FC<GameIntroTemplateProps> = ({
       duration: animConfig.selectorFadeDuration,
     });
 
-    // Fade in progress panel
-    progressPanelOpacity.value = withDelay(
+    // Panneau de progression : fade in (avec délai)
+    progressOpacity.value = withDelay(
       animConfig.progressDelayDuration,
       withTiming(1, { duration: animConfig.selectorFadeDuration })
     );
 
-    // Move mascot up
-    mascotY.value = withTiming(animConfig.mascotSlideDistance, {
-      duration: animConfig.mascotSlideDuration,
-      easing: Easing.out(Easing.quad),
-    });
-
-    // Trigger callback
+    // Notifier le parent
     onStartPlaying?.();
-  }, [isPlaying, animConfig, selectorY, selectorOpacity, progressPanelOpacity, mascotY, onStartPlaying]);
+  }, [isPlaying, animConfig, selectorY, selectorOpacity, progressOpacity, onStartPlaying]);
 
-  // Return to selection mode
+  /**
+   * Transition VUE 2 → VUE 1
+   * Appelée quand l'enfant clique sur le bouton retour pendant le jeu
+   */
   const transitionToSelectionMode = useCallback(() => {
-    // Show selector
+    // Grille de niveaux : revient avec effet spring
     selectorY.value = withSpring(0, {
       damping: animConfig.springDamping,
       stiffness: animConfig.springStiffness,
@@ -251,263 +334,230 @@ export const GameIntroTemplate: React.FC<GameIntroTemplateProps> = ({
       duration: animConfig.selectorFadeDuration,
     });
 
-    // Hide progress panel
-    progressPanelOpacity.value = withTiming(0, { duration: 200 });
+    // Panneau de progression : fade out
+    progressOpacity.value = withTiming(0, { duration: 200 });
+  }, [animConfig, selectorY, selectorOpacity, progressOpacity]);
 
-    // Reset mascot position
-    mascotY.value = withSpring(0, {
-      damping: animConfig.springDamping,
-      stiffness: animConfig.springStiffness,
-    });
-  }, [animConfig, selectorY, selectorOpacity, progressPanelOpacity, mascotY]);
+  // ============================================
+  // HANDLERS
+  // ============================================
 
-  // Handle back button
+  /**
+   * Gestion du bouton retour :
+   * - Si en train de jouer : anime la transition + délègue au parent (onBack)
+   * - Sinon : retour à l'écran précédent (onBack)
+   *
+   * Note: Le parent (hook) gère setIsPlaying(false) dans son handleBack
+   */
   const handleBack = useCallback(() => {
     if (isPlaying && !isVictory) {
-      // Return to level selection (no popup, just reset)
+      // Animation de retour à la sélection
       transitionToSelectionMode();
-      onReset?.();
-    } else {
-      onBack();
     }
-  }, [isPlaying, isVictory, transitionToSelectionMode, onReset, onBack]);
+    // Toujours appeler onBack pour que le parent gère la logique
+    onBack();
+  }, [isPlaying, isVictory, transitionToSelectionMode, onBack]);
 
-  // Animated styles
-  const selectorStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: selectorY.value }],
-    opacity: selectorOpacity.value,
-  }));
+  // ============================================
+  // RENDER HELPERS
+  // ============================================
 
-  const progressPanelStyle = useAnimatedStyle(() => ({
-    opacity: progressPanelOpacity.value,
-  }));
+  /** Rendu de la grille de niveaux (Vue 1) */
+  const renderLevelGrid = () => (
+    <View style={styles.levelGrid}>
+      {levels.slice(0, 10).map((level) => {
+        const isSelected = selectedLevel?.id === level.id;
 
-  const mascotStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: mascotY.value }],
-  }));
+        // Si un renderLevelCard custom est fourni, l'utiliser
+        if (renderLevelCard) {
+          return (
+            <Pressable
+              key={level.id}
+              onPress={() => level.isUnlocked && onSelectLevel(level)}
+            >
+              {renderLevelCard(level, isSelected)}
+            </Pressable>
+          );
+        }
 
-  // Render level grid
-  const renderLevelGrid = () => {
-    const rows: LevelConfig[][] = [];
-    for (let i = 0; i < levels.length; i += levelColumns) {
-      rows.push(levels.slice(i, i + levelColumns));
-    }
+        // Sinon, utiliser la carte par défaut
+        return (
+          <DefaultLevelCard
+            key={level.id}
+            level={level}
+            isSelected={isSelected}
+            onPress={() => onSelectLevel(level)}
+          />
+        );
+      })}
+    </View>
+  );
+
+  /** Rendu de la configuration d'entrainement */
+  const renderTrainingConfig = () => {
+    if (!trainingConfig) return null;
 
     return (
-      <View style={styles.levelGrid}>
-        {rows.map((row, rowIndex) => (
-          <View key={rowIndex} style={styles.levelRow}>
-            {row.map((level) => {
-              const isSelected = selectedLevel?.id === level.id;
-              if (renderLevelCard) {
-                return (
+      <View style={styles.trainingConfig}>
+        {trainingConfig.availableParams.map((param) => (
+          <View key={param.id} style={styles.trainingParam}>
+            <Text style={styles.trainingParamLabel}>{param.label}</Text>
+            {param.type === 'select' && param.options && (
+              <View style={styles.trainingOptions}>
+                {param.options.map((option) => (
                   <Pressable
-                    key={level.id}
-                    onPress={() => level.isUnlocked && onSelectLevel(level)}
+                    key={String(option.value)}
+                    onPress={() => trainingConfig.onParamChange(param.id, option.value)}
+                    style={[
+                      styles.trainingOption,
+                      trainingConfig.currentValues[param.id] === option.value &&
+                        styles.trainingOptionSelected,
+                    ]}
                   >
-                    {renderLevelCard(level, isSelected)}
+                    <Text
+                      style={[
+                        styles.trainingOptionText,
+                        trainingConfig.currentValues[param.id] === option.value &&
+                          styles.trainingOptionTextSelected,
+                      ]}
+                    >
+                      {option.label}
+                    </Text>
                   </Pressable>
-                );
-              }
-              return (
-                <DefaultLevelCard
-                  key={level.id}
-                  level={level}
-                  isSelected={isSelected}
-                  onPress={() => onSelectLevel(level)}
-                />
-              );
-            })}
+                ))}
+              </View>
+            )}
           </View>
         ))}
       </View>
     );
   };
 
+  // ============================================
+  // RENDER PRINCIPAL
+  // ============================================
+
   return (
-    <View style={styles.container}>
-      {/* Background */}
-      {backgroundComponent || (
-        <ScreenBackground variant="playful">
-          <></>
-        </ScreenBackground>
-      )}
+    <PageContainer variant="playful" scrollable={false}>
+      {/* ================================================
+          HEADER (commun aux 2 vues)
+          ================================================ */}
+      <ScreenHeader
+        variant="game"
+        title={title}
+        emoji={emoji}
+        onBack={handleBack}
+        showParentButton={showParentButton && !!onParentPress}
+        onParentPress={onParentPress}
+        showHelpButton={showHelpButton && !!onHelpPress}
+        onHelpPress={onHelpPress}
+      />
 
-      <View
-        style={[
-          styles.content,
-          {
-            paddingTop: insets.top + spacing[2],
-            paddingBottom: insets.bottom + spacing[2],
-          },
-        ]}
-      >
-        {/* === HEADER === */}
-        <View style={styles.header}>
-          {/* Back button */}
-          <Pressable
-            onPress={handleBack}
-            style={styles.headerButton}
-            accessible
-            accessibilityLabel="Retour"
-            accessibilityRole="button"
-          >
-            <Text style={styles.headerButtonText}>←</Text>
-          </Pressable>
-
-          {/* Title (centered) */}
-          <View style={styles.headerTitleWrapper}>
-            <View style={styles.headerTitleContainer}>
-              <Text style={styles.headerEmoji}>{emoji}</Text>
-              <Text style={styles.headerTitle}>{title}</Text>
-            </View>
-          </View>
-
-          {/* Right buttons */}
-          <View style={styles.headerRightButtons}>
-            {showParentButton && onParentPress && (
-              <Pressable
-                onPress={onParentPress}
-                style={styles.parentButton}
-                accessible
-                accessibilityLabel="Espace parent"
-                accessibilityRole="button"
-              >
-                <LinearGradient
-                  colors={['#E056FD', '#9B59B6']}
-                  style={styles.parentIconContainer}
-                >
-                  <Text style={styles.parentButtonIcon}>👨‍👩‍👧</Text>
-                </LinearGradient>
-                <Text style={styles.parentText}>Parent</Text>
-              </Pressable>
-            )}
-
-            {showHelpButton && onHelpPress && (
-              <Pressable
-                onPress={onHelpPress}
-                style={styles.helpButton}
-                accessible
-                accessibilityLabel="Aide"
-                accessibilityRole="button"
-              >
-                <Text style={styles.helpButtonText}>?</Text>
-              </Pressable>
-            )}
-          </View>
-        </View>
-
-        {/* === SCROLLABLE CONTENT === */}
-        <ScrollView
-          style={styles.scrollContainer}
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-          bounces={true}
-        >
-          {/* === LEVEL SELECTOR (slides up when playing) === */}
+      <View style={styles.mainContainer}>
+        {/* ================================================
+            VUE 2 - PANNEAU DE PROGRESSION
+            Visible uniquement quand isPlaying = true
+            Position : juste sous le header
+            ================================================ */}
+        {isPlaying && (
           <Animated.View
-            style={[styles.selectorContainer, selectorStyle]}
-            pointerEvents={isPlaying ? 'none' : 'auto'}
-          >
-          {/* Training mode button */}
-          {showTrainingMode && onTrainingPress && (
-            <Pressable
-              onPress={onTrainingPress}
-              style={[
-                styles.trainingButton,
-                isTrainingMode && styles.trainingButtonActive,
-              ]}
-              accessible
-              accessibilityLabel="Mode entraînement"
-              accessibilityRole="button"
-            >
-              <Text style={styles.trainingButtonEmoji}>🎯</Text>
-              <Text
-                style={[
-                  styles.trainingButtonText,
-                  isTrainingMode && styles.trainingButtonTextActive,
-                ]}
-              >
-                Entraînement
-              </Text>
-            </Pressable>
-          )}
-
-          {/* Level grid */}
-          {!isTrainingMode && (
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.levelScrollContent}
-            >
-              {renderLevelGrid()}
-            </ScrollView>
-          )}
-
-          {/* Training config (when in training mode) */}
-          {isTrainingMode && trainingConfig && (
-            <View style={styles.trainingConfig}>
-              {trainingConfig.availableParams.map((param) => (
-                <View key={param.id} style={styles.trainingParam}>
-                  <Text style={styles.trainingParamLabel}>{param.label}</Text>
-                  {param.type === 'select' && param.options && (
-                    <View style={styles.trainingOptions}>
-                      {param.options.map((option) => (
-                        <Pressable
-                          key={String(option.value)}
-                          onPress={() =>
-                            trainingConfig.onParamChange(param.id, option.value)
-                          }
-                          style={[
-                            styles.trainingOption,
-                            trainingConfig.currentValues[param.id] === option.value &&
-                              styles.trainingOptionSelected,
-                          ]}
-                        >
-                          <Text
-                            style={[
-                              styles.trainingOptionText,
-                              trainingConfig.currentValues[param.id] === option.value &&
-                                styles.trainingOptionTextSelected,
-                            ]}
-                          >
-                            {option.label}
-                          </Text>
-                        </Pressable>
-                      ))}
-                    </View>
-                  )}
-                </View>
-              ))}
-            </View>
-          )}
-          </Animated.View>
-
-          {/* === PROGRESS PANEL (fades in when playing) === */}
-          <Animated.View
-            style={[styles.progressPanelContainer, progressPanelStyle]}
+            style={[styles.progressContainer, progressAnimatedStyle]}
             pointerEvents={isPlaying ? 'auto' : 'none'}
           >
             {renderProgress?.()}
           </Animated.View>
+        )}
 
-          {/* === MASCOT (moves up when playing) === */}
+        {/* ================================================
+            VUE 1 - GRILLE DE SELECTION DES NIVEAUX
+            Visible uniquement quand isPlaying = false
+            Animation : slide up + fade out lors de la transition
+            ================================================ */}
+        {!isPlaying && (
           <Animated.View
-            style={[styles.mascotContainer, mascotStyle]}
-            pointerEvents="box-none"
+            style={[styles.selectorContainer, selectorAnimatedStyle]}
+            pointerEvents={isPlaying ? 'none' : 'auto'}
           >
-            {mascotComponent}
+            {/* Bouton mode entrainement (optionnel) */}
+            {showTrainingMode && onTrainingPress && (
+              <Pressable
+                onPress={onTrainingPress}
+                style={[
+                  styles.trainingButton,
+                  isTrainingMode && styles.trainingButtonActive,
+                ]}
+                accessible
+                accessibilityLabel="Mode entraînement"
+                accessibilityRole="button"
+              >
+                <Text style={styles.trainingButtonEmoji}>🎯</Text>
+                <Text
+                  style={[
+                    styles.trainingButtonText,
+                    isTrainingMode && styles.trainingButtonTextActive,
+                  ]}
+                >
+                  Entraînement
+                </Text>
+              </Pressable>
+            )}
+
+            {/* Grille de niveaux OU config entrainement */}
+            {isTrainingMode ? renderTrainingConfig() : renderLevelGrid()}
           </Animated.View>
+        )}
 
-          {/* === GAME AREA (always visible) === */}
-          <View style={styles.gameContainer}>
-            {renderGame()}
-          </View>
-        </ScrollView>
+        {/* ================================================
+            MASCOTTE
+            Position différente selon la vue :
+            - Vue 1 (selection) : centrée
+            - Vue 2 (play) : à gauche, plus petite
+            ================================================ */}
+        <View
+          style={[
+            styles.mascotContainer,
+            isPlaying ? styles.mascotContainerPlay : styles.mascotContainerSelect,
+          ]}
+          pointerEvents="box-none"
+        >
+          {mascotComponent}
+        </View>
 
-        {/* === FLOATING BUTTONS (visible when playing) === */}
+        {/* ================================================
+            ZONE DE JEU
+            Toujours visible (aperçu en Vue 1, actif en Vue 2)
+            ================================================ */}
+        <View style={styles.gameContainer}>
+          {renderGame()}
+
+          {/* Bouton "C'est parti !" (Vue 1 uniquement) */}
+          {!isPlaying && selectedLevel && showPlayButton && (
+            <Pressable
+              onPress={transitionToPlayMode}
+              style={styles.playButton}
+              accessible
+              accessibilityLabel="Commencer à jouer"
+              accessibilityRole="button"
+            >
+              <LinearGradient
+                colors={[colors.primary.main, colors.primary.dark]}
+                style={styles.playButtonGradient}
+              >
+                <Text style={styles.playButtonEmoji}>{playButtonEmoji}</Text>
+                <Text style={styles.playButtonText}>{playButtonText}</Text>
+              </LinearGradient>
+            </Pressable>
+          )}
+        </View>
+
+        {/* ================================================
+            VUE 2 - BOUTONS FLOTTANTS
+            Visible uniquement quand isPlaying = true et pas de victoire
+            Position : en bas à droite
+            ================================================ */}
         {isPlaying && !isVictory && (
           <View style={styles.floatingButtons}>
+            {/* Bouton Reset */}
             {showResetButton && onReset && (
               <Pressable
                 onPress={onReset}
@@ -520,169 +570,82 @@ export const GameIntroTemplate: React.FC<GameIntroTemplateProps> = ({
               </Pressable>
             )}
 
+            {/* Bouton Indice - Utilise HintButton commun */}
             {showHintButton && onHint && !hintsDisabled && (
-              <Pressable
+              <HintButton
+                hintsRemaining={hintsRemaining}
+                maxHints={3}
                 onPress={onHint}
-                style={[
-                  styles.floatingButton,
-                  styles.floatingButtonHint,
-                  hintsRemaining === 0 && styles.floatingButtonDisabled,
-                ]}
-                disabled={hintsRemaining === 0}
+                size="medium"
+                colorScheme="orange"
+              />
+            )}
+
+            {/* Bouton Terminer (pour tous les utilisateurs) */}
+            {showForceCompleteButton && onForceComplete && (
+              <Pressable
+                onPress={onForceComplete}
+                style={[styles.floatingButton, styles.floatingButtonComplete]}
                 accessible
-                accessibilityLabel={`Indice, ${hintsRemaining} restants`}
+                accessibilityLabel="Terminer le niveau"
                 accessibilityRole="button"
               >
-                <Text style={styles.floatingButtonEmoji}>💡</Text>
-                {hintsRemaining > 0 && (
-                  <View style={styles.hintBadge}>
-                    <Text style={styles.hintBadgeText}>{hintsRemaining}</Text>
-                  </View>
-                )}
+                <Text style={styles.floatingButtonEmoji}>✅</Text>
               </Pressable>
             )}
           </View>
         )}
 
-        {/* === VICTORY OVERLAY === */}
+        {/* ================================================
+            OVERLAY VICTOIRE
+            Affiché par-dessus tout quand isVictory = true
+            ================================================ */}
         {isVictory && victoryComponent}
       </View>
-    </View>
+    </PageContainer>
   );
 };
 
 // ============================================
 // STYLES
 // ============================================
+// Organisation :
+// 1. Layout général
+// 2. Grille de niveaux (visible quand isPlaying = false)
+// 3. Panneau progression (visible quand isPlaying = true)
+// 4. Mascotte (toujours visible, position change selon isPlaying)
+// 5. Zone de jeu (toujours visible)
+// 6. Boutons (play quand !isPlaying, flottants quand isPlaying)
 
 const styles = StyleSheet.create({
-  container: {
+  // =====================
+  // 1. LAYOUT GÉNÉRAL
+  // =====================
+  mainContainer: {
     flex: 1,
-  },
-  content: {
-    flex: 1,
-  },
-  scrollContainer: {
-    flex: 1,
-  },
-  scrollContent: {
-    flexGrow: 1,
-    paddingBottom: spacing[6],
+    alignItems: 'center',
   },
 
-  // Header
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: spacing[4],
-    marginBottom: spacing[2],
-    zIndex: 100,
-  },
-  headerButton: {
-    width: 64,
-    height: 64,
-    borderRadius: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    ...shadows.md,
-  },
-  headerButtonText: {
-    fontSize: 24,
-    color: colors.primary.main,
-  },
-  headerTitleWrapper: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    alignItems: 'center',
-    zIndex: -1,
-  },
-  headerTitleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing[2],
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-    paddingVertical: spacing[2],
-    paddingHorizontal: spacing[5],
-    borderRadius: 20,
-    ...shadows.md,
-  },
-  headerTitle: {
-    ...textStyles.h2,
-    color: colors.text.secondary,
-    fontFamily: fontFamily.bold,
-  },
-  headerEmoji: {
-    fontSize: 24,
-  },
-  headerRightButtons: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing[2],
-  },
-  parentButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing[2],
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
-    paddingVertical: spacing[2],
-    paddingHorizontal: spacing[3],
-    borderRadius: borderRadius.md,
-    ...shadows.md,
-  },
-  parentIconContainer: {
-    width: 36,
-    height: 36,
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  parentButtonIcon: {
-    fontSize: 18,
-  },
-  parentText: {
-    fontFamily: fontFamily.semiBold,
-    fontSize: 14,
-    color: colors.text.muted,
-  },
-  helpButton: {
-    width: 64,
-    height: 64,
-    borderRadius: 16,
-    backgroundColor: colors.secondary.main,
-    alignItems: 'center',
-    justifyContent: 'center',
-    ...shadows.md,
-  },
-  helpButtonText: {
-    fontSize: 24,
-    color: '#FFFFFF',
-    fontFamily: fontFamily.bold,
-  },
-
-  // Level Selector
+  // =====================
+  // 2. GRILLE DE NIVEAUX
+  // (visible quand isPlaying = false)
+  // =====================
   selectorContainer: {
+    width: '100%',
+    alignItems: 'center',
     paddingHorizontal: spacing[4],
-    paddingVertical: spacing[2],
+    paddingVertical: spacing[4],
     zIndex: 50,
-    alignItems: 'center',
   },
-  levelScrollContent: {
-    paddingHorizontal: spacing[2],
-    flexGrow: 1,
-    justifyContent: 'center',
-  },
+
   levelGrid: {
-    gap: spacing[2],
-    alignItems: 'center',
-  },
-  levelRow: {
     flexDirection: 'row',
-    gap: spacing[3],
+    flexWrap: 'wrap',
     justifyContent: 'center',
+    gap: spacing[3],
   },
+
+  // Carte de niveau - états
   levelCard: {
     backgroundColor: colors.background.card,
     borderRadius: borderRadius.xl,
@@ -695,6 +658,10 @@ const styles = StyleSheet.create({
     borderColor: colors.background.secondary,
     ...shadows.md,
   },
+  levelCardCompleted: {
+    backgroundColor: '#E8F5E9',
+    borderColor: '#7BC74D',
+  },
   levelCardSelected: {
     backgroundColor: colors.primary.light,
     transform: [{ scale: 1.05 }],
@@ -703,6 +670,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background.secondary,
     opacity: 0.7,
   },
+
+  // Étoiles dans la carte
   starsContainer: {
     flexDirection: 'row',
     marginBottom: spacing[1],
@@ -718,6 +687,8 @@ const styles = StyleSheet.create({
     color: colors.text.muted,
     opacity: 0.3,
   },
+
+  // Numéro et badge difficulté
   levelNumber: {
     fontSize: 36,
     fontFamily: fontFamily.bold,
@@ -739,7 +710,7 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
 
-  // Training mode
+  // Mode entrainement (optionnel, désactivé pour Suites Logiques)
   trainingButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -787,7 +758,7 @@ const styles = StyleSheet.create({
     gap: spacing[2],
   },
   trainingOption: {
-    paddingVertical: spacing[2],
+    paddingVertical: spacing[4],
     paddingHorizontal: spacing[3],
     borderRadius: borderRadius.md,
     backgroundColor: colors.background.secondary,
@@ -808,32 +779,83 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
   },
 
-  // Progress panel
-  progressPanelContainer: {
-    position: 'absolute',
-    top: 80,
-    left: 0,
-    right: 0,
+  // =====================
+  // 3. PANNEAU PROGRESSION
+  // (visible quand isPlaying = true)
+  // =====================
+  progressContainer: {
+    width: '100%',
+    alignItems: 'center',
     zIndex: 50,
+    paddingHorizontal: spacing[4],
+    paddingVertical: spacing[1],
   },
 
-  // Mascot
+  // =====================
+  // 4. MASCOTTE
+  // (toujours visible, position change)
+  // =====================
   mascotContainer: {
     zIndex: 40,
+    width: '100%',
+    maxWidth: 500,
+    alignSelf: 'center',
+  },
+  // Position quand isPlaying = false (centrée)
+  mascotContainerSelect: {
     alignItems: 'center',
     paddingVertical: spacing[2],
   },
-
-  // Game area
-  gameContainer: {
-    flex: 1,
-    minHeight: 300,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingBottom: spacing[4],
+  // Position quand isPlaying = true (à gauche, compact)
+  mascotContainerPlay: {
+    alignItems: 'flex-start',
+    paddingHorizontal: spacing[4],
+    marginTop: spacing[1],    // Petit espace après le panneau progression
+    marginBottom: spacing[10], // Petit espace avant la zone de jeu
   },
 
-  // Floating buttons
+  // =====================
+  // 5. ZONE DE JEU
+  // (toujours visible)
+  // =====================
+  gameContainer: {
+    flex: 1,
+    width: '100%',
+    maxWidth: 600,
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    paddingHorizontal: spacing[4],
+  },
+
+  // =====================
+  // 6. BOUTONS
+  // =====================
+
+  // Bouton "C'est parti !" (visible quand isPlaying = false)
+  playButton: {
+    marginTop: spacing[4],
+  },
+  playButtonGradient: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing[2],
+    paddingVertical: spacing[4],
+    paddingHorizontal: spacing[8],
+    borderRadius: borderRadius.xl,
+    minHeight: touchTargets.large,
+    ...shadows.lg,
+  },
+  playButtonEmoji: {
+    fontSize: 24,
+  },
+  playButtonText: {
+    ...textStyles.button,
+    color: '#FFFFFF',
+    fontFamily: fontFamily.bold,
+    fontSize: 20,
+  },
+
+  // Boutons flottants (visible quand isPlaying = true)
   floatingButtons: {
     position: 'absolute',
     bottom: spacing[6],
@@ -850,30 +872,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     ...shadows.lg,
   },
-  floatingButtonHint: {
-    backgroundColor: colors.secondary.main,
+  floatingButtonComplete: {
+    backgroundColor: '#4CAF50',
   },
   floatingButtonDisabled: {
     opacity: 0.5,
   },
   floatingButtonEmoji: {
     fontSize: 28,
-  },
-  hintBadge: {
-    position: 'absolute',
-    top: -4,
-    right: -4,
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: colors.primary.main,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  hintBadgeText: {
-    fontSize: 12,
-    fontFamily: fontFamily.bold,
-    color: '#FFFFFF',
   },
 });
 

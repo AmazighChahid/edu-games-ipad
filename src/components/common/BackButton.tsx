@@ -9,6 +9,8 @@
  * - Touch target ≥ 64dp (conforme guidelines enfant)
  * - Animation spring au tap
  * - Feedback visuel immédiat
+ * - Design unifié avec les écrans de jeu (carré blanc, coins arrondis)
+ * - Icône SVG propre (pas de caractère texte)
  */
 
 import React from 'react';
@@ -18,7 +20,43 @@ import Animated, {
   useAnimatedStyle,
   withSpring,
 } from 'react-native-reanimated';
-import { theme } from '../../theme';
+import Svg, { Path } from 'react-native-svg';
+import { colors, spacing, shadows } from '../../theme';
+
+// ============================================
+// CHEVRON ICON COMPONENT
+// ============================================
+
+interface ChevronLeftIconProps {
+  size?: number;
+  color?: string;
+  strokeWidth?: number;
+}
+
+const ChevronLeftIcon: React.FC<ChevronLeftIconProps> = ({
+  size = 28,
+  color = '#5B8DEE',
+  strokeWidth = 3,
+}) => (
+  <Svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+  >
+    <Path
+      d="M15 19L8 12L15 5"
+      stroke={color}
+      strokeWidth={strokeWidth}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </Svg>
+);
+
+// ============================================
+// BACK BUTTON COMPONENT
+// ============================================
 
 export interface BackButtonProps {
   onPress: () => void;
@@ -58,6 +96,10 @@ export const BackButton: React.FC<BackButtonProps> = ({
     onPress();
   };
 
+  // Tailles selon le variant
+  const iconSize = size === 'large' ? 32 : 28;
+  const strokeWidth = size === 'large' ? 3.5 : 3;
+
   if (variant === 'icon') {
     return (
       <Pressable
@@ -76,12 +118,17 @@ export const BackButton: React.FC<BackButtonProps> = ({
             animatedStyle,
           ]}
         >
-          <Text style={[styles.iconText, size === 'large' && styles.iconTextLarge]}>←</Text>
+          <ChevronLeftIcon
+            size={iconSize}
+            color={colors.primary.main}
+            strokeWidth={strokeWidth}
+          />
         </Animated.View>
       </Pressable>
     );
   }
 
+  // Variant text
   return (
     <Pressable
       onPress={handlePress}
@@ -93,58 +140,56 @@ export const BackButton: React.FC<BackButtonProps> = ({
       accessibilityHint="Revenir à l'écran précédent"
     >
       <Animated.View style={[styles.textButton, animatedStyle]}>
-        <Text style={styles.textButtonIcon}>←</Text>
+        <ChevronLeftIcon
+          size={22}
+          color={colors.primary.contrast}
+          strokeWidth={2.5}
+        />
         <Text style={styles.textButtonLabel}>{label}</Text>
       </Animated.View>
     </Pressable>
   );
 };
 
+// ============================================
+// STYLES
+// ============================================
+
 const styles = StyleSheet.create({
-  // Icon variant
+  // Icon variant - Design unifié avec HanoiIntroScreen
   iconButton: {
-    width: theme.touchTargets.child,
-    height: theme.touchTargets.child,
-    borderRadius: theme.borderRadius.round,
-    backgroundColor: theme.colors.background.card,
+    width: 64,
+    height: 64,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
     alignItems: 'center',
     justifyContent: 'center',
-    ...theme.shadows.sm,
+    ...shadows.md,
   },
   iconButtonLarge: {
-    width: theme.touchTargets.large,
-    height: theme.touchTargets.large,
-  },
-  iconText: {
-    fontSize: 28,
-    color: theme.colors.text.primary,
-    fontWeight: 'bold',
-  },
-  iconTextLarge: {
-    fontSize: 32,
+    width: 72,
+    height: 72,
+    borderRadius: 24,
   },
 
   // Text variant
   textButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: theme.spacing[2],
-    backgroundColor: theme.colors.primary.main,
-    paddingVertical: theme.spacing[3],
-    paddingHorizontal: theme.spacing[4],
-    borderRadius: theme.borderRadius.lg,
-    minHeight: 48, // Touch target minimum
-    ...theme.shadows.sm,
-  },
-  textButtonIcon: {
-    fontSize: 20,
-    color: theme.colors.primary.contrast,
-    fontWeight: 'bold',
+    gap: spacing[2],
+    backgroundColor: colors.primary.main,
+    paddingVertical: spacing[3],
+    paddingHorizontal: spacing[5],
+    borderRadius: 20,
+    minHeight: 56,
+    ...shadows.md,
   },
   textButtonLabel: {
     fontSize: 16,
     fontWeight: '600',
-    color: theme.colors.primary.contrast,
+    color: colors.primary.contrast,
     fontFamily: 'Nunito_600SemiBold',
   },
 });
+
+export default BackButton;

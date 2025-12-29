@@ -17,6 +17,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
+import { Icons } from '../../constants/icons';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -107,13 +108,13 @@ export function ParentDashboard({
 
   // Navigation tabs data
   const navTabs: { id: NavTab; label: string; icon: string }[] = [
-    { id: 'overview', label: "Vue d'ensemble", icon: '📊' },
-    { id: 'activities', label: 'Par activité', icon: '🎮' },
-    { id: 'skills', label: 'Compétences', icon: '🧠' },
-    { id: 'history', label: 'Historique', icon: '📅' },
-    { id: 'goals', label: 'Objectifs', icon: '🎯' },
-    { id: 'screentime', label: "Temps d'écran", icon: '⏰' },
-    { id: 'resources', label: 'Ressources', icon: '📚' },
+    { id: 'overview', label: "Vue d'ensemble", icon: Icons.chart },
+    { id: 'activities', label: 'Par activité', icon: Icons.game },
+    { id: 'skills', label: 'Compétences', icon: Icons.brain },
+    { id: 'history', label: 'Historique', icon: Icons.calendar },
+    { id: 'goals', label: 'Objectifs', icon: Icons.target },
+    { id: 'screentime', label: "Temps d'écran", icon: Icons.clock },
+    { id: 'resources', label: 'Ressources', icon: Icons.book },
   ];
 
   // Weekly activity data (mock)
@@ -130,34 +131,34 @@ export function ParentDashboard({
 
   // Skills data (mock)
   const skills = [
-    { name: 'Logique', icon: '🎯', level: 3, maxLevel: 5, progress: 60, color: 'blue' },
-    { name: 'Résolution', icon: '🧩', level: 2, maxLevel: 5, progress: 40, color: 'green' },
+    { name: 'Logique', icon: Icons.target, level: 3, maxLevel: 5, progress: 60, color: 'blue' },
+    { name: 'Résolution', icon: Icons.puzzle, level: 2, maxLevel: 5, progress: 40, color: 'green' },
     { name: 'Concentration', icon: '🪞', level: 4, maxLevel: 5, progress: 80, color: 'orange' },
-    { name: 'Persévérance', icon: '🌱', level: 3, maxLevel: 5, progress: 55, color: 'purple' },
+    { name: 'Persévérance', icon: Icons.seedling, level: 3, maxLevel: 5, progress: 55, color: 'purple' },
   ];
 
   // Games data (mock)
   const games = [
-    { id: 'hanoi', name: 'Tour de Hanoï', category: 'Logique séquentielle', icon: '🗼', level: 6, maxLevel: 10, progress: 60, gamesPlayed: 18, totalTime: '45 min', isFavorite: true, color: '#FFB347' },
-    { id: 'sudoku', name: 'Sudoku Montessori', category: 'Logique numérique', icon: '🔢', level: 2, maxLevel: 10, progress: 20, gamesPlayed: 5, totalTime: '15 min', isFavorite: false, color: '#5B8DEE' },
-    { id: 'sequences', name: 'Suites Logiques', category: 'Reconnaissance patterns', icon: '🧩', level: 4, maxLevel: 10, progress: 40, gamesPlayed: 12, totalTime: '30 min', isFavorite: false, color: '#7BC74D' },
+    { id: 'hanoi', name: 'Tour de Hanoï', category: 'Logique séquentielle', icon: Icons.hanoi, level: 6, maxLevel: 10, progress: 60, gamesPlayed: 18, totalTime: '45 min', isFavorite: true, color: '#FFB347' },
+    { id: 'sudoku', name: 'Sudoku Montessori', category: 'Logique numérique', icon: Icons.math, level: 2, maxLevel: 10, progress: 20, gamesPlayed: 5, totalTime: '15 min', isFavorite: false, color: '#5B8DEE' },
+    { id: 'sequences', name: 'Suites Logiques', category: 'Reconnaissance patterns', icon: Icons.puzzle, level: 4, maxLevel: 10, progress: 40, gamesPlayed: 12, totalTime: '30 min', isFavorite: false, color: '#7BC74D' },
   ];
 
   // Recent activity (mock)
   const recentActivities = [
-    { id: 1, game: 'Tour de Hanoï', icon: '🗼', action: 'Niveau 3 complété !', time: "Aujourd'hui, 10:23", details: 'A résolu le puzzle en 9 coups (optimal: 7). Excellent travail de planification !', success: true, duration: '3 min 45s' },
-    { id: 2, game: 'Suites Logiques', icon: '🧩', action: 'Niveau 4 tenté', time: 'Hier, 17:45', details: '2 essais sur ce niveau. Continue de progresser dans la reconnaissance de patterns.', success: false, duration: '8 min' },
-    { id: 3, game: 'Sudoku Montessori', icon: '🔢', action: 'Badge débloqué !', time: 'Hier, 16:30', details: 'A obtenu le badge "Premier Sudoku" 🏅 après avoir complété la grille 4x4.', success: true, badge: true },
+    { id: 1, game: 'Tour de Hanoï', icon: Icons.hanoi, action: 'Niveau 3 complété !', time: "Aujourd'hui, 10:23", details: 'A résolu le puzzle en 9 coups (optimal: 7). Excellent travail de planification !', success: true, duration: '3 min 45s' },
+    { id: 2, game: 'Suites Logiques', icon: Icons.puzzle, action: 'Niveau 4 tenté', time: 'Hier, 17:45', details: '2 essais sur ce niveau. Continue de progresser dans la reconnaissance de patterns.', success: false, duration: '8 min' },
+    { id: 3, game: 'Sudoku Montessori', icon: Icons.math, action: 'Badge débloqué !', time: 'Hier, 16:30', details: 'A obtenu le badge "Premier Sudoku" 🏅 après avoir complété la grille 4x4.', success: true, badge: true },
   ];
 
   // Badges (mock)
   const badges = [
-    { id: 1, name: 'Premier pas', icon: '🚀', date: '15 déc. 2025', unlocked: true },
-    { id: 2, name: 'Maître des Tours', icon: '🗼', date: '20 déc. 2025', unlocked: true },
-    { id: 3, name: "5 jours d'affilée", icon: '🔥', date: '22 déc. 2025', unlocked: true },
-    { id: 4, name: 'Logicien en herbe', icon: '🧠', date: '24 déc. 2025', unlocked: true },
-    { id: 5, name: 'Champion', icon: '🏆', date: 'À débloquer', unlocked: false },
-    { id: 6, name: 'Perfectionniste', icon: '⭐', date: 'À débloquer', unlocked: false },
+    { id: 1, name: 'Premier pas', icon: Icons.rocket, date: '15 déc. 2025', unlocked: true },
+    { id: 2, name: 'Maître des Tours', icon: Icons.hanoi, date: '20 déc. 2025', unlocked: true },
+    { id: 3, name: "5 jours d'affilée", icon: Icons.fire, date: '22 déc. 2025', unlocked: true },
+    { id: 4, name: 'Logicien en herbe', icon: Icons.brain, date: '24 déc. 2025', unlocked: true },
+    { id: 5, name: 'Champion', icon: Icons.trophy, date: 'À débloquer', unlocked: false },
+    { id: 6, name: 'Perfectionniste', icon: Icons.star, date: 'À débloquer', unlocked: false },
   ];
 
   // Goals (mock)

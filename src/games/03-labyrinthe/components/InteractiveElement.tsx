@@ -7,6 +7,7 @@ import Animated, {
   withSequence,
   withTiming,
 } from 'react-native-reanimated';
+import { Icons } from '@/constants/icons';
 import { InteractiveElement as InteractiveType } from '../types';
 
 interface Props {
@@ -14,12 +15,12 @@ interface Props {
   size: number;
 }
 
-const ELEMENT_ICONS = {
-  key: '🔑',
-  door: '🚪',
-  gem: '💎',
+const ELEMENT_ICONS: Record<string, string> = {
+  key: Icons.key,
+  door: Icons.door,
+  gem: Icons.gem,
   button: '🔘',
-  teleporter: '🌀',
+  teleporter: Icons.spiral,
 };
 
 const COLOR_STYLES = {
@@ -88,7 +89,7 @@ export const InteractiveElement: React.FC<Props> = ({ element, size }) => {
       {/* Indicateur de porte fermée/ouverte */}
       {element.type === 'door' && !element.isActive && (
         <View style={[styles.lockIndicator, { top: -size * 0.1 }]}>
-          <Text style={{ fontSize: size * 0.3 }}>🔒</Text>
+          <Text style={{ fontSize: size * 0.3 }}>{Icons.lock}</Text>
         </View>
       )}
     </Animated.View>

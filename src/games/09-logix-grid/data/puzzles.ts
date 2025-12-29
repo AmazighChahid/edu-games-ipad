@@ -366,6 +366,97 @@ const PUZZLE_SPORTS_ENFANTS: LogixPuzzle = {
 };
 
 // ============================================================================
+// PUZZLES NIVEAU 2 SUPPLÉMENTAIRES
+// ============================================================================
+
+const PUZZLE_VEHICULES_ENFANTS: LogixPuzzle = {
+  id: 'vehicules-enfants-2',
+  name: 'Les véhicules préférés',
+  description: 'Quel véhicule préfère chaque enfant et de quelle couleur ?',
+  difficulty: 2,
+  categories: [
+    {
+      id: 'enfant',
+      name: 'Enfant',
+      items: [
+        { id: 'jules', name: 'Jules', emoji: '👦' },
+        { id: 'sarah', name: 'Sarah', emoji: '👧' },
+        { id: 'noah', name: 'Noah', emoji: '👦' },
+      ],
+    },
+    {
+      id: 'vehicule',
+      name: 'Véhicule',
+      items: [
+        { id: 'velo', name: 'Vélo', emoji: '🚲' },
+        { id: 'trottinette', name: 'Trottinette', emoji: '🛴' },
+        { id: 'skateboard', name: 'Skateboard', emoji: '🛹' },
+      ],
+    },
+    {
+      id: 'couleur',
+      name: 'Couleur',
+      items: [
+        { id: 'rouge', name: 'Rouge', emoji: '🔴' },
+        { id: 'vert', name: 'Vert', emoji: '🟢' },
+        { id: 'bleu', name: 'Bleu', emoji: '🔵' },
+      ],
+    },
+  ],
+  clues: [
+    {
+      id: 'clue1',
+      text: 'Jules a un vélo.',
+      type: 'positive',
+      isUsed: false,
+      data: { subject1: 'jules', category1: 'enfant', subject2: 'velo', category2: 'vehicule' },
+    },
+    {
+      id: 'clue2',
+      text: 'Le skateboard n\'est pas rouge.',
+      type: 'negative',
+      isUsed: false,
+      data: { subject1: 'skateboard', category1: 'vehicule', subject2: 'rouge', category2: 'couleur', isNegative: true },
+    },
+    {
+      id: 'clue3',
+      text: 'Sarah adore le vert.',
+      type: 'positive',
+      isUsed: false,
+      data: { subject1: 'sarah', category1: 'enfant', subject2: 'vert', category2: 'couleur' },
+    },
+    {
+      id: 'clue4',
+      text: 'Noah a une trottinette bleue.',
+      type: 'positive',
+      isUsed: false,
+      data: { subject1: 'noah', category1: 'enfant', subject2: 'trottinette', category2: 'vehicule' },
+    },
+    {
+      id: 'clue5',
+      text: 'Le vélo est rouge.',
+      type: 'positive',
+      isUsed: false,
+      data: { subject1: 'velo', category1: 'vehicule', subject2: 'rouge', category2: 'couleur' },
+    },
+  ],
+  solution: {
+    enfant: {
+      jules: ['velo', 'rouge'],
+      sarah: ['skateboard', 'vert'],
+      noah: ['trottinette', 'bleu'],
+    },
+    vehicule: {
+      velo: ['rouge'],
+      skateboard: ['vert'],
+      trottinette: ['bleu'],
+    },
+  },
+  hintsAvailable: 3,
+  idealTime: 120,
+};
+
+// ============================================================================
 // PUZZLES NIVEAU 3 (Difficile - 3 catégories, 4 éléments)
 // ============================================================================
 
@@ -476,6 +567,328 @@ const PUZZLE_MAISON_COMPLETE: LogixPuzzle = {
 };
 
 // ============================================================================
+// PUZZLES NIVEAU 3 SUPPLÉMENTAIRES
+// ============================================================================
+
+const PUZZLE_ECOLE_MATIERES: LogixPuzzle = {
+  id: 'ecole-matieres-3',
+  name: 'Les matières préférées',
+  description: 'Trouve la matière préférée et l\'heure de cours de chaque élève !',
+  difficulty: 3,
+  categories: [
+    {
+      id: 'eleve',
+      name: 'Élève',
+      items: [
+        { id: 'leo', name: 'Léo', emoji: '👦' },
+        { id: 'mia', name: 'Mia', emoji: '👧' },
+        { id: 'hugo', name: 'Hugo', emoji: '👦' },
+        { id: 'jade', name: 'Jade', emoji: '👧' },
+      ],
+    },
+    {
+      id: 'matiere',
+      name: 'Matière',
+      items: [
+        { id: 'maths', name: 'Maths', emoji: '🔢' },
+        { id: 'francais', name: 'Français', emoji: '📖' },
+        { id: 'sport', name: 'Sport', emoji: '⚽' },
+        { id: 'dessin', name: 'Dessin', emoji: '🎨' },
+      ],
+    },
+    {
+      id: 'heure',
+      name: 'Heure',
+      items: [
+        { id: 'h8', name: '8h', emoji: '🕗' },
+        { id: 'h9', name: '9h', emoji: '🕘' },
+        { id: 'h10', name: '10h', emoji: '🕙' },
+        { id: 'h11', name: '11h', emoji: '🕚' },
+      ],
+    },
+  ],
+  clues: [
+    {
+      id: 'clue1',
+      text: 'Léo adore les maths.',
+      type: 'positive',
+      isUsed: false,
+      data: { subject1: 'leo', category1: 'eleve', subject2: 'maths', category2: 'matiere' },
+    },
+    {
+      id: 'clue2',
+      text: 'Le sport est à 10h.',
+      type: 'positive',
+      isUsed: false,
+      data: { subject1: 'sport', category1: 'matiere', subject2: 'h10', category2: 'heure' },
+    },
+    {
+      id: 'clue3',
+      text: 'Mia n\'aime pas le dessin.',
+      type: 'negative',
+      isUsed: false,
+      data: { subject1: 'mia', category1: 'eleve', subject2: 'dessin', category2: 'matiere', isNegative: true },
+    },
+    {
+      id: 'clue4',
+      text: 'Hugo a cours à 11h.',
+      type: 'positive',
+      isUsed: false,
+      data: { subject1: 'hugo', category1: 'eleve', subject2: 'h11', category2: 'heure' },
+    },
+    {
+      id: 'clue5',
+      text: 'Jade préfère le dessin.',
+      type: 'positive',
+      isUsed: false,
+      data: { subject1: 'jade', category1: 'eleve', subject2: 'dessin', category2: 'matiere' },
+    },
+    {
+      id: 'clue6',
+      text: 'Le français est à 8h.',
+      type: 'positive',
+      isUsed: false,
+      data: { subject1: 'francais', category1: 'matiere', subject2: 'h8', category2: 'heure' },
+    },
+    {
+      id: 'clue7',
+      text: 'Mia a cours à 10h.',
+      type: 'positive',
+      isUsed: false,
+      data: { subject1: 'mia', category1: 'eleve', subject2: 'h10', category2: 'heure' },
+    },
+  ],
+  solution: {
+    eleve: {
+      leo: ['maths', 'h9'],
+      mia: ['sport', 'h10'],
+      hugo: ['francais', 'h11'],
+      jade: ['dessin', 'h8'],
+    },
+    matiere: {
+      maths: ['h9'],
+      sport: ['h10'],
+      francais: ['h8'],
+      dessin: ['h11'],
+    },
+  },
+  hintsAvailable: 4,
+  idealTime: 180,
+};
+
+const PUZZLE_FETE_ANNIVERSAIRE: LogixPuzzle = {
+  id: 'fete-anniversaire-3',
+  name: 'La fête d\'anniversaire',
+  description: 'Qui apporte quel cadeau et quel gâteau préfère-t-il ?',
+  difficulty: 3,
+  categories: [
+    {
+      id: 'invite',
+      name: 'Invité',
+      items: [
+        { id: 'arthur', name: 'Arthur', emoji: '👦' },
+        { id: 'chloe', name: 'Chloé', emoji: '👧' },
+        { id: 'theo', name: 'Théo', emoji: '👦' },
+        { id: 'lisa', name: 'Lisa', emoji: '👧' },
+      ],
+    },
+    {
+      id: 'cadeau',
+      name: 'Cadeau',
+      items: [
+        { id: 'livre', name: 'Livre', emoji: '📚' },
+        { id: 'jouet', name: 'Jouet', emoji: '🧸' },
+        { id: 'puzzle', name: 'Puzzle', emoji: '🧩' },
+        { id: 'ballon', name: 'Ballon', emoji: '⚽' },
+      ],
+    },
+    {
+      id: 'gateau',
+      name: 'Gâteau',
+      items: [
+        { id: 'chocolat', name: 'Chocolat', emoji: '🍫' },
+        { id: 'fraise', name: 'Fraise', emoji: '🍓' },
+        { id: 'vanille', name: 'Vanille', emoji: '🍦' },
+        { id: 'citron', name: 'Citron', emoji: '🍋' },
+      ],
+    },
+  ],
+  clues: [
+    {
+      id: 'clue1',
+      text: 'Arthur apporte un livre.',
+      type: 'positive',
+      isUsed: false,
+      data: { subject1: 'arthur', category1: 'invite', subject2: 'livre', category2: 'cadeau' },
+    },
+    {
+      id: 'clue2',
+      text: 'Celui qui apporte le puzzle aime le chocolat.',
+      type: 'positive',
+      isUsed: false,
+      data: { subject1: 'puzzle', category1: 'cadeau', subject2: 'chocolat', category2: 'gateau' },
+    },
+    {
+      id: 'clue3',
+      text: 'Chloé n\'aime pas la vanille.',
+      type: 'negative',
+      isUsed: false,
+      data: { subject1: 'chloe', category1: 'invite', subject2: 'vanille', category2: 'gateau', isNegative: true },
+    },
+    {
+      id: 'clue4',
+      text: 'Lisa apporte le puzzle.',
+      type: 'positive',
+      isUsed: false,
+      data: { subject1: 'lisa', category1: 'invite', subject2: 'puzzle', category2: 'cadeau' },
+    },
+    {
+      id: 'clue5',
+      text: 'Théo préfère le gâteau au citron.',
+      type: 'positive',
+      isUsed: false,
+      data: { subject1: 'theo', category1: 'invite', subject2: 'citron', category2: 'gateau' },
+    },
+    {
+      id: 'clue6',
+      text: 'Arthur aime la fraise.',
+      type: 'positive',
+      isUsed: false,
+      data: { subject1: 'arthur', category1: 'invite', subject2: 'fraise', category2: 'gateau' },
+    },
+    {
+      id: 'clue7',
+      text: 'Chloé apporte un jouet.',
+      type: 'positive',
+      isUsed: false,
+      data: { subject1: 'chloe', category1: 'invite', subject2: 'jouet', category2: 'cadeau' },
+    },
+  ],
+  solution: {
+    invite: {
+      arthur: ['livre', 'fraise'],
+      chloe: ['jouet', 'citron'],
+      theo: ['ballon', 'vanille'],
+      lisa: ['puzzle', 'chocolat'],
+    },
+    cadeau: {
+      livre: ['fraise'],
+      jouet: ['citron'],
+      ballon: ['vanille'],
+      puzzle: ['chocolat'],
+    },
+  },
+  hintsAvailable: 4,
+  idealTime: 200,
+};
+
+const PUZZLE_VACANCES: LogixPuzzle = {
+  id: 'vacances-3',
+  name: 'Les vacances',
+  description: 'Où part chaque famille et quel moyen de transport utilise-t-elle ?',
+  difficulty: 3,
+  categories: [
+    {
+      id: 'famille',
+      name: 'Famille',
+      items: [
+        { id: 'dupont', name: 'Dupont', emoji: '👨‍👩‍👧' },
+        { id: 'martin', name: 'Martin', emoji: '👨‍👩‍👦' },
+        { id: 'bernard', name: 'Bernard', emoji: '👨‍👩‍👧‍👦' },
+        { id: 'petit', name: 'Petit', emoji: '👨‍👩‍👦‍👦' },
+      ],
+    },
+    {
+      id: 'destination',
+      name: 'Destination',
+      items: [
+        { id: 'mer', name: 'Mer', emoji: '🏖️' },
+        { id: 'montagne', name: 'Montagne', emoji: '⛰️' },
+        { id: 'campagne', name: 'Campagne', emoji: '🌾' },
+        { id: 'ville', name: 'Ville', emoji: '🏙️' },
+      ],
+    },
+    {
+      id: 'transport',
+      name: 'Transport',
+      items: [
+        { id: 'voiture', name: 'Voiture', emoji: '🚗' },
+        { id: 'train', name: 'Train', emoji: '🚂' },
+        { id: 'avion', name: 'Avion', emoji: '✈️' },
+        { id: 'bus', name: 'Bus', emoji: '🚌' },
+      ],
+    },
+  ],
+  clues: [
+    {
+      id: 'clue1',
+      text: 'Les Dupont vont à la mer.',
+      type: 'positive',
+      isUsed: false,
+      data: { subject1: 'dupont', category1: 'famille', subject2: 'mer', category2: 'destination' },
+    },
+    {
+      id: 'clue2',
+      text: 'On va à la montagne en voiture.',
+      type: 'positive',
+      isUsed: false,
+      data: { subject1: 'montagne', category1: 'destination', subject2: 'voiture', category2: 'transport' },
+    },
+    {
+      id: 'clue3',
+      text: 'Les Martin ne prennent pas l\'avion.',
+      type: 'negative',
+      isUsed: false,
+      data: { subject1: 'martin', category1: 'famille', subject2: 'avion', category2: 'transport', isNegative: true },
+    },
+    {
+      id: 'clue4',
+      text: 'Les Bernard vont à la montagne.',
+      type: 'positive',
+      isUsed: false,
+      data: { subject1: 'bernard', category1: 'famille', subject2: 'montagne', category2: 'destination' },
+    },
+    {
+      id: 'clue5',
+      text: 'Les Petit prennent l\'avion.',
+      type: 'positive',
+      isUsed: false,
+      data: { subject1: 'petit', category1: 'famille', subject2: 'avion', category2: 'transport' },
+    },
+    {
+      id: 'clue6',
+      text: 'On va en ville en bus.',
+      type: 'positive',
+      isUsed: false,
+      data: { subject1: 'ville', category1: 'destination', subject2: 'bus', category2: 'transport' },
+    },
+    {
+      id: 'clue7',
+      text: 'Les Dupont prennent le train.',
+      type: 'positive',
+      isUsed: false,
+      data: { subject1: 'dupont', category1: 'famille', subject2: 'train', category2: 'transport' },
+    },
+  ],
+  solution: {
+    famille: {
+      dupont: ['mer', 'train'],
+      martin: ['ville', 'bus'],
+      bernard: ['montagne', 'voiture'],
+      petit: ['campagne', 'avion'],
+    },
+    destination: {
+      mer: ['train'],
+      montagne: ['voiture'],
+      ville: ['bus'],
+      campagne: ['avion'],
+    },
+  },
+  hintsAvailable: 4,
+  idealTime: 200,
+};
+
+// ============================================================================
 // EXPORTS
 // ============================================================================
 
@@ -487,8 +900,12 @@ export const LOGIX_PUZZLES: LogixPuzzle[] = [
   // Niveau 2
   PUZZLE_ANIMAUX_MAISONS,
   PUZZLE_SPORTS_ENFANTS,
+  PUZZLE_VEHICULES_ENFANTS,
   // Niveau 3
   PUZZLE_MAISON_COMPLETE,
+  PUZZLE_ECOLE_MATIERES,
+  PUZZLE_FETE_ANNIVERSAIRE,
+  PUZZLE_VACANCES,
 ];
 
 /**

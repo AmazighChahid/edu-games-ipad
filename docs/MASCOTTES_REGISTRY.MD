@@ -1,7 +1,7 @@
 # 🎭 MASCOTTES REGISTRY — Hello Guys
 
 > **Registre centralisé** de toutes les mascottes de l'application
-> **Dernière mise à jour** : Décembre 2024
+> **Dernière mise à jour** : 28 Décembre 2024 | **Version** : 2.0
 
 ---
 
@@ -9,21 +9,21 @@
 
 L'application utilise des mascottes pour guider les enfants dans chaque activité. Chaque mascotte a une personnalité distincte et un style de dialogue adapté.
 
-| Jeu | Mascotte | Emoji | Personnalité |
-|-----|----------|-------|--------------|
-| **Global / Home** | Piou | 🦉 | Sage, encourageant, bienveillant |
-| Tour de Hanoï | Léo le Singe | 🐵 | Joueur, énergique, curieux |
-| Suites Logiques | Pixel le Robot | 🤖 | Logique, méthodique, précis |
-| Labyrinthe | Scout l'Écureuil | 🐿️ | Aventurier, agile, observateur |
-| Balance Logique | Libra la Chouette | 🦉 | Réfléchie, équilibrée, patiente |
-| Sudoku Montessori | Professeur Hoo | 🦉 | Érudit, patient, encourageant |
-| Le Conteur Curieux | Plume | 🪶 | Créatif, imaginatif, doux |
-| Memory | Memo l'Éléphant | 🐘 | Concentré, calme, mémorise tout |
-| Puzzle Formes | Géo le Renard | 🦊 | Malin, créatif, spatial |
-| Logix Grid | Ada la Fourmi | 🐜 | Organisée, méthodique, logique |
-| Mots Croisés | Lexie le Perroquet | 🦜 | Bavard, joueur avec les mots |
-| MathBlocks | Calc le Castor | 🦫 | Constructeur, méthodique |
-| Matrices Magiques | Mystic | ✨ | Mystérieux, magique |
+| Jeu | Mascotte | Emoji | Personnalité | Composant |
+|-----|----------|-------|--------------|-----------|
+| **Global / Home** | Piou | 🦉 | Sage, encourageant, bienveillant | `PiouFloating.tsx` |
+| Tour de Hanoï | Piou (MascotOwl) | 🦉 | Sage, patient, observateur | `MascotOwl.tsx` |
+| Suites Logiques | Pixel le Robot | 🤖 | Logique, méthodique, précis | `MascotRobot.tsx` |
+| Labyrinthe | Scout l'Écureuil | 🐿️ | Aventurier, agile, observateur | `MascotBubble.tsx` |
+| Balance Logique | Dr. Hibou | 🦉 | Scientifique, patient, pédagogue | `DrHibou.tsx` |
+| Sudoku Montessori | Prof. Hoo / Félix | 🦉🦊 | Érudit, patient, encourageant | `ProfessorHooMascot.tsx`, `FelixMascot.tsx` |
+| Le Conteur Curieux | Plume | 🪶 | Créatif, imaginatif, doux | `PlumeMascot.tsx` |
+| Memory | Memo l'Éléphant | 🐘 | Concentré, calme, mémorise tout | TBD |
+| Puzzle Formes | Géo le Renard | 🦊 | Malin, créatif, spatial | TBD |
+| Logix Grid | Ada la Fourmi | 🐜 | Organisée, méthodique, logique | TBD |
+| Mots Croisés | Lexie le Perroquet | 🦜 | Bavard, joueur avec les mots | TBD |
+| MathBlocks | Calc le Castor | 🦫 | Constructeur, méthodique | TBD |
+| Matrices Magiques | Pixel le Renard | 🦊 | Malin, analytique, guide | `PixelMascot.tsx` |
 
 ---
 
@@ -77,16 +77,18 @@ export const PiouColors = {
 
 ---
 
-## 🐵 LÉO LE SINGE — Tour de Hanoï
+## 🦉 PIOU (MascotOwl) — Tour de Hanoï
+
+> **Note** : La documentation originale mentionnait "Léo le Singe", mais le code implémente "Piou" (hibou) via `MascotOwl.tsx`.
 
 ### Identité
 
 | Attribut | Valeur |
 |----------|--------|
-| **Nom** | Léo |
-| **Espèce** | Singe |
-| **Emoji** | 🐵 |
-| **Personnalité** | Joueur, énergique, curieux |
+| **Nom** | Piou |
+| **Espèce** | Hibou |
+| **Emoji** | 🦉 |
+| **Personnalité** | Sage, patient, observateur |
 | **Catchphrase** | "Réfléchis avant d'agir !" |
 
 ### Dialogues par âge
@@ -94,22 +96,23 @@ export const PiouColors = {
 #### 6-7 ans
 | Contexte | Message |
 |----------|---------|
-| Introduction | "Salut ! Je suis Léo ! Tu veux m'aider à déplacer ces anneaux ?" |
-| Règle 1 | "On ne peut bouger qu'un anneau à la fois !" |
-| Règle 2 | "Un gros anneau ne peut pas aller sur un petit !" |
+| Introduction | "Bonjour ! Je suis Piou ! Tu veux m'aider à déplacer ces disques ?" |
+| Règle 1 | "On ne peut bouger qu'un disque à la fois !" |
+| Règle 2 | "Un gros disque ne peut pas aller sur un petit !" |
 | Erreur | "Oups ! Celui-ci est trop gros pour aller là !" |
-| Indice | "Essaie de libérer le plus grand anneau d'abord..." |
-| Victoire | "YOUHOU ! Tu as réussi ! Tu es super malin ! 🎉" |
+| Indice | "Essaie de libérer le plus grand disque d'abord..." |
+| Victoire | "Bravo ! Tu as réussi ! Tu es super malin ! 🎉" |
 
 #### 8-10 ans
 | Contexte | Message |
 |----------|---------|
-| Introduction | "Hey ! Prêt pour un défi de logique ?" |
+| Introduction | "Prêt pour un défi de logique ?" |
 | Indice | "Pense à ta stratégie : quel mouvement te rapproche du but ?" |
 | Victoire | "Excellent ! Tu maîtrises la récursivité sans le savoir ! 🧠" |
 
 ### Fichier source
-`src/games/hanoi/data/assistantScripts.ts`
+- Composant : `src/games/01-hanoi/components/MascotOwl.tsx`
+- Scripts : `src/games/01-hanoi/data/assistantScripts.ts`
 
 ---
 
@@ -148,9 +151,8 @@ export const RobotColors = {
 | Victoire | "Calcul confirmé : tu as trouvé ! Efficacité maximale ! ⚡" |
 
 ### Fichier source
-- Composant : `src/games/suites-logiques/components/MascotRobot.tsx`
-- Scripts : `src/games/suites-logiques/data/assistantScripts.ts`
-- Documentation : `docs/MASCOT_ROBOT_IMPLEMENTATION.md`
+- Composant : `src/games/02-suites-logiques/components/MascotRobot.tsx`
+- Scripts : `src/games/02-suites-logiques/data/assistantScripts.ts`
 
 ---
 
@@ -178,16 +180,19 @@ export const RobotColors = {
 
 ---
 
-## 🦉 LIBRA LA CHOUETTE — Balance Logique
+## 🦉 DR. HIBOU — Balance Logique
+
+> **Note** : La documentation originale mentionnait "Libra la Chouette", mais le code implémente "Dr. Hibou" via `DrHibou.tsx`.
 
 ### Identité
 
 | Attribut | Valeur |
 |----------|--------|
-| **Nom** | Libra |
-| **Espèce** | Chouette |
+| **Nom** | Dr. Hibou |
+| **Espèce** | Hibou scientifique |
 | **Emoji** | 🦉 |
-| **Personnalité** | Réfléchie, équilibrée, patiente |
+| **Personnalité** | Scientifique, patient, pédagogue |
+| **Accessoire** | Blouse de laboratoire |
 | **Catchphrase** | "Trouve l'équilibre !" |
 
 ### Dialogues
@@ -198,6 +203,9 @@ export const RobotColors = {
 | Règle | "Une balance s'équilibre quand les deux côtés ont le même poids." |
 | Indice | "Compare les objets : lequel est le plus lourd ?" |
 | Victoire | "Parfait équilibre ! Tu as l'esprit d'un scientifique ! ⚖️" |
+
+### Fichier source
+- Composant : `src/games/04-balance/components/DrHibou.tsx`
 
 ---
 
@@ -236,7 +244,8 @@ export const HooColors = {
 | Victoire | "Magnifique ! Tu as résolu le puzzle ! 📚✨" |
 
 ### Fichier source
-`src/games/sudoku/components/ProfessorHooMascot.tsx`
+- Composant : `src/games/05-sudoku/components/ProfessorHooMascot.tsx`
+- Alternative : `src/games/05-sudoku/components/FelixMascot.tsx`
 
 ---
 
@@ -273,7 +282,7 @@ export const PlumeColors = {
 | Bonne réponse | "Bravo ! Tu as l'oreille d'un vrai conteur ! 📖" |
 
 ### Fichier source
-`Fiches Educatives/06-Conteur Curieux/`
+- Composant : `src/games/06-conteur-curieux/components/PlumeMascot.tsx`
 
 ---
 
@@ -393,17 +402,32 @@ export const PlumeColors = {
 
 ---
 
-## ✨ MYSTIC — Matrices Magiques
+## 🦊 PIXEL LE RENARD — Matrices Magiques
+
+> **Note** : La documentation originale mentionnait "Mystic", mais le code implémente "Pixel le Renard" via `PixelMascot.tsx`.
 
 ### Identité
 
 | Attribut | Valeur |
 |----------|--------|
-| **Nom** | Mystic |
-| **Espèce** | Créature magique |
-| **Emoji** | ✨ |
-| **Personnalité** | Mystérieux, magique |
-| **Statut** | 🔜 Coming soon |
+| **Nom** | Pixel le Renard |
+| **Espèce** | Renard orange |
+| **Emoji** | 🦊 |
+| **Accessoire** | Lunettes violettes |
+| **Personnalité** | Malin, analytique, guide |
+| **Statut** | 🔜 Coming soon (jeu en développement) |
+
+### Design visuel
+
+```typescript
+// Dans PixelMascot.tsx - Adapté de FelixMascot
+// Orange fox with purple glasses - guide for the matrix puzzles
+```
+
+### Fichier source
+- Composant : `src/games/12-matrices-magiques/components/mascot/PixelMascot.tsx`
+- Bulle : `src/games/12-matrices-magiques/components/mascot/SpeechBubble.tsx`
+- Wrapper : `src/games/12-matrices-magiques/components/mascot/PixelWithBubble.tsx`
 
 ---
 
@@ -466,15 +490,19 @@ export const MascotAnimations = {
 
 ## 📁 FICHIERS SOURCES
 
-| Mascotte | Composant | Scripts |
-|----------|-----------|---------|
-| Piou | `src/components/home/PiouMascot.tsx` | `src/data/piouScripts.ts` |
-| Léo | `src/games/hanoi/components/LeoMascot.tsx` | `src/games/hanoi/data/assistantScripts.ts` |
-| Pixel | `src/games/suites-logiques/components/MascotRobot.tsx` | `src/games/suites-logiques/data/` |
-| Professeur Hoo | `src/games/sudoku/components/ProfessorHooMascot.tsx` | — |
-| Plume | `src/games/conteur-curieux/components/PlumeMascot.tsx` | — |
+| Mascotte | Composant | Jeu |
+|----------|-----------|-----|
+| Piou (Home) | `src/components/home-v10/PiouFloating.tsx` | Global |
+| Piou (MascotOwl) | `src/games/01-hanoi/components/MascotOwl.tsx` | Hanoï |
+| Pixel Robot | `src/games/02-suites-logiques/components/MascotRobot.tsx` | Suites |
+| Scout | `src/games/03-labyrinthe/components/MascotBubble.tsx` | Labyrinthe |
+| Dr. Hibou | `src/games/04-balance/components/DrHibou.tsx` | Balance |
+| Prof. Hoo | `src/games/05-sudoku/components/ProfessorHooMascot.tsx` | Sudoku |
+| Félix | `src/games/05-sudoku/components/FelixMascot.tsx` | Sudoku |
+| Plume | `src/games/06-conteur-curieux/components/PlumeMascot.tsx` | Conteur |
+| Pixel Renard | `src/games/12-matrices-magiques/components/mascot/PixelMascot.tsx` | Matrices |
 
 ---
 
 *Document de référence pour l'implémentation des mascottes*
-*Mis à jour : Décembre 2024*
+*Mis à jour : 28 Décembre 2024 — v2.0*

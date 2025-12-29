@@ -23,9 +23,8 @@ import type {
 
 /**
  * Nombre de réussites requises pour débloquer le niveau suivant
- * Selon CLAUDE.md : "Niveau 2 débloqué si Niveau 1 réussi 2x"
  */
-export const DEFAULT_REQUIRED_COMPLETIONS = 2;
+export const DEFAULT_REQUIRED_COMPLETIONS = 1;
 
 /**
  * Seuils pour déterminer le niveau d'aide

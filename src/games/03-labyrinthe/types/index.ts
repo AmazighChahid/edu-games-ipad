@@ -132,7 +132,8 @@ export type ThemeType =
   | 'temple'
   | 'space'
   | 'ice'
-  | 'garden';
+  | 'garden'
+  | 'cave';
 
 export interface Theme {
   id: ThemeType;

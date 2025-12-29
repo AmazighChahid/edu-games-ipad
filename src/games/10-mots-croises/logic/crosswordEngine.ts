@@ -11,6 +11,7 @@ import type {
   CrosswordWord,
   CrosswordResult,
   WordDirection,
+  LetterStatus,
 } from '../types';
 import { DEFAULT_CROSSWORD_CONFIG } from '../types';
 
@@ -35,14 +36,22 @@ export function createGame(level: CrosswordLevel): CrosswordGameState {
     }
   }
 
+  // Trouver le premier mot (numéro 1) pour sélection par défaut
+  const firstWord = level.words.find(w => w.number === 1) || level.words[0];
+  const initialSelectedWordId = firstWord?.id || null;
+  const initialSelectedCell = firstWord
+    ? { row: firstWord.row, col: firstWord.col }
+    : null;
+  const initialDirection = firstWord?.direction || 'horizontal';
+
   return {
     phase: 'playing',
     level,
     grid,
     words: level.words,
-    selectedWordId: null,
-    selectedCell: null,
-    inputDirection: 'horizontal',
+    selectedWordId: initialSelectedWordId,
+    selectedCell: initialSelectedCell,
+    inputDirection: initialDirection,
     hintsUsed: 0,
     timeElapsed: 0,
     correctLetters: 0,
@@ -70,6 +79,7 @@ function createGrid(level: CrosswordLevel): CrosswordCell[][] {
         isBlocked: true,
         wordIds: [],
         isRevealed: false,
+        letterStatus: 'neutral',
       });
     }
     grid.push(row);
@@ -105,6 +115,64 @@ function placeWord(grid: CrosswordCell[][], word: CrosswordWord): void {
       }
     }
   }
+}
+
+// ============================================================================
+// SUTOM COLOR STATUS
+// ============================================================================
+
+/**
+ * Calcule le statut couleur SUTOM pour une cellule
+ * - 'correct': Lettre correcte ET bien placée (vert)
+ * - 'misplaced': Lettre présente dans le mot mais mal placée (orange)
+ * - 'absent': Lettre absente du mot (rouge)
+ * - 'neutral': Pas de lettre entrée
+ */
+function calculateLetterStatus(
+  cell: CrosswordCell,
+  grid: CrosswordCell[][],
+  words: CrosswordWord[]
+): LetterStatus {
+  // Si pas de lettre entrée, statut neutre
+  if (!cell.userLetter) {
+    return 'neutral';
+  }
+
+  // Si la lettre est correcte et bien placée
+  if (cell.userLetter === cell.letter) {
+    return 'correct';
+  }
+
+  // Vérifier si la lettre existe dans les mots qui passent par cette cellule
+  const userLetter = cell.userLetter.toUpperCase();
+
+  for (const wordId of cell.wordIds) {
+    const word = words.find(w => w.id === wordId);
+    if (word) {
+      // Vérifier si la lettre existe quelque part dans ce mot
+      if (word.word.toUpperCase().includes(userLetter)) {
+        return 'misplaced';
+      }
+    }
+  }
+
+  // La lettre n'existe dans aucun des mots de cette cellule
+  return 'absent';
+}
+
+/**
+ * Met à jour les statuts SUTOM pour toute la grille
+ */
+function updateAllLetterStatuses(
+  grid: CrosswordCell[][],
+  words: CrosswordWord[]
+): CrosswordCell[][] {
+  return grid.map((row) =>
+    row.map((cell) => ({
+      ...cell,
+      letterStatus: cell.isBlocked ? 'neutral' : calculateLetterStatus(cell, grid, words),
+    }))
+  );
 }
 
 // ============================================================================
@@ -178,13 +246,16 @@ export function enterLetter(
   if (!cell || cell.isBlocked) return state;
 
   // Créer une nouvelle grille avec la lettre
-  const newGrid = state.grid.map((r, ri) =>
+  let newGrid = state.grid.map((r, ri) =>
     r.map((c, ci) =>
       ri === row && ci === col
         ? { ...c, userLetter: letter.toUpperCase() }
         : c
     )
   );
+
+  // Mettre à jour les statuts SUTOM pour toute la grille
+  newGrid = updateAllLetterStatuses(newGrid, state.words);
 
   // Calculer les lettres correctes
   let correctLetters = 0;
@@ -242,12 +313,15 @@ export function deleteLetter(state: CrosswordGameState): CrosswordGameState {
     return state;
   }
 
-  // Effacer la lettre
-  const newGrid = state.grid.map((r, ri) =>
+  // Effacer la lettre et réinitialiser le statut
+  let newGrid = state.grid.map((r, ri) =>
     r.map((c, ci) =>
-      ri === row && ci === col ? { ...c, userLetter: '' } : c
+      ri === row && ci === col ? { ...c, userLetter: '', letterStatus: 'neutral' as LetterStatus } : c
     )
   );
+
+  // Mettre à jour les statuts SUTOM pour toute la grille
+  newGrid = updateAllLetterStatuses(newGrid, state.words);
 
   // Recalculer les lettres correctes
   let correctLetters = 0;
@@ -379,13 +453,16 @@ export function revealLetter(state: CrosswordGameState): CrosswordGameState {
     return state;
   }
 
-  const newGrid = state.grid.map((r, ri) =>
+  let newGrid = state.grid.map((r, ri) =>
     r.map((c, ci) =>
       ri === row && ci === col
-        ? { ...c, userLetter: c.letter, isRevealed: true }
+        ? { ...c, userLetter: c.letter, isRevealed: true, letterStatus: 'correct' as LetterStatus }
         : c
     )
   );
+
+  // Mettre à jour les statuts SUTOM pour toute la grille
+  newGrid = updateAllLetterStatuses(newGrid, state.words);
 
   // Recalculer
   let correctLetters = 0;
@@ -420,7 +497,7 @@ export function revealWord(state: CrosswordGameState): CrosswordGameState {
   const word = state.words.find((w) => w.id === state.selectedWordId);
   if (!word) return state;
 
-  const newGrid = state.grid.map((r) => r.map((c) => ({ ...c })));
+  let newGrid = state.grid.map((r) => r.map((c) => ({ ...c })));
 
   for (let i = 0; i < word.word.length; i++) {
     const r = word.direction === 'horizontal' ? word.row : word.row + i;
@@ -429,8 +506,12 @@ export function revealWord(state: CrosswordGameState): CrosswordGameState {
     if (newGrid[r]?.[c]) {
       newGrid[r][c].userLetter = word.word[i].toUpperCase();
       newGrid[r][c].isRevealed = true;
+      newGrid[r][c].letterStatus = 'correct';
     }
   }
+
+  // Mettre à jour les statuts SUTOM pour toute la grille
+  newGrid = updateAllLetterStatuses(newGrid, state.words);
 
   // Recalculer
   let correctLetters = 0;

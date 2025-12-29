@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="Favoris">
+  <defs>
+    <radialGradient id="bg" cx="30%" cy="25%" r="80%">
+      <stop offset="0%" stop-color="#FFC6C6"/>
+      <stop offset="55%" stop-color="#F46B6B"/>
+      <stop offset="100%" stop-color="#B83B3B"/>
+    </radialGradient>
+    <radialGradient id="shine" cx="25%" cy="20%" r="50%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.90"/>
+      <stop offset="60%" stop-color="#FFFFFF" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="14" stdDeviation="12" flood-color="#000" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+
+  <circle cx="256" cy="256" r="220" fill="url(#bg)" filter="url(#softShadow)"/>
+  <circle cx="256" cy="256" r="205" fill="none" stroke="#FFFFFF" stroke-opacity="0.35" stroke-width="10"/>
+  <ellipse cx="190" cy="160" rx="120" ry="90" fill="url(#shine)"/>
+
+  <path d="M256 398
+           C256 398 146 332 146 248
+           C146 204 180 170 224 170
+           C244 170 262 180 256 194
+           C250 180 268 170 288 170
+           C332 170 366 204 366 248
+           C366 332 256 398 256 398Z"
+        fill="none" stroke="#FFFFFF" stroke-width="18" stroke-linejoin="round"/>
+  <path d="M224 214c-18 0-32 14-32 32" fill="none" stroke="#FFFFFF" stroke-width="18" stroke-linecap="round" opacity="0.6"/>
+</svg>

@@ -1,9 +1,10 @@
 # 🔍 AUDIT DES GUIDELINES UX ENFANT
 
 > Rapport de conformité avec les guidelines du DESIGN_SYSTEM.md
-> **Date** : Décembre 2024
+> **Date** : Décembre 2024 (mis à jour 29/12)
 > **Projet** : Hello Guys — App Éducative iPad
-> **Conformité globale** : **89%** ✅
+> **Conformité globale** : **91%** ✅
+> **Dernière mise à jour documentation** : 29 Décembre 2024
 
 ---
 
@@ -25,8 +26,23 @@
    - ✅ GameModal (3 variants : info, choice, demo)
    - ✅ VictoryCard
    - ✅ Button & IconButton
+   - ✅ **GameIntroTemplate** (template unifié pour écrans d'intro) — 5 jeux l'utilisent
+   - ✅ **HintButton** (bouton d'indices avec badge compteur)
+   - ✅ **MascotBubble** (bulle dialogue style bois avec typewriter)
+   - ✅ **Confetti** (animation célébration)
+   - ✅ **CardFlip** (animation retournement)
+   - ✅ **ProgressIndicator** (indicateur progression)
+   - ✅ **GameActionButtons** (groupe boutons jeu)
+   - ✅ **PerformanceStats** (stats performance)
+   - ✅ **VictoryOverlayBase** (base overlay victoire)
+   - ✅ **ParentGate** (protection parentale)
 
-3. **Touch Targets Principaux**
+3. **Icônes Centralisées**
+   - ✅ `src/constants/icons.ts` avec 78 emojis
+   - ✅ Helper `getIcon()` avec fallback
+   - ✅ Type `IconName` pour autocomplétion
+
+4. **Touch Targets Principaux**
    - ✅ ScreenHeader : tous boutons 64x64dp
    - ✅ BackButton : garantis 64x64dp
    - ✅ GameModal : boutons minHeight 64dp
@@ -34,12 +50,12 @@
    - ✅ MathIntroScreen : playButton minHeight 64dp
    - ✅ Home V10 : GameCards touch targets OK
 
-4. **Polices**
+5. **Polices**
    - ✅ Fredoka pour titres (Header, composants nouveaux)
    - ✅ Nunito pour corps de texte
    - ✅ Fonts chargées correctement dans App.tsx
 
-5. **Home V10 — Forêt Magique**
+6. **Home V10 — Forêt Magique**
    - ✅ Background couvre 100% écran
    - ✅ Z-index respectés (12 couches)
    - ✅ Animations fluides 60fps
@@ -287,25 +303,113 @@ Avant chaque commit d'un nouveau composant :
 
 ---
 
-## 🎮 ÉTAT DES 12 JEUX
+## 🎮 ÉTAT DES 15 JEUX
 
-| Jeu | Conformité UI | Notes |
-|-----|---------------|-------|
-| 01-Hanoi | 85% | FloatingButtons à vérifier |
-| 02-Suites Logiques | 90% | ✅ |
-| 03-Labyrinthe | 80% | Inventory fontSize |
-| 04-Balance | 90% | ✅ |
-| 05-Sudoku | 85% | IntroScreen fontSize |
-| 06-Conteur Curieux | 90% | ✅ |
-| 07-Memory | 90% | ✅ |
-| 08-Tangram | 90% | ✅ |
-| 09-Logix Grid | 90% | ✅ |
-| 10-Mots Croisés | 90% | ✅ |
-| 11-MathBlocks | 85% | Timer fontSize |
-| 12-Matrices Magiques | 🔜 | Coming soon |
+| # | Jeu | UI | Architecture | GameIntroTemplate | Mascotte | Notes |
+|---|-----|:---:|:---:|:---:|:---:|-------|
+| 01 | Hanoi | 90% | Partiel | ❌ | ✅ MascotOwl | Manque useXxxSound/Intro |
+| 02 | Suites Logiques | **95%** | **COMPLET** | ✅ | ✅ MascotRobot | **RÉFÉRENCE** |
+| 03 | Labyrinthe | 80% | Partiel | ✅ | ❌ | Inventory fontSize |
+| 04 | Balance | 90% | Partiel | ✅ | ✅ DrHibou | Manque hooks |
+| 05 | Sudoku | 85% | Partiel | ❌ | ✅ ProfessorHoo | IntroScreen custom |
+| 06 | Conteur Curieux | 90% | Partiel | ❌ | ✅ PlumeMascot | IntroScreen custom |
+| 07 | Memory | 90% | Partiel | ✅ | ❌ TBD | Mascotte à créer |
+| 08 | Tangram | 90% | Partiel | ❌ | ❌ TBD | Manque intro/mascotte |
+| 09 | Logix Grid | 90% | Partiel | ❌ | ❌ TBD | Manque intro/mascotte |
+| 10 | Mots Croisés | 90% | Partiel | ❌ | ❌ TBD | Manque intro/mascotte |
+| 11 | MathBlocks | 85% | Partiel | ✅ | ❌ TBD | Timer fontSize |
+| 12 | Matrices Magiques | 90% | Partiel | ❌ | ✅ PixelMascot | IntroScreen custom |
+| 13 | Embouteillage | - | **STUB** | ❌ | ❌ | En développement |
+| 14 | Fabrique Réactions | - | **STUB** | ❌ | ❌ | En développement |
+| 15 | Chasseur Papillons | - | **STUB** | ❌ | ❌ | En développement |
+
+### Résumé Architecture
+
+- **1 jeu** avec architecture complète (02-suites-logiques) — RÉFÉRENCE
+- **5 jeux** utilisant GameIntroTemplate (02, 03, 04, 07, 11)
+- **6 jeux** avec mascottes implémentées
+- **3 jeux** en stub/placeholder (13-15)
+- **11 jeux** nécessitent refactoring vers architecture standard
 
 ---
 
-*Document mis à jour — Décembre 2024*
-*Score conformité : 89%*
-*Prochaine révision : Après correction des fichiers prioritaires*
+## 🔴 PROBLÈMES RÉSOLUS (Apprentissages Décembre 2024)
+
+### 1. BackButton en mode jeu
+**Problème :** Le BackButton ne retournait pas à la sélection quand `isPlaying=true`.
+
+**Solution :** `GameIntroTemplate.handleBack()` doit TOUJOURS appeler `onBack()` pour que le hook parent gère l'état.
+
+### 2. Centrage sur iPad
+**Problème :** Éléments non centrés malgré `maxWidth: 600`.
+
+**Solution :** Ne JAMAIS utiliser `width: '100%'` avec `maxWidth`. Utiliser uniquement `alignSelf: 'center'`.
+
+### 3. Centrage du titre
+**Problème :** Titre décalé selon les boutons gauche/droite.
+
+**Solution :** `position: absolute` avec `left: 0, right: 0, alignItems: 'center'` sur le wrapper du titre.
+
+### 4. Organisation des styles
+**Bonne pratique :**
+- Extraire les couleurs spécifiques en constante `COLORS`
+- Organiser les styles par section avec commentaires `// ============`
+
+---
+
+## 📐 ARCHITECTURE HOOK + TEMPLATE
+
+### Pattern obligatoire pour chaque jeu
+
+```
+src/games/XX-nom-jeu/
+├── hooks/
+│   ├── useXxxGame.ts       # Logique PURE (pas d'UI)
+│   ├── useXxxSound.ts      # Sons
+│   └── useXxxIntro.ts      # ORCHESTRATEUR
+├── screens/
+│   └── XxxIntroScreen.tsx  # ~100-150 lignes MAX
+└── components/
+    └── XxxMascot.tsx       # Mascotte spécifique
+```
+
+### Responsabilités
+
+| Hook | Responsabilité |
+|------|----------------|
+| `useXxxGame` | Règles du jeu, état partie, validation |
+| `useXxxSound` | Chargement/lecture sons |
+| `useXxxIntro` | Progression, UI state, animations, navigation |
+
+### Référence : `src/games/02-suites-logiques/`
+
+---
+
+---
+
+## 📝 MISES À JOUR DOCUMENTATION (29 Déc 2024)
+
+### Fichiers mis à jour ce jour
+
+| Document | Modification |
+|----------|--------------|
+| `UI_COMPONENTS_CATALOG.md` | +10 composants (GameIntroTemplate, MascotBubble, HintButton, etc.) |
+| `00-INDEX_UPDATED.md` | +Section icônes, +Pré-prompt MascotBubble, règles mises à jour |
+| `GAME_ARCHITECTURE.md` | +Tableau conformité 15 jeux, clarification RÉFÉRENCE |
+| `ICONS_REGISTRY.md` | **NOUVEAU** — Registre 78 icônes centralisées |
+| `GUIDELINES_AUDIT.md` | Mise à jour score, tableau 15 jeux |
+
+### Nouveautés documentées
+
+- Architecture Hook+Template (useXxxGame, useXxxSound, useXxxIntro)
+- GameIntroTemplate comme template unifié pour écrans d'intro
+- MascotBubble avec effet typewriter et highlights
+- HintButton avec indicateur d'indices restants
+- Icons centralisés dans `src/constants/icons.ts`
+
+---
+
+*Document mis à jour — 29 Décembre 2024*
+*Score conformité : 91%*
+*15 jeux (12 disponibles + 3 stubs)*
+*Prochaine révision : Après refactoring des jeux restants*

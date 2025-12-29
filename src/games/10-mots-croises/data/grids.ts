@@ -437,20 +437,219 @@ const GRID_METIERS_3: CrosswordLevel = {
 };
 
 // ============================================================================
+// GRILLES SUPPLÉMENTAIRES
+// ============================================================================
+
+const GRID_CORPS_1: CrosswordLevel = {
+  id: 'corps-1',
+  name: 'Le Corps',
+  description: 'Les parties du corps humain !',
+  difficulty: 1,
+  theme: 'Corps',
+  themeEmoji: '🧍',
+  gridSize: { rows: 6, cols: 6 },
+  words: [
+    {
+      id: 'main',
+      word: 'MAIN',
+      clue: 'Elle a cinq doigts',
+      row: 0,
+      col: 0,
+      direction: 'horizontal',
+      number: 1,
+      emoji: '✋',
+    },
+    {
+      id: 'pied',
+      word: 'PIED',
+      clue: 'On marche avec',
+      row: 2,
+      col: 1,
+      direction: 'horizontal',
+      number: 2,
+      emoji: '🦶',
+    },
+    {
+      id: 'nez',
+      word: 'NEZ',
+      clue: 'On sent les odeurs avec',
+      row: 4,
+      col: 0,
+      direction: 'horizontal',
+      number: 3,
+      emoji: '👃',
+    },
+    {
+      id: 'oeil',
+      word: 'OEIL',
+      clue: 'On voit avec',
+      row: 0,
+      col: 0,
+      direction: 'vertical',
+      number: 1,
+      emoji: '👁️',
+    },
+  ],
+  hintsAvailable: 4,
+  idealTime: 90,
+};
+
+const GRID_TRANSPORT_2: CrosswordLevel = {
+  id: 'transport-2',
+  name: 'Les Transports',
+  description: 'Comment se déplacer ?',
+  difficulty: 2,
+  theme: 'Transport',
+  themeEmoji: '🚗',
+  gridSize: { rows: 8, cols: 8 },
+  words: [
+    {
+      id: 'voiture',
+      word: 'VOITURE',
+      clue: 'Véhicule à quatre roues',
+      row: 0,
+      col: 0,
+      direction: 'horizontal',
+      number: 1,
+      emoji: '🚗',
+    },
+    {
+      id: 'avion',
+      word: 'AVION',
+      clue: 'Il vole dans le ciel',
+      row: 2,
+      col: 2,
+      direction: 'horizontal',
+      number: 2,
+      emoji: '✈️',
+    },
+    {
+      id: 'train',
+      word: 'TRAIN',
+      clue: 'Il roule sur des rails',
+      row: 4,
+      col: 0,
+      direction: 'horizontal',
+      number: 3,
+      emoji: '🚂',
+    },
+    {
+      id: 'velo',
+      word: 'VELO',
+      clue: 'Deux roues et des pédales',
+      row: 6,
+      col: 1,
+      direction: 'horizontal',
+      number: 4,
+      emoji: '🚲',
+    },
+    {
+      id: 'bateau',
+      word: 'BATEAU',
+      clue: 'Il flotte sur l\'eau',
+      row: 0,
+      col: 0,
+      direction: 'vertical',
+      number: 1,
+      emoji: '⛵',
+    },
+  ],
+  hintsAvailable: 4,
+  idealTime: 180,
+};
+
+const GRID_SAISONS_3: CrosswordLevel = {
+  id: 'saisons-3',
+  name: 'Les Saisons',
+  description: 'Le vocabulaire des quatre saisons !',
+  difficulty: 3,
+  theme: 'Saisons',
+  themeEmoji: '🍂',
+  gridSize: { rows: 10, cols: 10 },
+  words: [
+    {
+      id: 'printemps',
+      word: 'PRINTEMPS',
+      clue: 'Saison où les fleurs poussent',
+      row: 0,
+      col: 0,
+      direction: 'horizontal',
+      number: 1,
+      emoji: '🌸',
+    },
+    {
+      id: 'automne',
+      word: 'AUTOMNE',
+      clue: 'Saison des feuilles mortes',
+      row: 2,
+      col: 1,
+      direction: 'horizontal',
+      number: 2,
+      emoji: '🍂',
+    },
+    {
+      id: 'hiver',
+      word: 'HIVER',
+      clue: 'Saison de la neige',
+      row: 4,
+      col: 2,
+      direction: 'horizontal',
+      number: 3,
+      emoji: '❄️',
+    },
+    {
+      id: 'ete',
+      word: 'ETE',
+      clue: 'Saison des vacances',
+      row: 6,
+      col: 0,
+      direction: 'horizontal',
+      number: 4,
+      emoji: '☀️',
+    },
+    {
+      id: 'neige',
+      word: 'NEIGE',
+      clue: 'Blanche et froide',
+      row: 8,
+      col: 3,
+      direction: 'horizontal',
+      number: 5,
+      emoji: '🌨️',
+    },
+    {
+      id: 'pluie',
+      word: 'PLUIE',
+      clue: 'Eau qui tombe du ciel',
+      row: 0,
+      col: 0,
+      direction: 'vertical',
+      number: 1,
+      emoji: '🌧️',
+    },
+  ],
+  hintsAvailable: 5,
+  idealTime: 240,
+};
+
+// ============================================================================
 // EXPORTS
 // ============================================================================
 
 export const CROSSWORD_GRIDS: CrosswordLevel[] = [
-  // Niveau 1
+  // Niveau 1 (4 grilles)
   GRID_ANIMAUX_1,
   GRID_FRUITS_1,
   GRID_COULEURS_1,
-  // Niveau 2
+  GRID_CORPS_1,
+  // Niveau 2 (3 grilles)
   GRID_ECOLE_2,
   GRID_MAISON_2,
-  // Niveau 3
+  GRID_TRANSPORT_2,
+  // Niveau 3 (3 grilles)
   GRID_NATURE_3,
   GRID_METIERS_3,
+  GRID_SAISONS_3,
 ];
 
 /**

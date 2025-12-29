@@ -48,7 +48,7 @@ function createDefaultProgress(): Record<WorldTheme, WorldProgress> {
     const world = WORLDS[worldId];
     progress[worldId] = {
       worldId,
-      isUnlocked: world.unlockCondition.type === 'default',
+      isUnlocked: true, // All worlds unlocked by default
       puzzlesCompleted: 0,
       totalPuzzles: world.puzzleCount,
       bestStars: 0,

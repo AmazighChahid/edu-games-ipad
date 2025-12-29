@@ -27,7 +27,8 @@ export type { VictoryCardProps, VictoryStats, VictoryBadge, CustomStat } from '.
 
 // Factorized game components (December 2024)
 export { Confetti } from './Confetti';
-export { SpeechBubble } from './SpeechBubble';
+export { MascotBubble, bubbleTextStyles } from './MascotBubble';
+export type { MascotBubbleProps } from './MascotBubble';
 export { GameActionButtons } from './GameActionButtons';
 export { ProgressIndicator } from './ProgressIndicator';
 export type { StatItem, IndicatorType, ColorScheme } from './ProgressIndicator';

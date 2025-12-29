@@ -39,7 +39,8 @@ export const initialProgressState: ProgressState = {
 
 const createDefaultGameProgress = (gameId: string): GameProgress => ({
   gameId,
-  unlockedLevels: ['level_1'],
+  // All levels unlocked by default (1-10)
+  unlockedLevels: Array.from({ length: 10 }, (_, i) => `level_${i + 1}`),
   completedLevels: {},
   totalPlayTimeMinutes: 0,
   lastPlayedAt: null,

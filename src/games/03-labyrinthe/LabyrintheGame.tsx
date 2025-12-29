@@ -8,7 +8,7 @@ import { Avatar } from './components/Avatar';
 import { PathTrail } from './components/PathTrail';
 import { Inventory } from './components/Inventory';
 import { VictoryScreen } from './components/VictoryScreen';
-import { MascotBubble } from './components/MascotBubble';
+import { MascotBubble } from '../../components/common';
 import { InstructionQueue, Instruction } from './components/InstructionQueue';
 import { ProgrammingControls } from './components/ProgrammingControls';
 
@@ -19,6 +19,8 @@ import { LevelConfig, Direction, SessionStats } from './types';
 import { CardUnlockScreen } from '../../components/collection';
 import { useCardUnlock } from '../../hooks/useCardUnlock';
 import { useCollection } from '../../store';
+import { theme } from '../../theme';
+import { Icons } from '../../constants/icons';
 
 interface Props {
   level: LevelConfig;
@@ -284,11 +286,11 @@ export const LabyrintheGame: React.FC<Props> = ({ level, onComplete, onExit }) =
     switch (item.type) {
       case 'key':
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-        setMascotMessage(`Super ! Une clé ${item.color} ! 🔑`);
+        setMascotMessage(`Super ! Une clé ${item.color} ! ${Icons.key}`);
         break;
       case 'gem':
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-        setMascotMessage("💎 Bonus !");
+        setMascotMessage(`${Icons.gem} Bonus !`);
         break;
       case 'button':
         setMascotMessage("Click ! Quelque chose s'est ouvert...");
@@ -342,7 +344,7 @@ export const LabyrintheGame: React.FC<Props> = ({ level, onComplete, onExit }) =
           onPress={onExit}
           accessibilityLabel="Retour au menu"
         >
-          <Text style={styles.iconButtonText}>🏠</Text>
+          <Text style={styles.iconButtonText}>{Icons.home}</Text>
         </Pressable>
 
         <View style={styles.levelInfo}>
@@ -356,7 +358,7 @@ export const LabyrintheGame: React.FC<Props> = ({ level, onComplete, onExit }) =
           disabled={mazeState.hintsUsed >= 5}
           accessibilityLabel="Demander un indice"
         >
-          <Text style={styles.iconButtonText}>💡</Text>
+          <Text style={styles.iconButtonText}>{Icons.help}</Text>
           {mazeState.hintsUsed > 0 && (
             <View style={styles.badge}>
               <Text style={styles.badgeText}>{mazeState.hintsUsed}</Text>
@@ -366,7 +368,7 @@ export const LabyrintheGame: React.FC<Props> = ({ level, onComplete, onExit }) =
       </View>
 
       {/* Mascotte */}
-      <MascotBubble message={mascotMessage} visible={showMascot} position="top" />
+      <MascotBubble message={mascotMessage} showDecorations={false} hideTail />
 
       {/* Zone de jeu */}
       <View style={styles.gameArea}>
@@ -416,12 +418,12 @@ export const LabyrintheGame: React.FC<Props> = ({ level, onComplete, onExit }) =
       {/* Stats rapides */}
       <View style={styles.statsBar}>
         <View style={styles.stat}>
-          <Text style={styles.statIcon}>🗺️</Text>
+          <Text style={styles.statIcon}>{Icons.map}</Text>
           <Text style={styles.statText}>{mazeState.stats.explorationPercent}%</Text>
         </View>
         {level.hasGems && (
           <View style={styles.stat}>
-            <Text style={styles.statIcon}>💎</Text>
+            <Text style={styles.statIcon}>{Icons.gem}</Text>
             <Text style={styles.statText}>
               {mazeState.gemsCollected}/{mazeState.totalGems}
             </Text>
@@ -435,72 +437,72 @@ export const LabyrintheGame: React.FC<Props> = ({ level, onComplete, onExit }) =
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFF9F0',
+    backgroundColor: theme.colors.background.main,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 16,
+    padding: theme.spacing[4],
     paddingTop: 48,
   },
   iconButton: {
-    width: 48,
-    height: 48,
-    borderRadius: 12,
+    width: theme.touchTargets.large, // 64dp
+    height: theme.touchTargets.large, // 64dp
+    borderRadius: theme.borderRadius.lg,
     backgroundColor: '#FFF',
     justifyContent: 'center',
     alignItems: 'center',
-    boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
-    elevation: 3,
+    ...theme.shadows.sm,
     position: 'relative',
   },
   iconButtonText: {
-    fontSize: 24,
+    fontSize: 28,
   },
   badge: {
     position: 'absolute',
     top: -4,
     right: -4,
-    backgroundColor: '#E53E3E',
-    borderRadius: 10,
-    width: 20,
-    height: 20,
+    backgroundColor: theme.colors.feedback.error,
+    borderRadius: 12,
+    width: 24,
+    height: 24,
     justifyContent: 'center',
     alignItems: 'center',
   },
   badgeText: {
     color: '#FFF',
-    fontSize: 12,
-    fontWeight: '700',
+    fontSize: 14,
+    fontFamily: theme.fontFamily.bold,
   },
   levelInfo: {
     alignItems: 'center',
   },
   levelText: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#5B8DEE',
+    fontSize: theme.fontSize.lg, // 18pt
+    fontFamily: theme.fontFamily.bold,
+    color: theme.colors.primary.main,
   },
   levelName: {
-    fontSize: 14,
-    color: '#4A5568',
+    fontSize: theme.fontSize.md, // 16pt - acceptable pour label secondaire
+    fontFamily: theme.fontFamily.regular,
+    color: theme.colors.text.secondary,
   },
   gameArea: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 16,
+    padding: theme.spacing[4],
   },
   inventoryContainer: {
-    padding: 16,
+    padding: theme.spacing[4],
     alignItems: 'center',
   },
   statsBar: {
     flexDirection: 'row',
     justifyContent: 'center',
-    gap: 24,
-    paddingVertical: 12,
+    gap: theme.spacing[6],
+    paddingVertical: theme.spacing[3],
     backgroundColor: 'rgba(255, 255, 255, 0.9)',
     borderTopWidth: 1,
     borderTopColor: 'rgba(91, 141, 238, 0.2)',
@@ -508,14 +510,14 @@ const styles = StyleSheet.create({
   stat: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: theme.spacing[2],
   },
   statIcon: {
-    fontSize: 20,
+    fontSize: 22,
   },
   statText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#2D3748',
+    fontSize: theme.fontSize.lg, // 18pt
+    fontFamily: theme.fontFamily.semiBold,
+    color: theme.colors.text.primary,
   },
 });

@@ -51,6 +51,11 @@ export function useSound() {
         return;
       }
 
+      // Vérifier si le son est chargé avant de jouer
+      if (!player.isLoaded) {
+        return;
+      }
+
       // Set volume and play
       player.volume = volume;
       player.seekTo(0);

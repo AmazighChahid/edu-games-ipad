@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { Game, AISuggestion } from '../types/games';
+import { Icons } from '../constants/icons';
 
 // Mock data - À remplacer par une vraie source de données
 const MOCK_GAMES: Game[] = [
   {
     id: 'tower-hanoi',
     name: 'Tour Magique',
-    icon: '🏰',
+    icon: Icons.castle,
     category: 'logic',
     progress: 65,
     stars: 2,
@@ -14,7 +15,7 @@ const MOCK_GAMES: Game[] = [
   {
     id: 'tangram',
     name: 'Puzzle Formes',
-    icon: '🧩',
+    icon: Icons.puzzle,
     category: 'spatial',
     progress: 20,
     stars: 1,
@@ -23,7 +24,7 @@ const MOCK_GAMES: Game[] = [
   {
     id: 'numbers',
     name: 'Chiffres Rigolos',
-    icon: '🔢',
+    icon: Icons.math,
     category: 'numbers',
     progress: 80,
     stars: 3,
@@ -31,7 +32,7 @@ const MOCK_GAMES: Game[] = [
   {
     id: 'memory',
     name: 'Super Mémoire',
-    icon: '🧠',
+    icon: Icons.brain,
     category: 'memory',
     progress: 45,
     stars: 2,
@@ -39,7 +40,7 @@ const MOCK_GAMES: Game[] = [
   {
     id: 'sequences',
     name: 'Suite Magique',
-    icon: '🔮',
+    icon: Icons.crystal,
     category: 'logic',
     progress: 30,
     stars: 1,
@@ -47,7 +48,7 @@ const MOCK_GAMES: Game[] = [
   {
     id: 'sudoku',
     name: 'Sudoku Junior',
-    icon: '🎯',
+    icon: Icons.target,
     category: 'numbers',
     progress: 55,
     stars: 2,
@@ -55,7 +56,7 @@ const MOCK_GAMES: Game[] = [
   {
     id: 'maze',
     name: 'Labyrinthe',
-    icon: '🗺️',
+    icon: Icons.map,
     category: 'spatial',
     progress: 40,
     stars: 1,
@@ -63,7 +64,7 @@ const MOCK_GAMES: Game[] = [
   {
     id: 'crosswords',
     name: 'Mots Croisés',
-    icon: '🪁',
+    icon: Icons.writing,
     category: 'memory',
     progress: 0,
     stars: 0,
@@ -75,7 +76,7 @@ const MOCK_SUGGESTION: AISuggestion = {
   suggestedGame: {
     id: 'tangram',
     name: 'Puzzle Formes',
-    icon: '🧩',
+    icon: Icons.puzzle,
     reason: 'Tu es super fort en logique ! Essaie le',
   },
 };

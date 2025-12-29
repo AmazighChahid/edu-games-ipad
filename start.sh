@@ -8,5 +8,8 @@ echo "🗑️  Suppression du cache..."
 rm -rf node_modules/.cache .expo /tmp/metro-* /tmp/haste-map-* 2>/dev/null
 watchman watch-del-all 2>/dev/null
 
+echo "🎨 Génération du registry Playground..."
+node scripts/generate-playground-registry.js
+
 echo "🚀 Démarrage d'Expo..."
 npx expo start --clear

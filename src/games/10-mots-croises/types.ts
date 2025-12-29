@@ -35,6 +35,15 @@ export interface CrosswordWord {
 }
 
 /**
+ * Statut couleur SUTOM pour une lettre
+ * - 'correct': Lettre correcte ET bien placée (vert)
+ * - 'misplaced': Lettre présente dans le mot mais mal placée (orange)
+ * - 'absent': Lettre absente du mot (rouge)
+ * - 'neutral': Pas encore de statut (par défaut)
+ */
+export type LetterStatus = 'correct' | 'misplaced' | 'absent' | 'neutral';
+
+/**
  * Une cellule de la grille
  */
 export interface CrosswordCell {
@@ -54,6 +63,8 @@ export interface CrosswordCell {
   wordIds: string[];
   /** Est révélée par un indice */
   isRevealed: boolean;
+  /** Statut couleur SUTOM de la lettre */
+  letterStatus: LetterStatus;
 }
 
 // ============================================================================

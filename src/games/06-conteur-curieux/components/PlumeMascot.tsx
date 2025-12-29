@@ -28,7 +28,7 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import { spacing } from '../../../theme';
-import { SpeechBubble } from '../../../components/common';
+import { MascotBubble } from '../../../components/common';
 import type { PlumeExpression } from '../types';
 
 type PlumeSize = 'small' | 'medium' | 'large';
@@ -245,12 +245,14 @@ export function PlumeMascot({
           styles.bubbleContainer,
           bubblePosition === 'right' && styles.bubbleRight,
         ]}>
-          <SpeechBubble
+          <MascotBubble
             message={message}
-            visible={showBubble}
             tailPosition={bubblePosition === 'right' ? 'left' : 'bottom'}
             maxWidth={220}
-            colorScheme="conteur"
+            showDecorations={false}
+            hideTail={false}
+            typing={true}
+            typingSpeed={30}
           />
         </View>
       )}

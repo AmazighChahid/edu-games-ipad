@@ -95,6 +95,48 @@ export const medalGradients = {
   locked: ['rgba(100,100,100,0.4)', 'rgba(80,80,80,0.3)'] as const,
 };
 
+// Configuration des médailles pour GameCardComponents
+export const medalConfig = {
+  start: {
+    icon: '🎯',
+    gradient: ['#B0BEC5', '#78909C'] as const,
+    label: 'À commencer',
+    textColor: '#FFFFFF',
+  },
+  bronze: {
+    icon: '🥉',
+    gradient: ['#CD7F32', '#8B5A2B'] as const,
+    label: 'Bronze',
+    textColor: '#FFFFFF',
+  },
+  silver: {
+    icon: '🥈',
+    gradient: ['#C0C0C0', '#909090'] as const,
+    label: 'Argent',
+    textColor: '#FFFFFF',
+  },
+  gold: {
+    icon: '🥇',
+    gradient: ['#FFD700', '#FFA500'] as const,
+    label: 'Or',
+    textColor: '#FFFFFF',
+  },
+  diamond: {
+    icon: '💎',
+    gradient: ['#B9F2FF', '#00CED1'] as const,
+    label: 'Diamant',
+    textColor: '#006666',
+  },
+} as const;
+
+// Couleurs des catégories de jeu
+export const categoryColors = {
+  chiffres: '#5B8DEE',
+  mots: '#E74C3C',
+  logique: '#9B59B6',
+  memoire: '#F39C12',
+} as const;
+
 // Dimensions et layout
 export const HomeV10Layout = {
   // Screen
@@ -194,7 +236,8 @@ export const HomeV10Animations = {
 export type EdokiThemeKey =
   | 'barres' | 'fuseaux' | 'chiffres' | 'plage' | 'numberland' | 'nouveaux' | 'hanoi' | 'video'
   | 'suites-logiques' | 'labyrinthe' | 'balance' | 'sudoku' | 'memory' | 'tangram'
-  | 'logix-grid' | 'mots-croises' | 'math-blocks' | 'matrices-magiques' | 'conteur-curieux';
+  | 'logix-grid' | 'mots-croises' | 'math-blocks' | 'matrices-magiques' | 'conteur-curieux'
+  | 'embouteillage' | 'fabrique-reactions' | 'chasseur-papillons';
 
 export interface EdokiWidgetTheme {
   background: string;
@@ -332,6 +375,29 @@ export const edokiWidgetThemes: Record<EdokiThemeKey, EdokiWidgetTheme> = {
   'conteur-curieux': {
     background: '#D7CCC8',
     gradient: ['#EFEBE9', '#BCAAA4'] as const,
+    titleColor: 'dark',
+  },
+
+  // === JEUX COMING SOON ===
+
+  // Embouteillage (Rush Hour) - Rouge/Orange trafic
+  embouteillage: {
+    background: '#EF5350',
+    gradient: ['#EF9A9A', '#E53935'] as const,
+    titleColor: 'light',
+  },
+
+  // Fabrique de Réactions - Bleu mécanique/industriel
+  'fabrique-reactions': {
+    background: '#42A5F5',
+    gradient: ['#90CAF9', '#1E88E5'] as const,
+    titleColor: 'light',
+  },
+
+  // Chasseur de Papillons - Vert prairie avec touches colorées
+  'chasseur-papillons': {
+    background: '#66BB6A',
+    gradient: ['#A5D6A7', '#43A047'] as const,
     titleColor: 'dark',
   },
 };
