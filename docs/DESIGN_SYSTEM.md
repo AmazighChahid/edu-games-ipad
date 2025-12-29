@@ -1238,7 +1238,7 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 18, // Minimum
     // ou
-    fontSize: theme.typography.sizes.body,
+    fontSize: theme.fontSize.lg,
   },
 });
 ```
@@ -1251,12 +1251,12 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: 'Fredoka',
     // ou
-    fontFamily: theme.typography.fonts.heading,
+    fontFamily: theme.fontFamily.display,
   },
   body: {
     fontFamily: 'Nunito',
     // ou
-    fontFamily: theme.typography.fonts.body,
+    fontFamily: theme.fontFamily.regular,
   },
 });
 ```

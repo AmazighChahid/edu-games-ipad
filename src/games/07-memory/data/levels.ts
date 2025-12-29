@@ -1,224 +1,211 @@
 /**
  * Memory Game Levels
  *
- * Configuration des niveaux progressifs
+ * 10 niveaux progressifs pour le jeu Super Mémoire
+ * Progression : 4 → 6 → 8 → 10 → 12 paires
  */
 
-import type { MemoryLevel, Difficulty, CardTheme } from '../types';
+import type { MemoryLevel, Difficulty } from '../types';
 
 // ============================================================================
-// NIVEAUX FACILES (4-6 paires)
+// LES 10 NIVEAUX DU JEU
 // ============================================================================
 
-const easyLevels: MemoryLevel[] = [
-  {
-    id: 'memory-easy-01',
-    name: 'Premier Match',
-    description: 'Découvre le jeu de mémoire',
-    pairCount: 4,
-    theme: 'animals',
-    difficulty: 'easy',
-    timeLimit: 0,
-    idealTime: 30,
-    idealAttempts: 6,
-    ageRange: '4-6',
-    locked: false,
-  },
-  {
-    id: 'memory-easy-02',
-    name: 'Animaux Cachés',
-    description: 'Retrouve les animaux par paires',
-    pairCount: 4,
-    theme: 'animals',
-    difficulty: 'easy',
-    timeLimit: 0,
-    idealTime: 35,
-    idealAttempts: 6,
-    ageRange: '4-6',
-    locked: false,
-  },
-  {
-    id: 'memory-easy-03',
-    name: 'Fruits Jumeaux',
-    description: 'Des fruits délicieux à associer',
-    pairCount: 4,
-    theme: 'fruits',
-    difficulty: 'easy',
-    timeLimit: 0,
-    idealTime: 35,
-    idealAttempts: 6,
-    ageRange: '4-6',
-    locked: false,
-    unlockCondition: 'Complete memory-easy-02',
-  },
-  {
-    id: 'memory-easy-04',
-    name: 'Plus de Cartes',
-    description: 'On ajoute des cartes !',
-    pairCount: 6,
-    theme: 'animals',
-    difficulty: 'easy',
-    timeLimit: 0,
-    idealTime: 50,
-    idealAttempts: 9,
-    ageRange: '5-7',
-    locked: false,
-    unlockCondition: 'Complete memory-easy-03',
-  },
-  {
-    id: 'memory-easy-05',
-    name: 'Véhicules Express',
-    description: 'Des voitures et des avions',
-    pairCount: 6,
-    theme: 'vehicles',
-    difficulty: 'easy',
-    timeLimit: 0,
-    idealTime: 55,
-    idealAttempts: 9,
-    ageRange: '5-7',
-    locked: false,
-    unlockCondition: 'Complete memory-easy-04',
-  },
-  {
-    id: 'memory-easy-06',
-    name: 'Nature Secrète',
-    description: 'Les merveilles de la nature',
-    pairCount: 6,
-    theme: 'nature',
-    difficulty: 'easy',
-    timeLimit: 0,
-    idealTime: 60,
-    idealAttempts: 9,
-    ageRange: '5-7',
-    locked: false,
-    unlockCondition: 'Complete memory-easy-05',
-  },
-];
+/**
+ * Niveau 1 - Premier Match (4 paires, animaux)
+ * Introduction au jeu, pas de limite de temps
+ */
+const level1: MemoryLevel = {
+  id: 'memory-level-01',
+  name: 'Premier Match',
+  description: 'Découvre le jeu de mémoire avec 4 paires',
+  pairCount: 4,
+  theme: 'animals',
+  difficulty: 'easy',
+  timeLimit: 0,
+  idealTime: 30,
+  idealAttempts: 6,
+  ageRange: '4-6',
+  locked: false,
+};
+
+/**
+ * Niveau 2 - Fruits Jumeaux (4 paires, fruits)
+ * Nouveau thème, même difficulté
+ */
+const level2: MemoryLevel = {
+  id: 'memory-level-02',
+  name: 'Fruits Jumeaux',
+  description: 'Des fruits délicieux à associer',
+  pairCount: 4,
+  theme: 'fruits',
+  difficulty: 'easy',
+  timeLimit: 0,
+  idealTime: 35,
+  idealAttempts: 6,
+  ageRange: '4-6',
+  locked: false,
+};
+
+/**
+ * Niveau 3 - Plus de Cartes (6 paires, animaux)
+ * Introduction de 6 paires
+ */
+const level3: MemoryLevel = {
+  id: 'memory-level-03',
+  name: 'Plus de Cartes',
+  description: '6 paires à retrouver !',
+  pairCount: 6,
+  theme: 'animals',
+  difficulty: 'easy',
+  timeLimit: 0,
+  idealTime: 50,
+  idealAttempts: 10,
+  ageRange: '5-7',
+  locked: false,
+};
+
+/**
+ * Niveau 4 - Véhicules Express (6 paires, véhicules)
+ * 6 paires avec nouveau thème
+ */
+const level4: MemoryLevel = {
+  id: 'memory-level-04',
+  name: 'Véhicules Express',
+  description: 'Des voitures et des avions',
+  pairCount: 6,
+  theme: 'vehicles',
+  difficulty: 'easy',
+  timeLimit: 0,
+  idealTime: 55,
+  idealAttempts: 10,
+  ageRange: '5-7',
+  locked: false,
+};
+
+/**
+ * Niveau 5 - Nature Secrète (6 paires, nature)
+ * Dernier niveau facile
+ */
+const level5: MemoryLevel = {
+  id: 'memory-level-05',
+  name: 'Nature Secrète',
+  description: 'Les merveilles de la nature',
+  pairCount: 6,
+  theme: 'nature',
+  difficulty: 'easy',
+  timeLimit: 0,
+  idealTime: 60,
+  idealAttempts: 10,
+  ageRange: '5-7',
+  locked: false,
+};
+
+/**
+ * Niveau 6 - Grand Défi (8 paires, animaux)
+ * Passage à 8 paires, difficulté moyenne
+ */
+const level6: MemoryLevel = {
+  id: 'memory-level-06',
+  name: 'Grand Défi',
+  description: '8 paires à retrouver !',
+  pairCount: 8,
+  theme: 'animals',
+  difficulty: 'medium',
+  timeLimit: 0,
+  idealTime: 75,
+  idealAttempts: 14,
+  ageRange: '6-8',
+  locked: false,
+};
+
+/**
+ * Niveau 7 - Émojis Fous (8 paires, emojis)
+ * 8 paires avec thème fun
+ */
+const level7: MemoryLevel = {
+  id: 'memory-level-07',
+  name: 'Émojis Fous',
+  description: 'Les émojis jouent à cache-cache',
+  pairCount: 8,
+  theme: 'emojis',
+  difficulty: 'medium',
+  timeLimit: 0,
+  idealTime: 80,
+  idealAttempts: 14,
+  ageRange: '6-8',
+  locked: false,
+};
+
+/**
+ * Niveau 8 - Voyage Spatial (10 paires, espace)
+ * Passage à 10 paires, difficulté difficile
+ */
+const level8: MemoryLevel = {
+  id: 'memory-level-08',
+  name: 'Voyage Spatial',
+  description: '10 paires dans l\'espace !',
+  pairCount: 10,
+  theme: 'space',
+  difficulty: 'hard',
+  timeLimit: 0,
+  idealTime: 100,
+  idealAttempts: 18,
+  ageRange: '7-10',
+  locked: false,
+};
+
+/**
+ * Niveau 9 - Méga Mémoire (12 paires, emojis)
+ * Maximum de paires
+ */
+const level9: MemoryLevel = {
+  id: 'memory-level-09',
+  name: 'Méga Mémoire',
+  description: '12 paires ! Le maximum !',
+  pairCount: 12,
+  theme: 'emojis',
+  difficulty: 'hard',
+  timeLimit: 0,
+  idealTime: 120,
+  idealAttempts: 22,
+  ageRange: '8-10',
+  locked: false,
+};
+
+/**
+ * Niveau 10 - Maître Mémoire (12 paires, espace, chrono)
+ * Niveau ultime avec limite de temps
+ */
+const level10: MemoryLevel = {
+  id: 'memory-level-10',
+  name: 'Maître Mémoire',
+  description: '12 paires en temps limité !',
+  pairCount: 12,
+  theme: 'space',
+  difficulty: 'hard',
+  timeLimit: 180, // 3 minutes
+  idealTime: 120,
+  idealAttempts: 22,
+  ageRange: '8-10',
+  locked: false,
+};
 
 // ============================================================================
-// NIVEAUX MOYENS (8 paires)
+// TABLEAU DES NIVEAUX
 // ============================================================================
 
-const mediumLevels: MemoryLevel[] = [
-  {
-    id: 'memory-medium-01',
-    name: 'Grand Défi',
-    description: '8 paires à retrouver !',
-    pairCount: 8,
-    theme: 'animals',
-    difficulty: 'medium',
-    timeLimit: 0,
-    idealTime: 75,
-    idealAttempts: 12,
-    ageRange: '6-8',
-    locked: false,
-    unlockCondition: 'Complete all easy levels',
-  },
-  {
-    id: 'memory-medium-02',
-    name: 'Contre la Montre',
-    description: 'Trouve avant que le temps s\'écoule !',
-    pairCount: 8,
-    theme: 'fruits',
-    difficulty: 'medium',
-    timeLimit: 120,
-    idealTime: 70,
-    idealAttempts: 12,
-    ageRange: '6-8',
-    locked: false,
-    unlockCondition: 'Complete memory-medium-01',
-  },
-  {
-    id: 'memory-medium-03',
-    name: 'Émojis Fous',
-    description: 'Les émojis jouent à cache-cache',
-    pairCount: 8,
-    theme: 'emojis',
-    difficulty: 'medium',
-    timeLimit: 0,
-    idealTime: 80,
-    idealAttempts: 12,
-    ageRange: '6-8',
-    locked: false,
-    unlockCondition: 'Complete memory-medium-02',
-  },
-  {
-    id: 'memory-medium-04',
-    name: 'Voyage Spatial',
-    description: 'L\'espace et ses mystères',
-    pairCount: 8,
-    theme: 'space',
-    difficulty: 'medium',
-    timeLimit: 100,
-    idealTime: 70,
-    idealAttempts: 12,
-    ageRange: '6-8',
-    locked: false,
-    unlockCondition: 'Complete memory-medium-03',
-  },
-];
-
-// ============================================================================
-// NIVEAUX DIFFICILES (10-12 paires)
-// ============================================================================
-
-const hardLevels: MemoryLevel[] = [
-  {
-    id: 'memory-hard-01',
-    name: 'Champion',
-    description: '10 paires pour les pros',
-    pairCount: 10,
-    theme: 'animals',
-    difficulty: 'hard',
-    timeLimit: 0,
-    idealTime: 100,
-    idealAttempts: 15,
-    ageRange: '7-10',
-    locked: false,
-    unlockCondition: 'Complete all medium levels',
-  },
-  {
-    id: 'memory-hard-02',
-    name: 'Méga Mémoire',
-    description: '12 paires ! Le maximum !',
-    pairCount: 12,
-    theme: 'emojis',
-    difficulty: 'hard',
-    timeLimit: 0,
-    idealTime: 120,
-    idealAttempts: 18,
-    ageRange: '8-10',
-    locked: false,
-    unlockCondition: 'Complete memory-hard-01',
-  },
-  {
-    id: 'memory-hard-03',
-    name: 'Speed Run',
-    description: '10 paires en 90 secondes !',
-    pairCount: 10,
-    theme: 'vehicles',
-    difficulty: 'hard',
-    timeLimit: 90,
-    idealTime: 70,
-    idealAttempts: 15,
-    ageRange: '8-10',
-    locked: false,
-    unlockCondition: 'Complete memory-hard-02',
-  },
-  {
-    id: 'memory-hard-04',
-    name: 'Maître Mémoire',
-    description: 'Le niveau ultime !',
-    pairCount: 12,
-    theme: 'space',
-    difficulty: 'hard',
-    timeLimit: 120,
-    idealTime: 90,
-    idealAttempts: 18,
-    ageRange: '9-10',
-    locked: false,
-    unlockCondition: 'Complete memory-hard-03 twice',
-  },
+const ALL_LEVELS: MemoryLevel[] = [
+  level1,
+  level2,
+  level3,
+  level4,
+  level5,
+  level6,
+  level7,
+  level8,
+  level9,
+  level10,
 ];
 
 // ============================================================================
@@ -229,42 +216,56 @@ const hardLevels: MemoryLevel[] = [
  * Obtient tous les niveaux
  */
 export function getAllLevels(): MemoryLevel[] {
-  return [...easyLevels, ...mediumLevels, ...hardLevels];
+  return ALL_LEVELS;
 }
 
 /**
  * Obtient un niveau par son ID
  */
 export function getLevelById(id: string): MemoryLevel | undefined {
-  return getAllLevels().find((level) => level.id === id);
+  return ALL_LEVELS.find((level) => level.id === id);
+}
+
+/**
+ * Obtient un niveau par son numéro (1-10)
+ */
+export function getLevelByNumber(num: number): MemoryLevel | undefined {
+  if (num < 1 || num > 10) return undefined;
+  return ALL_LEVELS[num - 1];
 }
 
 /**
  * Obtient les niveaux par difficulté
  */
 export function getLevelsByDifficulty(difficulty: Difficulty): MemoryLevel[] {
-  return getAllLevels().filter((level) => level.difficulty === difficulty);
+  return ALL_LEVELS.filter((level) => level.difficulty === difficulty);
 }
 
 /**
  * Obtient le prochain niveau
  */
 export function getNextLevel(currentId: string): MemoryLevel | undefined {
-  const allLevels = getAllLevels();
-  const currentIndex = allLevels.findIndex((level) => level.id === currentId);
+  const currentIndex = ALL_LEVELS.findIndex((level) => level.id === currentId);
 
-  if (currentIndex === -1 || currentIndex === allLevels.length - 1) {
+  if (currentIndex === -1 || currentIndex === ALL_LEVELS.length - 1) {
     return undefined;
   }
 
-  return allLevels[currentIndex + 1];
+  return ALL_LEVELS[currentIndex + 1];
 }
 
 /**
  * Obtient le premier niveau
  */
 export function getFirstLevel(): MemoryLevel {
-  return easyLevels[0];
+  return level1;
+}
+
+/**
+ * Obtient le nombre total de niveaux
+ */
+export function getTotalLevels(): number {
+  return ALL_LEVELS.length;
 }
 
 // ============================================================================
@@ -272,12 +273,7 @@ export function getFirstLevel(): MemoryLevel {
 // ============================================================================
 
 export {
-  easyLevels as MEMORY_EASY_LEVELS,
-  mediumLevels as MEMORY_MEDIUM_LEVELS,
-  hardLevels as MEMORY_HARD_LEVELS,
-  getAllLevels,
-  getLevelById,
-  getLevelsByDifficulty,
-  getNextLevel,
-  getFirstLevel,
+  ALL_LEVELS as MEMORY_LEVELS,
+  level1, level2, level3, level4, level5,
+  level6, level7, level8, level9, level10,
 };

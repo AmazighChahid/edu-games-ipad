@@ -13,8 +13,8 @@ import Animated, {
 } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 
-import { colors, spacing, textStyles, borderRadius, shadows } from '../../../theme';
-import { useStore } from '../../../store';
+import { colors, spacing, textStyles, borderRadius, shadows, touchTargets } from '@/theme';
+import { useStore } from '@/store';
 
 interface StatsPanelProps {
   errorCount: number;
@@ -87,8 +87,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   statLabel: {
-    fontSize: 12,
-    color: '#9A9A9A',
+    fontSize: 14,
+    color: colors.text.secondary,
     marginBottom: 4,
   },
   statValue: {
@@ -108,10 +108,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#EEEEEE',
   },
   resetButton: {
-    width: 44,
-    height: 44,
-    backgroundColor: '#F5F5F5',
-    borderRadius: 12,
+    width: touchTargets.minimum,
+    height: touchTargets.minimum,
+    backgroundColor: colors.background.secondary,
+    borderRadius: borderRadius.md,
     alignItems: 'center',
     justifyContent: 'center',
   },

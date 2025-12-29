@@ -1,6 +1,7 @@
 /**
  * ScoreDisplay component
  * Shows score, combo, and progress
+ * Refactored with theme tokens and Icons
  */
 
 import { View, StyleSheet, Text } from 'react-native';
@@ -10,11 +11,11 @@ import Animated, {
   withSequence,
   withTiming,
   useSharedValue,
-  runOnJS,
 } from 'react-native-reanimated';
 import { useEffect } from 'react';
 
-import { colors, borderRadius, spacing } from '../../../theme';
+import { theme } from '../../../theme';
+import { Icons } from '../../../constants/icons';
 
 interface ScoreDisplayProps {
   score: number;
@@ -49,20 +50,20 @@ export function ScoreDisplay({
     <View style={styles.container}>
       {/* Score */}
       <View style={styles.scoreBox}>
-        <Text style={styles.scoreLabel}>Score</Text>
+        <Text style={styles.scoreLabel}>{Icons.star} Score</Text>
         <Text style={styles.scoreValue}>{score}</Text>
       </View>
 
       {/* Combo */}
       {combo > 1 && (
         <Animated.View style={[styles.comboBox, comboAnimatedStyle]}>
-          <Text style={styles.comboText}>Combo x{combo}!</Text>
+          <Text style={styles.comboText}>{Icons.fire} Combo x{combo}!</Text>
         </Animated.View>
       )}
 
       {/* Progress */}
       <View style={styles.progressBox}>
-        <Text style={styles.progressLabel}>Paires</Text>
+        <Text style={styles.progressLabel}>{Icons.target} Paires</Text>
         <Text style={styles.progressValue}>
           {matchesFound} / {totalPairs}
         </Text>
@@ -76,57 +77,63 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: spacing[4],
-    paddingVertical: spacing[2],
-    gap: spacing[3],
+    paddingHorizontal: theme.spacing[4],
+    paddingVertical: theme.spacing[2],
+    gap: theme.spacing[3],
   },
   scoreBox: {
-    backgroundColor: colors.primary.main,
-    paddingVertical: spacing[2],
-    paddingHorizontal: spacing[4],
-    borderRadius: borderRadius.lg,
+    backgroundColor: theme.colors.primary.main,
+    paddingVertical: theme.spacing[2],
+    paddingHorizontal: theme.spacing[4],
+    borderRadius: theme.borderRadius.lg,
     alignItems: 'center',
     minWidth: 100,
+    minHeight: theme.touchTargets.child,
+    justifyContent: 'center',
   },
   scoreLabel: {
-    fontSize: 14, // Amélioré (était 12) - label secondaire
-    color: 'rgba(255,255,255,0.8)',
-    fontWeight: '500',
+    fontSize: 14,
+    fontFamily: theme.fontFamily.medium,
+    color: 'rgba(255,255,255,0.9)',
   },
   scoreValue: {
     fontSize: 24,
-    fontWeight: 'bold',
-    color: colors.text.inverse,
+    fontFamily: theme.fontFamily.bold,
+    color: theme.colors.text.inverse,
   },
   comboBox: {
-    backgroundColor: colors.secondary.main,
-    paddingVertical: spacing[2],
-    paddingHorizontal: spacing[3],
-    borderRadius: borderRadius.lg,
+    backgroundColor: theme.colors.secondary.main,
+    paddingVertical: theme.spacing[2],
+    paddingHorizontal: theme.spacing[3],
+    borderRadius: theme.borderRadius.lg,
+    minHeight: theme.touchTargets.child,
+    justifyContent: 'center',
   },
   comboText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: colors.text.inverse,
+    fontSize: 18,
+    fontFamily: theme.fontFamily.bold,
+    color: theme.colors.text.inverse,
   },
   progressBox: {
-    backgroundColor: colors.background.card,
-    paddingVertical: spacing[2],
-    paddingHorizontal: spacing[4],
-    borderRadius: borderRadius.lg,
+    backgroundColor: theme.colors.background.card,
+    paddingVertical: theme.spacing[2],
+    paddingHorizontal: theme.spacing[4],
+    borderRadius: theme.borderRadius.lg,
     alignItems: 'center',
-    minWidth: 80,
+    minWidth: 100,
+    minHeight: theme.touchTargets.child,
+    justifyContent: 'center',
     borderWidth: 1,
-    borderColor: colors.ui.border,
+    borderColor: theme.colors.ui.border,
   },
   progressLabel: {
-    fontSize: 14, // Amélioré (était 12) - label secondaire
-    color: colors.text.muted,
-    fontWeight: '500',
+    fontSize: 14,
+    fontFamily: theme.fontFamily.medium,
+    color: theme.colors.text.muted,
   },
   progressValue: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: colors.text.primary,
+    fontFamily: theme.fontFamily.bold,
+    color: theme.colors.text.primary,
   },
 });

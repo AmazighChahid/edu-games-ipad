@@ -5,27 +5,69 @@
  * Ton bienveillant et pédagogique sur les concepts d'équilibre et d'égalité
  */
 
-import type { AssistantScript } from '../../../core/types/core.types';
+import type { AssistantScript, AssistantTrigger } from '../../../core/types/core.types';
+
+// ============================================================================
+// TYPE LOCAL POUR SIMPLIFIER LA DÉFINITION
+// ============================================================================
+
+interface BalanceScript {
+  trigger: AssistantTrigger;
+  text: string;
+  mood: 'happy' | 'encouraging' | 'neutral' | 'thinking' | 'excited';
+  animation?: string;
+  visualHint?: string;
+  conditions?: Record<string, unknown>;
+}
+
+// Helper pour convertir en AssistantScript complet
+const createScript = (
+  id: string,
+  script: BalanceScript,
+  priority: number = 1
+): AssistantScript => ({
+  id,
+  gameId: 'balance',
+  trigger: script.trigger,
+  priority,
+  conditions: script.conditions ? [
+    {
+      field: Object.keys(script.conditions)[0],
+      operator: 'eq',
+      value: Object.values(script.conditions)[0] as string | number | boolean,
+    }
+  ] : undefined,
+  messages: [{
+    id: `${id}_msg`,
+    text: script.text,
+    mood: script.mood,
+    duration: 4000,
+    animation: script.animation as 'wave' | 'nod' | 'think' | 'celebrate' | 'point' | undefined,
+  }],
+});
 
 // ============================================================================
 // SCRIPTS D'ACCUEIL
 // ============================================================================
 
-const welcomeScripts: AssistantScript[] = [
+const welcomeScripts: BalanceScript[] = [
   {
-    trigger: 'level_start',
-    message: 'Bienvenue dans mon laboratoire ! Trouvons ensemble l\'équilibre. ⚖️',
+    trigger: 'game_start',
+    text: 'Bienvenue dans mon laboratoire ! Trouvons ensemble l\'équilibre. ⚖️',
+    mood: 'excited',
     animation: 'wave',
   },
   {
-    trigger: 'level_start',
-    message: 'Une balance équilibrée, c\'est quand les deux côtés pèsent pareil. Prêt ? 🦉',
-    animation: 'explain',
+    trigger: 'game_start',
+    text: 'Une balance équilibrée, c\'est quand les deux côtés pèsent pareil. Prêt ? 🦉',
+    mood: 'encouraging',
+    animation: 'nod',
   },
   {
-    trigger: 'level_start',
-    message: 'Observe bien les objets... Lequel va équilibrer la balance ?',
-    animation: 'thinking',
+    trigger: 'game_start',
+    text: 'Observe bien les objets... Lequel va équilibrer la balance ?',
+    mood: 'thinking',
+    animation: 'think',
   },
 ];
 
@@ -33,16 +75,18 @@ const welcomeScripts: AssistantScript[] = [
 // SCRIPTS DE PREMIER COUP
 // ============================================================================
 
-const firstMoveScripts: AssistantScript[] = [
+const firstMoveScripts: BalanceScript[] = [
   {
     trigger: 'first_move',
-    message: 'Bonne initiative ! Voyons ce que ça donne...',
-    animation: 'curious',
+    text: 'Bonne initiative ! Voyons ce que ça donne...',
+    mood: 'encouraging',
+    animation: 'nod',
   },
   {
     trigger: 'first_move',
-    message: 'Tu essaies, c\'est le plus important ! 👍',
-    animation: 'thumbsUp',
+    text: 'Tu essaies, c\'est le plus important ! 👍',
+    mood: 'happy',
+    animation: 'celebrate',
   },
 ];
 
@@ -50,21 +94,24 @@ const firstMoveScripts: AssistantScript[] = [
 // SCRIPTS D'ERREUR
 // ============================================================================
 
-const errorScripts: AssistantScript[] = [
+const errorScripts: BalanceScript[] = [
   {
-    trigger: 'error',
-    message: 'Hmm, la balance penche... Essaie un autre objet ! ⚖️',
-    animation: 'thinking',
+    trigger: 'invalid_move',
+    text: 'Hmm, la balance penche... Essaie un autre objet ! ⚖️',
+    mood: 'thinking',
+    animation: 'think',
   },
   {
-    trigger: 'error',
-    message: 'Pas encore équilibré. Regarde bien les poids !',
-    animation: 'gentle',
+    trigger: 'invalid_move',
+    text: 'Pas encore équilibré. Regarde bien les poids !',
+    mood: 'encouraging',
+    animation: 'nod',
   },
   {
-    trigger: 'error',
-    message: 'C\'est trop lourd ou trop léger. Continue d\'explorer !',
-    animation: 'encourage',
+    trigger: 'invalid_move',
+    text: 'C\'est trop lourd ou trop léger. Continue d\'explorer !',
+    mood: 'encouraging',
+    animation: 'nod',
   },
 ];
 
@@ -72,23 +119,26 @@ const errorScripts: AssistantScript[] = [
 // SCRIPTS D'ERREURS RÉPÉTÉES
 // ============================================================================
 
-const repeatedErrorScripts: AssistantScript[] = [
+const repeatedErrorScripts: BalanceScript[] = [
   {
     trigger: 'repeated_error',
-    message: 'Je vais t\'aider ! Regarde le poids de chaque côté. 💡',
-    animation: 'helpful',
+    text: 'Je vais t\'aider ! Regarde le poids de chaque côté. 💡',
+    mood: 'encouraging',
+    animation: 'point',
     visualHint: 'showWeights',
   },
   {
     trigger: 'repeated_error',
-    message: 'Compte les petits carrés sur chaque objet, ils indiquent le poids.',
-    animation: 'pointing',
+    text: 'Compte les petits carrés sur chaque objet, ils indiquent le poids.',
+    mood: 'encouraging',
+    animation: 'point',
     visualHint: 'highlightWeightIndicators',
   },
   {
     trigger: 'repeated_error',
-    message: 'N\'oublie pas : équilibré = même poids des deux côtés ! 🦉',
-    animation: 'wise',
+    text: 'N\'oublie pas : équilibré = même poids des deux côtés ! 🦉',
+    mood: 'thinking',
+    animation: 'think',
     visualHint: 'showEquation',
   },
 ];
@@ -97,23 +147,26 @@ const repeatedErrorScripts: AssistantScript[] = [
 // SCRIPTS D'INDICE
 // ============================================================================
 
-const hintScripts: AssistantScript[] = [
+const hintScripts: BalanceScript[] = [
   {
     trigger: 'hint_requested',
-    message: 'Indice : additionne les poids d\'un côté, puis cherche l\'objet qui correspond.',
-    animation: 'detective',
+    text: 'Indice : additionne les poids d\'un côté, puis cherche l\'objet qui correspond.',
+    mood: 'thinking',
+    animation: 'think',
     visualHint: 'showSum',
   },
   {
     trigger: 'hint_requested',
-    message: 'Regarde : ce côté pèse X. Quel objet pèse aussi X ? 🔍',
-    animation: 'pointing',
+    text: 'Regarde : ce côté pèse X. Quel objet pèse aussi X ? 🔍',
+    mood: 'encouraging',
+    animation: 'point',
     visualHint: 'highlightTarget',
   },
   {
     trigger: 'hint_requested',
-    message: 'Parfois il faut combiner plusieurs objets pour trouver le bon poids.',
-    animation: 'thinking',
+    text: 'Parfois il faut combiner plusieurs objets pour trouver le bon poids.',
+    mood: 'thinking',
+    animation: 'think',
     visualHint: 'showCombinations',
   },
 ];
@@ -122,21 +175,24 @@ const hintScripts: AssistantScript[] = [
 // SCRIPTS DE BLOCAGE
 // ============================================================================
 
-const stuckScripts: AssistantScript[] = [
+const stuckScripts: BalanceScript[] = [
   {
     trigger: 'stuck',
-    message: 'Tu réfléchis ? C\'est bien ! L\'équilibre demande de la patience. 🦉',
-    animation: 'patient',
+    text: 'Tu réfléchis ? C\'est bien ! L\'équilibre demande de la patience. 🦉',
+    mood: 'encouraging',
+    animation: 'nod',
   },
   {
     trigger: 'stuck',
-    message: 'Besoin d\'un coup de pouce ? Clique sur moi !',
+    text: 'Besoin d\'un coup de pouce ? Clique sur moi !',
+    mood: 'happy',
     animation: 'wave',
   },
   {
     trigger: 'stuck',
-    message: 'Les maths, c\'est comme une balance : il faut trouver l\'égalité.',
-    animation: 'wise',
+    text: 'Les maths, c\'est comme une balance : il faut trouver l\'égalité.',
+    mood: 'thinking',
+    animation: 'think',
   },
 ];
 
@@ -144,16 +200,18 @@ const stuckScripts: AssistantScript[] = [
 // SCRIPTS DE QUASI-VICTOIRE
 // ============================================================================
 
-const nearVictoryScripts: AssistantScript[] = [
+const nearVictoryScripts: BalanceScript[] = [
   {
     trigger: 'near_victory',
-    message: 'Presque ! La balance est proche de l\'équilibre ! ⚖️',
-    animation: 'excited',
+    text: 'Presque ! La balance est proche de l\'équilibre ! ⚖️',
+    mood: 'excited',
+    animation: 'celebrate',
   },
   {
     trigger: 'near_victory',
-    message: 'Tu y es presque ! Un petit ajustement et c\'est bon !',
-    animation: 'encouraging',
+    text: 'Tu y es presque ! Un petit ajustement et c\'est bon !',
+    mood: 'encouraging',
+    animation: 'nod',
   },
 ];
 
@@ -161,21 +219,24 @@ const nearVictoryScripts: AssistantScript[] = [
 // SCRIPTS DE VICTOIRE
 // ============================================================================
 
-const victoryScripts: AssistantScript[] = [
+const victoryScripts: BalanceScript[] = [
   {
     trigger: 'victory',
-    message: 'PARFAIT ! La balance est en équilibre ! 🎉⚖️',
+    text: 'PARFAIT ! La balance est en équilibre ! 🎉⚖️',
+    mood: 'excited',
     animation: 'celebrate',
   },
   {
     trigger: 'victory',
-    message: 'Bravo ! Tu as trouvé l\'égalité ! 🦉🏆',
-    animation: 'proud',
+    text: 'Bravo ! Tu as trouvé l\'égalité ! 🦉🏆',
+    mood: 'happy',
+    animation: 'celebrate',
   },
   {
     trigger: 'victory',
-    message: 'Équilibre atteint ! Tu maîtrises les poids et mesures ! 🌟',
-    animation: 'jump',
+    text: 'Équilibre atteint ! Tu maîtrises les poids et mesures ! 🌟',
+    mood: 'excited',
+    animation: 'celebrate',
   },
 ];
 
@@ -183,50 +244,18 @@ const victoryScripts: AssistantScript[] = [
 // SCRIPTS DE STREAK
 // ============================================================================
 
-const streakScripts: AssistantScript[] = [
+const streakScripts: BalanceScript[] = [
   {
     trigger: 'streak',
-    message: 'Incroyable ! Tu enchaînes les équilibres ! 🔥',
-    animation: 'fire',
+    text: 'Incroyable ! Tu enchaînes les équilibres ! 🔥',
+    mood: 'excited',
+    animation: 'celebrate',
   },
   {
     trigger: 'streak',
-    message: 'Tu as l\'œil pour les balances ! Continue ! 🌟',
-    animation: 'impressed',
-  },
-];
-
-// ============================================================================
-// SCRIPTS SPÉCIFIQUES À LA BALANCE
-// ============================================================================
-
-const balanceSpecificScripts: AssistantScript[] = [
-  // Concepts pédagogiques
-  {
-    trigger: 'level_start',
-    message: 'Savais-tu ? Une balance, c\'est comme une équation : les deux côtés doivent être égaux !',
-    animation: 'teaching',
-    conditions: { levelNumber: 3 },
-  },
-  {
-    trigger: 'victory',
-    message: 'Tu viens de découvrir le concept d\'équivalence ! C\'est important en maths. 🎓',
-    animation: 'proud',
-    conditions: { firstCompletion: true },
-  },
-
-  // Niveaux spéciaux
-  {
-    trigger: 'level_start',
-    message: 'Mode Bac à Sable ! Expérimente librement avec la balance. 🧪',
-    animation: 'excited',
-    conditions: { mode: 'sandbox' },
-  },
-  {
-    trigger: 'level_start',
-    message: 'Niveau addition ! Il faudra peut-être combiner des objets... 🤔',
-    animation: 'challenge',
-    conditions: { requiresAddition: true },
+    text: 'Tu as l\'œil pour les balances ! Continue ! 🌟',
+    mood: 'happy',
+    animation: 'celebrate',
   },
 ];
 
@@ -234,42 +263,66 @@ const balanceSpecificScripts: AssistantScript[] = [
 // SCRIPTS DE RETOUR
 // ============================================================================
 
-const comebackScripts: AssistantScript[] = [
+const comebackScripts: BalanceScript[] = [
   {
     trigger: 'comeback',
-    message: 'Rebonjour jeune scientifique ! Prêt pour de nouvelles expériences ? 🦉',
+    text: 'Rebonjour jeune scientifique ! Prêt pour de nouvelles expériences ? 🦉',
+    mood: 'happy',
     animation: 'wave',
   },
   {
     trigger: 'comeback',
-    message: 'Ah, tu es de retour ! Ma balance t\'attendait. ⚖️',
-    animation: 'happy',
+    text: 'Ah, tu es de retour ! Ma balance t\'attendait. ⚖️',
+    mood: 'happy',
+    animation: 'wave',
   },
 ];
 
 // ============================================================================
-// EXPORT
+// SCRIPTS DE NIVEAU SUIVANT
 // ============================================================================
 
-export const balanceAssistantScripts: AssistantScript[] = [
-  ...welcomeScripts,
-  ...firstMoveScripts,
-  ...errorScripts,
-  ...repeatedErrorScripts,
-  ...hintScripts,
-  ...stuckScripts,
-  ...nearVictoryScripts,
-  ...victoryScripts,
-  ...streakScripts,
-  ...balanceSpecificScripts,
-  ...comebackScripts,
+const levelUpScripts: BalanceScript[] = [
+  {
+    trigger: 'level_up',
+    text: 'Tu viens de découvrir le concept d\'équivalence ! C\'est important en maths. 🎓',
+    mood: 'excited',
+    animation: 'celebrate',
+  },
+  {
+    trigger: 'level_up',
+    text: 'Nouveau niveau débloqué ! Les défis deviennent plus intéressants !',
+    mood: 'happy',
+    animation: 'celebrate',
+  },
 ];
 
-export {
-  welcomeScripts as BALANCE_WELCOME_SCRIPTS,
-  errorScripts as BALANCE_ERROR_SCRIPTS,
-  hintScripts as BALANCE_HINT_SCRIPTS,
-  victoryScripts as BALANCE_VICTORY_SCRIPTS,
-};
+// ============================================================================
+// CONVERSION ET EXPORT
+// ============================================================================
+
+// Convertir tous les scripts en AssistantScript complets
+let scriptId = 0;
+const generateId = () => `balance_script_${++scriptId}`;
+
+export const balanceAssistantScripts: AssistantScript[] = [
+  ...welcomeScripts.map((s, i) => createScript(generateId(), s, 10 - i)),
+  ...firstMoveScripts.map((s, i) => createScript(generateId(), s, 8 - i)),
+  ...errorScripts.map((s, i) => createScript(generateId(), s, 5 - i)),
+  ...repeatedErrorScripts.map((s, i) => createScript(generateId(), s, 6 - i)),
+  ...hintScripts.map((s, i) => createScript(generateId(), s, 7 - i)),
+  ...stuckScripts.map((s, i) => createScript(generateId(), s, 4 - i)),
+  ...nearVictoryScripts.map((s, i) => createScript(generateId(), s, 9 - i)),
+  ...victoryScripts.map((s, i) => createScript(generateId(), s, 10 - i)),
+  ...streakScripts.map((s, i) => createScript(generateId(), s, 8 - i)),
+  ...comebackScripts.map((s, i) => createScript(generateId(), s, 7 - i)),
+  ...levelUpScripts.map((s, i) => createScript(generateId(), s, 9 - i)),
+];
+
+// Exports nommés pour accès direct par catégorie
+export const BALANCE_WELCOME_SCRIPTS = welcomeScripts.map((s, i) => createScript(`welcome_${i}`, s, 10 - i));
+export const BALANCE_ERROR_SCRIPTS = errorScripts.map((s, i) => createScript(`error_${i}`, s, 5 - i));
+export const BALANCE_HINT_SCRIPTS = hintScripts.map((s, i) => createScript(`hint_${i}`, s, 7 - i));
+export const BALANCE_VICTORY_SCRIPTS = victoryScripts.map((s, i) => createScript(`victory_${i}`, s, 10 - i));
 
 export default balanceAssistantScripts;

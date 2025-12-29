@@ -1,6 +1,7 @@
 /**
  * PixelWithBubble - Combined mascot and speech bubble component
  * Convenient wrapper for using Pixel with dialogue
+ * Uses MascotBubble from Design System for consistent UI
  */
 
 import React, { memo } from 'react';
@@ -12,7 +13,7 @@ import Animated, {
 
 import { PixelMood, WorldTheme } from '../../types';
 import { PixelMascot } from './PixelMascot';
-import { SpeechBubble } from './SpeechBubble';
+import { MascotBubble } from '@/components/common/MascotBubble';
 
 // ============================================================================
 // TYPES
@@ -45,7 +46,7 @@ function PixelWithBubbleComponent({
 }: PixelWithBubbleProps) {
   const isHorizontal = layout === 'horizontal';
 
-  const content = (
+  return (
     <Animated.View
       entering={animated ? FadeIn.duration(300) : undefined}
       exiting={animated ? FadeOut.duration(200) : undefined}
@@ -63,27 +64,19 @@ function PixelWithBubbleComponent({
         />
       </View>
 
-      {/* Speech Bubble */}
-      <SpeechBubble
-        message={message}
-        theme={theme}
-        isVisible={true}
-        showSkip={showSkip}
-        onPress={onPress}
-        position={isHorizontal ? 'right' : 'center'}
-      />
+      {/* MascotBubble from Design System */}
+      <View style={styles.bubbleContainer}>
+        <MascotBubble
+          message={message}
+          buttonText={showSkip ? 'Continuer' : undefined}
+          onPress={onPress}
+          tailPosition={isHorizontal ? 'left' : 'top'}
+          showDecorations={false}
+          disableEnterAnimation={!animated}
+        />
+      </View>
     </Animated.View>
   );
-
-  if (onPress) {
-    return (
-      <Pressable onPress={onPress} style={styles.pressable}>
-        {content}
-      </Pressable>
-    );
-  }
-
-  return content;
 }
 
 export const PixelWithBubble = memo(PixelWithBubbleComponent);
@@ -93,9 +86,6 @@ export const PixelWithBubble = memo(PixelWithBubbleComponent);
 // ============================================================================
 
 const styles = StyleSheet.create({
-  pressable: {
-    flex: 1,
-  },
   container: {
     paddingHorizontal: 16,
     paddingVertical: 12,
@@ -112,5 +102,8 @@ const styles = StyleSheet.create({
   },
   mascotContainer: {
     flexShrink: 0,
+  },
+  bubbleContainer: {
+    flex: 1,
   },
 });

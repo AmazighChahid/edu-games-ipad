@@ -12,8 +12,8 @@ import Animated, {
 } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 
-import { colors, spacing, borderRadius, shadows } from '../../../theme';
-import { useStore } from '../../../store';
+import { colors, spacing, borderRadius, shadows, touchTargets } from '@/theme';
+import { useStore } from '@/store';
 import type { SudokuValue } from '../types';
 
 interface SymbolSelectorProps {

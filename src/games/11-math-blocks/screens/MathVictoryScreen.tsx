@@ -1,6 +1,7 @@
 /**
  * MathBlocks Victory Screen
  * Displays results after game completion using unified VictoryCard
+ * Refactored with theme tokens and Icons
  */
 
 import { useEffect, useState } from 'react';
@@ -8,20 +9,22 @@ import { View, StyleSheet } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { colors, spacing } from '../../../theme';
+import { theme } from '../../../theme';
+import { Icons } from '../../../constants/icons';
 import { useStore, useCollection } from '../../../store';
 import { VictoryCard, type VictoryBadge } from '../../../components/common';
 import { CardUnlockScreen } from '../../../components/collection';
 import { useCardUnlock } from '../../../hooks/useCardUnlock';
+import { mathLevels } from '../data/levels';
 
 // Fonction pour calculer le badge non-compétitif de Math-Blocks
 const getMathBlocksBadge = (pairsFound: number, isVictory: boolean): VictoryBadge => {
   if (isVictory && pairsFound >= 10) {
-    return { icon: '🧮', label: 'Mathématicien' };
+    return { icon: Icons.abacus, label: 'Mathématicien' };
   } else if (isVictory) {
-    return { icon: '⭐', label: 'Calculateur' };
+    return { icon: Icons.star, label: 'Calculateur' };
   } else {
-    return { icon: '💪', label: 'Persévérant' };
+    return { icon: Icons.muscle, label: 'Persévérant' };
   }
 };
 
@@ -79,8 +82,11 @@ export function MathVictoryScreen() {
     });
   };
 
+  // Vérifier s'il y a un niveau suivant
+  const hasNextLevel = isVictory && currentLevel < mathLevels.length;
+
   const handleNextLevel = () => {
-    // Navigate to next level
+    if (!hasNextLevel) return;
     const nextLevel = currentLevel + 1;
     router.replace({
       pathname: '/(games)/11-math-blocks/play',
@@ -118,8 +124,8 @@ export function MathVictoryScreen() {
       style={[
         styles.container,
         {
-          paddingTop: insets.top + spacing[4],
-          paddingBottom: insets.bottom + spacing[4],
+          paddingTop: insets.top + theme.spacing[4],
+          paddingBottom: insets.bottom + theme.spacing[4],
         },
       ]}
     >
@@ -132,17 +138,17 @@ export function MathVictoryScreen() {
             {
               label: 'Statut',
               value: isVictory ? 'Victoire !' : 'Essaie encore !',
-              icon: isVictory ? '✅' : '⏱️',
+              icon: isVictory ? Icons.success : Icons.timer,
             },
           ],
         }}
         badge={getMathBlocksBadge(moveCount, isVictory)}
-        celebrationEmoji={isVictory ? '🎉' : '💪'}
+        celebrationEmoji={isVictory ? Icons.celebration : Icons.muscle}
         showConfetti={isVictory}
         onReplay={handlePlayAgain}
-        onNextLevel={isVictory ? handleNextLevel : undefined}
-        hasNextLevel={isVictory}
-        nextLevelLabel={`Niveau ${currentLevel + 1} →`}
+        onNextLevel={hasNextLevel ? handleNextLevel : undefined}
+        hasNextLevel={hasNextLevel}
+        nextLevelLabel={hasNextLevel ? `Niveau ${currentLevel + 1} ${Icons.back}` : undefined}
         onHome={handleHome}
         onCollection={handleViewCollection}
       />
@@ -153,6 +159,6 @@ export function MathVictoryScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background.primary,
+    backgroundColor: theme.colors.background.primary,
   },
 });

@@ -1,148 +1,201 @@
 /**
- * Logix Grid Game Screen
+ * Logix Grid - Écran Principal
  *
- * Écran principal du jeu de grilles logiques
+ * Écran d'introduction et de jeu pour Logix Grid.
+ * Utilise le pattern Hook + Template avec GameIntroTemplate.
+ *
+ * @see docs/GAME_ARCHITECTURE.md
  */
 
-import React, { useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, Pressable, Alert } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+import React from 'react';
+import { View, StyleSheet, Text } from 'react-native';
 
-import { colors, spacing, borderRadius, shadows, fontFamily } from '../../../src/theme';
-import { useLogixGridGame, getFirstLogixPuzzle, GameBoard } from '../../../src/games/09-logix-grid';
+import { theme } from '../../../src/theme';
+import {
+  GameIntroTemplate,
+  VictoryCard,
+  HintButton,
+  Button,
+} from '../../../src/components/common';
+import { Icons } from '../../../src/constants/icons';
+import {
+  useLogixGridIntro,
+  GameBoard,
+  AdaMascot,
+} from '../../../src/games/09-logix-grid';
+
+// ============================================================================
+// COMPONENT
+// ============================================================================
 
 export default function LogixGridScreen() {
-  const router = useRouter();
   const {
+    // Niveaux
+    levels,
+    selectedLevel,
+    handleSelectLevel,
+
+    // État jeu
+    isPlaying,
+    isVictory,
+
+    // Animations
+    selectorStyle,
+    progressPanelStyle,
+
+    // Mascot
+    mascotMessage,
+    mascotEmotion,
+
+    // Game state
     gameState,
     result,
-    isLoading,
     errors,
-    startGame,
+
+    // Progress
+    progressData,
+
+    // Handlers
     handleCellToggle,
     handleCellSelect,
     handleClueUse,
     handleHintRequest,
-    pauseGame,
-    resumeGame,
-    restartLevel,
+    handleReset,
+    handleBack,
+    handleStartPlaying,
     getCellStateValue,
-  } = useLogixGridGame();
 
-  // Démarrer avec le premier puzzle
-  useEffect(() => {
-    if (!gameState && !isLoading) {
-      const firstPuzzle = getFirstLogixPuzzle();
-      startGame(firstPuzzle);
-    }
-  }, [gameState, isLoading, startGame]);
+    // Hints
+    hintsRemaining,
+  } = useLogixGridIntro();
 
-  // Handlers
-  const handleBack = useCallback(() => {
-    if (gameState?.phase === 'playing') {
-      Alert.alert(
-        'Quitter le jeu ?',
-        'Ta progression sera perdue.',
-        [
-          { text: 'Annuler', style: 'cancel' },
-          { text: 'Quitter', style: 'destructive', onPress: () => router.back() },
-        ]
-      );
-    } else {
-      router.back();
-    }
-  }, [gameState, router]);
-
-  const handlePause = useCallback(() => {
-    pauseGame();
-    Alert.alert(
-      'Jeu en pause',
-      'Prends ton temps pour réfléchir !',
-      [{ text: 'Reprendre', onPress: resumeGame }]
-    );
-  }, [pauseGame, resumeGame]);
-
-  // Afficher l'écran de victoire
-  if (result) {
+  // Écran de victoire
+  if (isVictory && result) {
     return (
-      <SafeAreaView style={styles.container} edges={['top']}>
-        <View style={styles.victoryContainer}>
-          <Text style={styles.victoryEmoji}>🔍</Text>
-          <Text style={styles.victoryTitle}>Enquête résolue !</Text>
-          <Text style={styles.victorySubtitle}>
-            Tu es un super détective !
-          </Text>
-
-          <View style={styles.statsCard}>
-            <View style={styles.statRow}>
-              <Text style={styles.statLabel}>Temps</Text>
-              <Text style={styles.statValue}>
-                {Math.floor(result.timeSeconds / 60)}:{(result.timeSeconds % 60).toString().padStart(2, '0')}
-              </Text>
-            </View>
-            <View style={styles.statRow}>
-              <Text style={styles.statLabel}>Actions</Text>
-              <Text style={styles.statValue}>{result.actionCount}</Text>
-            </View>
-            <View style={styles.statRow}>
-              <Text style={styles.statLabel}>Indices utilisés</Text>
-              <Text style={styles.statValue}>{result.hintsUsed}</Text>
-            </View>
-            <View style={styles.statRow}>
-              <Text style={styles.statLabel}>Score</Text>
-              <Text style={styles.statValue}>{result.score} pts</Text>
-            </View>
-            <View style={styles.statRow}>
-              <Text style={styles.statLabel}>Étoiles</Text>
-              <Text style={styles.statValue}>
-                {'⭐'.repeat(result.stars)}{'☆'.repeat(3 - result.stars)}
-              </Text>
-            </View>
-          </View>
-
-          {result.isPerfect && (
-            <View style={styles.perfectBadge}>
-              <Text style={styles.perfectText}>🏆 PARFAIT !</Text>
-            </View>
-          )}
-
-          <View style={styles.buttonsContainer}>
-            <Pressable style={styles.primaryButton} onPress={restartLevel}>
-              <Text style={styles.primaryButtonText}>Rejouer</Text>
-            </Pressable>
-            <Pressable style={styles.secondaryButton} onPress={() => router.back()}>
-              <Text style={styles.secondaryButtonText}>Menu</Text>
-            </Pressable>
-          </View>
-        </View>
-      </SafeAreaView>
+      <VictoryCard
+        title="Enquête résolue !"
+        emoji={Icons.search}
+        subtitle="Tu es un super détective !"
+        stats={[
+          {
+            label: 'Temps',
+            value: `${Math.floor(result.timeSeconds / 60)}:${(result.timeSeconds % 60).toString().padStart(2, '0')}`,
+            icon: Icons.timer,
+          },
+          {
+            label: 'Actions',
+            value: result.actionCount.toString(),
+            icon: Icons.target,
+          },
+          {
+            label: 'Indices',
+            value: result.hintsUsed.toString(),
+            icon: Icons.lightbulb,
+          },
+          {
+            label: 'Score',
+            value: `${result.score} pts`,
+            icon: Icons.star,
+          },
+        ]}
+        stars={result.stars}
+        isPerfect={result.isPerfect}
+        onReplay={handleReset}
+        onHome={handleBack}
+        replayLabel="Rejouer"
+        homeLabel="Menu"
+      />
     );
   }
 
-  // Afficher le chargement
-  if (isLoading || !gameState) {
-    return (
-      <SafeAreaView style={styles.container} edges={['top']}>
-        <View style={styles.loadingContainer}>
-          <Text style={styles.loadingText}>Préparation de l'enquête...</Text>
-        </View>
-      </SafeAreaView>
-    );
-  }
+  // Rendu du jeu actif
+  const renderGame = () => {
+    if (!gameState) return null;
 
-  // Afficher le jeu
+    return (
+      <GameBoard
+        gameState={gameState}
+        errors={errors}
+        onCellToggle={handleCellToggle}
+        onCellSelect={handleCellSelect}
+        onClueUse={handleClueUse}
+        onHintRequest={handleHintRequest}
+        getCellState={getCellStateValue}
+        onPause={() => {}}
+        onBack={handleBack}
+      />
+    );
+  };
+
+  // Boutons d'action
+  const renderActionButtons = () => (
+    <View style={styles.actionButtons}>
+      <Button
+        label="C'est parti !"
+        onPress={handleStartPlaying}
+        variant="primary"
+        size="large"
+        disabled={!selectedLevel}
+      />
+    </View>
+  );
+
+  // Bouton indice
+  const renderHintButton = () => (
+    <HintButton
+      remaining={hintsRemaining}
+      maxHints={gameState?.puzzle.hintsAvailable ?? 3}
+      onPress={handleHintRequest}
+      disabled={hintsRemaining === 0}
+    />
+  );
+
   return (
-    <GameBoard
-      gameState={gameState}
-      errors={errors}
-      onCellToggle={handleCellToggle}
-      onCellSelect={handleCellSelect}
-      onClueUse={handleClueUse}
-      onHintRequest={handleHintRequest}
-      getCellState={getCellStateValue}
-      onPause={handlePause}
+    <GameIntroTemplate
+      // Header
+      title="Logix Grid"
+      emoji={Icons.search}
       onBack={handleBack}
+
+      // Niveaux
+      levels={levels}
+      selectedLevel={selectedLevel}
+      onSelectLevel={handleSelectLevel}
+
+      // État
+      isPlaying={isPlaying}
+      isVictory={isVictory}
+
+      // Mascotte Ada
+      mascotComponent={
+        <AdaMascot
+          message={mascotMessage}
+          emotion={mascotEmotion}
+          visible={true}
+        />
+      }
+
+      // Jeu - renderGame doit être une fonction
+      renderGame={renderGame}
+
+      // Boutons flottants (mode jeu)
+      showResetButton={isPlaying}
+      onReset={handleReset}
+      showHintButton={isPlaying}
+      onHint={handleHintRequest}
+      hintsRemaining={hintsRemaining}
+
+      // Transition vers le jeu
+      onStartPlaying={handleStartPlaying}
+
+      // Progress (en mode jeu)
+      renderProgress={isPlaying ? () => (
+        <View style={{ alignItems: 'center' }}>
+          <Text style={{ fontSize: 14, color: '#666' }}>
+            Indices utilisés: {progressData.cluesUsed}/{progressData.totalClues}
+          </Text>
+        </View>
+      ) : undefined}
     />
   );
 }
@@ -152,107 +205,8 @@ export default function LogixGridScreen() {
 // ============================================================================
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background.primary,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
+  actionButtons: {
     alignItems: 'center',
-  },
-  loadingText: {
-    fontSize: 18,
-    color: colors.text.secondary,
-    fontFamily: fontFamily.medium,
-  },
-  victoryContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: spacing[6],
-  },
-  victoryEmoji: {
-    fontSize: 80,
-    marginBottom: spacing[4],
-  },
-  victoryTitle: {
-    fontSize: 36,
-    fontFamily: fontFamily.displayBold,
-    fontWeight: '700',
-    color: colors.primary.main,
-    marginBottom: spacing[2],
-  },
-  victorySubtitle: {
-    fontSize: 18,
-    color: colors.text.secondary,
-    marginBottom: spacing[8],
-    textAlign: 'center',
-  },
-  statsCard: {
-    backgroundColor: colors.background.card,
-    borderRadius: borderRadius.xl,
-    padding: spacing[6],
-    width: '100%',
-    maxWidth: 300,
-    marginBottom: spacing[4],
-    ...shadows.lg,
-  },
-  statRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: spacing[2],
-  },
-  statLabel: {
-    fontSize: 16,
-    color: colors.text.secondary,
-  },
-  statValue: {
-    fontSize: 20,
-    fontFamily: fontFamily.displayBold,
-    fontWeight: '700',
-    color: colors.text.primary,
-  },
-  perfectBadge: {
-    backgroundColor: '#FFD700',
-    borderRadius: borderRadius.round,
-    paddingHorizontal: spacing[6],
-    paddingVertical: spacing[2],
-    marginBottom: spacing[4],
-  },
-  perfectText: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#000',
-  },
-  buttonsContainer: {
-    width: '100%',
-    maxWidth: 300,
-    gap: spacing[3],
-  },
-  primaryButton: {
-    backgroundColor: colors.secondary.main,
-    paddingVertical: spacing[4],
-    borderRadius: borderRadius.xl,
-    alignItems: 'center',
-    ...shadows.md,
-  },
-  primaryButtonText: {
-    color: colors.text.inverse,
-    fontSize: 18,
-    fontWeight: '700',
-  },
-  secondaryButton: {
-    backgroundColor: colors.primary.main,
-    paddingVertical: spacing[4],
-    borderRadius: borderRadius.xl,
-    alignItems: 'center',
-    ...shadows.md,
-  },
-  secondaryButtonText: {
-    color: colors.text.inverse,
-    fontSize: 16,
-    fontWeight: '600',
+    paddingVertical: theme.spacing[4],
   },
 });

@@ -2,14 +2,24 @@
  * Mots Croisés GameBoard Component
  *
  * Plateau de jeu complet pour les mots croisés
+ * Refactorisé pour utiliser les composants communs et respecter les guidelines UX
  */
 
 import React from 'react';
 import { View, Text, StyleSheet, Pressable, Dimensions, ScrollView } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, { FadeIn, FadeInUp } from 'react-native-reanimated';
 
-import { colors, spacing, borderRadius, shadows, fontFamily } from '../../../theme';
+import {
+  colors,
+  spacing,
+  borderRadius,
+  shadows,
+  fontFamily,
+  fontSize,
+  touchTargets,
+} from '../../../theme';
+import { PageContainer } from '../../../components/common';
+import { Icons } from '../../../constants/icons';
 import { useAccessibilityAnimations } from '../../../hooks';
 import type { CrosswordGameState } from '../types';
 import { CrosswordGrid } from './CrosswordGrid';
@@ -82,41 +92,68 @@ export function GameBoard({
     ? words.find((w) => w.id === gameState.selectedWordId)
     : null;
 
+  // Générer les étoiles de difficulté
+  const renderDifficultyStars = () => {
+    const stars = [];
+    for (let i = 1; i <= 3; i++) {
+      stars.push(
+        <Text
+          key={i}
+          style={i <= level.difficulty ? styles.starFilled : styles.starEmpty}
+        >
+          {i <= level.difficulty ? Icons.star : Icons.starEmpty}
+        </Text>
+      );
+    }
+    return stars;
+  };
+
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      {/* Header */}
-      <Animated.View
-        style={styles.header}
-        entering={shouldAnimate ? FadeInUp.duration(getDuration(300)) : undefined}
-      >
-        <Pressable style={styles.backButton} onPress={onBack}>
-          <Text style={styles.backButtonText}>←</Text>
+    <PageContainer scrollable={false}>
+      {/* Header custom avec temps et pause */}
+      <View style={styles.header}>
+        {/* Bouton retour */}
+        <Pressable
+          style={styles.backButton}
+          onPress={onBack}
+          accessibilityLabel="Retour"
+          accessibilityRole="button"
+        >
+          <Text style={styles.backButtonText}>{Icons.back}</Text>
         </Pressable>
 
-        <View style={styles.levelInfo}>
-          <Text style={styles.levelName}>{level.themeEmoji} {level.name}</Text>
-          <Text style={styles.levelDifficulty}>
-            {'⭐'.repeat(level.difficulty)}{'☆'.repeat(3 - level.difficulty)}
+        {/* Titre */}
+        <View style={styles.titleContainer}>
+          <Text style={styles.headerTitle}>
+            {level.themeEmoji} {level.name}
           </Text>
         </View>
 
-        <View style={styles.stats}>
-          <Text style={styles.statValue}>⏱️ {formatTime(timeElapsed)}</Text>
+        {/* Temps et pause */}
+        <View style={styles.headerRight}>
+          <View style={styles.timeContainer}>
+            <Text style={styles.timeIcon}>{Icons.timer}</Text>
+            <Text style={styles.timeValue}>{formatTime(timeElapsed)}</Text>
+          </View>
+          <Pressable
+            style={styles.pauseButton}
+            onPress={onPause}
+            accessibilityLabel="Mettre en pause"
+            accessibilityRole="button"
+          >
+            <Text style={styles.pauseButtonText}>{Icons.pause}</Text>
+          </Pressable>
         </View>
-
-        <Pressable style={styles.pauseButton} onPress={onPause}>
-          <Text style={styles.pauseButtonText}>⏸️</Text>
-        </Pressable>
-      </Animated.View>
+      </View>
 
       {/* Barre de progression */}
       <View style={styles.progressContainer}>
+        <View style={styles.difficultyRow}>
+          <View style={styles.starsContainer}>{renderDifficultyStars()}</View>
+        </View>
         <View style={styles.progressBar}>
           <Animated.View
-            style={[
-              styles.progressFill,
-              { width: `${completionPercent}%` },
-            ]}
+            style={[styles.progressFill, { width: `${completionPercent}%` }]}
           />
         </View>
         <Text style={styles.progressText}>
@@ -131,17 +168,19 @@ export function GameBoard({
           <View style={styles.tabletLayout}>
             <View style={styles.tabletLeft}>
               <CrosswordGrid
-                gameState={gameState}
+                grid={gameState.grid}
+                selectedCell={gameState.selectedCell}
+                selectedWordId={gameState.selectedWordId}
                 onCellPress={onCellPress}
+                words={gameState.words}
               />
             </View>
             <View style={styles.tabletRight}>
               <ClueList
-                horizontalWords={horizontalWords}
-                verticalWords={verticalWords}
+                words={words}
                 completedWordIds={completedWordIds}
                 selectedWordId={gameState.selectedWordId}
-                onWordSelect={onWordSelect}
+                onWordPress={onWordSelect}
               />
             </View>
           </View>
@@ -149,18 +188,25 @@ export function GameBoard({
           // Layout téléphone
           <ScrollView style={styles.phoneLayout}>
             <CrosswordGrid
-              gameState={gameState}
+              grid={gameState.grid}
+              selectedCell={gameState.selectedCell}
+              selectedWordId={gameState.selectedWordId}
               onCellPress={onCellPress}
+              words={gameState.words}
             />
 
             {/* Définition actuelle */}
             {currentWord && (
               <View style={styles.currentClue}>
                 <Text style={styles.currentClueNumber}>
-                  {currentWord.number}. {currentWord.direction === 'horizontal' ? '→' : '↓'}
+                  {currentWord.number}.{' '}
+                  {currentWord.direction === 'horizontal'
+                    ? Icons.arrowRight
+                    : Icons.arrowDown}
                 </Text>
                 <Text style={styles.currentClueText}>
-                  {currentWord.emoji && `${currentWord.emoji} `}{currentWord.clue}
+                  {currentWord.emoji && `${currentWord.emoji} `}
+                  {currentWord.clue}
                 </Text>
               </View>
             )}
@@ -177,20 +223,23 @@ export function GameBoard({
           ]}
           onPress={onRevealLetter}
           disabled={hintsUsed >= level.hintsAvailable}
+          accessibilityLabel={`Utiliser un indice. ${level.hintsAvailable - hintsUsed} restants`}
+          accessibilityRole="button"
         >
+          <Text style={styles.hintButtonIcon}>{Icons.lightbulb}</Text>
           <Text style={styles.hintButtonText}>
-            💡 Indice ({level.hintsAvailable - hintsUsed})
+            Indice ({level.hintsAvailable - hintsUsed})
           </Text>
         </Pressable>
       </View>
 
       {/* Clavier */}
       <Keyboard
-        onLetterPress={onLetterInput}
+        onKeyPress={onLetterInput}
         onDelete={onDelete}
         disabled={gameState.phase !== 'playing'}
       />
-    </SafeAreaView>
+    </PageContainer>
   );
 }
 
@@ -199,21 +248,17 @@ export function GameBoard({
 // ============================================================================
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background.primary,
-  },
+  // Header custom
   header: {
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
+    alignItems: 'center',
     paddingHorizontal: spacing[4],
     paddingVertical: spacing[2],
-    height: 56,
   },
   backButton: {
-    width: 40,
-    height: 40,
+    width: touchTargets.minimum, // 64dp minimum
+    height: touchTargets.minimum,
     borderRadius: borderRadius.round,
     backgroundColor: colors.background.card,
     justifyContent: 'center',
@@ -224,31 +269,40 @@ const styles = StyleSheet.create({
     fontSize: 24,
     color: colors.text.primary,
   },
-  levelInfo: {
+  titleContainer: {
     flex: 1,
     alignItems: 'center',
   },
-  levelName: {
-    fontSize: 16,
-    fontFamily: fontFamily.displayBold,
-    fontWeight: '700',
+  headerTitle: {
+    fontSize: fontSize.lg,
+    fontFamily: fontFamily.bold,
     color: colors.text.primary,
   },
-  levelDifficulty: {
-    fontSize: 12,
-    marginTop: 2,
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing[2],
   },
-  stats: {
-    marginRight: spacing[2],
+  timeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing[1],
+    backgroundColor: colors.background.card,
+    paddingHorizontal: spacing[3],
+    paddingVertical: spacing[2],
+    borderRadius: borderRadius.lg,
   },
-  statValue: {
-    fontSize: 14,
-    fontFamily: fontFamily.medium,
-    color: colors.text.secondary,
+  timeIcon: {
+    fontSize: fontSize.base,
+  },
+  timeValue: {
+    fontSize: fontSize.base,
+    fontFamily: fontFamily.semiBold,
+    color: colors.text.primary,
   },
   pauseButton: {
-    width: 40,
-    height: 40,
+    width: touchTargets.minimum, // 64dp minimum
+    height: touchTargets.minimum,
     borderRadius: borderRadius.round,
     backgroundColor: colors.background.card,
     justifyContent: 'center',
@@ -256,29 +310,50 @@ const styles = StyleSheet.create({
     ...shadows.sm,
   },
   pauseButtonText: {
-    fontSize: 20,
+    fontSize: 24,
   },
+
+  // Progression
   progressContainer: {
     paddingHorizontal: spacing[4],
     marginBottom: spacing[2],
   },
+  difficultyRow: {
+    alignItems: 'center',
+    marginBottom: spacing[2],
+  },
+  starsContainer: {
+    flexDirection: 'row',
+    gap: spacing[1],
+  },
+  starFilled: {
+    fontSize: fontSize.lg,
+    color: colors.secondary.main,
+  },
+  starEmpty: {
+    fontSize: fontSize.lg,
+    color: colors.text.muted,
+    opacity: 0.3,
+  },
   progressBar: {
-    height: 6,
+    height: 8,
     backgroundColor: colors.background.card,
     borderRadius: borderRadius.round,
     overflow: 'hidden',
   },
   progressFill: {
     height: '100%',
-    backgroundColor: colors.secondary.main,
+    backgroundColor: colors.feedback.success,
     borderRadius: borderRadius.round,
   },
   progressText: {
-    fontSize: 11,
-    color: colors.text.tertiary,
+    fontSize: fontSize.sm,
+    color: colors.text.muted,
     textAlign: 'center',
     marginTop: spacing[1],
   },
+
+  // Body layouts
   body: {
     flex: 1,
   },
@@ -296,44 +371,55 @@ const styles = StyleSheet.create({
   phoneLayout: {
     flex: 1,
   },
+
+  // Current clue
   currentClue: {
     backgroundColor: colors.background.card,
     marginHorizontal: spacing[4],
     marginVertical: spacing[2],
-    padding: spacing[3],
+    padding: spacing[4],
     borderRadius: borderRadius.lg,
     ...shadows.sm,
   },
   currentClueNumber: {
-    fontSize: 14,
+    fontSize: fontSize.base,
     fontWeight: '700',
     color: colors.primary.main,
     marginBottom: spacing[1],
   },
   currentClueText: {
-    fontSize: 16,
+    fontSize: fontSize.lg, // 18pt minimum
     color: colors.text.primary,
-    lineHeight: 22,
+    lineHeight: 26,
   },
+
+  // Hint button
   hintContainer: {
     paddingHorizontal: spacing[4],
     paddingVertical: spacing[2],
     alignItems: 'center',
   },
   hintButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing[2],
     backgroundColor: colors.secondary.main,
     paddingHorizontal: spacing[6],
-    paddingVertical: spacing[2],
+    paddingVertical: spacing[3],
     borderRadius: borderRadius.round,
-    ...shadows.sm,
+    minHeight: touchTargets.minimum, // 64dp minimum
+    ...shadows.md,
   },
   hintButtonDisabled: {
     opacity: 0.4,
   },
+  hintButtonIcon: {
+    fontSize: 20,
+  },
   hintButtonText: {
-    fontSize: 14,
+    fontSize: fontSize.lg, // 18pt minimum
     fontWeight: '600',
-    color: colors.text.primary,
+    color: '#FFFFFF',
   },
 });
 

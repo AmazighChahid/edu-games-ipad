@@ -16,6 +16,12 @@ import { WORLDS } from '../data';
 // TYPES
 // ============================================================================
 
+interface GenerateSessionOptions {
+  worldId: WorldTheme;
+  levelNumber?: number;
+  count?: number;
+}
+
 interface UsePuzzleGeneratorReturn {
   puzzles: PuzzleConfig[];
   currentPuzzle: PuzzleConfig | null;
@@ -23,7 +29,7 @@ interface UsePuzzleGeneratorReturn {
   totalPuzzles: number;
   isLoading: boolean;
   error: string | null;
-  generateNewSession: (worldId: WorldTheme, count?: number) => void;
+  generateNewSession: (worldId: WorldTheme, countOrOptions?: number | GenerateSessionOptions) => void;
   nextPuzzle: () => PuzzleConfig | null;
   previousPuzzle: () => PuzzleConfig | null;
   goToPuzzle: (index: number) => PuzzleConfig | null;
@@ -36,6 +42,7 @@ interface UsePuzzleGeneratorReturn {
 // ============================================================================
 
 const DEFAULT_PUZZLE_COUNT = 8;
+const PUZZLES_PER_LEVEL = 3; // Each level has 3 puzzles
 
 // ============================================================================
 // HOOK
@@ -62,17 +69,33 @@ export function usePuzzleGenerator(
 
   /**
    * Generate a new session of puzzles
+   * Can be called with:
+   * - generateNewSession(worldId) - generates full session
+   * - generateNewSession(worldId, count) - generates specific number of puzzles
+   * - generateNewSession(worldId, { levelNumber, count }) - generates for specific level
    */
   const generateNewSession = useCallback((
     newWorldId: WorldTheme,
-    count: number = DEFAULT_PUZZLE_COUNT
+    countOrOptions?: number | GenerateSessionOptions
   ) => {
     setIsLoading(true);
     setError(null);
     setWorldId(newWorldId);
 
+    // Parse options
+    let count = DEFAULT_PUZZLE_COUNT;
+    let levelNumber: number | undefined;
+
+    if (typeof countOrOptions === 'number') {
+      count = countOrOptions;
+    } else if (countOrOptions && typeof countOrOptions === 'object') {
+      count = countOrOptions.count || PUZZLES_PER_LEVEL;
+      levelNumber = countOrOptions.levelNumber;
+    }
+
     try {
-      const newPuzzles = generateSession(newWorldId, count);
+      // If levelNumber provided, adjust difficulty based on level
+      const newPuzzles = generateSession(newWorldId, count, levelNumber);
 
       if (newPuzzles.length === 0) {
         throw new Error('Failed to generate puzzles');

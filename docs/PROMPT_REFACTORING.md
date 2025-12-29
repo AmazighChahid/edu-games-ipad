@@ -75,8 +75,8 @@ import { Colors } from '@/constants/theme'; // DEPRECATED
 
 ### 4. CONTRAINTES ENFANT
 - Touch targets ≥ 64dp
-- Texte courant ≥ 18pt (`theme.typography.sizes.body`)
-- Polices explicites (`theme.typography.fonts.xxx`)
+- Texte courant ≥ 18pt (`theme.fontSize.lg`)
+- Polices explicites (`theme.fontFamily.xxx`)
 - Feedback visuel sur toute interaction
 
 ## PROCESSUS DE REFACTORING
@@ -294,8 +294,8 @@ const styles = StyleSheet.create({
     // padding: 16, // ❌ INTERDIT
   },
   text: {
-    fontSize: theme.typography.sizes.body, // ✅ 18pt minimum
-    fontFamily: theme.typography.fonts.body, // ✅ Explicite
+    fontSize: theme.fontSize.lg, // ✅ 18pt minimum
+    fontFamily: theme.fontFamily.regular, // ✅ Explicite
     color: theme.colors.text.primary, // ✅ Token
   },
   button: {

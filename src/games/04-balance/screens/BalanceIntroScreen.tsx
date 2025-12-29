@@ -2,27 +2,27 @@
  * Balance Intro Screen
  * Onboarding flow for first-time players
  * Features: Animated introduction, tutorial steps, Dr. Hibou narrative
+ *
+ * Refactoré avec PageContainer, Button, Icons centralisés
  */
 
 import React, { useState, useCallback } from 'react';
-import { View, StyleSheet, Text, TouchableOpacity, Dimensions } from 'react-native';
+import { View, StyleSheet, Text, Dimensions } from 'react-native';
 import { useRouter } from 'expo-router';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
 import Animated, {
   FadeIn,
   FadeOut,
   SlideInRight,
-  SlideOutLeft,
   useSharedValue,
   useAnimatedStyle,
   withSpring,
   withSequence,
   withTiming,
-  withRepeat,
   ZoomIn,
 } from 'react-native-reanimated';
-import { colors, spacing, borderRadius, shadows } from '../../../theme';
+import { colors, spacing, borderRadius, shadows, touchTargets, fontFamily, fontSize } from '../../../theme';
+import { PageContainer, Button } from '../../../components/common';
+import { Icons } from '../../../constants/icons';
 import { DrHibou } from '../components/DrHibou';
 import { BalanceScale } from '../components/BalanceScale';
 import { createInitialState, addObjectToPlate } from '../logic/balanceEngine';
@@ -45,8 +45,6 @@ interface IntroStep {
 // ============================================
 // CONSTANTS
 // ============================================
-
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 const INTRO_STEPS: IntroStep[] = [
   {
@@ -80,10 +78,10 @@ const INTRO_STEPS: IntroStep[] = [
   },
   {
     id: 5,
-    mascotMessage: 'Quand les deux côtés pèsent pareil, elle reste droite.\n\nMagie de la science ! ✨',
+    mascotMessage: `Quand les deux côtés pèsent pareil, elle reste droite.\n\nMagie de la science ! ${Icons.sparkles}`,
     showBalance: true,
     balanceDemo: 'balanced',
-    buttonText: '🔬 Je suis prêt !',
+    buttonText: `${Icons.lab} Je suis prêt !`,
   },
 ];
 
@@ -135,18 +133,6 @@ function StepIndicator({ currentStep, totalSteps }: StepIndicatorProps) {
   );
 }
 
-interface SkipButtonProps {
-  onPress: () => void;
-}
-
-function SkipButton({ onPress }: SkipButtonProps) {
-  return (
-    <TouchableOpacity onPress={onPress} style={styles.skipButton}>
-      <Text style={styles.skipButtonText}>Passer</Text>
-    </TouchableOpacity>
-  );
-}
-
 // ============================================
 // MAIN COMPONENT
 // ============================================
@@ -172,12 +158,12 @@ export function BalanceIntroScreen() {
       // Finish intro
       handleComplete();
     }
-  }, [currentStepIndex]);
+  }, [currentStepIndex, buttonScale]);
 
   // Handle skip/complete
   const handleComplete = useCallback(() => {
     // Navigate to game
-    router.replace('/games/balance');
+    router.replace('/(games)/04-balance' as const);
   }, [router]);
 
   // Button animation
@@ -210,93 +196,95 @@ export function BalanceIntroScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <LinearGradient
-        colors={[colors.background.gradientStart, colors.background.gradientEnd]}
-        style={styles.background}
-      >
-        <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
-          {/* Skip button */}
-          <View style={styles.header}>
-            <SkipButton onPress={handleComplete} />
-          </View>
+    <PageContainer variant="playful">
+      {/* Skip button */}
+      <View style={styles.header}>
+        <Button
+          variant="ghost"
+          size="small"
+          onPress={handleComplete}
+          label="Passer"
+        />
+      </View>
 
-          {/* Step indicator */}
-          <StepIndicator
-            currentStep={currentStepIndex + 1}
-            totalSteps={INTRO_STEPS.length}
+      {/* Step indicator */}
+      <StepIndicator
+        currentStep={currentStepIndex + 1}
+        totalSteps={INTRO_STEPS.length}
+      />
+
+      {/* Main content */}
+      <View style={styles.content}>
+        {/* Dr. Hibou mascot */}
+        <Animated.View
+          key={`mascot-${currentStep.id}`}
+          entering={SlideInRight.springify()}
+          style={styles.mascotSection}
+        >
+          <DrHibou
+            mood={currentStep.id === INTRO_STEPS.length ? 'excited' : 'curious'}
+            message={currentStep.mascotMessage}
+            size="large"
+            position="center"
+            showBubble={true}
           />
+        </Animated.View>
 
-          {/* Main content */}
-          <View style={styles.content}>
-            {/* Dr. Hibou mascot */}
-            <Animated.View
-              key={`mascot-${currentStep.id}`}
-              entering={SlideInRight.springify()}
-              style={styles.mascotSection}
-            >
-              <DrHibou
-                mood={currentStep.id === INTRO_STEPS.length ? 'excited' : 'curious'}
-                message={currentStep.mascotMessage}
-                size="large"
-                position="center"
-                showBubble={true}
-              />
-            </Animated.View>
+        {/* Balance demo */}
+        {currentStep.showBalance && (
+          <Animated.View
+            entering={FadeIn.delay(200)}
+            exiting={FadeOut}
+            style={styles.balanceSection}
+          >
+            <BalanceScale
+              balanceState={demoBalance}
+              leftPlateContent={renderDemoPlateContent('left')}
+              rightPlateContent={renderDemoPlateContent('right')}
+              showWeightIndicators={false}
+            />
 
-            {/* Balance demo */}
-            {currentStep.showBalance && (
+            {/* Highlight indicator */}
+            {currentStep.highlightArea && currentStep.highlightArea !== 'none' && (
               <Animated.View
-                entering={FadeIn.delay(200)}
-                exiting={FadeOut}
-                style={styles.balanceSection}
-              >
-                <BalanceScale
-                  balanceState={demoBalance}
-                  leftPlateContent={renderDemoPlateContent('left')}
-                  rightPlateContent={renderDemoPlateContent('right')}
-                  showWeightIndicators={false}
-                />
-
-                {/* Highlight indicator */}
-                {currentStep.highlightArea && currentStep.highlightArea !== 'none' && (
-                  <Animated.View
-                    entering={FadeIn.delay(500)}
-                    style={[
-                      styles.highlightOverlay,
-                      currentStep.highlightArea === 'left' && styles.highlightLeft,
-                      currentStep.highlightArea === 'right' && styles.highlightRight,
-                      currentStep.highlightArea === 'both' && styles.highlightBoth,
-                    ]}
-                  />
-                )}
-              </Animated.View>
+                entering={FadeIn.delay(500)}
+                style={[
+                  styles.highlightOverlay,
+                  currentStep.highlightArea === 'left' && styles.highlightLeft,
+                  currentStep.highlightArea === 'right' && styles.highlightRight,
+                  currentStep.highlightArea === 'both' && styles.highlightBoth,
+                ]}
+              />
             )}
+          </Animated.View>
+        )}
 
-            {/* Empty space when no balance */}
-            {!currentStep.showBalance && (
-              <View style={styles.emptySpace}>
-                <Animated.Text
-                  entering={ZoomIn.delay(300)}
-                  style={styles.welcomeEmoji}
-                >
-                  ⚖️
-                </Animated.Text>
-              </View>
-            )}
+        {/* Empty space when no balance */}
+        {!currentStep.showBalance && (
+          <View style={styles.emptySpace}>
+            <Animated.Text
+              entering={ZoomIn.delay(300)}
+              style={styles.welcomeEmoji}
+            >
+              {Icons.balance}
+            </Animated.Text>
           </View>
+        )}
+      </View>
 
-          {/* Next button */}
-          <View style={styles.footer}>
-            <TouchableOpacity onPress={handleNext} activeOpacity={0.9}>
-              <Animated.View style={[styles.nextButton, buttonAnimatedStyle]}>
-                <Text style={styles.nextButtonText}>{currentStep.buttonText}</Text>
-              </Animated.View>
-            </TouchableOpacity>
-          </View>
-        </SafeAreaView>
-      </LinearGradient>
-    </View>
+      {/* Next button */}
+      <View style={styles.footer}>
+        <Animated.View style={buttonAnimatedStyle}>
+          <Button
+            variant="primary"
+            size="large"
+            onPress={handleNext}
+            label={currentStep.buttonText}
+            fullWidth
+          />
+        </Animated.View>
+      </View>
+    </PageContainer>
   );
 }
 
@@ -305,30 +293,12 @@ export function BalanceIntroScreen() {
 // ============================================
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  background: {
-    flex: 1,
-  },
-  safeArea: {
-    flex: 1,
-  },
-
   // Header
   header: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
     paddingHorizontal: spacing[4],
     paddingTop: spacing[2],
-  },
-  skipButton: {
-    paddingVertical: spacing[2],
-    paddingHorizontal: spacing[4],
-  },
-  skipButtonText: {
-    fontSize: 14,
-    color: colors.text.secondary,
   },
 
   // Step indicator
@@ -372,10 +342,10 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 4,
+    gap: spacing[1],
   },
   demoObjectEmoji: {
-    fontSize: 28,
+    fontSize: fontSize.xl,
   },
   emptySpace: {
     height: 200,
@@ -383,7 +353,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   welcomeEmoji: {
-    fontSize: 100,
+    fontSize: 80, // Grande taille pour l'emoji d'accueil
   },
 
   // Highlight overlay
@@ -391,7 +361,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     borderWidth: 3,
     borderColor: colors.secondary.main,
-    borderRadius: borderRadius.large,
+    borderRadius: borderRadius.lg,
     borderStyle: 'dashed',
   },
   highlightLeft: {
@@ -417,19 +387,6 @@ const styles = StyleSheet.create({
   footer: {
     paddingHorizontal: spacing[4],
     paddingVertical: spacing[6],
-  },
-  nextButton: {
-    backgroundColor: colors.primary.main,
-    paddingVertical: spacing[4],
-    paddingHorizontal: spacing[6],
-    borderRadius: borderRadius.large,
-    alignItems: 'center',
-    ...shadows.medium,
-  },
-  nextButtonText: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: colors.text.inverse,
   },
 });
 

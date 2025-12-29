@@ -122,3 +122,63 @@ export const DIFFICULTY_CONFIGS: Record<SudokuSize, Record<SudokuDifficulty, Dif
     3: { prefilledCells: 27, techniques: ['Advanced techniques'], ageRange: '10+ ans' },
   },
 };
+
+// ============================================
+// LEVEL SYSTEM TYPES (10 progressive levels)
+// ============================================
+
+/**
+ * Level configuration for the 10-level progression system
+ */
+export interface SudokuLevelConfig {
+  id: string;
+  number: number;              // 1-10
+  label: string;               // Display name
+  size: SudokuSize;            // Grid size
+  difficulty: SudokuDifficulty;
+  emptyCells: number;          // Number of empty cells to fill
+  theme: SudokuTheme;          // Default theme for this level
+  isUnlocked: boolean;
+  isCompleted: boolean;
+  stars?: number;              // 0-3 stars
+  bestTime?: number;           // Best completion time in ms
+}
+
+/**
+ * Training mode configuration (free play)
+ */
+export interface TrainingConfig {
+  size: SudokuSize;
+  theme: SudokuTheme;
+  difficulty: SudokuDifficulty;
+}
+
+/**
+ * Emotion types for Felix mascot
+ */
+export type FelixEmotionType = 'neutral' | 'happy' | 'thinking' | 'excited' | 'encouraging';
+
+/**
+ * Messages for Felix based on game state
+ */
+export interface FelixMessages {
+  intro: string[];
+  levelSelect: string[];
+  playing: string[];
+  hint: string[];
+  error: string[];
+  success: string[];
+  victory: string[];
+}
+
+/**
+ * Progress data for the game
+ */
+export interface SudokuProgressData {
+  currentLevel: number;
+  completedLevels: string[];
+  totalStars: number;
+  hintsUsed: number;
+  errorsCount: number;
+  bestTimes: Record<string, number>;
+}

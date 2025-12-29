@@ -2,13 +2,15 @@
  * CluePanel Component
  *
  * Panneau affichant les indices du puzzle
+ * Refactorisé avec theme, Icons et fontSize ≥18pt
  */
 
 import React from 'react';
 import { View, Text, StyleSheet, Pressable, ScrollView } from 'react-native';
-import Animated, { FadeInLeft, useAnimatedStyle, withSpring } from 'react-native-reanimated';
+import Animated, { FadeInLeft } from 'react-native-reanimated';
 
-import { colors, spacing, borderRadius, shadows, fontFamily } from '../../../theme';
+import { theme } from '../../../theme';
+import { Icons } from '../../../constants/icons';
 import { useAccessibilityAnimations } from '../../../hooks';
 import type { Clue } from '../types';
 
@@ -28,6 +30,16 @@ interface CluePanelProps {
 }
 
 // ============================================================================
+// COLORS
+// ============================================================================
+
+const COLORS = {
+  clueUsedBg: '#E8F5E9',
+  checkmarkBg: '#4CAF50',
+  helpCardBg: '#FFF9E6',
+};
+
+// ============================================================================
 // COMPONENT
 // ============================================================================
 
@@ -45,7 +57,7 @@ export function CluePanel({
       contentContainerStyle={styles.scrollContent}
       showsVerticalScrollIndicator={false}
     >
-      <Text style={styles.title}>🔍 Indices</Text>
+      <Text style={styles.title}>{Icons.search} Indices</Text>
 
       {clues.map((clue, index) => {
         const isUsed = usedClueIds.includes(clue.id);
@@ -67,6 +79,9 @@ export function CluePanel({
                 isActive && styles.clueCardActive,
               ]}
               onPress={() => onCluePress(clue.id)}
+              accessibilityRole="button"
+              accessibilityLabel={`Indice ${index + 1}: ${clue.text}`}
+              accessibilityState={{ selected: isUsed }}
             >
               <View style={styles.clueNumber}>
                 <Text style={styles.clueNumberText}>{index + 1}</Text>
@@ -81,7 +96,7 @@ export function CluePanel({
               </Text>
               {isUsed && (
                 <View style={styles.checkmark}>
-                  <Text style={styles.checkmarkText}>✓</Text>
+                  <Text style={styles.checkmarkText}>{Icons.checkmark}</Text>
                 </View>
               )}
             </Pressable>
@@ -90,10 +105,10 @@ export function CluePanel({
       })}
 
       <View style={styles.helpCard}>
-        <Text style={styles.helpTitle}>💡 Astuce</Text>
+        <Text style={styles.helpTitle}>{Icons.lightbulb} Astuce</Text>
         <Text style={styles.helpText}>
-          Touche une case pour marquer ✓ (oui) ou ✗ (non).{'\n'}
-          Quand tu trouves un ✓, les autres cases de la même ligne deviennent automatiquement ✗.
+          Touche une case pour marquer {Icons.checkmark} (oui) ou {Icons.crossMark} (non).{'\n'}
+          Quand tu trouves un {Icons.checkmark}, les autres cases de la même ligne deviennent automatiquement {Icons.crossMark}.
         </Text>
       </View>
     </ScrollView>
@@ -107,90 +122,96 @@ export function CluePanel({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background.card,
-    borderRadius: borderRadius.lg,
-    margin: spacing[2],
+    backgroundColor: theme.colors.background.card,
+    borderRadius: theme.borderRadius.lg,
+    margin: theme.spacing[2],
   },
   scrollContent: {
-    padding: spacing[3],
+    padding: theme.spacing[3],
   },
   title: {
-    fontSize: 18,
-    fontFamily: fontFamily.displayBold,
+    fontSize: theme.fontSize.lg, // 20pt
+    fontFamily: theme.fontFamily.displayBold,
     fontWeight: '700',
-    color: colors.text.primary,
-    marginBottom: spacing[3],
+    color: theme.colors.text.primary,
+    marginBottom: theme.spacing[3],
   },
   clueCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.background.primary,
-    borderRadius: borderRadius.md,
-    padding: spacing[3],
-    marginBottom: spacing[2],
-    ...shadows.sm,
+    backgroundColor: theme.colors.background.primary,
+    borderRadius: theme.borderRadius.md,
+    padding: theme.spacing[3],
+    marginBottom: theme.spacing[2],
+    minHeight: theme.touchTargets.child, // 64dp
+    ...theme.shadows.sm,
   },
   clueCardUsed: {
-    backgroundColor: '#E8F5E9',
+    backgroundColor: COLORS.clueUsedBg,
     opacity: 0.8,
   },
   clueCardActive: {
     borderWidth: 2,
-    borderColor: colors.primary.main,
+    borderColor: theme.colors.primary.main,
   },
   clueNumber: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: colors.primary.main,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: theme.colors.primary.main,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: spacing[2],
+    marginRight: theme.spacing[2],
   },
   clueNumberText: {
-    fontSize: 14, // Minimum pour badge
+    fontSize: theme.fontSize.md, // 16pt pour badge plus grand
+    fontFamily: theme.fontFamily.bold,
     fontWeight: '700',
     color: '#FFF',
   },
   clueText: {
     flex: 1,
-    fontSize: 18, // Minimum enfant (était 14)
-    color: colors.text.primary,
+    fontSize: theme.fontSize.lg, // 18pt minimum enfant
+    fontFamily: theme.fontFamily.regular,
+    color: theme.colors.text.primary,
     lineHeight: 24,
   },
   clueTextUsed: {
-    color: colors.text.tertiary,
+    color: theme.colors.text.tertiary,
   },
   checkmark: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: '#4CAF50',
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: COLORS.checkmarkBg,
     justifyContent: 'center',
     alignItems: 'center',
-    marginLeft: spacing[2],
+    marginLeft: theme.spacing[2],
   },
   checkmarkText: {
-    fontSize: 14,
+    fontSize: theme.fontSize.md, // 16pt pour badge plus grand
+    fontFamily: theme.fontFamily.bold,
     fontWeight: '700',
     color: '#FFF',
   },
   helpCard: {
-    backgroundColor: '#FFF9E6',
-    borderRadius: borderRadius.md,
-    padding: spacing[3],
-    marginTop: spacing[2],
+    backgroundColor: COLORS.helpCardBg,
+    borderRadius: theme.borderRadius.md,
+    padding: theme.spacing[3],
+    marginTop: theme.spacing[2],
   },
   helpTitle: {
-    fontSize: 18, // Minimum enfant (était 14)
+    fontSize: theme.fontSize.lg, // 18pt
+    fontFamily: theme.fontFamily.semiBold,
     fontWeight: '700',
-    color: colors.text.primary,
-    marginBottom: spacing[1],
+    color: theme.colors.text.primary,
+    marginBottom: theme.spacing[1],
   },
   helpText: {
-    fontSize: 16, // Amélioré (était 12)
-    color: colors.text.secondary,
-    lineHeight: 22,
+    fontSize: theme.fontSize.lg, // 18pt - corrigé depuis 12pt
+    fontFamily: theme.fontFamily.regular,
+    color: theme.colors.text.secondary,
+    lineHeight: 24,
   },
 });
 

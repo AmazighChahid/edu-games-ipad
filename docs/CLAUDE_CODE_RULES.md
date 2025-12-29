@@ -157,8 +157,8 @@ const styles = StyleSheet.create({
     borderRadius: theme.borderRadius.lg,
   },
   text: {
-    fontSize: theme.typography.sizes.body,
-    fontFamily: theme.typography.fonts.body,
+    fontSize: theme.fontSize.lg,        // 18pt
+    fontFamily: theme.fontFamily.regular,
     color: theme.colors.text.primary,
   },
 });
@@ -187,14 +187,27 @@ theme.spacing[6]   // 24
 theme.spacing[8]   // 32
 theme.spacing[10]  // 40
 
-// TYPOGRAPHIE
-theme.typography.fonts.heading   // 'Fredoka_600SemiBold'
-theme.typography.fonts.body      // 'Nunito_400Regular'
-theme.typography.sizes.h1        // 32
-theme.typography.sizes.h2        // 24
-theme.typography.sizes.h3        // 20
-theme.typography.sizes.body      // 18 (minimum enfant)
-theme.typography.sizes.small     // 14
+// TYPOGRAPHIE - POLICES
+theme.fontFamily.regular         // 'Nunito_400Regular'
+theme.fontFamily.medium          // 'Nunito_600SemiBold'
+theme.fontFamily.semiBold        // 'Nunito_600SemiBold'
+theme.fontFamily.bold            // 'Nunito_700Bold'
+theme.fontFamily.display         // 'Fredoka_600SemiBold' (titres)
+theme.fontFamily.title           // 'FredokaOne-Regular' (grands titres)
+
+// TYPOGRAPHIE - TAILLES
+theme.fontSize.xs                // 12
+theme.fontSize.sm                // 14
+theme.fontSize.base              // 16
+theme.fontSize.lg                // 18 (minimum enfant)
+theme.fontSize.xl                // 24
+theme.fontSize['2xl']            // 32
+theme.fontSize['3xl']            // 40
+
+// TYPOGRAPHIE - STYLES PRÉDÉFINIS (spreader)
+...theme.textStyles.body         // Style complet pour texte courant
+...theme.textStyles.h1           // Style complet pour titre H1
+...theme.textStyles.button       // Style complet pour boutons
 
 // BORDER RADIUS
 theme.borderRadius.sm            // 8
@@ -246,7 +259,7 @@ fontSize: 14, // ❌
 fontSize: 12, // ❌
 
 // ✅ OBLIGATOIRE - 18pt minimum pour texte courant
-fontSize: theme.typography.sizes.body, // 18pt ✅
+fontSize: theme.fontSize.lg, // 18pt ✅
 
 // ⚠️ EXCEPTION : badges, labels courts peuvent être 12-14pt
 ```
@@ -259,8 +272,8 @@ fontFamily: 'System',
 fontFamily: undefined,
 
 // ✅ OBLIGATOIRE - Polices explicites
-fontFamily: theme.typography.fonts.heading, // Fredoka (titres)
-fontFamily: theme.typography.fonts.body,    // Nunito (corps)
+fontFamily: theme.fontFamily.display,  // Fredoka (titres)
+fontFamily: theme.fontFamily.regular,  // Nunito (corps)
 ```
 
 ---

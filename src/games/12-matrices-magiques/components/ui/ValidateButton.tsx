@@ -102,8 +102,9 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   gradient: {
-    paddingVertical: 16,
+    paddingVertical: 20,
     paddingHorizontal: 48,
+    minHeight: 64,
     alignItems: 'center',
     justifyContent: 'center',
   },

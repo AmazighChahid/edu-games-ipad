@@ -2,13 +2,14 @@
  * LogixGrid Component
  *
  * Grille interactive pour le jeu de logique
+ * Refactorisé avec theme et tailles minimales pour touch targets
  */
 
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, Dimensions } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 
-import { colors, spacing, borderRadius, fontFamily } from '../../../theme';
+import { theme } from '../../../theme';
 import { useAccessibilityAnimations } from '../../../hooks';
 import type { LogixGameState, Category, CellState } from '../types';
 import { GridCell } from './GridCell';
@@ -36,6 +37,8 @@ interface LogixGridProps {
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const GRID_PADDING = 16;
+const MIN_CELL_SIZE = 48; // Taille minimum pour touch targets (avec margin = ~52-54dp)
+const LABEL_WIDTH = 60; // Largeur des labels emoji
 
 // ============================================================================
 // COMPONENT
@@ -54,12 +57,8 @@ export function LogixGrid({
   // Calculer la taille des cellules
   const categories = puzzle.categories;
   const itemCount = categories[0]?.items.length ?? 3;
-  const totalItems = categories.length * itemCount;
-  const availableWidth = SCREEN_WIDTH - GRID_PADDING * 2 - 60; // 60 pour les labels
-  const cellSize = Math.min(40, availableWidth / totalItems);
-
-  // Générer les sections de la grille
-  const gridSections = generateGridSections(categories);
+  const availableWidth = SCREEN_WIDTH - GRID_PADDING * 2 - LABEL_WIDTH;
+  const cellSize = Math.max(MIN_CELL_SIZE, Math.floor(availableWidth / itemCount));
 
   // Vérifier si une cellule est en erreur
   const isCellError = (rowId: string, colId: string) => {
@@ -104,9 +103,14 @@ export function LogixGrid({
           <View style={styles.gridSection}>
             {/* Header avec les items de la deuxième catégorie */}
             <View style={styles.headerRow}>
-              <View style={[styles.cornerCell, { width: 50, height: cellSize }]} />
+              <View style={[styles.cornerCell, { width: LABEL_WIDTH, height: cellSize, minHeight: MIN_CELL_SIZE }]} />
               {categories[1].items.map((item) => (
-                <View key={item.id} style={[styles.headerCell, { width: cellSize }]}>
+                <View
+                  key={item.id}
+                  style={[styles.headerCell, { width: cellSize, minWidth: MIN_CELL_SIZE, minHeight: MIN_CELL_SIZE }]}
+                  accessible={true}
+                  accessibilityLabel={`Colonne ${item.name}`}
+                >
                   <Text style={styles.headerEmoji}>{item.emoji}</Text>
                 </View>
               ))}
@@ -116,7 +120,11 @@ export function LogixGrid({
             {categories[0].items.map((rowItem) => (
               <View key={rowItem.id} style={styles.gridRow}>
                 {/* Label de la ligne */}
-                <View style={[styles.rowLabelCell, { width: 50, height: cellSize }]}>
+                <View
+                  style={[styles.rowLabelCell, { width: LABEL_WIDTH, height: cellSize, minHeight: MIN_CELL_SIZE }]}
+                  accessible={true}
+                  accessibilityLabel={`Ligne ${rowItem.name}`}
+                >
                   <Text style={styles.rowEmoji}>{rowItem.emoji}</Text>
                 </View>
 
@@ -144,9 +152,14 @@ export function LogixGrid({
 
                 {/* Header pour la 3ème catégorie */}
                 <View style={styles.headerRow}>
-                  <View style={[styles.cornerCell, { width: 50, height: cellSize }]} />
+                  <View style={[styles.cornerCell, { width: LABEL_WIDTH, height: cellSize, minHeight: MIN_CELL_SIZE }]} />
                   {categories[2].items.map((item) => (
-                    <View key={item.id} style={[styles.headerCell, { width: cellSize }]}>
+                    <View
+                      key={item.id}
+                      style={[styles.headerCell, { width: cellSize, minWidth: MIN_CELL_SIZE, minHeight: MIN_CELL_SIZE }]}
+                      accessible={true}
+                      accessibilityLabel={`Colonne ${item.name}`}
+                    >
                       <Text style={styles.headerEmoji}>{item.emoji}</Text>
                     </View>
                   ))}
@@ -155,7 +168,11 @@ export function LogixGrid({
                 {/* Grille catégorie 1 vs catégorie 3 */}
                 {categories[0].items.map((rowItem) => (
                   <View key={`${rowItem.id}-cat3`} style={styles.gridRow}>
-                    <View style={[styles.rowLabelCell, { width: 50, height: cellSize }]}>
+                    <View
+                      style={[styles.rowLabelCell, { width: LABEL_WIDTH, height: cellSize, minHeight: MIN_CELL_SIZE }]}
+                      accessible={true}
+                      accessibilityLabel={`Ligne ${rowItem.name}`}
+                    >
                       <Text style={styles.rowEmoji}>{rowItem.emoji}</Text>
                     </View>
                     {categories[2].items.map((colItem) => (
@@ -176,16 +193,25 @@ export function LogixGrid({
                 {/* Grille catégorie 2 vs catégorie 3 */}
                 <View style={styles.sectionSeparator} />
                 <View style={styles.headerRow}>
-                  <View style={[styles.cornerCell, { width: 50, height: cellSize }]} />
+                  <View style={[styles.cornerCell, { width: LABEL_WIDTH, height: cellSize, minHeight: MIN_CELL_SIZE }]} />
                   {categories[2].items.map((item) => (
-                    <View key={item.id} style={[styles.headerCell, { width: cellSize }]}>
+                    <View
+                      key={item.id}
+                      style={[styles.headerCell, { width: cellSize, minWidth: MIN_CELL_SIZE, minHeight: MIN_CELL_SIZE }]}
+                      accessible={true}
+                      accessibilityLabel={`Colonne ${item.name}`}
+                    >
                       <Text style={styles.headerEmoji}>{item.emoji}</Text>
                     </View>
                   ))}
                 </View>
                 {categories[1].items.map((rowItem) => (
                   <View key={`cat2-${rowItem.id}-cat3`} style={styles.gridRow}>
-                    <View style={[styles.rowLabelCell, { width: 50, height: cellSize }]}>
+                    <View
+                      style={[styles.rowLabelCell, { width: LABEL_WIDTH, height: cellSize, minHeight: MIN_CELL_SIZE }]}
+                      accessible={true}
+                      accessibilityLabel={`Ligne ${rowItem.name}`}
+                    >
                       <Text style={styles.rowEmoji}>{rowItem.emoji}</Text>
                     </View>
                     {categories[2].items.map((colItem) => (
@@ -250,16 +276,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   gridSection: {
-    backgroundColor: colors.background.card,
-    borderRadius: borderRadius.lg,
-    padding: spacing[2],
-    marginBottom: spacing[4],
+    backgroundColor: theme.colors.background.card,
+    borderRadius: theme.borderRadius.lg,
+    padding: theme.spacing[2],
+    marginBottom: theme.spacing[4],
   },
   sectionSeparator: {
-    height: spacing[4],
+    height: theme.spacing[4],
     borderBottomWidth: 2,
     borderBottomColor: 'rgba(0,0,0,0.1)',
-    marginBottom: spacing[2],
+    marginBottom: theme.spacing[2],
   },
   headerRow: {
     flexDirection: 'row',
@@ -275,7 +301,7 @@ const styles = StyleSheet.create({
     padding: 2,
   },
   headerEmoji: {
-    fontSize: 20,
+    fontSize: 24, // Taille augmentée pour lisibilité
   },
   gridRow: {
     flexDirection: 'row',
@@ -285,7 +311,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   rowEmoji: {
-    fontSize: 20,
+    fontSize: 24, // Taille augmentée pour lisibilité
   },
 });
 

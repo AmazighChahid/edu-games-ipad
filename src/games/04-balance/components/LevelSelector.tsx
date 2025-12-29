@@ -23,7 +23,8 @@ import Animated, {
   withTiming,
   interpolate,
 } from 'react-native-reanimated';
-import { colors, spacing, borderRadius, shadows } from '../../../theme';
+import { colors, spacing, borderRadius, shadows, touchTargets, fontFamily, fontSize } from '../../../theme';
+import { Icons } from '../../../constants/icons';
 import type { Phase, Puzzle, PlayerProgress } from '../types';
 import { PHASE_INFO } from '../types';
 import { getPuzzlesByPhase, getPhaseProgress, getAllPuzzles } from '../data/puzzles';
@@ -121,7 +122,7 @@ function PhaseTab({ phase, isActive, isUnlocked, progress, onPress }: PhaseTabPr
         {/* Lock icon */}
         {!isUnlocked && (
           <View style={styles.lockBadge}>
-            <Text style={styles.lockIcon}>🔒</Text>
+            <Text style={styles.lockIcon}>{Icons.lock}</Text>
           </View>
         )}
       </Animated.View>
@@ -177,7 +178,7 @@ function LevelCard({
               starNum <= (stars || 0) ? styles.starFilled : styles.starEmpty,
             ]}
           >
-            {starNum <= (stars || 0) ? '★' : '☆'}
+            {starNum <= (stars || 0) ? Icons.starFull : Icons.starEmpty}
           </Text>
         ))}
       </View>
@@ -236,14 +237,14 @@ function LevelCard({
           {/* Lock overlay */}
           {!isUnlocked && (
             <View style={styles.lockOverlay}>
-              <Text style={styles.lockEmoji}>🔒</Text>
+              <Text style={styles.lockEmoji}>{Icons.lock}</Text>
             </View>
           )}
 
           {/* Completed checkmark */}
           {isCompleted && (
             <View style={[styles.completedBadge, { backgroundColor: phaseInfo.color }]}>
-              <Text style={styles.completedCheck}>✓</Text>
+              <Text style={styles.completedCheck}>{Icons.checkmark}</Text>
             </View>
           )}
         </Animated.View>
@@ -373,7 +374,7 @@ export function LevelSelector({
       <View style={styles.header}>
         {onClose && (
           <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-            <Text style={styles.closeButtonText}>✕</Text>
+            <Text style={styles.closeButtonText}>{Icons.close}</Text>
           </TouchableOpacity>
         )}
         <Text style={styles.headerTitle}>Sélectionne un niveau</Text>
@@ -451,27 +452,28 @@ const styles = StyleSheet.create({
     paddingTop: spacing[6],
     paddingBottom: spacing[4],
     backgroundColor: colors.background.card,
-    ...shadows.small,
+    ...shadows.sm,
   },
   closeButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: touchTargets.large,
+    height: touchTargets.large,
+    borderRadius: touchTargets.large / 2,
     backgroundColor: 'rgba(0, 0, 0, 0.05)',
     alignItems: 'center',
     justifyContent: 'center',
   },
   closeButtonText: {
-    fontSize: 20,
+    fontSize: fontSize.xl,
     color: colors.text.secondary,
   },
   headerTitle: {
-    fontSize: 20,
+    fontSize: fontSize.xl,
+    fontFamily: fontFamily.bold,
     fontWeight: '700',
     color: colors.text.primary,
   },
   headerSpacer: {
-    width: 40,
+    width: touchTargets.large,
   },
 
   // Phase tabs
@@ -487,9 +489,9 @@ const styles = StyleSheet.create({
     paddingVertical: spacing[2],
     paddingHorizontal: spacing[2],
     backgroundColor: colors.background.card,
-    borderRadius: borderRadius.medium,
+    borderRadius: borderRadius.md,
     borderWidth: 2,
-    ...shadows.small,
+    ...shadows.sm,
   },
   phaseTabActive: {
     backgroundColor: colors.background.card,
@@ -503,7 +505,8 @@ const styles = StyleSheet.create({
     marginBottom: spacing[1],
   },
   phaseName: {
-    fontSize: 16,
+    fontSize: fontSize.lg,
+    fontFamily: fontFamily.bold,
     fontWeight: '700',
     color: colors.text.primary,
   },
@@ -540,8 +543,8 @@ const styles = StyleSheet.create({
     marginBottom: spacing[3],
     padding: spacing[4],
     backgroundColor: colors.background.card,
-    borderRadius: borderRadius.large,
-    ...shadows.small,
+    borderRadius: borderRadius.lg,
+    ...shadows.sm,
   },
   phaseHeaderTop: {
     flexDirection: 'row',
@@ -558,28 +561,33 @@ const styles = StyleSheet.create({
     fontSize: 36,
   },
   phaseHeaderName: {
-    fontSize: 18,
+    fontSize: fontSize.lg,
+    fontFamily: fontFamily.bold,
     fontWeight: '700',
     color: colors.text.primary,
   },
   phaseHeaderAge: {
-    fontSize: 12,
+    fontSize: fontSize.sm,
+    fontFamily: fontFamily.regular,
     color: colors.text.secondary,
   },
   phaseHeaderRight: {
     alignItems: 'flex-end',
   },
   phaseHeaderProgress: {
-    fontSize: 20,
+    fontSize: fontSize.xl,
+    fontFamily: fontFamily.bold,
     fontWeight: '700',
     color: colors.text.primary,
   },
   phaseHeaderProgressLabel: {
-    fontSize: 11,
+    fontSize: fontSize.sm,
+    fontFamily: fontFamily.regular,
     color: colors.text.secondary,
   },
   phaseDescription: {
-    fontSize: 14,
+    fontSize: fontSize.base,
+    fontFamily: fontFamily.regular,
     color: colors.text.secondary,
     marginBottom: spacing[3],
   },
@@ -611,11 +619,11 @@ const styles = StyleSheet.create({
     width: LEVEL_CARD_SIZE,
     height: LEVEL_CARD_SIZE,
     backgroundColor: colors.background.card,
-    borderRadius: borderRadius.medium,
+    borderRadius: borderRadius.md,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
-    ...shadows.small,
+    ...shadows.sm,
     position: 'relative',
   },
   levelCardCompleted: {
@@ -626,7 +634,8 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   levelNumber: {
-    fontSize: 24,
+    fontSize: fontSize['2xl'],
+    fontFamily: fontFamily.bold,
     fontWeight: '700',
     color: colors.text.primary,
   },
@@ -652,7 +661,7 @@ const styles = StyleSheet.create({
     marginTop: spacing[1],
   },
   star: {
-    fontSize: 12,
+    fontSize: fontSize.sm,
   },
   starFilled: {
     color: colors.secondary.main,
@@ -665,10 +674,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.3)',
-    borderRadius: borderRadius.medium,
+    borderRadius: borderRadius.md,
   },
   lockEmoji: {
-    fontSize: 20,
+    fontSize: fontSize.xl,
   },
   completedBadge: {
     position: 'absolute',
@@ -679,11 +688,12 @@ const styles = StyleSheet.create({
     borderRadius: 11,
     alignItems: 'center',
     justifyContent: 'center',
-    ...shadows.small,
+    ...shadows.sm,
   },
   completedCheck: {
     color: colors.text.inverse,
-    fontSize: 12,
+    fontSize: fontSize.sm,
+    fontFamily: fontFamily.bold,
     fontWeight: '700',
   },
 });

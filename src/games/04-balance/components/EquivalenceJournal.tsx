@@ -25,7 +25,8 @@ import Animated, {
   withSequence,
   withTiming,
 } from 'react-native-reanimated';
-import { colors, spacing, borderRadius, shadows } from '../../../theme';
+import { colors, spacing, borderRadius, shadows, touchTargets, fontFamily, fontSize } from '../../../theme';
+import { Icons } from '../../../constants/icons';
 import type { Equivalence, Phase } from '../types';
 import { OBJECTS_LIBRARY } from '../data/objects';
 
@@ -156,7 +157,7 @@ function JournalEntry({ equivalence, index, onPress }: JournalEntryProps) {
 function EmptyState() {
   return (
     <View style={styles.emptyState}>
-      <Text style={styles.emptyEmoji}>📖</Text>
+      <Text style={styles.emptyEmoji}>{Icons.journal}</Text>
       <Text style={styles.emptyTitle}>Ton journal est vide!</Text>
       <Text style={styles.emptyText}>
         Équilibre la balance pour découvrir{'\n'}
@@ -179,7 +180,7 @@ function JournalHeader({
   return (
     <View style={styles.header}>
       <View style={styles.headerLeft}>
-        <Text style={styles.headerEmoji}>📖</Text>
+        <Text style={styles.headerEmoji}>{Icons.journal}</Text>
         <View>
           <Text style={styles.headerTitle}>Mon Journal</Text>
           <Text style={styles.headerSubtitle}>
@@ -189,7 +190,7 @@ function JournalHeader({
       </View>
 
       <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-        <Text style={styles.closeButtonText}>✕</Text>
+        <Text style={styles.closeButtonText}>{Icons.close}</Text>
       </TouchableOpacity>
     </View>
   );
@@ -199,13 +200,20 @@ function JournalHeader({
  * Phase section header
  */
 function PhaseSection({ phase, count }: { phase: Phase; count: number }) {
+  const phaseIcons: Record<Phase, string> = {
+    1: Icons.apple,
+    2: Icons.balance,
+    3: Icons.numbers,
+    4: Icons.mystery,
+  };
+
   return (
     <View style={[styles.phaseSection, { borderLeftColor: PHASE_COLORS[phase] }]}>
       <View
         style={[styles.phaseIcon, { backgroundColor: PHASE_COLORS[phase] }]}
       >
         <Text style={styles.phaseIconText}>
-          {phase === 1 ? '🍎' : phase === 2 ? '⚖️' : phase === 3 ? '🔢' : '❓'}
+          {phaseIcons[phase]}
         </Text>
       </View>
       <View>
@@ -297,7 +305,7 @@ export function EquivalenceJournal({
                 <Text style={styles.footerText}>
                   Continue à jouer pour{'\n'}découvrir plus d'équivalences!
                 </Text>
-                <Text style={styles.footerEmoji}>🎉⚖️🎉</Text>
+                <Text style={styles.footerEmoji}>{Icons.celebration}{Icons.balance}{Icons.celebration}</Text>
               </Animated.View>
             </>
           )}
@@ -305,7 +313,7 @@ export function EquivalenceJournal({
 
         {/* Decoration - Owl stamp */}
         <View style={styles.owlStamp}>
-          <Text style={styles.owlStampText}>🦉</Text>
+          <Text style={styles.owlStampText}>{Icons.owl}</Text>
           <Text style={styles.owlStampLabel}>Approuvé par{'\n'}Dr. Hibou</Text>
         </View>
       </View>
@@ -448,9 +456,9 @@ const styles = StyleSheet.create({
   },
   entry: {
     backgroundColor: colors.background.card,
-    borderRadius: borderRadius.medium,
+    borderRadius: borderRadius.md,
     padding: spacing[4],
-    ...shadows.small,
+    ...shadows.sm,
     borderWidth: 1,
     borderColor: 'rgba(0, 0, 0, 0.05)',
   },
@@ -464,7 +472,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    ...shadows.small,
+    ...shadows.sm,
   },
   entryBadgeText: {
     color: colors.text.inverse,
@@ -495,7 +503,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.feedback.success,
     alignItems: 'center',
     justifyContent: 'center',
-    ...shadows.small,
+    ...shadows.sm,
   },
   equalsText: {
     fontSize: 24,

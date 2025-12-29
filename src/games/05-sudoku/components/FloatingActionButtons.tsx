@@ -13,8 +13,8 @@ import Animated, {
 } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 
-import { spacing, shadows } from '../../../theme';
-import { useStore } from '../../../store';
+import { spacing, shadows, touchTargets, colors, fontFamily } from '@/theme';
+import { useStore } from '@/store';
 
 interface FloatingActionButtonsProps {
   onHint: () => void;
@@ -133,7 +133,7 @@ const styles = StyleSheet.create({
   },
   badgeText: {
     fontSize: 14,
-    fontWeight: '700',
-    color: '#FFFFFF',
+    fontFamily: fontFamily.bold,
+    color: colors.text.inverse,
   },
 });

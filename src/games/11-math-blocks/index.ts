@@ -34,7 +34,7 @@ export { useMathGame } from './hooks/useMathGame';
 export { MathBlock, GameGrid, TimerBar, ScoreDisplay } from './components';
 
 // Screens
-export { MathIntroScreen, MathPlayScreen, MathVictoryScreen } from './screens';
+export { MathHanoiIntroScreen, MathPlayScreen, MathVictoryScreen } from './screens';
 
 // Data
 export { mathLevels, getLevel, getDefaultLevel, getLevelsByDifficulty } from './data/levels';

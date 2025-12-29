@@ -2,6 +2,7 @@
  * CrosswordGrid Component
  *
  * Grille de mots croisés
+ * Refactorisé pour supporter les nouvelles props et respecter les guidelines UX
  */
 
 import React from 'react';
@@ -10,7 +11,7 @@ import Animated, { FadeIn } from 'react-native-reanimated';
 
 import { colors, spacing, borderRadius, shadows } from '../../../theme';
 import { useAccessibilityAnimations } from '../../../hooks';
-import type { CrosswordGameState, CrosswordCell as CellType } from '../types';
+import type { CrosswordCell as CellType, CrosswordWord } from '../types';
 import { CrosswordCell } from './CrosswordCell';
 
 // ============================================================================
@@ -18,10 +19,18 @@ import { CrosswordCell } from './CrosswordCell';
 // ============================================================================
 
 interface CrosswordGridProps {
-  /** État du jeu */
-  gameState: CrosswordGameState;
+  /** Grille de cellules */
+  grid: CellType[][];
+  /** Cellule sélectionnée */
+  selectedCell: { row: number; col: number } | null;
+  /** ID du mot sélectionné */
+  selectedWordId: string | null;
+  /** Liste des mots */
+  words: CrosswordWord[];
   /** Callback sélection cellule */
   onCellPress: (row: number, col: number) => void;
+  /** Phase du jeu (optionnel) */
+  phase?: 'intro' | 'playing' | 'paused' | 'victory';
 }
 
 // ============================================================================
@@ -31,20 +40,30 @@ interface CrosswordGridProps {
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const GRID_PADDING = 16;
 const MAX_CELL_SIZE = 45;
+const MIN_CELL_SIZE = 32;
 
 // ============================================================================
 // COMPONENT
 // ============================================================================
 
-export function CrosswordGrid({ gameState, onCellPress }: CrosswordGridProps) {
+export function CrosswordGrid({
+  grid,
+  selectedCell,
+  selectedWordId,
+  words,
+  onCellPress,
+  phase = 'playing',
+}: CrosswordGridProps) {
   const { shouldAnimate, getDuration } = useAccessibilityAnimations();
-  const { grid, level, selectedCell, selectedWordId, words } = gameState;
+
+  // Calculer le nombre de colonnes
+  const numCols = grid[0]?.length || 6;
 
   // Calculer la taille des cellules
   const availableWidth = SCREEN_WIDTH - GRID_PADDING * 2;
-  const cellSize = Math.min(
-    MAX_CELL_SIZE,
-    Math.floor(availableWidth / level.gridSize.cols) - 2
+  const cellSize = Math.max(
+    MIN_CELL_SIZE,
+    Math.min(MAX_CELL_SIZE, Math.floor(availableWidth / numCols) - 2)
   );
 
   // Obtenir le mot sélectionné
@@ -77,12 +96,11 @@ export function CrosswordGrid({ gameState, onCellPress }: CrosswordGridProps) {
                 cell={cell}
                 size={cellSize}
                 isSelected={
-                  selectedCell?.row === rowIndex &&
-                  selectedCell?.col === colIndex
+                  selectedCell?.row === rowIndex && selectedCell?.col === colIndex
                 }
                 isInSelectedWord={isCellInSelectedWord(rowIndex, colIndex)}
                 onPress={() => onCellPress(rowIndex, colIndex)}
-                disabled={gameState.phase !== 'playing'}
+                disabled={phase !== 'playing'}
               />
             ))}
           </View>

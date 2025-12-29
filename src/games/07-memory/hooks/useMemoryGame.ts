@@ -39,8 +39,10 @@ export interface UseMemoryGameReturn {
   resumeGame: () => void;
   /** Recommence le niveau */
   restartLevel: () => void;
-  /** Demande un indice */
+  /** Demande un indice - révèle brièvement une paire non trouvée */
   requestHint: () => void;
+  /** Carte actuellement mise en évidence par l'indice */
+  hintCardId: string | null;
 }
 
 // ============================================================================
@@ -52,10 +54,12 @@ export function useMemoryGame(): UseMemoryGameReturn {
   const [gameState, setGameState] = useState<MemoryGameState | null>(null);
   const [result, setResult] = useState<MemoryResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [hintCardId, setHintCardId] = useState<string | null>(null);
 
   // Refs
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const checkTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const hintTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const currentLevelRef = useRef<MemoryLevel | null>(null);
 
   // ============================================================================
@@ -86,6 +90,9 @@ export function useMemoryGame(): UseMemoryGameReturn {
       stopTimer();
       if (checkTimeoutRef.current) {
         clearTimeout(checkTimeoutRef.current);
+      }
+      if (hintTimeoutRef.current) {
+        clearTimeout(hintTimeoutRef.current);
       }
     };
   }, [stopTimer]);
@@ -184,12 +191,56 @@ export function useMemoryGame(): UseMemoryGameReturn {
   }, [startGame, stopTimer]);
 
   /**
-   * Demande un indice (TODO: implémenter logique d'indice)
+   * Demande un indice - révèle brièvement une paire non trouvée
+   * L'indice montre une carte cachée pendant 1.5 secondes
    */
   const requestHint = useCallback(() => {
-    // Pour l'instant, juste log
-    console.log('Hint requested');
-  }, []);
+    if (!gameState) return;
+    if (gameState.phase !== 'playing') return;
+    if (gameState.isChecking || gameState.isAnimating) return;
+    if (hintCardId) return; // Indice déjà en cours
+
+    // Trouver une carte cachée (non révélée, non matchée)
+    const hiddenCards = gameState.cards.filter(
+      (card) => card.state === 'hidden' && !gameState.revealedCards.includes(card.id)
+    );
+
+    if (hiddenCards.length === 0) return;
+
+    // Choisir une carte au hasard parmi les cachées
+    const randomCard = hiddenCards[Math.floor(Math.random() * hiddenCards.length)];
+
+    // Révéler temporairement la carte
+    setHintCardId(randomCard.id);
+    setGameState((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        cards: prev.cards.map((c) =>
+          c.id === randomCard.id ? { ...c, state: 'revealed' as const } : c
+        ),
+      };
+    });
+
+    // Cacher la carte après 1.5 secondes
+    hintTimeoutRef.current = setTimeout(() => {
+      setHintCardId(null);
+      setGameState((prev) => {
+        if (!prev) return prev;
+        // Ne cacher que si la carte n'a pas été matchée entre temps
+        const card = prev.cards.find((c) => c.id === randomCard.id);
+        if (card && card.state === 'revealed' && !prev.revealedCards.includes(randomCard.id)) {
+          return {
+            ...prev,
+            cards: prev.cards.map((c) =>
+              c.id === randomCard.id ? { ...c, state: 'hidden' as const } : c
+            ),
+          };
+        }
+        return prev;
+      });
+    }, 1500);
+  }, [gameState, hintCardId]);
 
   // ============================================================================
   // EFFETS
@@ -217,6 +268,7 @@ export function useMemoryGame(): UseMemoryGameReturn {
     resumeGame,
     restartLevel,
     requestHint,
+    hintCardId,
   };
 }
 

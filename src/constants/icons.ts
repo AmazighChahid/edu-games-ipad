@@ -90,10 +90,16 @@ export const Icons = {
   colors: '🎨',
   game: '🎮',
 
+  // Memory
+  memoryPairs: '🎴',
+  eyes: '👀',
+  muscle: '💪',
+
   // Labyrinthe - Objets
   key: '🔑',
   door: '🚪',
   gem: '💎',
+  button: '🔘',
   ice: '❄️',
   garden: '🌸',
   cave: '🦇',
@@ -118,6 +124,13 @@ export const Icons = {
   squirrel: '🐿️',
   hedgehog: '🦔',
   robot: '🤖',
+  elephant: '🐘',
+  fox: '🦊',
+  dog: '🐶',
+  pawprints: '🐾',
+  parrot: '🦜',
+  beaver: '🦫',
+  ant: '🐜',
 
   // ============================================
   // NATURE & FLEURS
@@ -144,17 +157,46 @@ export const Icons = {
   calendar: '📅',
   sun: '☀️',
   pause: '⏸️',
+  play: '▶️',
 
   // ============================================
   // FEEDBACK & STATUS
   // ============================================
   success: '✅',
   checkmark: '✓',
+  check: '✓',
   error: '❌',
   warning: '⚠️',
   info: 'ℹ️',
   lock: '🔒',
   unlock: '🔓',
+  lightbulb: '💡',
+  refresh: '↻',
+  close: '✕',
+  search: '🔍',
+  crossMark: '✗',
+  starEmpty: '☆',
+  starFull: '★',
+  swap: '↔',
+  backspace: '⌫',
+
+  // ============================================
+  // FLÈCHES & DIRECTIONS
+  // ============================================
+  arrowLeft: '←',
+  arrowRight: '→',
+  arrowUp: '↑',
+  arrowDown: '↓',
+
+  // ============================================
+  // MODES DE JEU
+  // ============================================
+  lab: '🔬',
+  sandbox: '🎨',
+  journal: '📖',
+  experiment: '🧪',
+  numbers: '🔢',
+  mystery: '❓',
 
   // ============================================
   // OBJETS & DIVERS
@@ -172,6 +214,7 @@ export const Icons = {
   apple: '🍎',
   plate: '🍽️',
   friends: '🤝',
+  chocolate: '🍫',
 
 } as const;
 

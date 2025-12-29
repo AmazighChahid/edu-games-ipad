@@ -1,17 +1,30 @@
 /**
  * MathBlocks Play Screen
- * Main gameplay screen
+ * Main gameplay screen - Refactored with standardized components
+ *
+ * Uses:
+ * - PageContainer for layout
+ * - ScreenHeader for consistent header
+ * - GameModal for settings modal
+ * - theme tokens for all styling
  */
 
 import { useState, useCallback } from 'react';
-import { View, StyleSheet, Text, Pressable, Modal, Switch } from 'react-native';
+import { View, StyleSheet, Text, Switch } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 
-import { colors, spacing, borderRadius, shadows, textStyles } from '../../../theme';
-import { ProgressIndicator } from '../../../components/common';
+import { theme } from '../../../theme';
+import {
+  PageContainer,
+  ScreenHeader,
+  GameModal,
+  ProgressIndicator,
+} from '../../../components/common';
+import { Icons } from '../../../constants/icons';
 import { useAppSettings } from '../../../store';
 import { GameGrid, ScoreDisplay } from '../components';
 import { useMathGame } from '../hooks/useMathGame';
+import { useMathSound } from '../hooks/useMathSound';
 import { OPERATION_SYMBOLS } from '../types';
 
 interface MathPlayScreenProps {
@@ -23,13 +36,15 @@ export function MathPlayScreen({ levelId }: MathPlayScreenProps) {
   const params = useLocalSearchParams<{ levelId?: string }>();
   const effectiveLevelId = levelId || params.levelId;
   const settings = useAppSettings();
+  const { playVictory } = useMathSound();
   const [showSettings, setShowSettings] = useState(false);
 
   const handleVictory = useCallback(() => {
+    playVictory();
     setTimeout(() => {
       router.push('/(games)/11-math-blocks/victory');
     }, 1500);
-  }, [router]);
+  }, [router, playVictory]);
 
   const handleGameOver = useCallback(() => {
     setTimeout(() => {
@@ -44,17 +59,11 @@ export function MathPlayScreen({ levelId }: MathPlayScreenProps) {
     isGameOver,
     selectBlock,
     reset,
-    pause,
-    resume,
   } = useMathGame({
     levelId: effectiveLevelId,
     onVictory: handleVictory,
     onGameOver: handleGameOver,
   });
-
-  const handleHome = () => {
-    router.push('/');
-  };
 
   const handleBack = () => {
     router.push('/(games)/11-math-blocks');
@@ -65,39 +74,30 @@ export function MathPlayScreen({ levelId }: MathPlayScreenProps) {
     .join(' ');
 
   return (
-    <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <Pressable onPress={handleBack} style={styles.menuButton}>
-          <Text style={styles.menuText}>{'<'} Retour</Text>
-        </Pressable>
-
-        <View style={styles.titleContainer}>
-          <Text style={styles.title}>Niveau {level.displayOrder}</Text>
-          <Text style={styles.subtitle}>{operationSymbols}</Text>
-        </View>
-
-        <View style={styles.headerRight}>
-          <Pressable
-            onPress={() => setShowSettings(true)}
-            style={styles.iconButton}
-          >
-            <Text style={styles.iconText}>*</Text>
-          </Pressable>
-          <Pressable onPress={reset} style={styles.resetButton}>
-            <Text style={styles.resetText}>Reset</Text>
-          </Pressable>
-        </View>
-      </View>
+    <PageContainer variant="playful">
+      {/* Header standardisé */}
+      <ScreenHeader
+        variant="game"
+        title={`Niveau ${level.displayOrder}`}
+        emoji={Icons.abacus}
+        onBack={handleBack}
+        showResetButton
+        onReset={reset}
+        rightContent={
+          <Text style={styles.operationsBadge}>{operationSymbols}</Text>
+        }
+      />
 
       {/* Timer */}
       {level.timeLimit > 0 && (
-        <ProgressIndicator
-          type="timer"
-          timeRemaining={gameState.timeRemaining}
-          totalTime={level.timeLimit}
-          colorScheme="auto"
-        />
+        <View style={styles.timerContainer}>
+          <ProgressIndicator
+            type="timer"
+            timeRemaining={gameState.timeRemaining}
+            totalTime={level.timeLimit}
+            colorScheme="auto"
+          />
+        </View>
       )}
 
       {/* Score Display */}
@@ -117,8 +117,11 @@ export function MathPlayScreen({ levelId }: MathPlayScreenProps) {
       {(isVictory || isGameOver) && (
         <View style={styles.overlay}>
           <View style={styles.overlayContent}>
+            <Text style={styles.overlayEmoji}>
+              {isVictory ? Icons.trophy : Icons.timer}
+            </Text>
             <Text style={styles.overlayTitle}>
-              {isVictory ? 'Bravo !' : 'Temps ecoule !'}
+              {isVictory ? 'Bravo !' : 'Temps écoulé !'}
             </Text>
             <Text style={styles.overlayScore}>Score: {gameState.score}</Text>
           </View>
@@ -126,128 +129,70 @@ export function MathPlayScreen({ levelId }: MathPlayScreenProps) {
       )}
 
       {/* Settings Modal */}
-      <Modal
+      <GameModal
         visible={showSettings}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setShowSettings(false)}
-      >
-        <Pressable
-          style={styles.modalOverlay}
-          onPress={() => setShowSettings(false)}
-        >
-          <Pressable
-            style={styles.settingsCard}
-            onPress={(e) => e.stopPropagation()}
-          >
-            <Text style={styles.settingsTitle}>Parametres</Text>
-
+        onClose={() => setShowSettings(false)}
+        variant="info"
+        title="Paramètres"
+        emoji={Icons.settings}
+        content={
+          <View style={styles.settingsContent}>
             <View style={styles.settingRow}>
-              <Text style={styles.settingLabel}>Son</Text>
+              <Text style={styles.settingLabel}>{Icons.music} Son</Text>
               <Switch
                 value={settings.soundEnabled}
                 onValueChange={settings.setSoundEnabled}
                 trackColor={{
-                  false: colors.background.secondary,
-                  true: colors.primary.light,
+                  false: theme.colors.background.secondary,
+                  true: theme.colors.primary.light,
                 }}
                 thumbColor={
-                  settings.soundEnabled ? colors.primary.main : colors.text.muted
+                  settings.soundEnabled
+                    ? theme.colors.primary.main
+                    : theme.colors.text.muted
                 }
               />
             </View>
 
             <View style={styles.settingRow}>
-              <Text style={styles.settingLabel}>Vibrations</Text>
+              <Text style={styles.settingLabel}>{Icons.sparkles} Vibrations</Text>
               <Switch
                 value={settings.hapticEnabled}
                 onValueChange={settings.setHapticEnabled}
                 trackColor={{
-                  false: colors.background.secondary,
-                  true: colors.primary.light,
+                  false: theme.colors.background.secondary,
+                  true: theme.colors.primary.light,
                 }}
                 thumbColor={
-                  settings.hapticEnabled ? colors.primary.main : colors.text.muted
+                  settings.hapticEnabled
+                    ? theme.colors.primary.main
+                    : theme.colors.text.muted
                 }
               />
             </View>
-
-            <Pressable
-              style={styles.closeButton}
-              onPress={() => setShowSettings(false)}
-            >
-              <Text style={styles.closeButtonText}>OK</Text>
-            </Pressable>
-          </Pressable>
-        </Pressable>
-      </Modal>
-    </View>
+          </View>
+        }
+        buttons={[
+          {
+            label: 'OK',
+            onPress: () => setShowSettings(false),
+            variant: 'primary',
+          },
+        ]}
+      />
+    </PageContainer>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background.gradientStart,
+  operationsBadge: {
+    fontSize: 18,
+    fontFamily: theme.fontFamily.semiBold,
+    color: theme.colors.primary.main,
   },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: spacing[4],
-    paddingVertical: spacing[3],
-  },
-  menuButton: {
-    backgroundColor: colors.primary.main,
-    paddingVertical: spacing[2],
-    paddingHorizontal: spacing[4],
-    borderRadius: borderRadius.lg,
-  },
-  menuText: {
-    color: colors.text.inverse,
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  titleContainer: {
-    alignItems: 'center',
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: colors.text.primary,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: colors.primary.main,
-    fontWeight: '600',
-  },
-  headerRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing[2],
-  },
-  iconButton: {
-    width: 40,
-    height: 40,
-    borderRadius: borderRadius.round,
-    backgroundColor: colors.background.card,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  iconText: {
-    fontSize: 20,
-    color: colors.text.secondary,
-  },
-  resetButton: {
-    backgroundColor: colors.ui.buttonBlue,
-    paddingVertical: spacing[2],
-    paddingHorizontal: spacing[3],
-    borderRadius: borderRadius.lg,
-  },
-  resetText: {
-    color: colors.text.inverse,
-    fontSize: 14,
-    fontWeight: '600',
+  timerContainer: {
+    paddingHorizontal: theme.spacing[4],
+    marginBottom: theme.spacing[2],
   },
   gameArea: {
     flex: 1,
@@ -259,64 +204,44 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.7)',
     justifyContent: 'center',
     alignItems: 'center',
+    zIndex: 100,
   },
   overlayContent: {
-    backgroundColor: colors.background.card,
-    padding: spacing[8],
-    borderRadius: borderRadius.xl,
+    backgroundColor: theme.colors.background.card,
+    padding: theme.spacing[8],
+    borderRadius: theme.borderRadius.xl,
     alignItems: 'center',
+    ...theme.shadows.lg,
+  },
+  overlayEmoji: {
+    fontSize: 64,
+    marginBottom: theme.spacing[4],
   },
   overlayTitle: {
     fontSize: 32,
-    fontWeight: 'bold',
-    color: colors.primary.main,
-    marginBottom: spacing[4],
+    fontFamily: theme.fontFamily.bold,
+    color: theme.colors.primary.main,
+    marginBottom: theme.spacing[4],
   },
   overlayScore: {
     fontSize: 24,
-    color: colors.text.primary,
+    fontFamily: theme.fontFamily.semiBold,
+    color: theme.colors.text.primary,
   },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  settingsCard: {
-    backgroundColor: colors.background.card,
-    borderRadius: borderRadius.xl,
-    padding: spacing[6],
-    width: 320,
-    ...shadows.lg,
-  },
-  settingsTitle: {
-    ...textStyles.h3,
-    color: colors.text.primary,
-    textAlign: 'center',
-    marginBottom: spacing[6],
+  settingsContent: {
+    gap: theme.spacing[4],
   },
   settingRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: spacing[3],
+    paddingVertical: theme.spacing[3],
     borderBottomWidth: 1,
-    borderBottomColor: colors.background.secondary,
+    borderBottomColor: theme.colors.background.secondary,
   },
   settingLabel: {
-    fontSize: 16,
-    color: colors.text.primary,
-  },
-  closeButton: {
-    backgroundColor: colors.primary.main,
-    borderRadius: borderRadius.lg,
-    paddingVertical: spacing[3],
-    marginTop: spacing[6],
-    alignItems: 'center',
-  },
-  closeButtonText: {
-    fontSize: 16,
-    color: colors.primary.contrast,
-    fontWeight: 'bold',
+    fontSize: 18,
+    fontFamily: theme.fontFamily.medium,
+    color: theme.colors.text.primary,
   },
 });

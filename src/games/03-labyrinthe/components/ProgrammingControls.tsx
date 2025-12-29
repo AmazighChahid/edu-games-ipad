@@ -122,6 +122,9 @@ export const ProgrammingControls: React.FC<Props> = ({
 }) => {
   return (
     <View style={styles.container}>
+      {/* Titre */}
+      <Text style={styles.controlsTitle}>Directions</Text>
+
       {/* Grille de contrôle directionnelle */}
       <View style={styles.directionalPad}>
         {/* Ligne 1: Haut */}
@@ -193,44 +196,52 @@ export const ProgrammingControls: React.FC<Props> = ({
   );
 };
 
+// Taille compacte pour les boutons directionnels
+const BUTTON_SIZE = 48;
+
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'row',
+    flexDirection: 'column',
     alignItems: 'center',
-    justifyContent: 'space-around',
-    paddingHorizontal: theme.spacing[4],
-    paddingVertical: theme.spacing[3],
+    justifyContent: 'center',
+    padding: theme.spacing[2],
     backgroundColor: 'rgba(255, 255, 255, 0.95)',
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(91, 141, 238, 0.2)',
+    borderRadius: theme.borderRadius.md,
+    gap: theme.spacing[2],
+    ...theme.shadows.sm,
+  },
+  controlsTitle: {
+    fontSize: theme.fontSize.sm,
+    fontFamily: theme.fontFamily.bold,
+    color: theme.colors.text.primary,
   },
   directionalPad: {
     alignItems: 'center',
   },
   row: {
     flexDirection: 'row',
-    gap: theme.spacing[1],
+    gap: 3,
   },
   directionButton: {
-    width: theme.touchTargets.large,
-    height: theme.touchTargets.large,
+    width: BUTTON_SIZE,
+    height: BUTTON_SIZE,
     borderRadius: theme.borderRadius.md,
     justifyContent: 'center',
     alignItems: 'center',
     ...theme.shadows.sm,
   },
   directionIcon: {
-    fontSize: 28,
+    fontSize: 22,
     fontFamily: theme.fontFamily.bold,
     color: theme.colors.background.primary,
   },
   spacer: {
-    width: theme.touchTargets.large,
-    height: theme.touchTargets.large,
+    width: BUTTON_SIZE,
+    height: BUTTON_SIZE,
   },
   centerButton: {
-    width: theme.touchTargets.large,
-    height: theme.touchTargets.large,
+    width: BUTTON_SIZE,
+    height: BUTTON_SIZE,
     borderRadius: theme.borderRadius.md,
     justifyContent: 'center',
     alignItems: 'center',
@@ -240,7 +251,7 @@ const styles = StyleSheet.create({
     borderStyle: 'dashed',
   },
   centerIcon: {
-    fontSize: 24,
+    fontSize: 18,
     fontFamily: theme.fontFamily.bold,
     color: 'rgba(91, 141, 238, 0.5)',
   },
@@ -248,26 +259,26 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   actionButtons: {
-    gap: theme.spacing[3],
+    gap: theme.spacing[1],
+    width: '100%',
   },
   actionButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: theme.spacing[5],
-    paddingVertical: theme.spacing[3],
+    paddingHorizontal: theme.spacing[2],
+    paddingVertical: theme.spacing[2],
     borderRadius: theme.borderRadius.md,
-    gap: theme.spacing[2],
+    gap: theme.spacing[1],
     ...theme.shadows.sm,
-    minWidth: 140,
-    minHeight: theme.touchTargets.large,
+    minHeight: 48,
   },
   actionIcon: {
-    fontSize: 22,
+    fontSize: 16,
     color: theme.colors.background.primary,
   },
   actionLabel: {
-    fontSize: theme.fontSize.lg,
+    fontSize: theme.fontSize.sm,
     fontFamily: theme.fontFamily.bold,
     color: theme.colors.background.primary,
   },

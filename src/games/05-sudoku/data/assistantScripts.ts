@@ -7,7 +7,7 @@
  * Note: La mascotte Félix remplace Prof. Hibou pour ce jeu
  */
 
-import type { AssistantScript } from '../../../core/types/core.types';
+import type { AssistantScript } from '@/core/types/core.types';
 
 // ============================================================================
 // SCRIPTS D'ACCUEIL

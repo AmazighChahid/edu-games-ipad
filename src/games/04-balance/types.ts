@@ -35,7 +35,7 @@ export type PlateSide = 'left' | 'right';
 
 export interface BalancePlate {
   side: PlateSide;
-  objects: PlacedObject[];
+  objects: (WeightObject | PlacedObject)[];
   totalWeight: number;
 }
 

@@ -426,8 +426,8 @@ const styles = StyleSheet.create({
   // GAME VARIANT - Back Button
   // ============================================
   backButton: {
-    width: theme.touchTargets.child,
-    height: theme.touchTargets.child,
+    width: theme.touchTargets.large,
+    height: theme.touchTargets.large,
     borderRadius: theme.borderRadius.round,
     backgroundColor: theme.colors.background.card,
     alignItems: 'center',

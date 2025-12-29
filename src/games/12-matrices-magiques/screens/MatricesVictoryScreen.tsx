@@ -36,6 +36,7 @@ import * as Haptics from 'expo-haptics';
 import { WorldTheme, CollectibleCard } from '../types';
 import { WORLDS, COLLECTIBLE_CARDS, PIXEL_DIALOGUES } from '../data';
 import { PixelMascot, PixelWithBubble } from '../components';
+import { Icons } from '@/constants/icons';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -170,7 +171,7 @@ const AnimatedStar = ({ earned, delay, index }: AnimatedStarProps) => {
         animatedStyle,
       ]}
     >
-      ⭐
+      {Icons.star}
     </Animated.Text>
   );
 };
@@ -285,19 +286,19 @@ const Stats = ({ puzzlesCompleted, hintsUsed, timeSeconds }: StatsProps) => {
       style={styles.statsContainer}
     >
       <View style={styles.statItem}>
-        <Text style={styles.statIcon}>🧩</Text>
+        <Text style={styles.statIcon}>{Icons.puzzle}</Text>
         <Text style={styles.statValue}>{puzzlesCompleted}</Text>
         <Text style={styles.statLabel}>puzzles</Text>
       </View>
       <View style={styles.statDivider} />
       <View style={styles.statItem}>
-        <Text style={styles.statIcon}>💡</Text>
+        <Text style={styles.statIcon}>{Icons.lightbulb}</Text>
         <Text style={styles.statValue}>{hintsUsed}</Text>
         <Text style={styles.statLabel}>indices</Text>
       </View>
       <View style={styles.statDivider} />
       <View style={styles.statItem}>
-        <Text style={styles.statIcon}>⏱️</Text>
+        <Text style={styles.statIcon}>{Icons.timer}</Text>
         <Text style={styles.statValue}>{timeString}</Text>
         <Text style={styles.statLabel}>temps</Text>
       </View>
@@ -555,7 +556,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   mascotMessage: {
-    fontSize: 16,
+    fontSize: 18,
     color: '#FFFFFF',
     textAlign: 'center',
     fontFamily: 'Nunito-SemiBold',
@@ -568,7 +569,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   cardTitle: {
-    fontSize: 16,
+    fontSize: 18,
     color: '#FFFFFF',
     marginBottom: 12,
     fontFamily: 'Nunito-Bold',
@@ -608,7 +609,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   cardName: {
-    fontSize: 14,
+    fontSize: 18,
     fontWeight: '700',
     color: '#FFFFFF',
     textAlign: 'center',
@@ -694,7 +695,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   secondaryButtonText: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: '600',
     color: '#FFFFFF',
     fontFamily: 'Nunito-SemiBold',

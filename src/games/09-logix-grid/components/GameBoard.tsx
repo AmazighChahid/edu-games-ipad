@@ -2,15 +2,17 @@
  * Logix Grid GameBoard Component
  *
  * Plateau de jeu complet pour Logix Grid
+ * Refactorisé avec ScreenHeader, PageContainer, touch targets 64dp et Icons
  */
 
 import React from 'react';
-import { View, Text, StyleSheet, Pressable, Dimensions } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { View, Text, StyleSheet, Dimensions } from 'react-native';
 import Animated, { FadeIn, FadeInUp } from 'react-native-reanimated';
 
-import { colors, spacing, borderRadius, shadows, fontFamily } from '../../../theme';
+import { theme } from '../../../theme';
+import { Icons } from '../../../constants/icons';
 import { useAccessibilityAnimations } from '../../../hooks';
+import { PageContainer, ScreenHeader, IconButton, HintButton } from '../../../components/common';
 import type { LogixGameState, CellState } from '../types';
 import { LogixGrid } from './LogixGrid';
 import { CluePanel } from './CluePanel';
@@ -72,42 +74,48 @@ export function GameBoard({
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  // Calculer la progression
-  const progress = (usedClueIds.length / puzzle.clues.length) * 100;
+  // Calculer les indices restants
+  const hintsRemaining = puzzle.hintsAvailable - hintsUsed;
+
+  // Générer les étoiles de difficulté
+  const difficultyStars = `${Icons.star.repeat(puzzle.difficulty)}${Icons.starEmpty.repeat(3 - puzzle.difficulty)}`;
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <PageContainer variant="playful">
       {/* Header */}
       <Animated.View
-        style={styles.header}
         entering={shouldAnimate ? FadeInUp.duration(getDuration(300)) : undefined}
       >
-        {/* Bouton retour */}
-        <Pressable style={styles.backButton} onPress={onBack}>
-          <Text style={styles.backButtonText}>←</Text>
-        </Pressable>
-
-        {/* Infos niveau */}
-        <View style={styles.levelInfo}>
-          <Text style={styles.levelName}>{puzzle.name}</Text>
-          <Text style={styles.levelDifficulty}>
-            {'⭐'.repeat(puzzle.difficulty)}{'☆'.repeat(3 - puzzle.difficulty)}
-          </Text>
-        </View>
-
-        {/* Stats */}
-        <View style={styles.stats}>
-          <View style={styles.statItem}>
-            <Text style={styles.statIcon}>⏱️</Text>
-            <Text style={styles.statValue}>{formatTime(timeElapsed)}</Text>
-          </View>
-        </View>
-
-        {/* Bouton pause */}
-        <Pressable style={styles.pauseButton} onPress={onPause}>
-          <Text style={styles.pauseButtonText}>⏸️</Text>
-        </Pressable>
+        <ScreenHeader
+          variant="game"
+          title={puzzle.name}
+          emoji={Icons.search}
+          onBack={onBack}
+          showHelpButton={false}
+          rightContent={
+            <View style={styles.headerRight}>
+              {/* Timer */}
+              <View style={styles.statItem}>
+                <Text style={styles.statIcon}>{Icons.timer}</Text>
+                <Text style={styles.statValue}>{formatTime(timeElapsed)}</Text>
+              </View>
+              {/* Pause button */}
+              <IconButton
+                icon={Icons.pause}
+                onPress={onPause}
+                size={64}
+                variant="secondary"
+                accessibilityLabel="Pause"
+              />
+            </View>
+          }
+        />
       </Animated.View>
+
+      {/* Sous-header avec difficulté */}
+      <View style={styles.subHeader}>
+        <Text style={styles.difficultyText}>{difficultyStars}</Text>
+      </View>
 
       {/* Corps principal */}
       <View style={IS_TABLET ? styles.bodyTablet : styles.bodyPhone}>
@@ -139,29 +147,21 @@ export function GameBoard({
         entering={shouldAnimate ? FadeIn.delay(200).duration(getDuration(300)) : undefined}
       >
         {/* Bouton indice */}
-        <Pressable
-          style={[
-            styles.controlButton,
-            styles.hintButton,
-            hintsUsed >= puzzle.hintsAvailable && styles.controlButtonDisabled,
-          ]}
+        <HintButton
+          remaining={hintsRemaining}
+          maxHints={puzzle.hintsAvailable}
           onPress={onHintRequest}
-          disabled={hintsUsed >= puzzle.hintsAvailable}
-        >
-          <Text style={styles.controlButtonText}>💡</Text>
-          <Text style={styles.controlButtonLabel}>
-            Indice ({puzzle.hintsAvailable - hintsUsed})
-          </Text>
-        </Pressable>
+          disabled={hintsRemaining <= 0}
+        />
       </Animated.View>
 
       {/* Instructions */}
       <View style={styles.instructionsContainer}>
         <Text style={styles.instructions}>
-          Touche une case pour marquer ✓ ou ✗
+          Touche une case pour marquer {Icons.checkmark} ou {Icons.crossMark}
         </Text>
       </View>
-    </SafeAreaView>
+    </PageContainer>
   );
 }
 
@@ -170,73 +170,31 @@ export function GameBoard({
 // ============================================================================
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background.primary,
-  },
-  header: {
+  headerRight: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: spacing[4],
-    paddingVertical: spacing[2],
-    height: 60,
+    gap: theme.spacing[3],
   },
-  backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: borderRadius.round,
-    backgroundColor: colors.background.card,
-    justifyContent: 'center',
+  subHeader: {
     alignItems: 'center',
-    ...shadows.sm,
+    paddingVertical: theme.spacing[1],
   },
-  backButtonText: {
-    fontSize: 24,
-    color: colors.text.primary,
-  },
-  levelInfo: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  levelName: {
-    fontSize: 18,
-    fontFamily: fontFamily.displayBold,
-    fontWeight: '700',
-    color: colors.text.primary,
-  },
-  levelDifficulty: {
-    fontSize: 14,
-    marginTop: 2,
-  },
-  stats: {
-    flexDirection: 'row',
-    gap: spacing[3],
+  difficultyText: {
+    fontSize: theme.fontSize.lg, // 18pt
+    fontFamily: theme.fontFamily.regular,
   },
   statItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing[1],
+    gap: theme.spacing[1],
   },
   statIcon: {
-    fontSize: 16,
+    fontSize: theme.fontSize.lg, // 18pt
   },
   statValue: {
-    fontSize: 14,
-    fontFamily: fontFamily.medium,
-    color: colors.text.secondary,
-  },
-  pauseButton: {
-    width: 40,
-    height: 40,
-    borderRadius: borderRadius.round,
-    backgroundColor: colors.background.card,
-    justifyContent: 'center',
-    alignItems: 'center',
-    ...shadows.sm,
-  },
-  pauseButtonText: {
-    fontSize: 20,
+    fontSize: theme.fontSize.lg, // 18pt
+    fontFamily: theme.fontFamily.medium,
+    color: theme.colors.text.secondary,
   },
   bodyTablet: {
     flex: 1,
@@ -251,7 +209,7 @@ const styles = StyleSheet.create({
     maxWidth: 300,
   },
   cluePanelPhone: {
-    height: 180,
+    height: theme.spacing[4] * 11, // ~176dp (spacing[4]=16, donc 16*11=176)
   },
   gridContainerTablet: {
     flex: 1,
@@ -263,40 +221,18 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: spacing[4],
-    paddingVertical: spacing[3],
-    gap: spacing[2],
-  },
-  controlButton: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: spacing[6],
-    paddingVertical: spacing[3],
-    backgroundColor: colors.background.card,
-    borderRadius: borderRadius.lg,
-    ...shadows.sm,
-  },
-  controlButtonDisabled: {
-    opacity: 0.4,
-  },
-  hintButton: {
-    backgroundColor: colors.secondary.main,
-  },
-  controlButtonText: {
-    fontSize: 24,
-  },
-  controlButtonLabel: {
-    fontSize: 12,
-    color: colors.text.secondary,
-    marginTop: 4,
+    paddingHorizontal: theme.spacing[4],
+    paddingVertical: theme.spacing[3],
+    gap: theme.spacing[2],
   },
   instructionsContainer: {
-    paddingHorizontal: spacing[4],
-    paddingBottom: spacing[4],
+    paddingHorizontal: theme.spacing[4],
+    paddingBottom: theme.spacing[4],
   },
   instructions: {
-    fontSize: 14,
-    color: colors.text.tertiary,
+    fontSize: theme.fontSize.lg, // 18pt minimum
+    fontFamily: theme.fontFamily.regular,
+    color: theme.colors.text.tertiary,
     textAlign: 'center',
     fontStyle: 'italic',
   },

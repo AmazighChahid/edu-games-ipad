@@ -17,7 +17,7 @@ import Animated, {
   runOnJS,
 } from 'react-native-reanimated';
 
-import { colors, borderRadius, spacing } from '../../../theme';
+import { theme } from '../../../theme';
 import type { MathBlock as MathBlockType } from '../types';
 
 interface MathBlockProps {
@@ -112,7 +112,7 @@ export function MathBlock({
   // Handle gravity animation when targetRow changes
   useEffect(() => {
     if (targetRow !== undefined && targetRow !== block.row) {
-      const distance = (targetRow - block.row) * (size + spacing[2]);
+      const distance = (targetRow - block.row) * (size + theme.spacing[2]);
       translateY.value = withSpring(distance, {
         damping: 12,
         stiffness: 100,
@@ -167,11 +167,11 @@ export function MathBlock({
   });
 
   const backgroundColor = isOperation
-    ? colors.primary.main
-    : colors.secondary.main;
+    ? theme.colors.primary.main
+    : theme.colors.secondary.main;
 
   const selectedBorderColor = block.isSelected
-    ? colors.feedback.success
+    ? theme.colors.feedback.success
     : 'transparent';
 
   // Generate explosion particles
@@ -184,8 +184,8 @@ export function MathBlock({
         color:
           i % 2 === 0
             ? isOperation
-              ? colors.primary.light
-              : colors.secondary.light
+              ? theme.colors.primary.light
+              : theme.colors.secondary.light
             : '#FFD700',
       }))
     : [];
@@ -248,13 +248,11 @@ export function MathBlock({
 
 const styles = StyleSheet.create({
   container: {
-    borderRadius: borderRadius.lg,
+    borderRadius: theme.borderRadius.lg,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 3,
-    // Shadow
-    boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
-    elevation: 3,
+    ...theme.shadows.md,
     overflow: 'hidden',
   },
   highlight: {
@@ -263,8 +261,8 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     backgroundColor: 'rgba(255, 255, 255, 0.25)',
-    borderTopLeftRadius: borderRadius.lg,
-    borderTopRightRadius: borderRadius.lg,
+    borderTopLeftRadius: theme.borderRadius.lg,
+    borderTopRightRadius: theme.borderRadius.lg,
   },
   shadow: {
     position: 'absolute',
@@ -272,14 +270,14 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     backgroundColor: 'rgba(0, 0, 0, 0.1)',
-    borderBottomLeftRadius: borderRadius.lg,
-    borderBottomRightRadius: borderRadius.lg,
+    borderBottomLeftRadius: theme.borderRadius.lg,
+    borderBottomRightRadius: theme.borderRadius.lg,
   },
   text: {
-    color: colors.text.inverse,
-    fontWeight: 'bold',
+    color: theme.colors.text.inverse,
+    fontFamily: theme.fontFamily.bold,
     textAlign: 'center',
-    paddingHorizontal: spacing[1],
+    paddingHorizontal: theme.spacing[1],
   },
   explosionContainer: {
     position: 'absolute',

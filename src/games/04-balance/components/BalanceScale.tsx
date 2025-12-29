@@ -5,7 +5,7 @@
  */
 
 import React, { useEffect, useMemo } from 'react';
-import { View, StyleSheet, Text } from 'react-native';
+import { View, StyleSheet, Text, StyleProp, ViewStyle } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -82,7 +82,8 @@ interface PlateProps {
   totalWeight: number;
   showWeight: boolean;
   children?: React.ReactNode;
-  animatedStyle?: ReturnType<typeof useAnimatedStyle>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  animatedStyle?: any;
 }
 
 function Plate({
@@ -99,7 +100,7 @@ function Plate({
         styles.plateWrapper,
         side === 'left' ? styles.plateLeft : styles.plateRight,
         animatedStyle,
-      ]}
+      ] as any}
     >
       {/* Rope/Chain */}
       <View style={styles.ropeContainer}>
@@ -225,7 +226,7 @@ export function BalanceScale({
       </View>
 
       {/* Beam (rotates around fulcrum) */}
-      <Animated.View style={[styles.beam, beamAnimatedStyle]}>
+      <Animated.View style={[styles.beam, beamAnimatedStyle] as any}>
         {/* Beam gradient for wood effect */}
         <View style={styles.beamInner}>
           <View style={styles.beamHighlight} />
@@ -520,7 +521,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     backgroundColor: 'rgba(0, 0, 0, 0.7)',
     padding: spacing[2],
-    borderRadius: borderRadius.small,
+    borderRadius: borderRadius.sm,
   },
   debugText: {
     color: colors.text.inverse,

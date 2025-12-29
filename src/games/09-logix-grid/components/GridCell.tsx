@@ -2,6 +2,7 @@
  * GridCell Component
  *
  * Une cellule interactive de la grille logique
+ * Refactorisé avec theme, Icons et touch targets
  */
 
 import React from 'react';
@@ -11,10 +12,10 @@ import Animated, {
   withSpring,
   useSharedValue,
   withSequence,
-  withTiming,
 } from 'react-native-reanimated';
 
-import { colors, borderRadius } from '../../../theme';
+import { theme } from '../../../theme';
+import { Icons } from '../../../constants/icons';
 import { useAccessibilityAnimations } from '../../../hooks';
 import type { CellState } from '../types';
 
@@ -44,10 +45,13 @@ interface GridCellProps {
 // ============================================================================
 
 const STATE_DISPLAY: Record<CellState, { text: string; color: string; bg: string }> = {
-  empty: { text: '', color: 'transparent', bg: colors.background.card },
-  yes: { text: '✓', color: '#4CAF50', bg: '#E8F5E9' },
-  no: { text: '✗', color: '#F44336', bg: '#FFEBEE' },
+  empty: { text: '', color: 'transparent', bg: theme.colors.background.card },
+  yes: { text: Icons.checkmark, color: '#4CAF50', bg: '#E8F5E9' },
+  no: { text: Icons.crossMark, color: '#F44336', bg: '#FFEBEE' },
 };
+
+// Taille minimum pour les cellules (64dp touch target)
+const MIN_CELL_SIZE = 64;
 
 // ============================================================================
 // COMPONENT
@@ -62,7 +66,10 @@ export function GridCell({
   size,
   disabled = false,
 }: GridCellProps) {
-  const { springConfig, getDuration } = useAccessibilityAnimations();
+  const { springConfig } = useAccessibilityAnimations();
+
+  // Garantir une taille minimum de 64dp pour les touch targets
+  const cellSize = Math.max(size, MIN_CELL_SIZE);
 
   // Animation values
   const scale = useSharedValue(1);
@@ -88,7 +95,7 @@ export function GridCell({
   // Couleurs basées sur l'état
   const display = STATE_DISPLAY[state];
   const borderColor = isSelected
-    ? colors.primary.main
+    ? theme.colors.primary.main
     : isError
     ? '#F44336'
     : isHighlighted
@@ -97,13 +104,27 @@ export function GridCell({
   const borderWidth = isSelected || isError || isHighlighted ? 3 : 1;
 
   return (
-    <Pressable onPress={handlePress} disabled={disabled}>
+    <Pressable
+      onPress={handlePress}
+      disabled={disabled}
+      accessibilityRole="button"
+      accessibilityLabel={
+        state === 'empty'
+          ? 'Case vide'
+          : state === 'yes'
+          ? 'Case marquée oui'
+          : 'Case marquée non'
+      }
+      accessibilityState={{ disabled, selected: isSelected }}
+    >
       <Animated.View
         style={[
           styles.cell,
           {
-            width: size,
-            height: size,
+            width: cellSize,
+            height: cellSize,
+            minWidth: MIN_CELL_SIZE,
+            minHeight: MIN_CELL_SIZE,
             backgroundColor: isHighlighted ? '#FFFDE7' : display.bg,
             borderColor,
             borderWidth,
@@ -116,7 +137,7 @@ export function GridCell({
             styles.cellText,
             {
               color: display.color,
-              fontSize: size * 0.5,
+              fontSize: Math.max(cellSize * 0.5, 20), // Min 20pt pour lisibilité
             },
           ]}
         >
@@ -135,11 +156,12 @@ const styles = StyleSheet.create({
   cell: {
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: borderRadius.sm,
+    borderRadius: theme.borderRadius.sm,
     margin: 1,
   },
   cellText: {
     fontWeight: '700',
+    fontFamily: theme.fontFamily.bold,
   },
 });
 

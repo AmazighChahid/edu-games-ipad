@@ -190,7 +190,7 @@ const styles = StyleSheet.create({
   body: {
     fontSize: 18, // ✅ Minimum enfant
     // ou
-    fontSize: theme.typography.sizes.body,
+    fontSize: theme.fontSize.lg,
   },
   badge: {
     fontSize: 12, // ✅ OK pour badges

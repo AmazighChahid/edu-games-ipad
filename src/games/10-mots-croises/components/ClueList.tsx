@@ -2,13 +2,23 @@
  * ClueList Component
  *
  * Liste des définitions/indices pour les mots croisés
+ * Refactorisé pour respecter les guidelines UX (fontSize, icons, touch targets)
  */
 
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
 import Animated, { FadeInLeft } from 'react-native-reanimated';
 
-import { colors, spacing, borderRadius, shadows, fontFamily } from '../../../theme';
+import {
+  colors,
+  spacing,
+  borderRadius,
+  shadows,
+  fontFamily,
+  fontSize,
+  touchTargets,
+} from '../../../theme';
+import { Icons } from '../../../constants/icons';
 import { useAccessibilityAnimations } from '../../../hooks';
 import type { CrosswordWord } from '../types';
 
@@ -17,16 +27,14 @@ import type { CrosswordWord } from '../types';
 // ============================================================================
 
 interface ClueListProps {
-  /** Mots horizontaux */
-  horizontalWords: CrosswordWord[];
-  /** Mots verticaux */
-  verticalWords: CrosswordWord[];
+  /** Tous les mots */
+  words: CrosswordWord[];
   /** IDs des mots complétés */
   completedWordIds: string[];
   /** ID du mot sélectionné */
   selectedWordId: string | null;
   /** Callback sélection d'un mot */
-  onWordSelect: (wordId: string) => void;
+  onWordPress: (wordId: string) => void;
 }
 
 // ============================================================================
@@ -34,13 +42,16 @@ interface ClueListProps {
 // ============================================================================
 
 export function ClueList({
-  horizontalWords,
-  verticalWords,
+  words,
   completedWordIds,
   selectedWordId,
-  onWordSelect,
+  onWordPress,
 }: ClueListProps) {
   const { shouldAnimate, getDuration } = useAccessibilityAnimations();
+
+  // Séparer les mots horizontaux et verticaux
+  const horizontalWords = words.filter((w) => w.direction === 'horizontal');
+  const verticalWords = words.filter((w) => w.direction === 'vertical');
 
   const renderClue = (word: CrosswordWord, index: number) => {
     const isCompleted = completedWordIds.includes(word.id);
@@ -61,24 +72,24 @@ export function ClueList({
             isCompleted && styles.clueCardCompleted,
             isSelected && styles.clueCardSelected,
           ]}
-          onPress={() => onWordSelect(word.id)}
+          onPress={() => onWordPress(word.id)}
+          accessibilityLabel={`${word.number}. ${word.clue}${isCompleted ? ', trouvé' : ''}`}
+          accessibilityRole="button"
         >
           <View style={styles.clueNumber}>
             <Text style={styles.clueNumberText}>{word.number}</Text>
           </View>
           <View style={styles.clueContent}>
             <Text
-              style={[
-                styles.clueText,
-                isCompleted && styles.clueTextCompleted,
-              ]}
+              style={[styles.clueText, isCompleted && styles.clueTextCompleted]}
             >
-              {word.emoji && `${word.emoji} `}{word.clue}
+              {word.emoji && `${word.emoji} `}
+              {word.clue}
             </Text>
           </View>
           {isCompleted && (
             <View style={styles.checkmark}>
-              <Text style={styles.checkmarkText}>✓</Text>
+              <Text style={styles.checkmarkText}>{Icons.check}</Text>
             </View>
           )}
         </Pressable>
@@ -96,7 +107,8 @@ export function ClueList({
       {horizontalWords.length > 0 && (
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>→ Horizontal</Text>
+            <Text style={styles.sectionIcon}>{Icons.arrowRight}</Text>
+            <Text style={styles.sectionTitle}>Horizontal</Text>
           </View>
           {horizontalWords.map((word, index) => renderClue(word, index))}
         </View>
@@ -106,7 +118,8 @@ export function ClueList({
       {verticalWords.length > 0 && (
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>↓ Vertical</Text>
+            <Text style={styles.sectionIcon}>{Icons.arrowDown}</Text>
+            <Text style={styles.sectionTitle}>Vertical</Text>
           </View>
           {verticalWords.map((word, index) =>
             renderClue(word, index + horizontalWords.length)
@@ -138,11 +151,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: spacing[2],
+    gap: spacing[2],
+  },
+  sectionIcon: {
+    fontSize: fontSize.lg,
+    color: colors.primary.main,
   },
   sectionTitle: {
-    fontSize: 16,
-    fontFamily: fontFamily.displayBold,
-    fontWeight: '700',
+    fontSize: fontSize.lg, // 18pt minimum
+    fontFamily: fontFamily.bold,
     color: colors.text.primary,
   },
   clueCard: {
@@ -150,8 +167,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: colors.background.primary,
     borderRadius: borderRadius.md,
-    padding: spacing[2],
+    padding: spacing[3],
     marginBottom: spacing[2],
+    minHeight: touchTargets.small, // Au moins 44dp de hauteur
     ...shadows.sm,
   },
   clueCardCompleted: {
@@ -163,16 +181,16 @@ const styles = StyleSheet.create({
     borderColor: colors.primary.main,
   },
   clueNumber: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
     backgroundColor: colors.primary.main,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: spacing[2],
+    marginRight: spacing[3],
   },
   clueNumberText: {
-    fontSize: 12,
+    fontSize: fontSize.sm,
     fontWeight: '700',
     color: '#FFF',
   },
@@ -180,25 +198,25 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   clueText: {
-    fontSize: 14,
+    fontSize: fontSize.base, // 16pt
     color: colors.text.primary,
-    lineHeight: 20,
+    lineHeight: 22,
   },
   clueTextCompleted: {
-    color: colors.text.tertiary,
+    color: colors.text.muted,
     textDecorationLine: 'line-through',
   },
   checkmark: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: '#4CAF50',
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: colors.feedback.success,
     justifyContent: 'center',
     alignItems: 'center',
     marginLeft: spacing[2],
   },
   checkmarkText: {
-    fontSize: 14,
+    fontSize: fontSize.base,
     fontWeight: '700',
     color: '#FFF',
   },

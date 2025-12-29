@@ -9,8 +9,9 @@ import React from 'react';
 import { StyleSheet, View, Text, Pressable } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { colors, spacing, borderRadius, shadows, fontFamily } from '../../../theme';
+import { colors, spacing, borderRadius, shadows, fontFamily, touchTargets } from '../../../theme';
 import { MemoryGrid } from './MemoryGrid';
+import { Icons } from '../../../constants/icons';
 import type { MemoryGameState } from '../types';
 
 // ============================================================================
@@ -58,16 +59,16 @@ export function GameBoard({
     <View style={[styles.container, { paddingTop: insets.top }]}>
       {/* Header */}
       <View style={styles.header}>
-        <Pressable style={styles.backButton} onPress={onBack}>
-          <Text style={styles.backButtonText}>←</Text>
+        <Pressable style={styles.backButton} onPress={onBack} accessibilityLabel="Retour" accessibilityRole="button">
+          <Text style={styles.backButtonText}>{Icons.back}</Text>
         </Pressable>
 
         <View style={styles.levelInfo}>
           <Text style={styles.levelName}>{level.name}</Text>
         </View>
 
-        <Pressable style={styles.pauseButton} onPress={onPause}>
-          <Text style={styles.pauseButtonText}>⏸</Text>
+        <Pressable style={styles.pauseButton} onPress={onPause} accessibilityLabel="Pause" accessibilityRole="button">
+          <Text style={styles.pauseButtonText}>{Icons.pause}</Text>
         </Pressable>
       </View>
 
@@ -123,8 +124,8 @@ export function GameBoard({
 
       {/* Hint Button */}
       <View style={[styles.footer, { paddingBottom: insets.bottom + spacing[4] }]}>
-        <Pressable style={styles.hintButton} onPress={onHint}>
-          <Text style={styles.hintButtonText}>💡 Indice</Text>
+        <Pressable style={styles.hintButton} onPress={onHint} accessibilityLabel="Obtenir un indice" accessibilityRole="button">
+          <Text style={styles.hintButtonText}>{Icons.lightbulb} Indice</Text>
         </Pressable>
       </View>
     </View>
@@ -151,15 +152,17 @@ const styles = StyleSheet.create({
     borderBottomColor: colors.ui.border,
   },
   backButton: {
-    width: 44,
-    height: 44,
+    width: 64,
+    height: 64,
+    minWidth: 64,
+    minHeight: 64,
     borderRadius: borderRadius.round,
     backgroundColor: colors.background.secondary,
     justifyContent: 'center',
     alignItems: 'center',
   },
   backButtonText: {
-    fontSize: 24,
+    fontSize: 28,
     color: colors.text.primary,
   },
   levelInfo: {
@@ -173,15 +176,17 @@ const styles = StyleSheet.create({
     color: colors.text.primary,
   },
   pauseButton: {
-    width: 44,
-    height: 44,
+    width: 64,
+    height: 64,
+    minWidth: 64,
+    minHeight: 64,
     borderRadius: borderRadius.round,
     backgroundColor: colors.background.secondary,
     justifyContent: 'center',
     alignItems: 'center',
   },
   pauseButtonText: {
-    fontSize: 20,
+    fontSize: 24,
   },
   statsBar: {
     flexDirection: 'row',
@@ -194,7 +199,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   statLabel: {
-    fontSize: 12,
+    fontSize: 14,
+    fontFamily: fontFamily.regular,
     color: colors.text.muted,
     marginBottom: 2,
   },
@@ -233,13 +239,17 @@ const styles = StyleSheet.create({
   },
   hintButton: {
     backgroundColor: colors.secondary.main,
-    paddingVertical: spacing[3],
+    paddingVertical: spacing[4],
     paddingHorizontal: spacing[6],
     borderRadius: borderRadius.xl,
+    minHeight: 64,
+    justifyContent: 'center',
+    alignItems: 'center',
     ...shadows.md,
   },
   hintButtonText: {
-    fontSize: 16,
+    fontSize: 18,
+    fontFamily: fontFamily.bold,
     fontWeight: '600',
     color: colors.text.inverse,
   },

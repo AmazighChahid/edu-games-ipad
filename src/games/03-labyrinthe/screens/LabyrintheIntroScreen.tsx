@@ -5,9 +5,8 @@
  */
 
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
-import { View, Text, StyleSheet, Pressable, useWindowDimensions } from 'react-native';
+import { View, Text, StyleSheet, useWindowDimensions } from 'react-native';
 import { useRouter } from 'expo-router';
-import { LinearGradient } from 'expo-linear-gradient';
 import {
   GameIntroTemplate,
   generateDefaultLevels,
@@ -16,11 +15,13 @@ import {
   type TrainingConfig,
   type TrainingParam,
 } from '../../../components/common';
+import { ParentDrawer } from '../../../components/parent/ParentDrawer';
 import { MazeGrid } from '../components/MazeGrid';
 import { LabyrintheGame } from '../LabyrintheGame';
 import { useMazeGenerator } from '../hooks/useMazeGenerator';
 import { useActiveProfile } from '../../../store/useStore';
 import { LEVELS } from '../data/levels';
+import { labyrintheParentGuideData } from '../data/parentGuideData';
 import { theme } from '../../../theme';
 import { Icons } from '../../../constants/icons';
 import type { LevelConfig as MazeLevelConfig, MazeGrid as MazeGridType, ThemeType, SessionStats } from '../types';
@@ -59,11 +60,12 @@ export default function LabyrintheIntroScreen() {
   const [selectedLevel, setSelectedLevel] = useState<LevelConfig | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isTrainingMode, setIsTrainingMode] = useState(false);
-  const [selectedTheme, setSelectedTheme] = useState<ThemeType>('forest');
+  const [selectedTheme, setSelectedTheme] = useState<ThemeType>('cozy');
   const [mascotMessage, setMascotMessage] = useState(`${Icons.squirrel} Coucou ! Je suis Noisette ! Aide-moi à trouver la sortie du labyrinthe !`);
   const [mascotEmotion, setMascotEmotion] = useState<EmotionType>('neutral');
   const [previewMaze, setPreviewMaze] = useState<MazeGridType | null>(null);
   const [completedLevels, setCompletedLevels] = useState<Set<number>>(new Set());
+  const [showParentDrawer, setShowParentDrawer] = useState(false);
 
   // Générer les niveaux basés sur l'âge de l'enfant
   const levels = useMemo(() => {
@@ -109,13 +111,14 @@ export default function LabyrintheIntroScreen() {
       label: 'Thème',
       type: 'select',
       options: [
+        { value: 'cozy', label: `${Icons.squirrel} Bois Cozy` },
         { value: 'forest', label: `${Icons.tree} Forêt` },
         { value: 'temple', label: `${Icons.castle} Temple` },
         { value: 'space', label: `${Icons.rocket} Espace` },
         { value: 'ice', label: `${Icons.ice} Glace` },
         { value: 'garden', label: `${Icons.garden} Jardin` },
       ],
-      defaultValue: 'forest',
+      defaultValue: 'cozy',
     },
     {
       id: 'size',
@@ -137,7 +140,7 @@ export default function LabyrintheIntroScreen() {
   ], []);
 
   const [trainingValues, setTrainingValues] = useState<Record<string, string | number | boolean>>({
-    theme: 'forest',
+    theme: 'cozy',
     size: 'small',
     hasKeys: false,
   });
@@ -188,8 +191,8 @@ export default function LabyrintheIntroScreen() {
   }, [isTrainingMode]);
 
   const handleParentPress = useCallback(() => {
-    router.push('/(parent)');
-  }, [router]);
+    setShowParentDrawer(true);
+  }, []);
 
   const handleHelpPress = useCallback(() => {
     setMascotMessage(`Glisse ton doigt pour me déplacer ! Collecte les clés ${Icons.key} pour ouvrir les portes et trouve la sortie ${Icons.star} !`);
@@ -278,29 +281,12 @@ export default function LabyrintheIntroScreen() {
     );
   }, [completedLevels]);
 
-  // Render game preview / full game
+  // Render game preview (mode sélection uniquement)
   const renderGame = useCallback(() => {
-    // Si on joue vraiment, afficher le jeu complet
-    if (isPlaying && currentMazeConfig) {
-      return (
-        <View style={styles.gameFullContainer}>
-          <LabyrintheGame
-            level={currentMazeConfig}
-            onComplete={handleLevelComplete}
-            onExit={() => {
-              setIsPlaying(false);
-              setMascotMessage("On réessaie ? Choisis un niveau !");
-            }}
-          />
-        </View>
-      );
-    }
-
-    // Sinon, afficher la preview du labyrinthe
+    // Afficher la preview du labyrinthe
     if (!previewMaze || !currentMazeConfig) {
       return (
         <View style={styles.gamePreviewEmpty}>
-          <Text style={styles.gamePreviewEmptyEmoji}>{Icons.squirrel}</Text>
           <Text style={styles.gamePreviewEmptyText}>
             Sélectionne un niveau pour voir le labyrinthe
           </Text>
@@ -314,52 +300,18 @@ export default function LabyrintheIntroScreen() {
         <View style={styles.mazePreviewContainer}>
           <MazeGrid
             grid={previewMaze}
-            cellSize={Math.min(cellSize, 40)}
+            cellSize={Math.min(cellSize, 56)}
             theme={selectedTheme}
-            showGridLines={true}
+            showGridLines={selectedTheme !== 'cozy'}
           />
         </View>
-
-        {/* Info du niveau */}
-        <View style={styles.levelInfoCard}>
-          <View style={styles.levelInfoRow}>
-            <Text style={styles.levelInfoLabel}>Taille :</Text>
-            <Text style={styles.levelInfoValue}>{currentMazeConfig.width}×{currentMazeConfig.height}</Text>
-          </View>
-          {currentMazeConfig.hasGems && (
-            <View style={styles.levelInfoRow}>
-              <Text style={styles.levelInfoLabel}>Gemmes :</Text>
-              <Text style={styles.levelInfoValue}>{Icons.gem} × {currentMazeConfig.gemCount}</Text>
-            </View>
-          )}
-          {currentMazeConfig.hasKeys && (
-            <View style={styles.levelInfoRow}>
-              <Text style={styles.levelInfoLabel}>Clés :</Text>
-              <Text style={styles.levelInfoValue}>{Icons.key} × {currentMazeConfig.keyCount}</Text>
-            </View>
-          )}
-        </View>
-
-        {/* Bouton Jouer */}
-        <Pressable onPress={handleStartPlaying} style={styles.playButton}>
-          <LinearGradient
-            colors={[theme.colors.primary.main, theme.colors.primary.dark]}
-            style={styles.playButtonGradient}
-          >
-            <Text style={styles.playButtonEmoji}>{Icons.rocket}</Text>
-            <Text style={styles.playButtonText}>C'est parti !</Text>
-          </LinearGradient>
-        </Pressable>
       </View>
     );
   }, [
-    isPlaying,
     currentMazeConfig,
     previewMaze,
     cellSize,
     selectedTheme,
-    handleStartPlaying,
-    handleLevelComplete,
   ]);
 
   // Render progress panel
@@ -383,71 +335,117 @@ export default function LabyrintheIntroScreen() {
     );
   }, [levels.length, completedLevels.size, selectedLevel?.number]);
 
-  // Render mascot
+  // Render mascot avec écureuil à gauche de la bulle
   const renderMascot = useMemo(() => (
-    <MascotBubble
-      message={mascotMessage}
-      showDecorations={true}
-      tailPosition="bottom"
-    />
+    <View style={styles.mascotWithBubble}>
+      {/* Mascotte écureuil à gauche */}
+      <Text style={styles.mascotEmoji}>{Icons.squirrel}</Text>
+      {/* Bulle de dialogue à droite */}
+      <MascotBubble
+        message={mascotMessage}
+        showDecorations={true}
+        tailPosition="left"
+        hideTail={false}
+      />
+    </View>
   ), [mascotMessage]);
 
+  // Si on joue, afficher directement le jeu (pas le template)
+  if (isPlaying && currentMazeConfig) {
+    return (
+      <LabyrintheGame
+        level={currentMazeConfig}
+        onComplete={handleLevelComplete}
+        onExit={() => {
+          setIsPlaying(false);
+          setMascotMessage("On réessaie ? Choisis un niveau !");
+        }}
+      />
+    );
+  }
+
   return (
-    <GameIntroTemplate
-      // Header
-      title="Labyrinthe Logique"
-      emoji={Icons.squirrel}
-      onBack={handleBack}
-      onParentPress={handleParentPress}
-      onHelpPress={handleHelpPress}
-      showParentButton={true}
-      showHelpButton={true}
+    <>
+      <GameIntroTemplate
+        // Header
+        title="Labyrinthe Logique"
+        emoji={Icons.squirrel}
+        onBack={handleBack}
+        onParentPress={handleParentPress}
+        onHelpPress={handleHelpPress}
+        showParentButton={true}
+        showHelpButton={true}
 
-      // Niveaux
-      levels={levels}
-      selectedLevel={selectedLevel}
-      onSelectLevel={handleSelectLevel}
-      renderLevelCard={renderLevelCard}
-      levelColumns={5}
+        // Niveaux
+        levels={levels}
+        selectedLevel={selectedLevel}
+        onSelectLevel={handleSelectLevel}
+        renderLevelCard={renderLevelCard}
+        levelColumns={5}
 
-      // Mode entraînement
-      showTrainingMode={true}
-      trainingConfig={trainingConfig}
-      onTrainingPress={handleTrainingPress}
-      isTrainingMode={isTrainingMode}
+        // Mode entraînement
+        showTrainingMode={true}
+        trainingConfig={trainingConfig}
+        onTrainingPress={handleTrainingPress}
+        isTrainingMode={isTrainingMode}
 
-      // Jeu
-      renderGame={renderGame}
-      isPlaying={isPlaying}
-      onStartPlaying={handleStartPlaying}
+        // Jeu
+        renderGame={renderGame}
+        isPlaying={isPlaying}
+        onStartPlaying={handleStartPlaying}
 
-      // Progress
-      renderProgress={renderProgress}
+        // Progress
+        renderProgress={renderProgress}
 
-      // Mascotte
-      mascotComponent={!isPlaying ? renderMascot : undefined}
-      mascotMessage={mascotMessage}
-      mascotMessageType={
-        mascotEmotion === 'excited' ? 'victory' :
-        mascotEmotion === 'thinking' ? 'hint' :
-        mascotEmotion === 'encouraging' ? 'encourage' :
-        'intro'
-      }
+        // Mascotte - visible en mode sélection (LabyrintheGame a sa propre mascotte)
+        mascotComponent={!isPlaying ? renderMascot : undefined}
+        mascotMessage={mascotMessage}
+        mascotMessageType={
+          mascotEmotion === 'excited' ? 'victory' :
+          mascotEmotion === 'thinking' ? 'hint' :
+          mascotEmotion === 'encouraging' ? 'encourage' :
+          'intro'
+        }
 
-      // Boutons flottants
-      showResetButton={!isPlaying}
-      onReset={handleReset}
-      showHintButton={!isPlaying}
-      onHint={handleHint}
-      hintsRemaining={3}
-      hintsDisabled={false}
+        // Boutons flottants
+        showResetButton={!isPlaying}
+        onReset={handleReset}
+        showHintButton={!isPlaying}
+        onHint={handleHint}
+        hintsRemaining={3}
+        hintsDisabled={false}
 
-      // Animation config
-      animationConfig={{
-        selectorSlideDuration: 400,
-        selectorFadeDuration: 300,
-      }}
-    />
+        // Animation config
+        animationConfig={{
+          selectorSlideDuration: 400,
+          selectorFadeDuration: 300,
+        }}
+      />
+
+      {/* Fiche parent de l'activité */}
+      <ParentDrawer
+        isVisible={showParentDrawer}
+        onClose={() => setShowParentDrawer(false)}
+        activityName={labyrintheParentGuideData.activityName}
+        activityEmoji={labyrintheParentGuideData.activityEmoji}
+        gameData={labyrintheParentGuideData.gameData}
+        appBehavior={labyrintheParentGuideData.appBehavior}
+        competences={labyrintheParentGuideData.competences}
+        scienceData={labyrintheParentGuideData.scienceData}
+        advices={labyrintheParentGuideData.advices}
+        warningText={labyrintheParentGuideData.warningText}
+        teamMessage={labyrintheParentGuideData.teamMessage}
+        questionsDuring={labyrintheParentGuideData.questionsDuring}
+        questionsAfter={labyrintheParentGuideData.questionsAfter}
+        questionsWarning={labyrintheParentGuideData.questionsWarning}
+        dailyActivities={labyrintheParentGuideData.dailyActivities}
+        transferPhrases={labyrintheParentGuideData.transferPhrases}
+        resources={labyrintheParentGuideData.resources}
+        badges={labyrintheParentGuideData.badges}
+        ageExpectations={labyrintheParentGuideData.ageExpectations}
+        settings={labyrintheParentGuideData.settings}
+      />
+    </>
   );
 }
 
@@ -498,7 +496,7 @@ const styles = StyleSheet.create({
     color: theme.colors.text.muted,
   },
   levelSize: {
-    fontSize: 14, // Augmenté de 12 à 14 pour accessibilité
+    fontSize: 16, // Augmenté à 16 pour conformité
     fontFamily: theme.fontFamily.regular,
     color: theme.colors.text.secondary,
     marginTop: theme.spacing[1],
@@ -508,11 +506,11 @@ const styles = StyleSheet.create({
     marginTop: theme.spacing[1],
   },
   starFilled: {
-    fontSize: 14, // Augmenté de 12 à 14
+    fontSize: 16, // Augmenté à 16 pour conformité
     color: theme.colors.secondary.main,
   },
   starEmpty: {
-    fontSize: 14, // Augmenté de 12 à 14
+    fontSize: 16, // Augmenté à 16 pour conformité
     color: theme.colors.text.muted,
     opacity: 0.3,
   },
@@ -553,31 +551,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 0.9)',
     borderRadius: theme.borderRadius.xl,
     ...theme.shadows.lg,
-  },
-
-  // Level info card
-  levelInfoCard: {
-    backgroundColor: theme.colors.background.card,
-    borderRadius: theme.borderRadius.lg,
-    paddingVertical: theme.spacing[3],
-    paddingHorizontal: theme.spacing[5],
-    ...theme.shadows.md,
-    gap: theme.spacing[2],
-  },
-  levelInfoRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: theme.spacing[2],
-  },
-  levelInfoLabel: {
-    fontSize: theme.fontSize.lg, // 18pt
-    fontFamily: theme.fontFamily.regular,
-    color: theme.colors.text.secondary,
-  },
-  levelInfoValue: {
-    fontSize: theme.fontSize.lg, // 18pt
-    fontFamily: theme.fontFamily.semiBold,
-    color: theme.colors.text.primary,
   },
 
   // Play button
@@ -633,5 +606,15 @@ const styles = StyleSheet.create({
     width: 1,
     height: 30,
     backgroundColor: theme.colors.background.secondary,
+  },
+
+  // Mascotte avec bulle
+  mascotWithBubble: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing[2],
+  },
+  mascotEmoji: {
+    fontSize: 64,
   },
 });

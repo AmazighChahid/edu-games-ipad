@@ -26,17 +26,19 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { WorldTheme, GameState } from '../types';
 import { WORLDS, PIXEL_DIALOGUES } from '../data';
 import { useMatricesGame } from '../hooks';
+import { Icons } from '@/constants/icons';
 import {
   MatrixGrid,
   ChoicePanel,
   PixelWithBubble,
   PixelMascot,
-  SpeechBubble,
   HintButton,
   ProgressDots,
   AttemptsDisplay,
   ValidateButton,
 } from '../components';
+import { MascotBubble } from '@/components/common/MascotBubble';
+import { BackButton } from '@/components/common/BackButton';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -71,15 +73,8 @@ const Header = ({
     entering={FadeInDown.duration(300)}
     style={styles.header}
   >
-    {/* Back button */}
-    <Pressable
-      onPress={onBackPress}
-      style={styles.backButton}
-      accessibilityLabel="Retour"
-      accessibilityRole="button"
-    >
-      <Text style={styles.backIcon}>←</Text>
-    </Pressable>
+    {/* Back button - utilise le composant standardisé du Design System */}
+    <BackButton onPress={onBackPress} variant="icon" />
 
     {/* Center section */}
     <View style={styles.headerCenter}>
@@ -129,7 +124,7 @@ const FeedbackOverlay = ({ state, onContinue, isLastPuzzle }: FeedbackOverlayPro
           style={styles.feedbackCard}
         >
           <Text style={styles.feedbackEmoji}>
-            {state === 'correct' ? '🎉' : '💡'}
+            {state === 'correct' ? Icons.celebration : Icons.lightbulb}
           </Text>
           <Text style={styles.feedbackTitle}>
             {state === 'correct' ? 'Bravo !' : 'Voici la solution'}
@@ -155,8 +150,9 @@ const FeedbackOverlay = ({ state, onContinue, isLastPuzzle }: FeedbackOverlayPro
 // ============================================================================
 
 export function MatricesPuzzleScreen() {
-  const { worldId } = useLocalSearchParams<{ worldId: WorldTheme }>();
+  const { worldId, levelNumber } = useLocalSearchParams<{ worldId: WorldTheme; levelNumber?: string }>();
   const validWorldId = (worldId || 'forest') as WorldTheme;
+  const validLevelNumber = levelNumber ? parseInt(levelNumber, 10) : undefined;
   const world = WORLDS[validWorldId];
 
   const {
@@ -184,8 +180,8 @@ export function MatricesPuzzleScreen() {
 
   // Start game when screen mounts
   useEffect(() => {
-    startGame(validWorldId);
-  }, [validWorldId, startGame]);
+    startGame(validWorldId, validLevelNumber);
+  }, [validWorldId, validLevelNumber, startGame]);
 
   // Handle back navigation
   const handleBack = useCallback(() => {
@@ -268,11 +264,14 @@ export function MatricesPuzzleScreen() {
           >
             <View style={styles.mascotRow}>
               <PixelMascot mood={pixelMood} size="small" animated={true} />
-              <SpeechBubble
-                message={pixelMessage || 'Trouve le motif !'}
-                theme={validWorldId}
-                isVisible={true}
-              />
+              <View style={styles.bubbleContainer}>
+                <MascotBubble
+                  message={pixelMessage || 'Trouve le motif !'}
+                  tailPosition="left"
+                  showDecorations={false}
+                  hideTail={false}
+                />
+              </View>
             </View>
           </Animated.View>
 
@@ -382,20 +381,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
   },
-  backButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    boxShadow: '0px 1px 2px rgba(0, 0, 0, 0.1)',
-    elevation: 2,
-  },
-  backIcon: {
-    fontSize: 24,
-    color: '#333',
-  },
+  // BackButton styles supprimés - utilise le composant standardisé
   headerCenter: {
     flex: 1,
     alignItems: 'center',
@@ -422,6 +408,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-start',
     gap: 8,
+  },
+  bubbleContainer: {
+    flex: 1,
   },
   gridArea: {
     flex: 1,
@@ -476,7 +465,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Fredoka-Bold',
   },
   feedbackSubtitle: {
-    fontSize: 16,
+    fontSize: 18,
     color: '#666',
     textAlign: 'center',
     marginBottom: 24,
@@ -489,7 +478,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   feedbackButtonText: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: '700',
     color: '#FFFFFF',
     fontFamily: 'Nunito-Bold',

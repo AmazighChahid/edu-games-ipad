@@ -2,6 +2,8 @@
  * Dr. Hibou Mascot Component
  * The wise owl scientist that guides children through the balance game
  * Features: Animated expressions, contextual dialogues, age-appropriate messages
+ *
+ * Refactoré pour utiliser MascotBubble et Icons centralisés
  */
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
@@ -12,16 +14,11 @@ import Animated, {
   withSpring,
   withSequence,
   withTiming,
-  withDelay,
   withRepeat,
-  Easing,
-  FadeIn,
-  FadeOut,
-  SlideInDown,
-  SlideOutDown,
-  ZoomIn,
 } from 'react-native-reanimated';
-import { colors, spacing, borderRadius, shadows } from '../../../theme';
+import { colors, spacing, borderRadius, touchTargets, fontFamily, fontSize } from '../../../theme';
+import { MascotBubble } from '../../../components/common';
+import { Icons } from '../../../constants/icons';
 import type { DialogueContext, MascotMood, Phase } from '../types';
 
 // ============================================
@@ -42,107 +39,126 @@ interface DrHibouProps {
 }
 
 // ============================================
-// DIALOGUE SCRIPTS
+// COULEURS SPÉCIFIQUES AU COMPOSANT
+// ============================================
+
+const OWL_COLORS = {
+  body: colors.home.owl.brown,
+  bodyDark: colors.home.owl.brownDark,
+  faceDisk: '#FFF5E6',
+  eye: colors.home.owl.eye,
+  pupil: colors.home.owl.pupil,
+  eyeHighlight: '#FFFFFF',
+  beak: colors.home.owl.beak,
+  glasses: '#333333',
+  glassesLens: 'rgba(255, 255, 255, 0.3)',
+  labCoat: '#FFFFFF',
+  labCoatBorder: '#E0E0E0',
+  nameTagBg: colors.primary.main,
+};
+
+// ============================================
+// DIALOGUE SCRIPTS (avec Icons)
 // ============================================
 
 const DIALOGUES: Record<DialogueContext, string[]> = {
   intro: [
-    'Bienvenue dans mon laboratoire !\n\nJe suis Dr. Hibou, et j\'adore les expériences !',
-    'Voici ma balance magique !\n\nElle peut mesurer tout ce qu\'on met dessus.',
-    'Ton défi : faire en sorte qu\'elle soit bien droite, parfaitement équilibrée !',
+    `Bienvenue dans mon laboratoire !\n\nJe suis Dr. Hibou, et j'adore les expériences !`,
+    `Voici ma balance magique !\n\nElle peut mesurer tout ce qu'on met dessus.`,
+    `Ton défi : faire en sorte qu'elle soit bien droite, parfaitement équilibrée !`,
   ],
   level_start: [
-    'Nouvelle expérience !\n\nVoyons ce que tu vas découvrir...',
-    'Prêt pour le défi ?\n\nObserve bien la balance !',
-    'Commençons cette expérience !',
+    `Nouvelle expérience !\n\nVoyons ce que tu vas découvrir...`,
+    `Prêt pour le défi ?\n\nObserve bien la balance !`,
+    `Commençons cette expérience !`,
   ],
   first_move: [
-    'Intéressant...\n\nVoyons ce qui se passe !',
-    'Hmm... 🧐',
-    'Observe la balance...',
+    `Intéressant...\n\nVoyons ce qui se passe !`,
+    `Hmm... ${Icons.thinking}`,
+    `Observe la balance...`,
   ],
   wrong_move: [
-    'Intéressant résultat !\n\nEssaie autre chose.',
-    'On apprend en expérimentant.\n\nContinue !',
-    'Hmm, pas tout à fait...\n\nMais tu apprends !',
+    `Intéressant résultat !\n\nEssaie autre chose.`,
+    `On apprend en expérimentant.\n\nContinue !`,
+    `Hmm, pas tout à fait...\n\nMais tu apprends !`,
   ],
   close_balance: [
-    'Oh ! Elle oscille !\n\nTu es tout près ! 🎯',
-    'Elle hésite...\n\nC\'est presque parfait !',
-    'Regarde comme elle balance...\n\nL\'équilibre est proche !',
+    `Oh ! Elle oscille !\n\nTu es tout près ! ${Icons.target}`,
+    `Elle hésite...\n\nC'est presque parfait !`,
+    `Regarde comme elle balance...\n\nL'équilibre est proche !`,
   ],
   balanced: [
-    '🎉 Eurêka !\n\nParfait équilibre !',
-    'Magnifique ! ⚖️✨\n\nLa balance est parfaitement droite.',
-    'Tu es un vrai scientifique !',
-    'Expérience réussie !\n\nBrillant !',
+    `${Icons.celebration} Eurêka !\n\nParfait équilibre !`,
+    `Magnifique ! ${Icons.balance}${Icons.sparkles}\n\nLa balance est parfaitement droite.`,
+    `Tu es un vrai scientifique !`,
+    `Expérience réussie !\n\nBrillant !`,
   ],
   discovery: [
-    '🎓 GRANDE DÉCOUVERTE !\n\nTu as prouvé une nouvelle équivalence !',
-    'Eurêka !\n\nCette découverte va dans ton journal !',
-    'Fascinant !\n\nQuelle belle découverte !',
+    `${Icons.pedagogy} GRANDE DÉCOUVERTE !\n\nTu as prouvé une nouvelle équivalence !`,
+    `Eurêka !\n\nCette découverte va dans ton journal !`,
+    `Fascinant !\n\nQuelle belle découverte !`,
   ],
   hint_1: [
-    'Un conseil de scientifique ? 💡\n\nObserve bien la balance.\nDe quel côté penche-t-elle ?',
+    `Un conseil de scientifique ? ${Icons.lightbulb}\n\nObserve bien la balance.\nDe quel côté penche-t-elle ?`,
   ],
   hint_2: [
-    'Hmm, réfléchissons ensemble...\n\nQue pourrais-tu faire pour équilibrer ?',
+    `Hmm, réfléchissons ensemble...\n\nQue pourrais-tu faire pour équilibrer ?`,
   ],
   hint_3: [
-    'Et si tu essayais avec d\'autres objets ?\n\nRegarde ce qui est disponible...',
+    `Et si tu essayais avec d'autres objets ?\n\nRegarde ce qui est disponible...`,
   ],
   hint_4: [
-    'Je te montre un bon choix...\n\nCet objet pourrait aider !',
+    `Je te montre un bon choix...\n\nCet objet pourrait aider !`,
   ],
   hint_5: [
-    'D\'accord, je t\'aide un peu plus.\n\nVoici ce qu\'il te faut...',
+    `D'accord, je t'aide un peu plus.\n\nVoici ce qu'il te faut...`,
   ],
   idle: [
-    'Prends ton temps,\nobserve bien...',
-    'Qu\'est-ce que tu penses faire ?',
-    'Expérimente,\nc\'est comme ça qu\'on apprend !',
+    `Prends ton temps,\nobserve bien...`,
+    `Qu'est-ce que tu penses faire ?`,
+    `Expérimente,\nc'est comme ça qu'on apprend !`,
   ],
   sandbox_start: [
-    'Mode libre ! 🎨\n\nIci, pas d\'objectif.\nExpérimente !',
-    'Découvre ce qui pèse pareil !\n\nAmuse-toi bien.',
+    `Mode libre ! ${Icons.sandbox}\n\nIci, pas d'objectif.\nExpérimente !`,
+    `Découvre ce qui pèse pareil !\n\nAmuse-toi bien.`,
   ],
   sandbox_discovery: [
-    'Oh ! Tu as trouvé une équivalence !\n\nBelle découverte ! 🔬',
+    `Oh ! Tu as trouvé une équivalence !\n\nBelle découverte ! ${Icons.lab}`,
   ],
   victory: [
-    'Expérience terminée ! 📊\n\nExcellent travail !',
-    'Tu as bien expérimenté !\n\nC\'est comme ça qu\'on apprend.',
+    `Expérience terminée ! ${Icons.chart}\n\nExcellent travail !`,
+    `Tu as bien expérimenté !\n\nC'est comme ça qu'on apprend.`,
   ],
   badge_earned: [
-    'Tu as gagné un badge ! 🏅\n\nTu le mérites bien, scientifique !',
+    `Tu as gagné un badge ! ${Icons.medalGold}\n\nTu le mérites bien, scientifique !`,
   ],
 };
 
 // Phase-specific messages
 const PHASE_INTROS: Record<Phase, string[]> = {
   1: [
-    'Commençons simplement.\n\nMets la même chose à droite qu\'à gauche !',
-    'Compte bien les objets !\n\nCombien en faut-il ?',
+    `Commençons simplement.\n\nMets la même chose à droite qu'à gauche !`,
+    `Compte bien les objets !\n\nCombien en faut-il ?`,
   ],
   2: [
-    'Hmm, cette pastèque est lourde... 🍉\n\nCombien de pommes pour l\'équilibrer ?',
-    'Nouvelle expérience !\n\nTrouve l\'équivalence.',
+    `Hmm, cette pastèque est lourde...\n\nCombien de pommes pour l'équilibrer ?`,
+    `Nouvelle expérience !\n\nTrouve l'équivalence.`,
   ],
   3: [
-    'Cette fois, les poids ont des nombres !\n\nComment faire le même total des deux côtés ?',
-    'Excellent !\n\nPlusieurs solutions sont possibles...',
+    `Cette fois, les poids ont des nombres !\n\nComment faire le même total des deux côtés ?`,
+    `Excellent !\n\nPlusieurs solutions sont possibles...`,
   ],
   4: [
-    'Oh ! Un mystère à résoudre ! 🔍\n\nTu vois ce [?] ? C\'est l\'inconnue.',
-    'Trouve sa valeur pour équilibrer !\n\nQue vaut le [?] cette fois ?',
+    `Oh ! Un mystère à résoudre !\n\nTu vois ce [?] ? C'est l'inconnue.`,
+    `Trouve sa valeur pour équilibrer !\n\nQue vaut le [?] cette fois ?`,
   ],
 };
 
-// Age-adapted short messages
-const AGE_MESSAGES: Record<'6-7' | '7-8' | '8-9' | '9-10', Record<string, string[]>> = {
+// Age-adapted short messages (kept for potential future use)
+const _AGE_MESSAGES: Record<'6-7' | '7-8' | '8-9' | '9-10', Record<string, string[]>> = {
   '6-7': {
     encourage: ['Bien !', 'Continue !', 'Bravo !'],
-    balance: ['C\'est droit !', 'Parfait !', 'Super !'],
+    balance: ["C'est droit !", 'Parfait !', 'Super !'],
     hint: ['Ajoute à droite.', 'Compte les pommes.'],
   },
   '7-8': {
@@ -157,8 +173,8 @@ const AGE_MESSAGES: Record<'6-7' | '7-8' | '8-9' | '9-10', Record<string, string
   },
   '9-10': {
     encourage: ['Excellent raisonnement !', 'Tu maîtrises !'],
-    balance: ['Tu as résolu l\'équation !', 'Brillant !'],
-    hint: ['Isole l\'inconnue.', 'Réfléchis aux deux côtés.'],
+    balance: ["Tu as résolu l'équation !", 'Brillant !'],
+    hint: ["Isole l'inconnue.", 'Réfléchis aux deux côtés.'],
   },
 };
 
@@ -182,7 +198,6 @@ interface OwlFaceProps {
 function OwlFace({ mood, size }: OwlFaceProps) {
   // Eye animations based on mood
   const eyeScale = useSharedValue(1);
-  const eyebrowAngle = useSharedValue(0);
   const mouthWidth = useSharedValue(20);
 
   useEffect(() => {
@@ -201,7 +216,6 @@ function OwlFace({ mood, size }: OwlFaceProps) {
         break;
       case 'curious':
         eyeScale.value = withSpring(1.2);
-        eyebrowAngle.value = withSpring(-5);
         break;
       case 'encouraging':
         eyeScale.value = withSpring(1);
@@ -209,16 +223,13 @@ function OwlFace({ mood, size }: OwlFaceProps) {
         break;
       default:
         eyeScale.value = withSpring(1);
-        eyebrowAngle.value = withSpring(0);
         mouthWidth.value = withSpring(20);
     }
-  }, [mood]);
+  }, [mood, eyeScale, mouthWidth]);
 
   const eyeStyle = useAnimatedStyle(() => ({
     transform: [{ scale: eyeScale.value }],
   }));
-
-  const scale = size / 80; // Base size is 80
 
   return (
     <View style={[styles.owlContainer, { width: size, height: size }]}>
@@ -323,45 +334,6 @@ function OwlFace({ mood, size }: OwlFaceProps) {
 }
 
 // ============================================
-// SPEECH BUBBLE
-// ============================================
-
-interface SpeechBubbleProps {
-  message: string;
-  position: 'left' | 'right' | 'center';
-  onDismiss?: () => void;
-}
-
-function SpeechBubble({ message, position, onDismiss }: SpeechBubbleProps) {
-  return (
-    <Animated.View
-      entering={ZoomIn.springify().damping(12)}
-      exiting={FadeOut.duration(200)}
-      style={[
-        styles.bubble,
-        position === 'left' && styles.bubbleLeft,
-        position === 'right' && styles.bubbleRight,
-      ]}
-    >
-      <TouchableOpacity
-        onPress={onDismiss}
-        activeOpacity={0.9}
-        style={styles.bubbleContent}
-      >
-        <Text style={styles.bubbleText}>{message}</Text>
-        <Text style={styles.tapToContinue}>Touche pour continuer</Text>
-      </TouchableOpacity>
-
-      {/* Bubble tail */}
-      <View style={[
-        styles.bubbleTail,
-        position === 'right' && styles.bubbleTailRight,
-      ]} />
-    </Animated.View>
-  );
-}
-
-// ============================================
 // MAIN COMPONENT
 // ============================================
 
@@ -370,7 +342,6 @@ export function DrHibou({
   message,
   context,
   phase,
-  ageGroup = '6-7',
   onMessageDismiss,
   showBubble = true,
   autoHideDelay = 0,
@@ -379,7 +350,7 @@ export function DrHibou({
 }: DrHibouProps) {
   const [currentMessage, setCurrentMessage] = useState<string | null>(null);
   const [isVisible, setIsVisible] = useState(true);
-  const autoHideTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const autoHideTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Size mapping
   const sizeMap = {
@@ -441,7 +412,7 @@ export function DrHibou({
   useEffect(() => {
     translateY.value = withSpring(0, { damping: 12 });
     opacity.value = withTiming(1, { duration: 300 });
-  }, []);
+  }, [translateY, opacity]);
 
   const containerStyle = useAnimatedStyle(() => ({
     transform: [{ translateY: translateY.value }],
@@ -449,6 +420,9 @@ export function DrHibou({
   }));
 
   if (!isVisible) return null;
+
+  // Tail position pour MascotBubble
+  const tailPosition = position === 'right' ? 'right' : position === 'center' ? 'bottom' : 'left';
 
   return (
     <Animated.View
@@ -460,18 +434,25 @@ export function DrHibou({
         containerStyle,
       ]}
     >
-      {/* Speech bubble */}
+      {/* Speech bubble - utilise MascotBubble */}
       {showBubble && currentMessage && (
-        <SpeechBubble
+        <MascotBubble
           message={currentMessage}
-          position={position}
-          onDismiss={handleDismiss}
+          tailPosition={tailPosition}
+          showDecorations={false}
+          buttonText="Continuer"
+          onPress={handleDismiss}
+          buttonVariant="orange"
+          typing={true}
+          typingSpeed={25}
+          maxWidth={280}
         />
       )}
 
       {/* Owl character */}
       <TouchableOpacity
         activeOpacity={0.9}
+        style={styles.owlTouchable}
         onPress={() => {
           if (!currentMessage) {
             // Show idle message when tapped without active message
@@ -523,6 +504,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 
+  // Owl touchable - touch target 64dp minimum
+  owlTouchable: {
+    minWidth: touchTargets.large,
+    minHeight: touchTargets.large,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
   // Character
   characterContainer: {
     alignItems: 'center',
@@ -530,9 +519,9 @@ const styles = StyleSheet.create({
   },
   labCoat: {
     position: 'absolute',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: OWL_COLORS.labCoat,
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: OWL_COLORS.labCoatBorder,
   },
 
   // Owl
@@ -541,13 +530,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   owlBody: {
-    backgroundColor: colors.home.owl.brown,
+    backgroundColor: OWL_COLORS.body,
     alignItems: 'center',
     position: 'relative',
   },
   earTuft: {
     position: 'absolute',
-    backgroundColor: colors.home.owl.brownDark,
+    backgroundColor: OWL_COLORS.bodyDark,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
   },
@@ -558,32 +547,32 @@ const styles = StyleSheet.create({
     transform: [{ rotate: '20deg' }],
   },
   faceDisk: {
-    backgroundColor: '#FFF5E6',
+    backgroundColor: OWL_COLORS.faceDisk,
     alignItems: 'center',
     position: 'absolute',
   },
   eyesContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    gap: 8,
-    marginTop: 8,
+    gap: spacing[2],
+    marginTop: spacing[2],
   },
   eye: {
-    backgroundColor: colors.home.owl.eye,
+    backgroundColor: OWL_COLORS.eye,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
-    borderColor: '#333',
+    borderColor: OWL_COLORS.glasses,
   },
   pupil: {
-    backgroundColor: colors.home.owl.pupil,
+    backgroundColor: OWL_COLORS.pupil,
     alignItems: 'flex-start',
     justifyContent: 'flex-start',
     paddingLeft: 3,
     paddingTop: 3,
   },
   eyeHighlight: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: OWL_COLORS.eyeHighlight,
   },
   beak: {
     position: 'absolute',
@@ -593,7 +582,7 @@ const styles = StyleSheet.create({
     borderStyle: 'solid',
     borderLeftColor: 'transparent',
     borderRightColor: 'transparent',
-    borderTopColor: colors.home.owl.beak,
+    borderTopColor: OWL_COLORS.beak,
   },
   glassesFrame: {
     position: 'absolute',
@@ -603,75 +592,26 @@ const styles = StyleSheet.create({
   },
   glassLens: {
     borderWidth: 2,
-    borderColor: '#333',
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    borderColor: OWL_COLORS.glasses,
+    backgroundColor: OWL_COLORS.glassesLens,
   },
   glassesBridge: {
-    backgroundColor: '#333',
+    backgroundColor: OWL_COLORS.glasses,
   },
 
   // Name tag
   nameTag: {
-    backgroundColor: colors.primary.main,
+    backgroundColor: OWL_COLORS.nameTagBg,
     paddingHorizontal: spacing[2],
     paddingVertical: spacing[1],
-    borderRadius: borderRadius.small,
+    borderRadius: borderRadius.sm,
     marginTop: -spacing[1],
   },
   nameText: {
     color: colors.text.inverse,
-    fontSize: 10,
+    fontSize: fontSize.xs,
+    fontFamily: fontFamily.semiBold,
     fontWeight: '600',
-  },
-
-  // Speech bubble
-  bubble: {
-    maxWidth: 280,
-    backgroundColor: colors.background.card,
-    borderRadius: borderRadius.large,
-    padding: spacing[4],
-    ...shadows.medium,
-    borderWidth: 2,
-    borderColor: colors.primary.light,
-    marginBottom: spacing[2],
-  },
-  bubbleLeft: {
-    marginLeft: 30,
-  },
-  bubbleRight: {
-    marginRight: 30,
-  },
-  bubbleContent: {
-    gap: spacing[2],
-  },
-  bubbleText: {
-    fontSize: 16,
-    lineHeight: 24,
-    color: colors.text.primary,
-    textAlign: 'center',
-  },
-  tapToContinue: {
-    fontSize: 11,
-    color: colors.text.muted,
-    textAlign: 'center',
-    fontStyle: 'italic',
-  },
-  bubbleTail: {
-    position: 'absolute',
-    bottom: -10,
-    left: 30,
-    width: 0,
-    height: 0,
-    borderLeftWidth: 10,
-    borderRightWidth: 10,
-    borderTopWidth: 12,
-    borderLeftColor: 'transparent',
-    borderRightColor: 'transparent',
-    borderTopColor: colors.background.card,
-  },
-  bubbleTailRight: {
-    left: undefined,
-    right: 30,
   },
 });
 

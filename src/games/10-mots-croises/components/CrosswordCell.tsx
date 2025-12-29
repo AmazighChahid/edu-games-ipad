@@ -6,6 +6,8 @@
  * - Vert : lettre correcte et bien placée
  * - Orange : lettre présente mais mal placée
  * - Rouge : lettre absente du mot
+ *
+ * Refactorisé pour utiliser les Icons centralisés et respecter les guidelines UX
  */
 
 import React from 'react';
@@ -17,7 +19,8 @@ import Animated, {
   withSequence,
 } from 'react-native-reanimated';
 
-import { colors, borderRadius, fontFamily } from '../../../theme';
+import { colors, borderRadius, fontFamily, fontSize } from '../../../theme';
+import { Icons } from '../../../constants/icons';
 import { useAccessibilityAnimations } from '../../../hooks';
 import type { CrosswordCell as CellType, LetterStatus } from '../types';
 
@@ -26,23 +29,23 @@ import type { CrosswordCell as CellType, LetterStatus } from '../types';
 // ============================================================================
 
 /**
- * Couleurs SUTOM selon le design system
+ * Couleurs SUTOM selon le design system avec icons centralisés
  */
 const SUTOM_COLORS: Record<LetterStatus, { background: string; border: string; icon: string }> = {
   correct: {
-    background: '#E8F5E9',  // Vert clair
-    border: '#4CAF50',       // Vert (success)
-    icon: '✓',
+    background: '#E8F5E9', // Vert clair
+    border: '#4CAF50', // Vert (success)
+    icon: Icons.check,
   },
   misplaced: {
-    background: '#FFF3E0',  // Orange clair
-    border: '#FF9800',       // Orange
-    icon: '↔',
+    background: '#FFF3E0', // Orange clair
+    border: '#FF9800', // Orange
+    icon: Icons.swap,
   },
   absent: {
-    background: '#FFEBEE',  // Rouge clair
-    border: '#F44336',       // Rouge
-    icon: '✗',
+    background: '#FFEBEE', // Rouge clair
+    border: '#F44336', // Rouge
+    icon: Icons.crossMark,
   },
   neutral: {
     background: colors.background.card,
@@ -124,7 +127,7 @@ export function CrosswordCell({
   const backgroundColor = cell.isRevealed
     ? '#E8F5E9'
     : cell.userLetter && sutomStatus !== 'neutral'
-    ? sutomColors.background  // Couleur SUTOM prioritaire
+    ? sutomColors.background // Couleur SUTOM prioritaire
     : isSelected
     ? colors.primary.light
     : isInSelectedWord
@@ -134,7 +137,7 @@ export function CrosswordCell({
   // Déterminer la couleur de bordure
   // La sélection est indiquée par une bordure bleue épaisse, mais la couleur SUTOM reste si présente
   const borderColor = isSelected
-    ? colors.primary.main  // Bordure bleue pour la sélection
+    ? colors.primary.main // Bordure bleue pour la sélection
     : cell.userLetter && sutomStatus !== 'neutral'
     ? sutomColors.border
     : isInSelectedWord
@@ -142,21 +145,39 @@ export function CrosswordCell({
     : 'rgba(0,0,0,0.1)';
 
   // Épaisseur de bordure : plus épaisse si sélectionné
-  const borderWidth = isSelected ? 3 : (cell.userLetter && sutomStatus !== 'neutral') ? 2 : 1;
+  const borderWidth =
+    isSelected ? 3 : cell.userLetter && sutomStatus !== 'neutral' ? 2 : 1;
 
   // Couleur du texte selon le statut
   const textColor = cell.isRevealed
     ? '#4CAF50'
     : sutomStatus === 'correct'
-    ? '#2E7D32'      // Vert foncé
+    ? '#2E7D32' // Vert foncé
     : sutomStatus === 'misplaced'
-    ? '#E65100'      // Orange foncé
+    ? '#E65100' // Orange foncé
     : sutomStatus === 'absent'
-    ? '#C62828'      // Rouge foncé
+    ? '#C62828' // Rouge foncé
     : colors.text.primary;
 
   return (
-    <Pressable onPress={handlePress} disabled={disabled}>
+    <Pressable
+      onPress={handlePress}
+      disabled={disabled}
+      accessibilityLabel={
+        cell.userLetter
+          ? `Lettre ${cell.userLetter}${
+              sutomStatus === 'correct'
+                ? ', correcte'
+                : sutomStatus === 'misplaced'
+                ? ', mal placée'
+                : sutomStatus === 'absent'
+                ? ', absente'
+                : ''
+            }`
+          : 'Cellule vide'
+      }
+      accessibilityRole="button"
+    >
       <Animated.View
         style={[
           styles.cell,
@@ -182,6 +203,13 @@ export function CrosswordCell({
               styles.statusIcon,
               { color: sutomColors.border },
             ]}
+            accessibilityLabel={
+              sutomStatus === 'correct'
+                ? 'Correct'
+                : sutomStatus === 'misplaced'
+                ? 'Mal placé'
+                : 'Absent'
+            }
           >
             {sutomColors.icon}
           </Text>
@@ -192,7 +220,7 @@ export function CrosswordCell({
           style={[
             styles.letter,
             {
-              fontSize: size * 0.5,
+              fontSize: Math.max(fontSize.lg, size * 0.5), // Au moins 18pt
               color: textColor,
             },
           ]}
@@ -223,20 +251,19 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 2,
     left: 3,
-    fontSize: 8,
+    fontSize: 11, // Min 10pt pour lisibilité (exception contrainte d'espace)
     fontWeight: '600',
-    color: colors.text.tertiary,
+    color: colors.text.muted,
   },
   statusIcon: {
     position: 'absolute',
     top: 2,
     right: 3,
-    fontSize: 10,
+    fontSize: 12, // Min 10pt pour lisibilité (exception contrainte d'espace)
     fontWeight: '700',
   },
   letter: {
-    fontFamily: fontFamily.displayBold,
-    fontWeight: '700',
+    fontFamily: fontFamily.bold,
     textTransform: 'uppercase',
   },
 });

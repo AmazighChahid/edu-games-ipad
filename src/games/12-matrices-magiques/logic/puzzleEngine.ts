@@ -457,10 +457,14 @@ export function generatePuzzle(
 
 /**
  * Generate a complete session of puzzles for a world
+ * @param worldId - The world theme identifier
+ * @param puzzleCount - Number of puzzles to generate (default: world.puzzleCount)
+ * @param levelNumber - Optional level number (1-10) to determine difficulty
  */
 export function generateSession(
   worldId: WorldTheme,
-  puzzleCount?: number
+  puzzleCount?: number,
+  levelNumber?: number
 ): PuzzleConfig[] {
   const world = getWorldById(worldId);
   if (!world) {
@@ -471,17 +475,35 @@ export function generateSession(
   const puzzles: PuzzleConfig[] = [];
   const [minDifficulty, maxDifficulty] = world.difficultyRange;
 
-  // Progressive difficulty
+  // Difficulty levels
   const difficulties: DifficultyLevel[] = ['easy', 'medium', 'hard', 'expert'];
   const minIdx = difficulties.indexOf(minDifficulty);
   const maxIdx = difficulties.indexOf(maxDifficulty);
 
-  for (let i = 0; i < count; i++) {
-    // Progress difficulty through session
-    const progressRatio = i / (count - 1);
-    const difficultyIdx = Math.round(minIdx + progressRatio * (maxIdx - minIdx));
-    const difficulty = difficulties[difficultyIdx];
+  // If levelNumber is provided, use it to determine base difficulty
+  // Levels 1-10 map to the world's difficulty range
+  let baseDifficultyIdx: number | null = null;
+  if (levelNumber !== undefined && levelNumber >= 1 && levelNumber <= 10) {
+    // Map level 1-10 to the world's difficulty range
+    const levelProgress = (levelNumber - 1) / 9; // 0 to 1
+    baseDifficultyIdx = Math.round(minIdx + levelProgress * (maxIdx - minIdx));
+  }
 
+  for (let i = 0; i < count; i++) {
+    let difficultyIdx: number;
+
+    if (baseDifficultyIdx !== null) {
+      // When level is specified, use consistent difficulty with slight variation
+      // within the session (±1 step for variety)
+      const variation = i < count / 2 ? 0 : 1; // Second half slightly harder
+      difficultyIdx = Math.min(baseDifficultyIdx + variation, maxIdx);
+    } else {
+      // Progressive difficulty through session (original behavior)
+      const progressRatio = i / (count - 1);
+      difficultyIdx = Math.round(minIdx + progressRatio * (maxIdx - minIdx));
+    }
+
+    const difficulty = difficulties[difficultyIdx];
     puzzles.push(generatePuzzle(worldId, difficulty));
   }
 

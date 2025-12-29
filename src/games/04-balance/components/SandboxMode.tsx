@@ -21,7 +21,8 @@ import Animated, {
   useAnimatedStyle,
   withSpring,
 } from 'react-native-reanimated';
-import { colors, spacing, borderRadius, shadows } from '../../../theme';
+import { colors, spacing, borderRadius, shadows, touchTargets, fontFamily, fontSize } from '../../../theme';
+import { Icons } from '../../../constants/icons';
 import type { WeightObject, Equivalence, ObjectCategory } from '../types';
 import { OBJECTS_LIBRARY, SANDBOX_OBJECTS, createObject } from '../data/objects';
 import { BalanceScale } from './BalanceScale';
@@ -48,10 +49,10 @@ interface SandboxModeProps {
 // ============================================
 
 const CATEGORY_INFO: Record<ObjectCategory, { label: string; emoji: string; color: string }> = {
-  fruit: { label: 'Fruits', emoji: '🍎', color: colors.home.categories.numbers },
-  animal: { label: 'Animaux', emoji: '🐾', color: colors.home.categories.memory },
-  weight: { label: 'Poids', emoji: '🔢', color: colors.home.categories.spatial },
-  unknown: { label: 'Mystère', emoji: '❓', color: colors.home.categories.logic },
+  fruit: { label: 'Fruits', emoji: Icons.apple, color: colors.home.categories.numbers },
+  animal: { label: 'Animaux', emoji: Icons.pawprints, color: colors.home.categories.memory },
+  weight: { label: 'Poids', emoji: Icons.numbers, color: colors.home.categories.spatial },
+  unknown: { label: 'Mystère', emoji: Icons.mystery, color: colors.home.categories.logic },
 };
 
 // ============================================
@@ -399,7 +400,7 @@ export function SandboxMode({
           exiting={FadeOut}
           style={styles.discoveryBanner}
         >
-          <Text style={styles.discoveryEmoji}>🔬</Text>
+          <Text style={styles.discoveryEmoji}>{Icons.lab}</Text>
           <View>
             <Text style={styles.discoveryTitle}>Découverte !</Text>
             <Text style={styles.discoveryText}>{lastDiscovery}</Text>
@@ -429,7 +430,7 @@ const styles = StyleSheet.create({
     paddingTop: spacing[6],
     paddingBottom: spacing[3],
     backgroundColor: colors.background.card,
-    ...shadows.small,
+    ...shadows.sm,
   },
   backButton: {
     paddingVertical: spacing[2],
@@ -457,7 +458,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.feedback.warning,
     paddingHorizontal: spacing[3],
     paddingVertical: spacing[2],
-    borderRadius: borderRadius.medium,
+    borderRadius: borderRadius.md,
   },
   resetButtonText: {
     color: colors.text.primary,
@@ -493,14 +494,14 @@ const styles = StyleSheet.create({
     marginHorizontal: spacing[4],
     marginBottom: spacing[3],
     backgroundColor: colors.background.card,
-    borderRadius: borderRadius.large,
-    ...shadows.small,
+    borderRadius: borderRadius.lg,
+    ...shadows.sm,
   },
   sideButton: {
     flex: 1,
     paddingVertical: spacing[3],
     alignItems: 'center',
-    borderRadius: borderRadius.large,
+    borderRadius: borderRadius.lg,
   },
   sideButtonActive: {
     backgroundColor: colors.primary.main,
@@ -538,7 +539,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background.card,
     borderTopLeftRadius: borderRadius.xl,
     borderTopRightRadius: borderRadius.xl,
-    ...shadows.medium,
+    ...shadows.md,
   },
   objectsPaletteContent: {
     padding: spacing[4],
@@ -571,11 +572,11 @@ const styles = StyleSheet.create({
   },
   objectButton: {
     backgroundColor: colors.background.primary,
-    borderRadius: borderRadius.medium,
+    borderRadius: borderRadius.md,
     padding: spacing[2],
     alignItems: 'center',
     minWidth: 70,
-    ...shadows.small,
+    ...shadows.sm,
   },
   objectEmoji: {
     fontSize: 32,
@@ -617,12 +618,12 @@ const styles = StyleSheet.create({
     left: spacing[4],
     right: spacing[4],
     backgroundColor: colors.feedback.success,
-    borderRadius: borderRadius.large,
+    borderRadius: borderRadius.lg,
     padding: spacing[4],
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing[3],
-    ...shadows.medium,
+    ...shadows.md,
   },
   discoveryEmoji: {
     fontSize: 32,

@@ -20,6 +20,7 @@ import {
   type TrainingConfig,
   type TrainingParam,
 } from '../../../components/common';
+import { ParentDrawer } from '../../../components/parent/ParentDrawer';
 import { BalanceScale } from '../components/BalanceScale';
 import { DrHibou } from '../components/DrHibou';
 import { BalanceGameScreen } from './BalanceGameScreen';
@@ -28,7 +29,9 @@ import { useActiveProfile } from '../../../store/useStore';
 import { getAllPuzzles, getPuzzleById, getPuzzlesByPhase } from '../data/puzzles';
 import { createInitialState, addObjectToPlate } from '../logic/balanceEngine';
 import { createObject } from '../data/objects';
-import { colors, spacing, textStyles, borderRadius, shadows, fontFamily } from '../../../theme';
+import { balanceParentGuideData } from '../data/parentGuideData';
+import { colors, spacing, textStyles, borderRadius, shadows, fontFamily, fontSize } from '../../../theme';
+import { Icons } from '../../../constants/icons';
 import type { Puzzle, Phase, MascotMood } from '../types';
 import { PHASE_INFO } from '../types';
 
@@ -81,7 +84,7 @@ function createDemoBalance(puzzle: Puzzle) {
 // COMPOSANT PRINCIPAL
 // ============================================
 
-export default function BalanceHanoiIntroScreen() {
+export function BalanceHanoiIntroScreen() {
   const router = useRouter();
   const profile = useActiveProfile();
 
@@ -93,6 +96,7 @@ export default function BalanceHanoiIntroScreen() {
   const [mascotMessage, setMascotMessage] = useState("Coucou ! Je suis Dr. Hibou ! Bienvenue dans mon laboratoire !");
   const [mascotMood, setMascotMood] = useState<MascotMood>('curious');
   const [currentPuzzle, setCurrentPuzzle] = useState<Puzzle | null>(null);
+  const [showParentDrawer, setShowParentDrawer] = useState(false);
 
   // Générer les niveaux basés sur l'âge de l'enfant
   const levels = useMemo(() => {
@@ -137,9 +141,9 @@ export default function BalanceHanoiIntroScreen() {
       label: 'Mode',
       type: 'select',
       options: [
-        { value: 'levels', label: '🔬 Niveaux' },
-        { value: 'sandbox', label: '🎨 Mode Libre' },
-        { value: 'journal', label: '📖 Mon Journal' },
+        { value: 'levels', label: `${Icons.lab} Niveaux` },
+        { value: 'sandbox', label: `${Icons.sandbox} Mode Libre` },
+        { value: 'journal', label: `${Icons.journal} Mon Journal` },
       ],
       defaultValue: 'levels',
     },
@@ -200,8 +204,8 @@ export default function BalanceHanoiIntroScreen() {
   }, [isTrainingMode]);
 
   const handleParentPress = useCallback(() => {
-    router.push('/(parent)');
-  }, [router]);
+    setShowParentDrawer(true);
+  }, []);
 
   const handleHelpPress = useCallback(() => {
     setMascotMessage("Place les objets sur la balance pour l'équilibrer ! Quand les deux côtés pèsent pareil, elle reste droite !");
@@ -238,7 +242,7 @@ export default function BalanceHanoiIntroScreen() {
       >
         {/* Icône phase */}
         <Text style={styles.levelThemeIcon}>
-          {!level.isUnlocked ? '🔒' : phaseInfo.icon}
+          {!level.isUnlocked ? Icons.lock : phaseInfo.icon}
         </Text>
 
         {/* Numéro niveau */}
@@ -265,7 +269,7 @@ export default function BalanceHanoiIntroScreen() {
                 key={star}
                 style={star <= (level.stars || 0) ? styles.starFilled : styles.starEmpty}
               >
-                ★
+                {Icons.starFull}
               </Text>
             ))}
           </View>
@@ -308,7 +312,7 @@ export default function BalanceHanoiIntroScreen() {
     if (!currentPuzzle) {
       return (
         <View style={styles.gamePreviewEmpty}>
-          <Text style={styles.gamePreviewEmptyEmoji}>🦉</Text>
+          <Text style={styles.gamePreviewEmptyEmoji}>{Icons.owl}</Text>
           <Text style={styles.gamePreviewEmptyText}>
             Sélectionne un niveau pour voir l'expérience
           </Text>
@@ -348,7 +352,7 @@ export default function BalanceHanoiIntroScreen() {
             colors={[colors.primary.main, colors.primary.dark]}
             style={styles.playButtonGradient}
           >
-            <Text style={styles.playButtonEmoji}>🔬</Text>
+            <Text style={styles.playButtonEmoji}>{Icons.lab}</Text>
             <Text style={styles.playButtonText}>Expérimentons !</Text>
           </LinearGradient>
         </Pressable>
@@ -377,12 +381,12 @@ export default function BalanceHanoiIntroScreen() {
         <View style={styles.progressDivider} />
         <View style={styles.progressItem}>
           <Text style={styles.progressValue}>{currentPuzzle?.phase || '-'}</Text>
-          <Text style={styles.progressLabel}>🧪 Phase</Text>
+          <Text style={styles.progressLabel}>{Icons.experiment} Phase</Text>
         </View>
         <View style={styles.progressDivider} />
         <View style={styles.progressItem}>
           <Text style={styles.progressValue}>0</Text>
-          <Text style={styles.progressLabel}>📖 Découvertes</Text>
+          <Text style={styles.progressLabel}>{Icons.journal} Découvertes</Text>
         </View>
       </View>
     );
@@ -400,61 +404,87 @@ export default function BalanceHanoiIntroScreen() {
   ), [mascotMessage, mascotMood, isPlaying]);
 
   return (
-    <GameIntroTemplate
-      // Header
-      title="Balance Logique"
-      emoji="⚖️"
-      onBack={handleBack}
-      onParentPress={handleParentPress}
-      onHelpPress={handleHelpPress}
-      showParentButton={true}
-      showHelpButton={true}
+    <>
+      <GameIntroTemplate
+        // Header
+        title="Balance Logique"
+        emoji={Icons.balance}
+        onBack={handleBack}
+        onParentPress={handleParentPress}
+        onHelpPress={handleHelpPress}
+        showParentButton={true}
+        showHelpButton={true}
 
-      // Niveaux
-      levels={levels}
-      selectedLevel={selectedLevel}
-      onSelectLevel={handleSelectLevel}
-      renderLevelCard={renderLevelCard}
-      levelColumns={5}
+        // Niveaux
+        levels={levels}
+        selectedLevel={selectedLevel}
+        onSelectLevel={handleSelectLevel}
+        renderLevelCard={renderLevelCard}
+        levelColumns={5}
 
-      // Mode entraînement
-      showTrainingMode={true}
-      trainingConfig={trainingConfig}
-      onTrainingPress={handleTrainingPress}
-      isTrainingMode={isTrainingMode}
+        // Mode entraînement
+        showTrainingMode={true}
+        trainingConfig={trainingConfig}
+        onTrainingPress={handleTrainingPress}
+        isTrainingMode={isTrainingMode}
 
-      // Jeu
-      renderGame={renderGame}
-      isPlaying={isPlaying}
-      onStartPlaying={handleStartPlaying}
+        // Jeu
+        renderGame={renderGame}
+        isPlaying={isPlaying}
+        onStartPlaying={handleStartPlaying}
 
-      // Progress
-      renderProgress={renderProgress}
+        // Progress
+        renderProgress={renderProgress}
 
-      // Mascotte
-      mascotComponent={!isPlaying ? renderMascot : undefined}
-      mascotMessage={mascotMessage}
-      mascotMessageType={
-        mascotMood === 'celebratory' ? 'victory' :
-        mascotMood === 'excited' ? 'hint' :
-        mascotMood === 'curious' ? 'encourage' :
-        'intro'
-      }
+        // Mascotte
+        mascotComponent={!isPlaying ? renderMascot : undefined}
+        mascotMessage={mascotMessage}
+        mascotMessageType={
+          mascotMood === 'celebratory' ? 'victory' :
+          mascotMood === 'excited' ? 'hint' :
+          mascotMood === 'curious' ? 'encourage' :
+          'intro'
+        }
 
-      // Boutons flottants
-      showResetButton={!isPlaying}
-      onReset={handleReset}
-      showHintButton={!isPlaying && !!currentPuzzle}
-      onHint={handleHint}
-      hintsRemaining={3}
-      hintsDisabled={false}
+        // Boutons flottants
+        showResetButton={!isPlaying}
+        onReset={handleReset}
+        showHintButton={!isPlaying && !!currentPuzzle}
+        onHint={handleHint}
+        hintsRemaining={3}
+        hintsDisabled={false}
 
-      // Animation config
-      animationConfig={{
-        selectorSlideDuration: 400,
-        selectorFadeDuration: 300,
-      }}
-    />
+        // Animation config
+        animationConfig={{
+          selectorSlideDuration: 400,
+          selectorFadeDuration: 300,
+        }}
+      />
+
+      {/* Fiche parent de l'activité */}
+      <ParentDrawer
+        isVisible={showParentDrawer}
+        onClose={() => setShowParentDrawer(false)}
+        activityName={balanceParentGuideData.activityName}
+        activityEmoji={balanceParentGuideData.activityEmoji}
+        gameData={balanceParentGuideData.gameData}
+        appBehavior={balanceParentGuideData.appBehavior}
+        competences={balanceParentGuideData.competences}
+        scienceData={balanceParentGuideData.scienceData}
+        advices={balanceParentGuideData.advices}
+        warningText={balanceParentGuideData.warningText}
+        teamMessage={balanceParentGuideData.teamMessage}
+        questionsDuring={balanceParentGuideData.questionsDuring}
+        questionsAfter={balanceParentGuideData.questionsAfter}
+        questionsWarning={balanceParentGuideData.questionsWarning}
+        dailyActivities={balanceParentGuideData.dailyActivities}
+        transferPhrases={balanceParentGuideData.transferPhrases}
+        resources={balanceParentGuideData.resources}
+        badges={balanceParentGuideData.badges}
+        ageExpectations={balanceParentGuideData.ageExpectations}
+        settings={balanceParentGuideData.settings}
+      />
+    </>
   );
 }
 
@@ -498,7 +528,7 @@ const styles = StyleSheet.create({
     color: colors.text.muted,
   },
   levelPhaseName: {
-    fontSize: 11,
+    fontSize: fontSize.sm,
     fontFamily: fontFamily.regular,
     color: colors.text.secondary,
     marginTop: spacing[1],
@@ -615,9 +645,9 @@ const styles = StyleSheet.create({
   },
   playButtonText: {
     ...textStyles.button,
-    color: '#FFFFFF',
+    color: colors.text.inverse,
     fontFamily: fontFamily.bold,
-    fontSize: 20,
+    fontSize: fontSize.xl,
   },
 
   // Progress panel
@@ -652,3 +682,5 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background.secondary,
   },
 });
+
+export default BalanceHanoiIntroScreen;

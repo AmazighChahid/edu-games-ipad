@@ -55,7 +55,7 @@ interface UseMatricesGameReturn {
   starsEarned: number;
 
   // Actions
-  startGame: (worldId: WorldTheme) => void;
+  startGame: (worldId: WorldTheme, levelNumber?: number) => void;
   selectChoice: (index: number) => void;
   submitAnswer: () => void;
   requestHint: () => HintConfig | null;
@@ -148,8 +148,10 @@ export function useMatricesGame(): UseMatricesGameReturn {
 
   /**
    * Start a new game
+   * @param newWorldId - The world to play
+   * @param levelNumber - Optional level number (1-10) for difficulty
    */
-  const startGame = useCallback((newWorldId: WorldTheme) => {
+  const startGame = useCallback((newWorldId: WorldTheme, levelNumber?: number) => {
     setWorldId(newWorldId);
     setGameState('playing');
     setSelectedChoice(null);
@@ -161,7 +163,12 @@ export function useMatricesGame(): UseMatricesGameReturn {
     setStarsEarned(0);
     setPuzzleAttempts([]);
 
-    generateNewSession(newWorldId);
+    // Generate session with optional level number
+    if (levelNumber !== undefined) {
+      generateNewSession(newWorldId, { worldId: newWorldId, levelNumber });
+    } else {
+      generateNewSession(newWorldId);
+    }
 
     // Set intro message
     setPixelMood('happy');

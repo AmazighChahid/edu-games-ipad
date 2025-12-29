@@ -11,7 +11,7 @@ import Animated, {
   Easing,
 } from 'react-native-reanimated';
 import { useEffect } from 'react';
-import { spacing } from '../../../theme';
+import { spacing, colors, fontFamily, textStyles } from '@/theme';
 
 interface ProgressBarProps {
   current: number;

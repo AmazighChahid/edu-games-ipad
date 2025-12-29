@@ -19,7 +19,7 @@ const ELEMENT_ICONS: Record<string, string> = {
   key: Icons.key,
   door: Icons.door,
   gem: Icons.gem,
-  button: '🔘',
+  button: Icons.button,
   teleporter: Icons.spiral,
 };
 

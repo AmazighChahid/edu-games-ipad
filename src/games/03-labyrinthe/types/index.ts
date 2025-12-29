@@ -128,6 +128,7 @@ export interface LevelConfig extends MazeConfig {
 // ============================================
 
 export type ThemeType =
+  | 'cozy'
   | 'forest'
   | 'temple'
   | 'space'
@@ -143,6 +144,16 @@ export interface Theme {
   startIcon: string;
   endIcon: string;
   backgroundColor: string;
+  // Style Bois Cozy (optionnel pour compatibilité)
+  cellGradient?: {
+    start: string;
+    middle: string;
+    end: string;
+  };
+  cellHighlight?: string;
+  borderColor?: string;
+  borderStyle?: 'solid' | 'ridge';
+  wallThickness?: number;
 }
 
 // ============================================

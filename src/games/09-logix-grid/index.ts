@@ -15,6 +15,8 @@ export * from './components';
 
 // Hooks
 export { useLogixGridGame } from './hooks/useLogixGridGame';
+export { useLogixGridSound } from './hooks/useLogixGridSound';
+export { useLogixGridIntro } from './hooks/useLogixGridIntro';
 
 // Data
 export {
@@ -26,14 +28,8 @@ export {
 } from './data/puzzles';
 export { logixAssistantScripts } from './data/assistantScripts';
 
-// Utility: Get first puzzle (alias)
-export function getFirstLogixPuzzle() {
-  const { getFirstPuzzle } = require('./data/puzzles');
-  return getFirstPuzzle();
-}
+// Utility: Get first puzzle (alias) - using ES6 re-export
+export { getFirstPuzzle as getFirstLogixPuzzle } from './data/puzzles';
 
-// Utility: Get all puzzles (alias)
-export function getAllLogixPuzzles() {
-  const { getAllPuzzles } = require('./data/puzzles');
-  return getAllPuzzles();
-}
+// Utility: Get all puzzles (alias) - using ES6 re-export
+export { getAllPuzzles as getAllLogixPuzzles } from './data/puzzles';

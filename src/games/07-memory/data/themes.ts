@@ -3,8 +3,10 @@
  *
  * Thèmes visuels pour le jeu Memory
  * Chaque thème a ses propres symboles et couleurs
+ * Utilise les couleurs du Design System
  */
 
+import { colors } from '../../../theme';
 import type { ThemeConfig, CardTheme } from '../types';
 
 // ============================================================================
@@ -20,8 +22,8 @@ export const MEMORY_THEMES: Record<CardTheme, ThemeConfig> = {
       '🐶', '🐱', '🐰', '🐻', '🦊', '🐼', '🐨', '🦁',
       '🐯', '🐮', '🐷', '🐸', '🐵', '🦄', '🐝', '🦋',
     ],
-    backgroundColor: '#E8F5E9',
-    accentColor: '#4CAF50',
+    backgroundColor: colors.feedback.successLight,
+    accentColor: colors.feedback.success,
   },
 
   fruits: {
@@ -32,8 +34,8 @@ export const MEMORY_THEMES: Record<CardTheme, ThemeConfig> = {
       '🍎', '🍐', '🍊', '🍋', '🍌', '🍇', '🍓', '🍒',
       '🍑', '🥝', '🍍', '🥭', '🍈', '🍉', '🫐', '🥥',
     ],
-    backgroundColor: '#FFF3E0',
-    accentColor: '#FF9800',
+    backgroundColor: colors.home.categoryBackgrounds.memory,
+    accentColor: colors.home.categories.memory,
   },
 
   vehicles: {
@@ -44,8 +46,8 @@ export const MEMORY_THEMES: Record<CardTheme, ThemeConfig> = {
       '🚗', '🚕', '🚌', '🚎', '🏎️', '🚓', '🚑', '🚒',
       '✈️', '🚀', '🚁', '⛵', '🚂', '🚲', '🛴', '🛵',
     ],
-    backgroundColor: '#E3F2FD',
-    accentColor: '#2196F3',
+    backgroundColor: colors.home.categoryBackgrounds.logic,
+    accentColor: colors.home.categories.logic,
   },
 
   nature: {
@@ -56,8 +58,8 @@ export const MEMORY_THEMES: Record<CardTheme, ThemeConfig> = {
       '🌸', '🌺', '🌻', '🌹', '🌷', '🌼', '🌵', '🌴',
       '🍀', '🍁', '🍂', '🌲', '🌳', '🌾', '🌿', '☘️',
     ],
-    backgroundColor: '#F1F8E9',
-    accentColor: '#8BC34A',
+    backgroundColor: colors.home.categoryBackgrounds.numbers,
+    accentColor: colors.home.categories.numbers,
   },
 
   space: {
@@ -68,8 +70,8 @@ export const MEMORY_THEMES: Record<CardTheme, ThemeConfig> = {
       '🌙', '⭐', '🌟', '✨', '☀️', '🌍', '🪐', '🌌',
       '🚀', '👽', '🛸', '☄️', '🌑', '🌕', '🔭', '🛰️',
     ],
-    backgroundColor: '#1A237E',
-    accentColor: '#7C4DFF',
+    backgroundColor: colors.home.categoryBackgrounds.spatial,
+    accentColor: colors.home.categories.spatial,
   },
 
   emojis: {
@@ -80,8 +82,8 @@ export const MEMORY_THEMES: Record<CardTheme, ThemeConfig> = {
       '😀', '😍', '🤩', '😎', '🥳', '🤗', '😇', '🤪',
       '😴', '🤓', '🥰', '😋', '🤭', '😏', '🙃', '🤔',
     ],
-    backgroundColor: '#FFF8E1',
-    accentColor: '#FFC107',
+    backgroundColor: colors.feedback.warningLight,
+    accentColor: colors.feedback.warning,
   },
 };
 

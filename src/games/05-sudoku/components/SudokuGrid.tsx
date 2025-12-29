@@ -5,7 +5,7 @@
 
 import { View, StyleSheet, Dimensions } from 'react-native';
 
-import { colors, spacing } from '../../../theme';
+import { colors, spacing, borderRadius, shadows, touchTargets } from '@/theme';
 import type { SudokuGrid as GridType } from '../types';
 import { SudokuCell } from './SudokuCell';
 

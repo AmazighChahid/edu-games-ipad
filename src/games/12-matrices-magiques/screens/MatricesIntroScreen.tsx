@@ -1,39 +1,45 @@
 /**
- * MatricesIntroScreen - World selection screen
- * Entry point for Matrices Magiques game
+ * MatricesIntroScreen - Unified intro screen with world + level selection
+ * Uses GameIntroTemplate pattern with world tabs
  */
 
 import React, { useCallback, useMemo, useState } from 'react';
 import {
   View,
   StyleSheet,
-  ScrollView,
   Text,
-  Dimensions,
-  StatusBar,
+  Pressable,
+  ScrollView,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-import Animated, { FadeIn, FadeInDown, SlideInUp } from 'react-native-reanimated';
+import Animated, {
+  FadeIn,
+  FadeInDown,
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+} from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 
-import { WorldTheme, WorldProgress } from '../types';
+import { WorldTheme, WorldProgress, WorldConfig, DifficultyLevel } from '../types';
 import { WORLDS, WORLD_ORDER, PIXEL_DIALOGUES } from '../data';
-import { WorldSelector, PixelWithBubble } from '../components';
-
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+import { PixelWithBubble, PixelMascot } from '../components';
+import { Icons } from '@/constants/icons';
+import { PageContainer } from '@/components/common/PageContainer';
+import { ScreenHeader } from '@/components/common/ScreenHeader';
+import { MascotBubble } from '@/components/common/MascotBubble';
+import type { LevelConfig } from '@/components/common/GameIntroTemplate.types';
 
 // ============================================================================
 // TYPES
 // ============================================================================
 
 interface MatricesIntroScreenProps {
-  // Progress can come from props or store
   initialProgress?: Record<WorldTheme, WorldProgress>;
 }
 
 // ============================================================================
-// HELPER FUNCTIONS
+// HELPERS
 // ============================================================================
 
 function getRandomDialogue(): string {
@@ -42,13 +48,13 @@ function getRandomDialogue(): string {
 }
 
 function createDefaultProgress(): Record<WorldTheme, WorldProgress> {
-  const progress: Record<WorldTheme, WorldProgress> = {} as any;
+  const progress: Record<WorldTheme, WorldProgress> = {} as Record<WorldTheme, WorldProgress>;
 
   WORLD_ORDER.forEach((worldId) => {
     const world = WORLDS[worldId];
     progress[worldId] = {
       worldId,
-      isUnlocked: true, // All worlds unlocked by default
+      isUnlocked: true,
       puzzlesCompleted: 0,
       totalPuzzles: world.puzzleCount,
       bestStars: 0,
@@ -62,48 +68,244 @@ function createDefaultProgress(): Record<WorldTheme, WorldProgress> {
   return progress;
 }
 
-// ============================================================================
-// STATS HEADER COMPONENT
-// ============================================================================
+/**
+ * Generate LevelConfig[] for a world based on its configuration
+ */
+function generateLevelsForWorld(
+  world: WorldConfig,
+  worldProgress: WorldProgress
+): LevelConfig[] {
+  const puzzleCount = world.puzzleCount;
+  const [minDiff, maxDiff] = world.difficultyRange;
 
-interface StatsHeaderProps {
-  totalStars: number;
-  totalPuzzles: number;
-  completedPuzzles: number;
+  // Map difficulty to number for interpolation
+  const difficultyOrder: DifficultyLevel[] = ['easy', 'medium', 'hard', 'expert'];
+  const minIdx = difficultyOrder.indexOf(minDiff);
+  const maxIdx = difficultyOrder.indexOf(maxDiff);
+
+  return Array.from({ length: puzzleCount }, (_, i) => {
+    const levelNumber = i + 1;
+    const levelId = `${world.id}_level_${levelNumber}`;
+
+    // Calculate difficulty based on level position
+    const progressRatio = i / (puzzleCount - 1);
+    const diffIdx = Math.round(minIdx + progressRatio * (maxIdx - minIdx));
+    const difficulty = difficultyOrder[diffIdx];
+
+    // Check completion based on progress
+    const isCompleted = i < worldProgress.puzzlesCompleted;
+    const isUnlocked = i === 0 || i <= worldProgress.puzzlesCompleted;
+
+    return {
+      id: levelId,
+      number: levelNumber,
+      difficulty,
+      isUnlocked,
+      isCompleted,
+      stars: isCompleted ? Math.min(3, Math.floor(Math.random() * 3) + 1) : undefined,
+    };
+  });
 }
 
-const StatsHeader = ({ totalStars, totalPuzzles, completedPuzzles }: StatsHeaderProps) => (
-  <Animated.View
-    entering={FadeInDown.delay(200).duration(300)}
-    style={styles.statsContainer}
-  >
-    <View style={styles.statItem}>
-      <Text style={styles.statIcon}>⭐</Text>
-      <Text style={styles.statValue}>{totalStars}</Text>
-      <Text style={styles.statLabel}>étoiles</Text>
-    </View>
-    <View style={styles.statDivider} />
-    <View style={styles.statItem}>
-      <Text style={styles.statIcon}>🧩</Text>
-      <Text style={styles.statValue}>{completedPuzzles}/{totalPuzzles}</Text>
-      <Text style={styles.statLabel}>puzzles</Text>
-    </View>
-  </Animated.View>
-);
+// ============================================================================
+// WORLD TAB COMPONENT
+// ============================================================================
+
+interface WorldTabProps {
+  world: WorldConfig;
+  isSelected: boolean;
+  onPress: () => void;
+  progress: WorldProgress;
+}
+
+const WorldTab: React.FC<WorldTabProps> = ({ world, isSelected, onPress, progress }) => {
+  const scale = useSharedValue(1);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
+
+  const handlePressIn = () => {
+    scale.value = withSpring(0.95, { damping: 10, stiffness: 200 });
+  };
+
+  const handlePressOut = () => {
+    scale.value = withSpring(1, { damping: 10, stiffness: 200 });
+  };
+
+  const completionPercent = Math.round((progress.puzzlesCompleted / progress.totalPuzzles) * 100);
+
+  return (
+    <Pressable
+      onPress={onPress}
+      onPressIn={handlePressIn}
+      onPressOut={handlePressOut}
+      accessible
+      accessibilityLabel={`${world.name}, ${completionPercent}% complété`}
+      accessibilityRole="tab"
+      accessibilityState={{ selected: isSelected }}
+    >
+      <Animated.View
+        style={[
+          styles.worldTab,
+          isSelected && styles.worldTabSelected,
+          isSelected && { borderColor: world.primaryColor },
+          animatedStyle,
+        ]}
+      >
+        <Text style={styles.worldTabIcon}>{world.icon}</Text>
+        <Text
+          style={[
+            styles.worldTabName,
+            isSelected && { color: world.primaryColor },
+          ]}
+          numberOfLines={1}
+        >
+          {world.name}
+        </Text>
+        {progress.puzzlesCompleted > 0 && (
+          <View style={[styles.worldTabBadge, { backgroundColor: world.primaryColor }]}>
+            <Text style={styles.worldTabBadgeText}>
+              {progress.puzzlesCompleted}/{progress.totalPuzzles}
+            </Text>
+          </View>
+        )}
+      </Animated.View>
+    </Pressable>
+  );
+};
 
 // ============================================================================
-// INTRO SCREEN COMPONENT
+// LEVEL CARD COMPONENT
+// ============================================================================
+
+interface LevelCardProps {
+  level: LevelConfig;
+  isSelected: boolean;
+  onPress: () => void;
+  worldColor: string;
+}
+
+const DIFFICULTY_COLORS: Record<DifficultyLevel, string> = {
+  easy: '#7BC74D',
+  medium: '#FFB347',
+  hard: '#5B8DEE',
+  expert: '#A29BFE',
+};
+
+const DIFFICULTY_LABELS: Record<DifficultyLevel, string> = {
+  easy: 'Facile',
+  medium: 'Moyen',
+  hard: 'Difficile',
+  expert: 'Expert',
+};
+
+const LevelCard: React.FC<LevelCardProps> = ({ level, isSelected, onPress, worldColor }) => {
+  const scale = useSharedValue(1);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
+
+  const handlePressIn = () => {
+    if (level.isUnlocked) {
+      scale.value = withSpring(0.95, { damping: 10, stiffness: 200 });
+    }
+  };
+
+  const handlePressOut = () => {
+    scale.value = withSpring(1, { damping: 10, stiffness: 200 });
+  };
+
+  const difficultyColor = DIFFICULTY_COLORS[level.difficulty];
+
+  return (
+    <Pressable
+      onPress={onPress}
+      onPressIn={handlePressIn}
+      onPressOut={handlePressOut}
+      disabled={!level.isUnlocked}
+      accessible
+      accessibilityLabel={`Niveau ${level.number}${level.isCompleted ? ', complété' : ''}${!level.isUnlocked ? ', verrouillé' : ''}`}
+      accessibilityRole="button"
+    >
+      <Animated.View
+        style={[
+          styles.levelCard,
+          level.isCompleted && styles.levelCardCompleted,
+          isSelected && styles.levelCardSelected,
+          !level.isUnlocked && styles.levelCardLocked,
+          isSelected && { borderColor: worldColor },
+          animatedStyle,
+        ]}
+      >
+        {/* Stars (if completed) */}
+        {level.isCompleted && level.stars !== undefined && (
+          <View style={styles.starsContainer}>
+            {[1, 2, 3].map((star) => (
+              <Text
+                key={star}
+                style={[
+                  styles.star,
+                  star <= (level.stars || 0) ? styles.starFilled : styles.starEmpty,
+                ]}
+              >
+                {Icons.star}
+              </Text>
+            ))}
+          </View>
+        )}
+
+        {/* Level number */}
+        <Text
+          style={[
+            styles.levelNumber,
+            isSelected && { color: worldColor },
+            !level.isUnlocked && styles.levelNumberLocked,
+          ]}
+        >
+          {level.isUnlocked ? level.number : Icons.lock}
+        </Text>
+
+        {/* Difficulty badge */}
+        <View
+          style={[
+            styles.difficultyBadge,
+            { backgroundColor: level.isUnlocked ? difficultyColor : '#9E9E9E' },
+          ]}
+        >
+          <Text style={styles.difficultyText}>
+            {level.isUnlocked ? DIFFICULTY_LABELS[level.difficulty] : 'Bloqué'}
+          </Text>
+        </View>
+      </Animated.View>
+    </Pressable>
+  );
+};
+
+// ============================================================================
+// MAIN COMPONENT
 // ============================================================================
 
 export function MatricesIntroScreen({ initialProgress }: MatricesIntroScreenProps) {
-  // Use provided progress or create default
   const [progress] = useState<Record<WorldTheme, WorldProgress>>(
     initialProgress || createDefaultProgress()
   );
 
+  const [selectedWorldId, setSelectedWorldId] = useState<WorldTheme>('forest');
+  const [selectedLevel, setSelectedLevel] = useState<LevelConfig | null>(null);
   const [introMessage] = useState(getRandomDialogue());
 
-  // Calculate stats
+  const selectedWorld = WORLDS[selectedWorldId];
+  const worldProgress = progress[selectedWorldId];
+
+  // Generate levels for selected world
+  const levels = useMemo(
+    () => generateLevelsForWorld(selectedWorld, worldProgress),
+    [selectedWorld, worldProgress]
+  );
+
+  // Calculate total stats
   const stats = useMemo(() => {
     let totalStars = 0;
     let totalPuzzles = 0;
@@ -121,83 +323,149 @@ export function MatricesIntroScreen({ initialProgress }: MatricesIntroScreenProp
     return { totalStars, totalPuzzles, completedPuzzles };
   }, [progress]);
 
-  // Handle world selection
-  const handleWorldSelect = useCallback((worldId: WorldTheme) => {
-    // Navigate to puzzle screen with selected world
-    router.push({
-      pathname: '/(games)/12-matrices-magiques/puzzle',
-      params: { worldId },
-    });
-  }, []);
-
-  // Handle back navigation
+  // Handlers
   const handleBack = useCallback(() => {
     router.back();
   }, []);
 
-  return (
-    <View style={styles.container}>
-      <StatusBar barStyle="dark-content" />
+  const handleWorldSelect = useCallback((worldId: WorldTheme) => {
+    setSelectedWorldId(worldId);
+    setSelectedLevel(null);
+  }, []);
 
-      {/* Background gradient */}
-      <LinearGradient
-        colors={['#F8F9FA', '#E8F4F8', '#F0F8FF']}
-        style={StyleSheet.absoluteFill}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
+  const handleLevelSelect = useCallback((level: LevelConfig) => {
+    if (level.isUnlocked) {
+      setSelectedLevel(level);
+    }
+  }, []);
+
+  const handleStartPlaying = useCallback(() => {
+    if (selectedLevel) {
+      router.push({
+        pathname: '/(games)/12-matrices-magiques/puzzle',
+        params: {
+          worldId: selectedWorldId,
+          levelNumber: selectedLevel.number,
+        },
+      });
+    }
+  }, [selectedWorldId, selectedLevel]);
+
+  return (
+    <PageContainer variant="playful" scrollable={false}>
+      {/* Header */}
+      <ScreenHeader
+        variant="game"
+        title="Matrices Magiques"
+        emoji={Icons.puzzle}
+        onBack={handleBack}
+        showParentButton={false}
       />
 
-      {/* Decorative elements */}
-      <View style={styles.decorativeCircle1} />
-      <View style={styles.decorativeCircle2} />
-
-      <SafeAreaView style={styles.safeArea}>
-        <ScrollView
-          style={styles.scrollView}
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
+      <View style={styles.mainContainer}>
+        {/* Stats bar */}
+        <Animated.View
+          entering={FadeInDown.delay(100).duration(300)}
+          style={styles.statsContainer}
         >
-          {/* Header */}
-          <Animated.View
-            entering={FadeIn.duration(400)}
-            style={styles.header}
+          <View style={styles.statItem}>
+            <Text style={styles.statIcon}>{Icons.star}</Text>
+            <Text style={styles.statValue}>{stats.totalStars}</Text>
+          </View>
+          <View style={styles.statDivider} />
+          <View style={styles.statItem}>
+            <Text style={styles.statIcon}>{Icons.puzzle}</Text>
+            <Text style={styles.statValue}>{stats.completedPuzzles}/{stats.totalPuzzles}</Text>
+          </View>
+        </Animated.View>
+
+        {/* World tabs */}
+        <Animated.View
+          entering={FadeInDown.delay(200).duration(300)}
+          style={styles.worldTabsContainer}
+        >
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.worldTabsContent}
           >
-            <Text style={styles.title}>Matrices Magiques</Text>
-            <Text style={styles.subtitle}>
-              Trouve le motif caché !
+            {WORLD_ORDER.map((worldId) => (
+              <WorldTab
+                key={worldId}
+                world={WORLDS[worldId]}
+                isSelected={worldId === selectedWorldId}
+                onPress={() => handleWorldSelect(worldId)}
+                progress={progress[worldId]}
+              />
+            ))}
+          </ScrollView>
+        </Animated.View>
+
+        {/* Level grid */}
+        <Animated.View
+          entering={FadeInDown.delay(300).duration(300)}
+          style={styles.levelGridContainer}
+        >
+          <LinearGradient
+            colors={[selectedWorld.backgroundColor, '#FFFFFF']}
+            style={styles.levelGridGradient}
+          >
+            <Text style={[styles.worldTitle, { color: selectedWorld.primaryColor }]}>
+              {selectedWorld.icon} {selectedWorld.name}
             </Text>
-          </Animated.View>
+            <Text style={styles.worldDescription}>{selectedWorld.description}</Text>
 
-          {/* Stats */}
-          <StatsHeader {...stats} />
+            <View style={styles.levelGrid}>
+              {levels.map((level) => (
+                <LevelCard
+                  key={level.id}
+                  level={level}
+                  isSelected={selectedLevel?.id === level.id}
+                  onPress={() => handleLevelSelect(level)}
+                  worldColor={selectedWorld.primaryColor}
+                />
+              ))}
+            </View>
+          </LinearGradient>
+        </Animated.View>
 
-          {/* Mascot greeting */}
-          <Animated.View
-            entering={SlideInUp.delay(300).duration(400).springify()}
-            style={styles.mascotSection}
-          >
-            <PixelWithBubble
-              message={introMessage}
-              mood="happy"
-              theme="forest"
-              size="medium"
-              animated={true}
-            />
-          </Animated.View>
+        {/* Mascot + Play button */}
+        <Animated.View
+          entering={FadeIn.delay(400).duration(300)}
+          style={styles.bottomSection}
+        >
+          <View style={styles.mascotRow}>
+            <PixelMascot mood={selectedLevel ? 'excited' : 'happy'} size="small" animated />
+            <View style={styles.bubbleContainer}>
+              <MascotBubble
+                message={selectedLevel
+                  ? `Niveau ${selectedLevel.number} - ${DIFFICULTY_LABELS[selectedLevel.difficulty]} ! Tu es prêt ?`
+                  : introMessage
+                }
+                tailPosition="left"
+                showDecorations={false}
+              />
+            </View>
+          </View>
 
-          {/* World selector */}
-          <Animated.View
-            entering={FadeInDown.delay(400).duration(400)}
-            style={styles.selectorSection}
-          >
-            <WorldSelector
-              progress={progress}
-              onWorldSelect={handleWorldSelect}
-            />
-          </Animated.View>
-        </ScrollView>
-      </SafeAreaView>
-    </View>
+          {/* Play button */}
+          {selectedLevel && (
+            <Animated.View entering={FadeIn.duration(200)}>
+              <Pressable
+                onPress={handleStartPlaying}
+                style={[styles.playButton, { backgroundColor: selectedWorld.primaryColor }]}
+                accessible
+                accessibilityLabel="Commencer à jouer"
+                accessibilityRole="button"
+              >
+                <Text style={styles.playButtonEmoji}>{Icons.play}</Text>
+                <Text style={styles.playButtonText}>C'est parti !</Text>
+              </Pressable>
+            </Animated.View>
+          )}
+        </Animated.View>
+      </View>
+    </PageContainer>
   );
 }
 
@@ -206,105 +474,229 @@ export function MatricesIntroScreen({ initialProgress }: MatricesIntroScreenProp
 // ============================================================================
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F8F9FA',
-  },
-  safeArea: {
+  mainContainer: {
     flex: 1,
   },
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
-    paddingBottom: 32,
-  },
-  // Decorative elements
-  decorativeCircle1: {
-    position: 'absolute',
-    top: -80,
-    right: -40,
-    width: 200,
-    height: 200,
-    borderRadius: 100,
-    backgroundColor: 'rgba(91, 141, 238, 0.1)',
-  },
-  decorativeCircle2: {
-    position: 'absolute',
-    bottom: 100,
-    left: -60,
-    width: 150,
-    height: 150,
-    borderRadius: 75,
-    backgroundColor: 'rgba(123, 199, 77, 0.1)',
-  },
-  // Header
-  header: {
-    paddingHorizontal: 24,
-    paddingTop: 16,
-    paddingBottom: 8,
-    alignItems: 'center',
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: '800',
-    color: '#5B8DEE',
-    textAlign: 'center',
-    fontFamily: 'Fredoka-Bold',
-    textShadow: '0px 2px 4px rgba(91, 141, 238, 0.2)',
-  },
-  subtitle: {
-    fontSize: 16,
-    color: '#666',
-    textAlign: 'center',
-    marginTop: 4,
-    fontFamily: 'Nunito-Medium',
-  },
-  // Stats
+
+  // Stats bar
   statsContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 16,
-    marginHorizontal: 24,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.08)',
-    elevation: 3,
-  },
-  statItem: {
-    alignItems: 'center',
+    marginHorizontal: 16,
+    marginTop: 8,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    borderRadius: 12,
+    paddingVertical: 8,
     paddingHorizontal: 20,
   },
+  statItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 12,
+  },
   statIcon: {
-    fontSize: 24,
-    marginBottom: 4,
+    fontSize: 20,
   },
   statValue: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: '700',
     color: '#333',
     fontFamily: 'Fredoka-Bold',
   },
-  statLabel: {
-    fontSize: 12,
-    color: '#888',
-    fontFamily: 'Nunito-Regular',
-  },
   statDivider: {
     width: 1,
-    height: 40,
+    height: 24,
     backgroundColor: '#E0E0E0',
   },
-  // Mascot section
-  mascotSection: {
-    marginTop: 20,
-    marginHorizontal: 8,
+
+  // World tabs
+  worldTabsContainer: {
+    marginTop: 12,
   },
-  // World selector section
-  selectorSection: {
-    marginTop: 8,
+  worldTabsContent: {
+    paddingHorizontal: 12,
+    gap: 8,
+  },
+  worldTab: {
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    borderRadius: 16,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    minWidth: 100,
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  worldTabSelected: {
+    backgroundColor: '#FFFFFF',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  worldTabIcon: {
+    fontSize: 28,
+    marginBottom: 4,
+  },
+  worldTabName: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#666',
+    fontFamily: 'Nunito-SemiBold',
+  },
+  worldTabBadge: {
+    marginTop: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 10,
+  },
+  worldTabBadgeText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    fontFamily: 'Nunito-Bold',
+  },
+
+  // Level grid
+  levelGridContainer: {
+    flex: 1,
+    marginTop: 12,
+    marginHorizontal: 12,
+    borderRadius: 20,
+    overflow: 'hidden',
+  },
+  levelGridGradient: {
+    flex: 1,
+    padding: 16,
+  },
+  worldTitle: {
+    fontSize: 22,
+    fontWeight: '700',
+    textAlign: 'center',
+    fontFamily: 'Fredoka-Bold',
+    marginBottom: 4,
+  },
+  worldDescription: {
+    fontSize: 14,
+    color: '#666',
+    textAlign: 'center',
+    fontFamily: 'Nunito-Regular',
+    marginBottom: 16,
+  },
+  levelGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: 10,
+  },
+
+  // Level card
+  levelCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    alignItems: 'center',
+    minWidth: 80,
+    minHeight: 100,
+    borderWidth: 3,
+    borderColor: '#F0F0F0',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  levelCardCompleted: {
+    backgroundColor: '#E8F5E9',
+    borderColor: '#7BC74D',
+  },
+  levelCardSelected: {
+    backgroundColor: '#E3F2FD',
+    transform: [{ scale: 1.05 }],
+  },
+  levelCardLocked: {
+    backgroundColor: '#F5F5F5',
+    opacity: 0.7,
+  },
+  starsContainer: {
+    flexDirection: 'row',
+    marginBottom: 4,
+  },
+  star: {
+    fontSize: 12,
+    marginHorizontal: 1,
+  },
+  starFilled: {
+    opacity: 1,
+  },
+  starEmpty: {
+    opacity: 0.3,
+  },
+  levelNumber: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: '#333',
+    fontFamily: 'Fredoka-Bold',
+    marginBottom: 4,
+  },
+  levelNumberLocked: {
+    fontSize: 22,
+  },
+  difficultyBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 8,
+  },
+  difficultyText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    fontFamily: 'Nunito-Bold',
+    textTransform: 'uppercase',
+  },
+
+  // Bottom section
+  bottomSection: {
+    paddingHorizontal: 16,
+    paddingBottom: 16,
+  },
+  mascotRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 12,
+    marginBottom: 12,
+  },
+  bubbleContainer: {
+    flex: 1,
+  },
+
+  // Play button - minHeight 64dp pour accessibilité enfant
+  playButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+    paddingVertical: 18,
+    paddingHorizontal: 32,
+    minHeight: 64,
+    borderRadius: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 4,
+  },
+  playButtonEmoji: {
+    fontSize: 24,
+  },
+  playButtonText: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    fontFamily: 'Fredoka-Bold',
   },
 });

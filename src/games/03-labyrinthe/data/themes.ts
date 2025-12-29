@@ -1,6 +1,27 @@
 import { Theme, ThemeType } from '../types';
+import { Icons } from '@/constants/icons';
 
 export const THEMES: Record<ThemeType, Theme> = {
+  // Thème par défaut - Bois Cozy (Version 5)
+  cozy: {
+    id: 'cozy',
+    name: 'Bois Cozy',
+    wallColor: '#5D4E37',
+    pathColor: '#DEB887',
+    startIcon: Icons.squirrel,
+    endIcon: Icons.chocolate,
+    backgroundColor: '#8B6B45',
+    cellGradient: {
+      start: '#F5DEB3',
+      middle: '#DEB887',
+      end: '#D2B48C',
+    },
+    cellHighlight: 'rgba(255,255,255,0.15)',
+    borderColor: '#8B6914',
+    borderStyle: 'ridge',
+    wallThickness: 8,
+  },
+
   forest: {
     id: 'forest',
     name: 'Forêt Enchantée',

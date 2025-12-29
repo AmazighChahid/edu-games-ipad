@@ -2,6 +2,7 @@
  * Keyboard Component
  *
  * Clavier personnalisé pour les mots croisés
+ * Refactorisé pour respecter les guidelines UX (touch targets, fontSize, icons)
  */
 
 import React from 'react';
@@ -13,7 +14,16 @@ import Animated, {
   withSequence,
 } from 'react-native-reanimated';
 
-import { colors, spacing, borderRadius, shadows, fontFamily } from '../../../theme';
+import {
+  colors,
+  spacing,
+  borderRadius,
+  shadows,
+  fontFamily,
+  fontSize,
+  touchTargets,
+} from '../../../theme';
+import { Icons } from '../../../constants/icons';
 import { useAccessibilityAnimations } from '../../../hooks';
 
 // ============================================================================
@@ -22,7 +32,7 @@ import { useAccessibilityAnimations } from '../../../hooks';
 
 interface KeyboardProps {
   /** Callback quand une lettre est pressée */
-  onLetterPress: (letter: string) => void;
+  onKeyPress: (letter: string) => void;
   /** Callback pour effacer */
   onDelete: () => void;
   /** Désactivé */
@@ -33,15 +43,17 @@ interface KeyboardProps {
 // CONSTANTS
 // ============================================================================
 
+// Clavier AZERTY français
 const KEYBOARD_ROWS = [
   ['A', 'Z', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
   ['Q', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'M'],
-  ['W', 'X', 'C', 'V', 'B', 'N', '⌫'],
+  ['W', 'X', 'C', 'V', 'B', 'N', 'DELETE'],
 ];
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const KEY_MARGIN = 3;
 const KEYBOARD_PADDING = 8;
+const MIN_KEY_HEIGHT = 44; // Touch target minimum
 
 // ============================================================================
 // KEY COMPONENT
@@ -74,16 +86,24 @@ function Key({ letter, onPress, isSpecial, disabled, size }: KeyProps) {
     transform: [{ scale: scale.value }],
   }));
 
+  // Afficher l'icône ou la lettre
+  const displayContent = letter === 'DELETE' ? Icons.backspace : letter;
+
   return (
-    <Pressable onPress={handlePress} disabled={disabled}>
+    <Pressable
+      onPress={handlePress}
+      disabled={disabled}
+      accessibilityLabel={letter === 'DELETE' ? 'Effacer' : `Lettre ${letter}`}
+      accessibilityRole="button"
+    >
       <Animated.View
         style={[
           styles.key,
           {
             width: isSpecial ? size * 1.5 : size,
-            height: size * 1.2,
+            height: Math.max(MIN_KEY_HEIGHT, size * 1.2),
             backgroundColor: isSpecial
-              ? colors.primary.main
+              ? colors.feedback.error
               : colors.background.card,
           },
           animatedStyle,
@@ -93,12 +113,12 @@ function Key({ letter, onPress, isSpecial, disabled, size }: KeyProps) {
           style={[
             styles.keyText,
             {
-              fontSize: isSpecial ? 18 : 20,
+              fontSize: isSpecial ? fontSize.lg : fontSize.xl, // 18pt / 20pt
               color: isSpecial ? '#FFF' : colors.text.primary,
             },
           ]}
         >
-          {letter}
+          {displayContent}
         </Text>
       </Animated.View>
     </Pressable>
@@ -110,7 +130,7 @@ function Key({ letter, onPress, isSpecial, disabled, size }: KeyProps) {
 // ============================================================================
 
 export function Keyboard({
-  onLetterPress,
+  onKeyPress,
   onDelete,
   disabled = false,
 }: KeyboardProps) {
@@ -122,10 +142,10 @@ export function Keyboard({
   );
 
   const handleKeyPress = (key: string) => {
-    if (key === '⌫') {
+    if (key === 'DELETE') {
       onDelete();
     } else {
-      onLetterPress(key);
+      onKeyPress(key);
     }
   };
 
@@ -138,7 +158,7 @@ export function Keyboard({
               key={key}
               letter={key}
               onPress={() => handleKeyPress(key)}
-              isSpecial={key === '⌫'}
+              isSpecial={key === 'DELETE'}
               disabled={disabled}
               size={keySize}
             />
@@ -155,9 +175,11 @@ export function Keyboard({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: colors.background.primary,
-    paddingVertical: spacing[2],
+    backgroundColor: colors.background.secondary,
+    paddingVertical: spacing[3],
     paddingHorizontal: KEYBOARD_PADDING,
+    borderTopLeftRadius: borderRadius.xl,
+    borderTopRightRadius: borderRadius.xl,
   },
   row: {
     flexDirection: 'row',
@@ -172,8 +194,7 @@ const styles = StyleSheet.create({
     ...shadows.sm,
   },
   keyText: {
-    fontFamily: fontFamily.displayBold,
-    fontWeight: '700',
+    fontFamily: fontFamily.bold,
   },
 });
 

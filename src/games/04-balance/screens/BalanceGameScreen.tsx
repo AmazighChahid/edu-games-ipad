@@ -2,13 +2,13 @@
  * Balance Game Screen
  * Main game interface with all features: levels, sandbox, journal, mascot
  * Integrates Montessori principles - balance IS the control of error
+ *
+ * Refactoré avec PageContainer, ScreenHeader, Icons centralisés, touch targets 64dp
  */
 
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, Pressable, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
 import Animated, {
   FadeIn,
   FadeOut,
@@ -16,7 +16,9 @@ import Animated, {
   ZoomIn,
 } from 'react-native-reanimated';
 
-import { colors, spacing, textStyles, touchTargets, shadows, borderRadius } from '../../../theme';
+import { colors, spacing, touchTargets, shadows, borderRadius, fontFamily, fontSize } from '../../../theme';
+import { PageContainer, ScreenHeader, Button } from '../../../components/common';
+import { Icons } from '../../../constants/icons';
 import { BalanceScale } from '../components/BalanceScale';
 import { WeightObject } from '../components/WeightObject';
 import { DrHibou } from '../components/DrHibou';
@@ -24,12 +26,10 @@ import { EquivalenceJournal } from '../components/EquivalenceJournal';
 import { LevelSelector } from '../components/LevelSelector';
 import { SandboxMode } from '../components/SandboxMode';
 import { useBalanceGame } from '../hooks/useBalanceGame';
-import { getAllPuzzles, getPuzzleById, getPuzzlesByPhase } from '../data/puzzles';
-import { createObject, OBJECTS_LIBRARY } from '../data/objects';
+import { getAllPuzzles } from '../data/puzzles';
 import type {
   WeightObject as WeightObjectType,
   Puzzle,
-  Phase,
   Equivalence,
   PlayerProgress,
   MascotMood,
@@ -44,13 +44,13 @@ import { useCollection } from '../../../store';
 // Fonction pour calculer le badge non-compétitif de Balance
 const getBalanceBadge = (attempts: number, hintsUsed: number, stars: number): VictoryBadge => {
   if (stars === 3 && hintsUsed === 0) {
-    return { icon: '⚖️', label: 'Équilibriste' };
+    return { icon: Icons.balance, label: 'Équilibriste' };
   } else if (stars >= 2) {
-    return { icon: '🧪', label: 'Scientifique' };
+    return { icon: Icons.experiment, label: 'Scientifique' };
   } else if (hintsUsed >= 2) {
-    return { icon: '💪', label: 'Persévérant' };
+    return { icon: Icons.muscle, label: 'Persévérant' };
   } else {
-    return { icon: '🌟', label: 'Explorateur' };
+    return { icon: Icons.star, label: 'Explorateur' };
   }
 };
 
@@ -279,6 +279,7 @@ export function BalanceGameScreen() {
             key={obj.id}
             onPress={() => removeObject(obj.id, side)}
             activeOpacity={0.7}
+            style={styles.plateObjectTouchable}
           >
             <Animated.View entering={ZoomIn.springify()} style={styles.plateObject}>
               <Text style={styles.plateObjectEmoji}>{obj.emoji}</Text>
@@ -295,97 +296,86 @@ export function BalanceGameScreen() {
 
   if (view === 'menu') {
     return (
-      <View style={styles.container}>
-        <LinearGradient
-          colors={[colors.background.primary, colors.background.secondary]}
-          style={styles.background}
-        >
-          <SafeAreaView style={styles.safeArea} edges={['top']}>
-            {/* Header */}
-            <View style={styles.menuHeader}>
-              <Pressable onPress={() => router.back()} style={styles.backButton}>
-                <Text style={styles.backButtonText}>{'<'}</Text>
-              </Pressable>
-              <Text style={styles.menuTitle}>Balance Logique</Text>
-              <View style={styles.menuTitleIcon}>
-                <Text style={styles.menuTitleEmoji}>⚖️</Text>
-              </View>
+      <PageContainer variant="playful">
+        <ScreenHeader
+          variant="game"
+          title="Balance Logique"
+          emoji={Icons.balance}
+          onBack={() => router.back()}
+        />
+
+        {/* Dr. Hibou welcome */}
+        <View style={styles.mascotContainer}>
+          <DrHibou
+            mood="excited"
+            context={showMascotBubble ? 'intro' : undefined}
+            size="large"
+            position="center"
+            onMessageDismiss={() => setShowMascotBubble(false)}
+          />
+        </View>
+
+        {/* Menu buttons */}
+        <View style={styles.menuButtons}>
+          <TouchableOpacity
+            style={[styles.menuButton, styles.menuButtonPrimary]}
+            onPress={() => setView('levels')}
+          >
+            <Text style={styles.menuButtonEmoji}>{Icons.lab}</Text>
+            <View>
+              <Text style={styles.menuButtonTitle}>Niveaux</Text>
+              <Text style={styles.menuButtonSubtitle}>30 défis à résoudre</Text>
             </View>
+          </TouchableOpacity>
 
-            {/* Dr. Hibou welcome */}
-            <View style={styles.mascotContainer}>
-              <DrHibou
-                mood="excited"
-                context={showMascotBubble ? 'intro' : undefined}
-                size="large"
-                position="center"
-                onMessageDismiss={() => setShowMascotBubble(false)}
-              />
+          <TouchableOpacity
+            style={[styles.menuButton, styles.menuButtonSecondary]}
+            onPress={() => setView('sandbox')}
+          >
+            <Text style={styles.menuButtonEmoji}>{Icons.sandbox}</Text>
+            <View>
+              <Text style={styles.menuButtonTitle}>Mode Libre</Text>
+              <Text style={styles.menuButtonSubtitle}>Expérimente sans limite</Text>
             </View>
+          </TouchableOpacity>
 
-            {/* Menu buttons */}
-            <View style={styles.menuButtons}>
-              <TouchableOpacity
-                style={[styles.menuButton, styles.menuButtonPrimary]}
-                onPress={() => setView('levels')}
-              >
-                <Text style={styles.menuButtonEmoji}>🔬</Text>
-                <View>
-                  <Text style={styles.menuButtonTitle}>Niveaux</Text>
-                  <Text style={styles.menuButtonSubtitle}>30 défis à résoudre</Text>
-                </View>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[styles.menuButton, styles.menuButtonSecondary]}
-                onPress={() => setView('sandbox')}
-              >
-                <Text style={styles.menuButtonEmoji}>🎨</Text>
-                <View>
-                  <Text style={styles.menuButtonTitle}>Mode Libre</Text>
-                  <Text style={styles.menuButtonSubtitle}>Expérimente sans limite</Text>
-                </View>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[styles.menuButton, styles.menuButtonTertiary]}
-                onPress={() => setShowJournal(true)}
-              >
-                <Text style={styles.menuButtonEmoji}>📖</Text>
-                <View>
-                  <Text style={styles.menuButtonTitle}>Mon Journal</Text>
-                  <Text style={styles.menuButtonSubtitle}>
-                    {playerProgress.discoveredEquivalences.length} découvertes
-                  </Text>
-                </View>
-              </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.menuButton, styles.menuButtonTertiary]}
+            onPress={() => setShowJournal(true)}
+          >
+            <Text style={styles.menuButtonEmoji}>{Icons.journal}</Text>
+            <View>
+              <Text style={styles.menuButtonTitle}>Mon Journal</Text>
+              <Text style={styles.menuButtonSubtitle}>
+                {playerProgress.discoveredEquivalences.length} découvertes
+              </Text>
             </View>
+          </TouchableOpacity>
+        </View>
 
-            {/* Progress summary */}
-            <View style={styles.progressSummary}>
-              <View style={styles.progressItem}>
-                <Text style={styles.progressValue}>
-                  {playerProgress.completedPuzzles.length}
-                </Text>
-                <Text style={styles.progressLabel}>Niveaux</Text>
-              </View>
-              <View style={styles.progressDivider} />
-              <View style={styles.progressItem}>
-                <Text style={styles.progressValue}>
-                  {playerProgress.discoveredEquivalences.length}
-                </Text>
-                <Text style={styles.progressLabel}>Découvertes</Text>
-              </View>
-              <View style={styles.progressDivider} />
-              <View style={styles.progressItem}>
-                <Text style={styles.progressValue}>
-                  {playerProgress.unlockedPhases.length}
-                </Text>
-                <Text style={styles.progressLabel}>Phases</Text>
-              </View>
-            </View>
-          </SafeAreaView>
-        </LinearGradient>
+        {/* Progress summary */}
+        <View style={styles.progressSummary}>
+          <View style={styles.progressItem}>
+            <Text style={styles.progressValue}>
+              {playerProgress.completedPuzzles.length}
+            </Text>
+            <Text style={styles.progressLabel}>Niveaux</Text>
+          </View>
+          <View style={styles.progressDivider} />
+          <View style={styles.progressItem}>
+            <Text style={styles.progressValue}>
+              {playerProgress.discoveredEquivalences.length}
+            </Text>
+            <Text style={styles.progressLabel}>Découvertes</Text>
+          </View>
+          <View style={styles.progressDivider} />
+          <View style={styles.progressItem}>
+            <Text style={styles.progressValue}>
+              {playerProgress.unlockedPhases.length}
+            </Text>
+            <Text style={styles.progressLabel}>Phases</Text>
+          </View>
+        </View>
 
         {/* Journal modal */}
         <EquivalenceJournal
@@ -393,7 +383,7 @@ export function BalanceGameScreen() {
           isVisible={showJournal}
           onClose={() => setShowJournal(false)}
         />
-      </View>
+      </PageContainer>
     );
   }
 
@@ -444,151 +434,147 @@ export function BalanceGameScreen() {
   const phaseInfo = PHASE_INFO[puzzle.phase];
 
   return (
-    <View style={styles.container}>
-      <LinearGradient
-        colors={[colors.background.primary, colors.background.secondary]}
-        style={styles.background}
-      >
-        <SafeAreaView style={styles.safeArea} edges={['top']}>
-          {/* Header */}
-          <View style={styles.header}>
-            <Pressable onPress={() => setView('menu')} style={styles.backButton}>
-              <Text style={styles.backButtonText}>{'<'}</Text>
-            </Pressable>
+    <PageContainer variant="playful">
+      {/* Header */}
+      <View style={styles.header}>
+        <TouchableOpacity
+          onPress={() => setView('menu')}
+          style={styles.backButton}
+        >
+          <Text style={styles.backButtonText}>{Icons.back}</Text>
+        </TouchableOpacity>
 
-            <View style={styles.headerCenter}>
-              <Text style={styles.headerEmoji}>{phaseInfo.icon}</Text>
-              <View>
-                <Text style={styles.levelTitle}>Niveau {puzzle.level}</Text>
-                <Text style={styles.phaseTitle}>{phaseInfo.name}</Text>
-              </View>
-            </View>
-
-            <View style={styles.headerRight}>
-              <Pressable onPress={requestHint} style={styles.hintButton}>
-                <Text style={styles.hintButtonText}>💡</Text>
-              </Pressable>
-              <Pressable onPress={reset} style={styles.resetButton}>
-                <Text style={styles.resetButtonText}>↻</Text>
-              </Pressable>
-            </View>
+        <View style={styles.headerCenter}>
+          <Text style={styles.headerEmoji}>{phaseInfo.icon}</Text>
+          <View>
+            <Text style={styles.levelTitle}>Niveau {puzzle.level}</Text>
+            <Text style={styles.phaseTitle}>{phaseInfo.name}</Text>
           </View>
+        </View>
 
-          {/* Puzzle description */}
-          <View style={styles.puzzleInfo}>
-            <Text style={styles.puzzleDescription}>{puzzle.description}</Text>
-          </View>
+        <View style={styles.headerRight}>
+          <TouchableOpacity onPress={requestHint} style={styles.hintButton}>
+            <Text style={styles.hintButtonText}>{Icons.lightbulb}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={reset} style={styles.resetButton}>
+            <Text style={styles.resetButtonText}>{Icons.refresh}</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
 
-          {/* Mascot hint bubble */}
-          {currentHint && (
-            <Animated.View
-              entering={SlideInUp.springify()}
-              exiting={FadeOut}
-              style={styles.hintBubble}
-            >
-              <Text style={styles.mascotEmoji}>🦉</Text>
-              <Text style={styles.hintText}>{currentHint}</Text>
-            </Animated.View>
-          )}
+      {/* Puzzle description */}
+      <View style={styles.puzzleInfo}>
+        <Text style={styles.puzzleDescription}>{puzzle.description}</Text>
+      </View>
 
-          {/* Balance Scale */}
-          <View style={styles.balanceContainer}>
-            <BalanceScale
-              balanceState={balanceState}
-              leftPlateContent={renderPlateContent('left')}
-              rightPlateContent={renderPlateContent('right')}
-              showWeightIndicators={puzzle.phase >= 3}
-              onVictory={() => {
-                setMascotMood('celebratory');
-                setMascotContext('balanced');
-              }}
+      {/* Mascot hint bubble */}
+      {currentHint && (
+        <Animated.View
+          entering={SlideInUp.springify()}
+          exiting={FadeOut}
+          style={styles.hintBubble}
+        >
+          <Text style={styles.mascotEmoji}>{Icons.owl}</Text>
+          <Text style={styles.hintText}>{currentHint}</Text>
+        </Animated.View>
+      )}
+
+      {/* Balance Scale */}
+      <View style={styles.balanceContainer}>
+        <BalanceScale
+          balanceState={balanceState}
+          leftPlateContent={renderPlateContent('left')}
+          rightPlateContent={renderPlateContent('right')}
+          showWeightIndicators={puzzle.phase >= 3}
+          onVictory={() => {
+            setMascotMood('celebratory');
+            setMascotContext('balanced');
+          }}
+        />
+      </View>
+
+      {/* Available Objects */}
+      <View style={styles.stockContainer}>
+        <Text style={styles.stockTitle}>Objets disponibles</Text>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.stockScroll}
+        >
+          {availableObjects.map((obj) => (
+            <WeightObject
+              key={obj.id}
+              object={obj}
+              onDragEnd={(x, y) => handleObjectDrop(obj, x, y)}
             />
-          </View>
+          ))}
+        </ScrollView>
+      </View>
 
-          {/* Available Objects */}
-          <View style={styles.stockContainer}>
-            <Text style={styles.stockTitle}>Objets disponibles</Text>
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.stockScroll}
-            >
-              {availableObjects.map((obj) => (
-                <WeightObject
-                  key={obj.id}
-                  object={obj}
-                  onDragEnd={(x, y) => handleObjectDrop(obj, x, y)}
-                />
-              ))}
-            </ScrollView>
-          </View>
+      {/* Stats */}
+      <View style={styles.stats}>
+        <View style={styles.statItem}>
+          <Text style={styles.statValue}>{attempts}</Text>
+          <Text style={styles.statLabel}>Coups</Text>
+        </View>
+        <View style={styles.statItem}>
+          <Text style={styles.statValue}>{hintsUsed}</Text>
+          <Text style={styles.statLabel}>Indices</Text>
+        </View>
+      </View>
 
-          {/* Stats */}
-          <View style={styles.stats}>
-            <View style={styles.statItem}>
-              <Text style={styles.statValue}>{attempts}</Text>
-              <Text style={styles.statLabel}>Coups</Text>
-            </View>
-            <View style={styles.statItem}>
-              <Text style={styles.statValue}>{hintsUsed}</Text>
-              <Text style={styles.statLabel}>Indices</Text>
-            </View>
-          </View>
+      {/* Dr. Hibou mascot */}
+      <View style={styles.gameMascot}>
+        <DrHibou
+          mood={mascotMood}
+          context={showMascotBubble ? mascotContext : undefined}
+          size="small"
+          position="right"
+          autoHideDelay={4000}
+          onMessageDismiss={() => setShowMascotBubble(false)}
+        />
+      </View>
 
-          {/* Dr. Hibou mascot */}
-          <View style={styles.gameMascot}>
-            <DrHibou
-              mood={mascotMood}
-              context={showMascotBubble ? mascotContext : undefined}
-              size="small"
-              position="right"
-              autoHideDelay={4000}
-              onMessageDismiss={() => setShowMascotBubble(false)}
-            />
-          </View>
-
-          {/* Victory Overlay avec VictoryCard unifié */}
-          {isVictory && (() => {
-            const earnedStars = calculateStars(
-              attempts,
-              hintsUsed,
-              puzzle.maxAttemptsForThreeStars,
-              puzzle.maxHintsForThreeStars
-            );
-            return (
-              <VictoryCard
-                variant="overlay"
-                title="Eurêka !"
-                message="Tu as équilibré la balance !"
-                mascot={{
-                  emoji: '🦉',
-                  message: earnedStars === 3 ? 'Parfait !' : 'Bien joué !',
-                }}
-                stats={{
-                  moves: attempts,
-                  hintsUsed: hintsUsed,
-                  stars: earnedStars,
-                  customStats: discoveredEquivalences.length > 0
-                    ? discoveredEquivalences.map((eq, i) => ({
-                        label: i === 0 ? 'Découverte' : '',
-                        value: eq,
-                        icon: '🔬'
-                      }))
-                    : undefined,
-                }}
-                badge={getBalanceBadge(attempts, hintsUsed, earnedStars)}
-                onReplay={reset}
-                onNextLevel={handleNextPuzzle}
-                hasNextLevel={currentPuzzle ? allPuzzles.findIndex(p => p.id === currentPuzzle.id) < allPuzzles.length - 1 : false}
-                nextLevelLabel="Puzzle suivant →"
-                onHome={() => setView('menu')}
-                onCollection={handleViewCollection}
-              />
-            );
-          })()}
-        </SafeAreaView>
-      </LinearGradient>
-    </View>
+      {/* Victory Overlay avec VictoryCard unifié */}
+      {isVictory && (() => {
+        const earnedStars = calculateStars(
+          attempts,
+          hintsUsed,
+          puzzle.maxAttemptsForThreeStars,
+          puzzle.maxHintsForThreeStars
+        );
+        return (
+          <VictoryCard
+            variant="overlay"
+            title="Eurêka !"
+            message="Tu as équilibré la balance !"
+            mascot={{
+              emoji: Icons.owl,
+              message: earnedStars === 3 ? 'Parfait !' : 'Bien joué !',
+            }}
+            stats={{
+              moves: attempts,
+              hintsUsed: hintsUsed,
+              stars: earnedStars,
+              customStats: discoveredEquivalences.length > 0
+                ? discoveredEquivalences.map((eq, i) => ({
+                    label: i === 0 ? 'Découverte' : '',
+                    value: eq,
+                    icon: Icons.lab
+                  }))
+                : undefined,
+            }}
+            badge={getBalanceBadge(attempts, hintsUsed, earnedStars)}
+            onReplay={reset}
+            onNextLevel={handleNextPuzzle}
+            hasNextLevel={currentPuzzle ? allPuzzles.findIndex(p => p.id === currentPuzzle.id) < allPuzzles.length - 1 : false}
+            nextLevelLabel="Puzzle suivant"
+            onHome={() => setView('menu')}
+            onCollection={handleViewCollection}
+          />
+        );
+      })()}
+    </PageContainer>
   );
 }
 
@@ -597,51 +583,7 @@ export function BalanceGameScreen() {
 // ============================================
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  background: {
-    flex: 1,
-  },
-  safeArea: {
-    flex: 1,
-  },
-
   // Menu styles
-  menuHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: spacing[4],
-    paddingVertical: spacing[3],
-    gap: spacing[3],
-  },
-  backButton: {
-    position: 'absolute',
-    left: spacing[4],
-    width: touchTargets.medium,
-    height: touchTargets.medium,
-    borderRadius: borderRadius.round,
-    backgroundColor: colors.background.card,
-    alignItems: 'center',
-    justifyContent: 'center',
-    ...shadows.small,
-  },
-  backButtonText: {
-    fontSize: 24,
-    color: colors.text.primary,
-  },
-  menuTitle: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: colors.text.primary,
-  },
-  menuTitleIcon: {
-    marginLeft: spacing[1],
-  },
-  menuTitleEmoji: {
-    fontSize: 28,
-  },
   mascotContainer: {
     alignItems: 'center',
     paddingVertical: spacing[4],
@@ -655,8 +597,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: spacing[4],
     padding: spacing[4],
-    borderRadius: borderRadius.large,
-    ...shadows.medium,
+    borderRadius: borderRadius.lg,
+    minHeight: touchTargets.large,
+    ...shadows.md,
   },
   menuButtonPrimary: {
     backgroundColor: colors.home.categories.logic,
@@ -668,15 +611,17 @@ const styles = StyleSheet.create({
     backgroundColor: colors.home.categories.numbers,
   },
   menuButtonEmoji: {
-    fontSize: 40,
+    fontSize: 36, // Grande taille pour emojis de menu
   },
   menuButtonTitle: {
-    fontSize: 18,
+    fontSize: fontSize.lg,
+    fontFamily: fontFamily.bold,
     fontWeight: '700',
     color: colors.text.inverse,
   },
   menuButtonSubtitle: {
-    fontSize: 14,
+    fontSize: fontSize.base,
+    fontFamily: fontFamily.regular,
     color: 'rgba(255, 255, 255, 0.8)',
   },
   progressSummary: {
@@ -691,12 +636,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   progressValue: {
-    fontSize: 28,
+    fontSize: fontSize['2xl'],
+    fontFamily: fontFamily.bold,
     fontWeight: '700',
     color: colors.text.primary,
   },
   progressLabel: {
-    fontSize: 12,
+    fontSize: fontSize.sm,
+    fontFamily: fontFamily.regular,
     color: colors.text.secondary,
   },
   progressDivider: {
@@ -713,21 +660,36 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing[4],
     paddingVertical: spacing[2],
   },
+  backButton: {
+    width: touchTargets.large,
+    height: touchTargets.large,
+    borderRadius: borderRadius.round,
+    backgroundColor: colors.background.card,
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...shadows.sm,
+  },
+  backButtonText: {
+    fontSize: fontSize.xl,
+    color: colors.text.primary,
+  },
   headerCenter: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing[2],
   },
   headerEmoji: {
-    fontSize: 28,
+    fontSize: fontSize['2xl'],
   },
   levelTitle: {
-    fontSize: 18,
+    fontSize: fontSize.lg,
+    fontFamily: fontFamily.bold,
     fontWeight: '700',
     color: colors.text.primary,
   },
   phaseTitle: {
-    fontSize: 12,
+    fontSize: fontSize.sm,
+    fontFamily: fontFamily.regular,
     color: colors.text.secondary,
   },
   headerRight: {
@@ -735,28 +697,28 @@ const styles = StyleSheet.create({
     gap: spacing[2],
   },
   hintButton: {
-    width: touchTargets.medium,
-    height: touchTargets.medium,
+    width: touchTargets.large,
+    height: touchTargets.large,
     borderRadius: borderRadius.round,
     backgroundColor: colors.secondary.main,
     alignItems: 'center',
     justifyContent: 'center',
-    ...shadows.small,
+    ...shadows.sm,
   },
   hintButtonText: {
-    fontSize: 20,
+    fontSize: fontSize.xl,
   },
   resetButton: {
-    width: touchTargets.medium,
-    height: touchTargets.medium,
+    width: touchTargets.large,
+    height: touchTargets.large,
     borderRadius: borderRadius.round,
     backgroundColor: colors.background.card,
     alignItems: 'center',
     justifyContent: 'center',
-    ...shadows.small,
+    ...shadows.sm,
   },
   resetButtonText: {
-    fontSize: 20,
+    fontSize: fontSize.xl,
     color: colors.text.secondary,
   },
 
@@ -767,7 +729,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   puzzleDescription: {
-    fontSize: 14,
+    fontSize: fontSize.base,
+    fontFamily: fontFamily.regular,
     color: colors.text.secondary,
     textAlign: 'center',
   },
@@ -781,17 +744,18 @@ const styles = StyleSheet.create({
     marginHorizontal: spacing[4],
     marginVertical: spacing[2],
     padding: spacing[3],
-    borderRadius: borderRadius.large,
-    ...shadows.medium,
+    borderRadius: borderRadius.lg,
+    ...shadows.md,
   },
   mascotEmoji: {
-    fontSize: 32,
+    fontSize: fontSize['2xl'],
   },
   hintText: {
     flex: 1,
-    fontSize: 14,
+    fontSize: fontSize.base,
+    fontFamily: fontFamily.regular,
     color: colors.primary.main,
-    lineHeight: 20,
+    lineHeight: 24,
   },
 
   // Balance container
@@ -805,13 +769,19 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 4,
+    gap: spacing[1],
+  },
+  plateObjectTouchable: {
+    minWidth: touchTargets.minimum,
+    minHeight: touchTargets.minimum,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   plateObject: {
-    padding: 2,
+    padding: spacing[1],
   },
   plateObjectEmoji: {
-    fontSize: 28,
+    fontSize: fontSize['2xl'],
   },
 
   // Stock
@@ -821,10 +791,11 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 0.8)',
     borderTopLeftRadius: borderRadius.xl,
     borderTopRightRadius: borderRadius.xl,
-    ...shadows.small,
+    ...shadows.sm,
   },
   stockTitle: {
-    fontSize: 14,
+    fontSize: fontSize.base,
+    fontFamily: fontFamily.semiBold,
     fontWeight: '600',
     color: colors.text.primary,
     marginBottom: spacing[2],
@@ -847,12 +818,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   statValue: {
-    fontSize: 20,
+    fontSize: fontSize.xl,
+    fontFamily: fontFamily.bold,
     fontWeight: '700',
     color: colors.text.primary,
   },
   statLabel: {
-    fontSize: 11,
+    fontSize: fontSize.sm,
+    fontFamily: fontFamily.regular,
     color: colors.text.secondary,
   },
 

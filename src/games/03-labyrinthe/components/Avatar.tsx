@@ -39,7 +39,7 @@ export const Avatar: React.FC<Props> = ({ animatedPosition, direction, cellSize,
     }
   };
 
-  // Emoji ou image de l'avatar
+  // Emoji ou image de l'avatar - Noisette l'écureuil
   const getAvatarEmoji = () => {
     switch (status) {
       case 'blocked':
@@ -51,7 +51,7 @@ export const Avatar: React.FC<Props> = ({ animatedPosition, direction, cellSize,
       case 'door_opening':
         return Icons.sparkles;
       default:
-        return '🧒';
+        return Icons.squirrel;
     }
   };
 

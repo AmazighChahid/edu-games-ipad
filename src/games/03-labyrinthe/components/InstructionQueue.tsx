@@ -168,60 +168,62 @@ export const InstructionQueue: React.FC<Props> = ({
   );
 };
 
+// Taille compacte pour les cartes d'instruction
+const CARD_SIZE = 48;
+
 const styles = StyleSheet.create({
   container: {
     backgroundColor: 'rgba(255, 255, 255, 0.95)',
-    borderRadius: theme.borderRadius.lg,
-    padding: theme.spacing[4],
-    marginHorizontal: theme.spacing[4],
+    borderRadius: theme.borderRadius.md,
+    padding: theme.spacing[2],
     ...theme.shadows.sm,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: theme.spacing[2],
+    marginBottom: theme.spacing[1],
     gap: theme.spacing[2],
   },
   title: {
-    fontSize: theme.fontSize.lg,
+    fontSize: theme.fontSize.sm,
     fontFamily: theme.fontFamily.bold,
     color: theme.colors.text.primary,
   },
   counter: {
     backgroundColor: 'rgba(91, 141, 238, 0.15)',
-    paddingHorizontal: theme.spacing[2],
-    paddingVertical: 2,
+    paddingHorizontal: theme.spacing[1],
+    paddingVertical: 1,
     borderRadius: theme.borderRadius.sm,
   },
   counterText: {
-    fontSize: theme.fontSize.sm,
+    fontSize: theme.fontSize.xs,
     fontFamily: theme.fontFamily.bold,
     color: theme.colors.primary,
   },
   clearButton: {
     marginLeft: 'auto',
-    paddingHorizontal: theme.spacing[4],
+    paddingHorizontal: theme.spacing[2],
     paddingVertical: theme.spacing[1],
     backgroundColor: 'rgba(229, 62, 62, 0.1)',
     borderRadius: theme.borderRadius.sm,
-    minHeight: theme.touchTargets.medium,
+    minHeight: 32,
     justifyContent: 'center',
   },
   clearButtonText: {
-    fontSize: theme.fontSize.sm,
+    fontSize: theme.fontSize.xs,
     fontFamily: theme.fontFamily.bold,
     color: theme.colors.error,
   },
   instructionsList: {
     flexDirection: 'row',
-    gap: theme.spacing[2],
-    paddingVertical: theme.spacing[1],
-    minHeight: 72,
+    gap: theme.spacing[1],
+    paddingVertical: 2,
+    minHeight: CARD_SIZE + 8,
   },
   instructionCard: {
-    width: theme.touchTargets.large,
-    height: theme.touchTargets.large,
-    borderRadius: theme.borderRadius.md,
+    width: CARD_SIZE,
+    height: CARD_SIZE,
+    borderRadius: theme.borderRadius.sm,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
@@ -238,7 +240,7 @@ const styles = StyleSheet.create({
     opacity: 0.7,
   },
   instructionIcon: {
-    fontSize: 28,
+    fontSize: 22,
     fontFamily: theme.fontFamily.bold,
   },
   executedText: {
@@ -246,25 +248,25 @@ const styles = StyleSheet.create({
   },
   removeButton: {
     position: 'absolute',
-    top: -6,
-    right: -6,
-    width: 22,
-    height: 22,
-    borderRadius: 11,
+    top: -4,
+    right: -4,
+    width: 18,
+    height: 18,
+    borderRadius: 9,
     backgroundColor: theme.colors.error,
     justifyContent: 'center',
     alignItems: 'center',
   },
   removeButtonText: {
     color: theme.colors.background.primary,
-    fontSize: 16,
+    fontSize: 14,
     fontFamily: theme.fontFamily.bold,
-    lineHeight: 18,
+    lineHeight: 16,
   },
   emptySlot: {
-    width: theme.touchTargets.large,
-    height: theme.touchTargets.large,
-    borderRadius: theme.borderRadius.md,
+    width: CARD_SIZE,
+    height: CARD_SIZE,
+    borderRadius: theme.borderRadius.sm,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
@@ -273,15 +275,15 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(91, 141, 238, 0.05)',
   },
   emptySlotText: {
-    fontSize: theme.fontSize.md,
+    fontSize: theme.fontSize.xs,
     fontFamily: theme.fontFamily.bold,
     color: 'rgba(91, 141, 238, 0.4)',
   },
   helpText: {
     textAlign: 'center',
-    fontSize: theme.fontSize.md,
+    fontSize: theme.fontSize.xs,
     fontFamily: theme.fontFamily.regular,
     color: theme.colors.text.secondary,
-    marginTop: theme.spacing[1],
+    marginTop: 2,
   },
 });

@@ -551,8 +551,8 @@ const styles = StyleSheet.create({
 ```tsx
 const styles = StyleSheet.create({
   sectionTitle: {
-    fontSize: theme.typography.sizes.h2,
-    fontFamily: theme.typography.fonts.heading,
+    fontSize: theme.fontSize.xl,           // 24
+    fontFamily: theme.fontFamily.display,  // Fredoka
     color: theme.colors.text.primary,
     marginBottom: theme.spacing[4],
   },
@@ -564,8 +564,8 @@ const styles = StyleSheet.create({
 ```tsx
 const styles = StyleSheet.create({
   instruction: {
-    fontSize: theme.typography.sizes.body, // 18pt minimum
-    fontFamily: theme.typography.fonts.body,
+    fontSize: theme.fontSize.lg,           // 18pt minimum
+    fontFamily: theme.fontFamily.regular,  // Nunito
     color: theme.colors.text.secondary,
     textAlign: 'center',
     lineHeight: 26,
@@ -665,7 +665,7 @@ minWidth: theme.touchTargets.child,
 minHeight: theme.touchTargets.child,
 
 // ✅ Texte lisible
-fontSize: theme.typography.sizes.body,
+fontSize: theme.fontSize.lg,
 
 // ✅ Import theme
 import { theme } from '@/theme';

@@ -116,11 +116,16 @@ height: theme.touchTargets.child,
 
 ```typescript
 // ✅ Minimum 18pt pour texte courant
-fontSize: theme.typography.body.fontSize, // 18pt
-fontFamily: theme.typography.body.fontFamily, // Nunito
+fontSize: theme.fontSize.lg,           // 18pt
+fontFamily: theme.fontFamily.regular,  // Nunito
 
 // ✅ Titres en Fredoka
-fontFamily: theme.typography.h1.fontFamily, // Fredoka
+fontFamily: theme.fontFamily.display,  // Fredoka
+
+// ✅ Autres polices disponibles
+fontFamily: theme.fontFamily.bold,     // Nunito-Bold
+fontFamily: theme.fontFamily.medium,   // Nunito-Medium
+fontFamily: theme.fontFamily.semiBold, // Nunito-SemiBold
 ```
 
 ### Accessibilité
