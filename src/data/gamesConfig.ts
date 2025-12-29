@@ -4,6 +4,7 @@
  */
 
 import { GameCategoryV9, GameV9, GameColor, MedalType } from '../types/home.types';
+import { Icons } from '../constants/icons';
 
 // ============ GAME DEFINITIONS ============
 
@@ -22,21 +23,21 @@ export const GAMES_DEFINITIONS: GameDefinition[] = [
   {
     id: 'hanoi',
     name: 'Tour Magique',
-    icon: '🏰',
+    icon: Icons.castle,
     color: 'blue',
     categoryId: 'logic',
   },
   {
     id: 'suites-logiques',
     name: 'Suite Magique',
-    icon: '🎲',
+    icon: Icons.dice,
     color: 'indigo',
     categoryId: 'logic',
   },
   {
     id: 'logix-grid',
     name: 'Logix Grid',
-    icon: '🧩',
+    icon: Icons.puzzle,
     color: 'teal',
     categoryId: 'logic',
     badge: 'new',
@@ -46,7 +47,7 @@ export const GAMES_DEFINITIONS: GameDefinition[] = [
   {
     id: 'math-blocks',
     name: 'Chiffres Rigolos',
-    icon: '🔢',
+    icon: Icons.math,
     color: 'green',
     categoryId: 'numbers',
     badge: 'hot',
@@ -54,7 +55,7 @@ export const GAMES_DEFINITIONS: GameDefinition[] = [
   {
     id: 'sudoku',
     name: 'Sudoku Junior',
-    icon: '🎯',
+    icon: Icons.target,
     color: 'teal',
     categoryId: 'numbers',
   },
@@ -63,7 +64,7 @@ export const GAMES_DEFINITIONS: GameDefinition[] = [
   {
     id: 'tangram',
     name: 'Puzzle Formes',
-    icon: '🧩',
+    icon: Icons.puzzle,
     color: 'purple',
     categoryId: 'shapes',
     badge: 'new',
@@ -71,7 +72,7 @@ export const GAMES_DEFINITIONS: GameDefinition[] = [
   {
     id: 'labyrinthe',
     name: 'Labyrinthe',
-    icon: '🗺️',
+    icon: Icons.map,
     color: 'pink',
     categoryId: 'shapes',
   },
@@ -80,7 +81,7 @@ export const GAMES_DEFINITIONS: GameDefinition[] = [
   {
     id: 'memory',
     name: 'Super Mémoire',
-    icon: '🧠',
+    icon: Icons.brain,
     color: 'orange',
     categoryId: 'memory',
   },
@@ -89,14 +90,14 @@ export const GAMES_DEFINITIONS: GameDefinition[] = [
   {
     id: 'mots-croises',
     name: 'Mots Croisés',
-    icon: '📝',
+    icon: Icons.writing,
     color: 'red',
     categoryId: 'words',
   },
   {
     id: 'conteur-curieux',
     name: 'Conteur Curieux',
-    icon: '📚',
+    icon: Icons.book,
     color: 'purple',
     categoryId: 'words',
     badge: 'new',
@@ -106,7 +107,7 @@ export const GAMES_DEFINITIONS: GameDefinition[] = [
   {
     id: 'balance',
     name: 'Balance Logique',
-    icon: '⚖️',
+    icon: Icons.balance,
     color: 'amber',
     categoryId: 'logic',
   },
@@ -115,7 +116,7 @@ export const GAMES_DEFINITIONS: GameDefinition[] = [
   {
     id: 'matrices-magiques',
     name: 'Matrices Magiques',
-    icon: '🔮',
+    icon: Icons.crystal,
     color: 'cyan',
     categoryId: 'logic',
     badge: 'new',
@@ -125,7 +126,7 @@ export const GAMES_DEFINITIONS: GameDefinition[] = [
   {
     id: 'embouteillage',
     name: 'Embouteillage',
-    icon: '🚗',
+    icon: Icons.car,
     color: 'red',
     categoryId: 'logic',
     badge: 'soon',
@@ -133,7 +134,7 @@ export const GAMES_DEFINITIONS: GameDefinition[] = [
   {
     id: 'fabrique-reactions',
     name: 'Fabrique de Réactions',
-    icon: '⚙️',
+    icon: Icons.settings,
     color: 'blue',
     categoryId: 'logic',
     badge: 'soon',
@@ -141,7 +142,7 @@ export const GAMES_DEFINITIONS: GameDefinition[] = [
   {
     id: 'chasseur-papillons',
     name: 'Chasseur de Papillons',
-    icon: '🦋',
+    icon: Icons.butterfly,
     color: 'green',
     categoryId: 'memory',
     badge: 'soon',
@@ -157,11 +158,11 @@ export interface CategoryDefinition {
 }
 
 export const CATEGORIES_DEFINITIONS: CategoryDefinition[] = [
-  { id: 'logic', icon: '🧠', title: 'Logique' },
-  { id: 'numbers', icon: '🔢', title: 'Chiffres' },
-  { id: 'shapes', icon: '🧩', title: 'Formes' },
-  { id: 'memory', icon: '🧠', title: 'Mémoire' },
-  { id: 'words', icon: '📖', title: 'Mots' },
+  { id: 'logic', icon: Icons.brain, title: 'Logique' },
+  { id: 'numbers', icon: Icons.math, title: 'Chiffres' },
+  { id: 'shapes', icon: Icons.puzzle, title: 'Formes' },
+  { id: 'memory', icon: Icons.brain, title: 'Mémoire' },
+  { id: 'words', icon: Icons.categoryReading, title: 'Mots' },
 ];
 
 // ============ HELPER FUNCTIONS ============
@@ -265,7 +266,13 @@ export const PIOU_ADVICE_TEMPLATES: PiouAdviceTemplate[] = [
 
 // ============ FLOWER EMOJIS ============
 
-export const FLOWER_EMOJIS = ['🌸', '🌻', '🌷', '🌺', '🌼'] as const;
+export const FLOWER_EMOJIS = [
+  Icons.flowerCherry,
+  Icons.flowerSunflower,
+  Icons.flowerTulip,
+  Icons.flowerHibiscus,
+  Icons.flowerBlossom,
+] as const;
 
 // ============ WEEK DAYS ============
 

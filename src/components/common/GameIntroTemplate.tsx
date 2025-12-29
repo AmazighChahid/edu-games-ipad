@@ -62,6 +62,7 @@ import {
 } from '../../theme';
 import { PageContainer } from './PageContainer';
 import { ScreenHeader } from './ScreenHeader';
+import { HintButton } from './HintButton';
 import type {
   GameIntroTemplateProps,
   LevelConfig,
@@ -567,27 +568,15 @@ export const GameIntroTemplate: React.FC<GameIntroTemplateProps> = ({
               </Pressable>
             )}
 
-            {/* Bouton Indice */}
+            {/* Bouton Indice - Utilise HintButton commun */}
             {showHintButton && onHint && !hintsDisabled && (
-              <Pressable
+              <HintButton
+                hintsRemaining={hintsRemaining}
+                maxHints={3}
                 onPress={onHint}
-                style={[
-                  styles.floatingButton,
-                  styles.floatingButtonHint,
-                  hintsRemaining === 0 && styles.floatingButtonDisabled,
-                ]}
-                disabled={hintsRemaining === 0}
-                accessible
-                accessibilityLabel={`Indice, ${hintsRemaining} restants`}
-                accessibilityRole="button"
-              >
-                <Text style={styles.floatingButtonEmoji}>💡</Text>
-                {hintsRemaining > 0 && (
-                  <View style={styles.hintBadge}>
-                    <Text style={styles.hintBadgeText}>{hintsRemaining}</Text>
-                  </View>
-                )}
-              </Pressable>
+                size="medium"
+                colorScheme="orange"
+              />
             )}
 
             {/* Bouton Terminer (pour tous les utilisateurs) */}
@@ -632,6 +621,7 @@ const styles = StyleSheet.create({
   // =====================
   mainContainer: {
     flex: 1,
+    alignItems: 'center',
   },
 
   // =====================
@@ -639,6 +629,7 @@ const styles = StyleSheet.create({
   // (visible quand isPlaying = false)
   // =====================
   selectorContainer: {
+    width: '100%',
     alignItems: 'center',
     paddingHorizontal: spacing[4],
     paddingVertical: spacing[4],
@@ -791,6 +782,7 @@ const styles = StyleSheet.create({
   // (visible quand isPlaying = true)
   // =====================
   progressContainer: {
+    width: '100%',
     alignItems: 'center',
     zIndex: 50,
     paddingHorizontal: spacing[4],
@@ -826,12 +818,11 @@ const styles = StyleSheet.create({
   // =====================
   gameContainer: {
     flex: 1,
+    width: '100%',
+    maxWidth: 600,
     alignItems: 'center',
     justifyContent: 'flex-start',
     paddingHorizontal: spacing[4],
-    maxWidth: 600,
-    alignSelf: 'center',
-    width: '100%',
   },
 
   // =====================
@@ -879,9 +870,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     ...shadows.lg,
   },
-  floatingButtonHint: {
-    backgroundColor: colors.secondary.main,
-  },
   floatingButtonComplete: {
     backgroundColor: '#4CAF50',
   },
@@ -890,22 +878,6 @@ const styles = StyleSheet.create({
   },
   floatingButtonEmoji: {
     fontSize: 28,
-  },
-  hintBadge: {
-    position: 'absolute',
-    top: -4,
-    right: -4,
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: colors.primary.main,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  hintBadgeText: {
-    fontSize: 12,
-    fontFamily: fontFamily.bold,
-    color: '#FFFFFF',
   },
 });
 

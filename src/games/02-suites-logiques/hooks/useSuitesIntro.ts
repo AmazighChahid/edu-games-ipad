@@ -50,6 +50,10 @@ export interface UseSuitesIntroReturn {
   isPlaying: boolean;
   isVictory: boolean;
 
+  // Parent drawer
+  showParentDrawer: boolean;
+  setShowParentDrawer: (show: boolean) => void;
+
   // Animations (styles animés)
   selectorStyle: ReturnType<typeof useAnimatedStyle>;
   progressPanelStyle: ReturnType<typeof useAnimatedStyle>;
@@ -68,6 +72,10 @@ export interface UseSuitesIntroReturn {
     current: number;
     total: number;
     streak: number;
+    maxStreak: number;
+    totalAttempts: number;
+    correctFirstTry: number;
+    failedAttempts: number;
   };
 
   // Handlers
@@ -125,6 +133,7 @@ export function useSuitesIntro(): UseSuitesIntroReturn {
   const [isVictory, setIsVictory] = useState(false);
   const [mascotMessage, setMascotMessage] = useState("Bip bop ! Choisis un niveau pour commencer !");
   const [mascotEmotion, setMascotEmotion] = useState<EmotionType>('neutral');
+  const [showParentDrawer, setShowParentDrawer] = useState(false);
 
   // Extraire les IDs des niveaux complétés depuis le store
   const completedLevelIds = useMemo(() => {
@@ -380,13 +389,14 @@ export function useSuitesIntro(): UseSuitesIntroReturn {
       setMascotMessage("On recommence ? Choisis un niveau !");
       setMascotEmotion('encouraging');
     } else {
-      router.back();
+      // Retour à l'accueil depuis la sélection des niveaux
+      router.replace('/');
     }
   }, [isPlaying, router, transitionToSelectionMode]);
 
   const handleParentPress = useCallback(() => {
-    router.push('/(parent)');
-  }, [router]);
+    setShowParentDrawer(true);
+  }, []);
 
   const handleHelpPress = useCallback(() => {
     setMascotMessage("Observe bien la suite ! Qu'est-ce qui se répète ?");
@@ -454,6 +464,10 @@ export function useSuitesIntro(): UseSuitesIntroReturn {
     isPlaying,
     isVictory,
 
+    // Parent drawer
+    showParentDrawer,
+    setShowParentDrawer,
+
     // Animations
     selectorStyle,
     progressPanelStyle,
@@ -472,6 +486,10 @@ export function useSuitesIntro(): UseSuitesIntroReturn {
       current: sessionState.sequencesCompleted,
       total: TOTAL_SEQUENCES,
       streak: sessionState.currentStreak,
+      maxStreak: sessionState.maxStreak,
+      totalAttempts: sessionState.totalAttempts,
+      correctFirstTry: sessionState.sequencesCorrectFirstTry,
+      failedAttempts: sessionState.totalAttempts - sessionState.sequencesCompleted,
     },
 
     // Handlers

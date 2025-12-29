@@ -9,6 +9,7 @@ import { colors, spacing, borderRadius, shadows } from '../../theme';
 import { useStore } from '../../store';
 import { generateActivityTimeline } from '../../utils/analytics';
 import type { ActivityItem } from '../../types';
+import { Icons } from '../../constants/icons';
 
 const formatTime = (timestamp: number): string => {
   const date = new Date(timestamp);
@@ -38,15 +39,15 @@ const formatTime = (timestamp: number): string => {
 };
 
 const getGameIcon = (gameId: string): string => {
-  const icons: Record<string, string> = {
-    hanoi: '🗼',
-    sudoku: '🔢',
-    'suites-logiques': '🧩',
-    balance: '⚖️',
-    'math-blocks': '🧱',
-    labyrinthe: '🌀',
+  const gameIcons: Record<string, string> = {
+    hanoi: Icons.hanoi,
+    sudoku: Icons.math,
+    'suites-logiques': Icons.puzzle,
+    balance: Icons.balance,
+    'math-blocks': Icons.blocks,
+    labyrinthe: Icons.spiral,
   };
-  return icons[gameId] || '🎮';
+  return gameIcons[gameId] || Icons.game;
 };
 
 interface ActivityTimelineProps {
@@ -66,7 +67,7 @@ export function ActivityTimeline({ limit = 5 }: ActivityTimelineProps) {
       <View style={styles.container}>
         <View style={styles.header}>
           <View style={[styles.iconContainer, { backgroundColor: 'rgba(123, 199, 77, 0.15)' }]}>
-            <Text style={styles.headerIcon}>📋</Text>
+            <Text style={styles.headerIcon}>{Icons.clipboard}</Text>
           </View>
           <Text style={styles.title}>Activité Récente</Text>
         </View>
@@ -85,7 +86,7 @@ export function ActivityTimeline({ limit = 5 }: ActivityTimelineProps) {
       <View style={styles.header}>
         <View style={styles.titleRow}>
           <View style={[styles.iconContainer, { backgroundColor: 'rgba(123, 199, 77, 0.15)' }]}>
-            <Text style={styles.headerIcon}>📋</Text>
+            <Text style={styles.headerIcon}>{Icons.clipboard}</Text>
           </View>
           <Text style={styles.title}>Activité Récente</Text>
         </View>

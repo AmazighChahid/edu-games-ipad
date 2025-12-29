@@ -2,11 +2,11 @@
  * MascotRobot component - Pixel le Robot
  * Animated robot mascot with speech bubble and emotions
  * Shows different facial expressions based on game state
- * Includes typewriter text effect and audio playback
+ * Uses the common SpeechBubble component for consistent UI
  */
 
-import { useEffect, useState, useRef, useCallback } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { useEffect, useRef } from 'react';
+import { View, StyleSheet } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -27,7 +27,8 @@ import Svg, {
   Stop
 } from 'react-native-svg';
 
-import { spacing, borderRadius, shadows } from '../../../theme';
+import { spacing } from '../../../theme';
+import { MascotBubble } from '../../../components/common';
 
 type EmotionType = 'neutral' | 'happy' | 'thinking' | 'excited' | 'encouraging';
 
@@ -71,32 +72,24 @@ const EMOTIONS = {
   neutral: {
     mouthPath: 'M 30 50 L 70 50', // Ligne droite
     eyeScale: 1,
-    color: '#4A4A4A',
   },
   happy: {
     mouthPath: 'M 30 45 Q 50 60 70 45', // Sourire
     eyeScale: 1.2,
-    color: '#7BC74D',
   },
   thinking: {
     mouthPath: 'M 30 50 Q 40 48 50 50', // Petite courbe
     eyeScale: 0.8,
-    color: '#5B8DEE',
   },
   excited: {
     mouthPath: 'M 25 40 Q 50 65 75 40', // Grand sourire
     eyeScale: 1.5,
-    color: '#FFD700',
   },
   encouraging: {
     mouthPath: 'M 30 47 Q 50 58 70 47', // Sourire modéré
     eyeScale: 1.1,
-    color: '#FFB347',
   },
 };
-
-// Vitesse de l'effet typewriter (ms par caractère)
-const TYPEWRITER_SPEED = 35;
 
 export function MascotRobot({
   message,
@@ -106,10 +99,7 @@ export function MascotRobot({
 }: MascotRobotProps) {
   const { soundEnabled } = useAppSettings();
 
-  // État pour l'effet typewriter
-  const [displayedText, setDisplayedText] = useState('');
-  const [isTyping, setIsTyping] = useState(false);
-  const typewriterRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Ref pour tracker le message précédent (pour l'audio)
   const currentMessageRef = useRef<string>('');
 
   // Audio player - on charge dynamiquement selon le message
@@ -120,7 +110,6 @@ export function MascotRobot({
   const bodyY = useSharedValue(0);
   const antennaRotate = useSharedValue(0);
   const eyesPulse = useSharedValue(1);
-  const bubbleScale = useSharedValue(1); // Pas d'animation de scale, toujours visible
   const screenGlow = useSharedValue(0.5);
 
   // Idle floating animation
@@ -177,21 +166,12 @@ export function MascotRobot({
     );
   }, []);
 
-  // Effet typewriter quand le message change
+  // Jouer l'audio quand le message change
   useEffect(() => {
-    // Si c'est le même message, ne pas relancer
+    // Si c'est le même message, ne pas relancer l'audio
     if (message === currentMessageRef.current) return;
 
     currentMessageRef.current = message;
-
-    // Nettoyer le timeout précédent
-    if (typewriterRef.current) {
-      clearTimeout(typewriterRef.current);
-    }
-
-    // Reset et démarrer le typewriter
-    setDisplayedText('');
-    setIsTyping(true);
 
     // Jouer l'audio si disponible ET si l'utilisateur a déjà interagi
     // (les navigateurs bloquent l'autoplay sans interaction)
@@ -203,27 +183,6 @@ export function MascotRobot({
         console.warn('Erreur lecture audio:', error);
       }
     }
-
-    // Animation typewriter
-    let currentIndex = 0;
-    const typeNextChar = () => {
-      if (currentIndex < message.length) {
-        setDisplayedText(message.slice(0, currentIndex + 1));
-        currentIndex++;
-        typewriterRef.current = setTimeout(typeNextChar, TYPEWRITER_SPEED);
-      } else {
-        setIsTyping(false);
-      }
-    };
-
-    // Petit délai avant de commencer
-    typewriterRef.current = setTimeout(typeNextChar, 100);
-
-    return () => {
-      if (typewriterRef.current) {
-        clearTimeout(typewriterRef.current);
-      }
-    };
   }, [message, soundEnabled, audioSource, audioPlayer, canPlayAudio]);
 
   // Animated styles
@@ -237,11 +196,6 @@ export function MascotRobot({
 
   const eyesStyle = useAnimatedStyle(() => ({
     transform: [{ scale: eyesPulse.value }],
-  }));
-
-  const bubbleStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: bubbleScale.value }],
-    opacity: bubbleScale.value,
   }));
 
   const screenGlowStyle = useAnimatedStyle(() => ({
@@ -359,19 +313,19 @@ export function MascotRobot({
         </Svg>
       </Animated.View>
 
-      {/* Speech bubble with typewriter effect - positioned to the right of robot */}
-      <View style={styles.speechBubble}>
-        <View style={styles.bubbleHeader}>
-          <Text style={[styles.bubbleName, { color: currentEmotion.color }]}>
-            Pixel :
-          </Text>
-        </View>
-        <Text style={styles.bubbleText}>
-          {displayedText}
-          {isTyping && <Text style={styles.cursor}>|</Text>}
-        </Text>
-        <View style={styles.bubbleArrowLeft} />
-      </View>
+      {/* Speech bubble - utilise le composant commun MascotBubble sans bouton */}
+      {visible && (
+        <MascotBubble
+          message={message}
+          tailPosition="left"
+          showDecorations={true}
+          maxWidth={500}
+          style={styles.bubble}
+          disableEnterAnimation={true}
+          typing={true}
+          typingSpeed={35}
+        />
+      )}
     </View>
   );
 }
@@ -392,54 +346,9 @@ const styles = StyleSheet.create({
     flexShrink: 0,
   },
 
-  // Speech bubble with enhanced styling - positioned to the right
-  speechBubble: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 24,
-    padding: spacing[5],
-    paddingBottom: spacing[4],
+  // Style additionnel pour la bulle (positionnement)
+  bubble: {
     flex: 1,
-    maxWidth: 300,
-    ...shadows.lg,
     marginLeft: spacing[3],
-    borderWidth: 3,
-    borderColor: '#E0E8F8',
-  },
-  bubbleHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: spacing[2],
-  },
-  bubbleName: {
-    fontSize: 16,
-    fontWeight: '800',
-    letterSpacing: 0.5,
-  },
-  bubbleText: {
-    fontSize: 17,
-    fontWeight: '600',
-    color: '#2C3E50',
-    lineHeight: 26,
-    fontFamily: 'System',
-    minHeight: 52, // Réserve l'espace pour éviter les sauts de layout
-  },
-  cursor: {
-    color: '#5B8DEE',
-    fontWeight: '300',
-  },
-  // Arrow pointing left (towards the robot)
-  bubbleArrowLeft: {
-    position: 'absolute',
-    left: -15,
-    top: '50%',
-    marginTop: -10,
-    width: 0,
-    height: 0,
-    borderTopWidth: 12,
-    borderBottomWidth: 12,
-    borderRightWidth: 18,
-    borderTopColor: 'transparent',
-    borderBottomColor: 'transparent',
-    borderRightColor: '#FFFFFF',
   },
 });

@@ -8,7 +8,7 @@ import { View, StyleSheet } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 
 import { colors, spacing } from '../../../src/theme';
-import { VictoryCard, PageContainer, type VictoryBadge } from '../../../src/components/common';
+import { VictoryCard, PageContainer, Confetti, type VictoryBadge } from '../../../src/components/common';
 import { CardUnlockScreen } from '../../../src/components/collection';
 import { useCardUnlock } from '../../../src/hooks';
 import { useCollection, useStore } from '../../../src/store';
@@ -154,6 +154,9 @@ export default function SuitesLogiquesVictoryScreen() {
 
   return (
     <PageContainer variant="playful" showDecorations={false}>
+      {/* Animation confetti */}
+      <Confetti type="emoji" count={30} loop={false} />
+
       <View style={styles.content}>
         <VictoryCard
           title="Bravo !"

@@ -20,6 +20,8 @@ import Animated, {
   withSpring,
 } from 'react-native-reanimated';
 import { theme } from '../../theme';
+import { BackButton } from './BackButton';
+import { Icons } from '../../constants/icons';
 
 // Types
 export type ScreenHeaderVariant = 'home' | 'game' | 'parent';
@@ -191,21 +193,8 @@ export const ScreenHeader: React.FC<ScreenHeaderProps> = (props) => {
     const gameProps = props as GameHeaderProps;
     return (
       <View style={styles.container}>
-        {/* Back button */}
-        {onBack && (
-          <Pressable
-            onPress={onBack}
-            onPressIn={handleBackPressIn}
-            onPressOut={handleBackPressOut}
-            accessible
-            accessibilityLabel="Retour"
-            accessibilityRole="button"
-          >
-            <Animated.View style={[styles.backButton, backBtnStyle]}>
-              <Text style={styles.backButtonText}>←</Text>
-            </Animated.View>
-          </Pressable>
-        )}
+        {/* Back button - utilise le composant BackButton standardisé */}
+        {onBack && <BackButton onPress={onBack} />}
 
         {/* Title */}
         <View style={styles.gameTitleContainer}>
@@ -222,11 +211,13 @@ export const ScreenHeader: React.FC<ScreenHeaderProps> = (props) => {
               onPressIn={handleParentPressIn}
               onPressOut={handleParentPressOut}
               accessible
-              accessibilityLabel="Espace Parents"
+              accessibilityLabel="Fiche pédagogique de l'activité"
               accessibilityRole="button"
+              accessibilityHint="Ouvre la fiche pédagogique pour les parents"
             >
               <Animated.View style={[styles.parentButtonGame, parentBtnStyle]}>
-                <Text style={styles.parentButtonIcon}>👨‍👩‍👧</Text>
+                <Text style={styles.parentButtonIcon}>{Icons.pedagogy}</Text>
+                <Text style={styles.parentButtonText}>Conseil parents</Text>
               </Animated.View>
             </Pressable>
           )}
@@ -277,8 +268,24 @@ export const ScreenHeader: React.FC<ScreenHeaderProps> = (props) => {
   return null;
 };
 
+// ============================================
+// STYLES
+// ============================================
+
+// Couleurs spécifiques au composant
+const COLORS = {
+  // GAME VARIANT - Bouton Pédagogie
+  pedagogyButtonBackground: '#90c695',
+  pedagogyIconColor: '#26A69A',
+  // GAME VARIANT - Bouton Aide
+  helpButtonBackground: '#eb9532',
+  helpButtonText: '#FFFFFF',
+};
+
 const styles = StyleSheet.create({
-  // Common
+  // ============================================
+  // CONTAINERS (communs à tous les variants)
+  // ============================================
   container: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -296,7 +303,9 @@ const styles = StyleSheet.create({
     marginBottom: theme.spacing[8],
   },
 
-  // HOME variant styles
+  // ============================================
+  // HOME VARIANT - Profil & Avatar
+  // ============================================
   profileSection: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -337,6 +346,10 @@ const styles = StyleSheet.create({
     color: theme.colors.text.inverse,
     fontFamily: 'Nunito_800ExtraBold',
   },
+
+  // ============================================
+  // HOME VARIANT - Greeting & Stats
+  // ============================================
   greeting: {
     gap: 4,
   },
@@ -382,6 +395,10 @@ const styles = StyleSheet.create({
     color: theme.colors.text.primary,
     fontFamily: 'Nunito_700Bold',
   },
+
+  // ============================================
+  // HOME VARIANT - Bouton Espace Parents
+  // ============================================
   parentBtn: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -403,7 +420,9 @@ const styles = StyleSheet.create({
     fontFamily: 'Nunito_700Bold',
   },
 
-  // GAME variant styles
+  // ============================================
+  // GAME VARIANT - Back Button
+  // ============================================
   backButton: {
     width: theme.touchTargets.child,
     height: theme.touchTargets.child,
@@ -417,6 +436,10 @@ const styles = StyleSheet.create({
     fontSize: 28,
     color: theme.colors.text.primary,
   },
+
+  // ============================================
+  // GAME VARIANT - Title
+  // ============================================
   gameTitleContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -434,50 +457,60 @@ const styles = StyleSheet.create({
   gameEmoji: {
     fontSize: 24,
   },
+
+  // ============================================
+  // GAME VARIANT - Right Buttons Container
+  // ============================================
   headerRightButtons: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: theme.spacing[2],
   },
+
+  // ============================================
+  // GAME VARIANT - Bouton Pédagogie (Conseil Parents)
+  // ============================================
   parentButtonGame: {
-    height: 40,
-    paddingHorizontal: theme.spacing[3],
-    borderRadius: 20,
-    backgroundColor: '#FFA94D',
-    alignItems: 'center',
-    justifyContent: 'center',
     flexDirection: 'row',
-    gap: theme.spacing[1],
-    ...theme.shadows.sm,
+    alignItems: 'center',
+    gap: theme.spacing[2],
+    backgroundColor: COLORS.pedagogyButtonBackground,
+    paddingHorizontal: theme.spacing[4],
+    borderRadius: 20,
+    height: 50,
+    ...theme.shadows.md,
   },
   parentButtonIcon: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: '#FFFFFF',
-    backgroundColor: '#E8943D',
-    width: 22,
-    height: 22,
-    borderRadius: 11,
-    textAlign: 'center',
-    lineHeight: 22,
-    overflow: 'hidden',
+    fontSize: 22,
+    color: COLORS.pedagogyIconColor,
   },
+  parentButtonText: {
+    fontFamily: 'Fredoka_600SemiBold',
+    fontSize: 18,
+    color: theme.colors.text.secondary,
+  },
+
+  // ============================================
+  // GAME VARIANT - Help Button (Aide)
+  // ============================================
   helpButton: {
-    width: theme.touchTargets.child,
-    height: theme.touchTargets.child,
-    borderRadius: theme.borderRadius.round,
-    backgroundColor: theme.colors.secondary.main,
+    width: 64,
+    height: 50,
+    borderRadius: 20,
+    backgroundColor: COLORS.helpButtonBackground,
     alignItems: 'center',
     justifyContent: 'center',
-    ...theme.shadows.sm,
+    ...theme.shadows.md,
   },
   helpButtonText: {
-    fontSize: 20,
-    color: theme.colors.text.inverse,
+    fontSize: 28,
+    color: COLORS.helpButtonText,
     fontWeight: 'bold',
   },
 
-  // PARENT variant styles
+  // ============================================
+  // PARENT VARIANT - Header sobre
+  // ============================================
   parentTitle: {
     ...theme.textStyles.h1,
     color: theme.colors.text.primary,
@@ -487,7 +520,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: theme.spacing[4],
     backgroundColor: theme.colors.primary.main,
     borderRadius: theme.borderRadius.md,
-    minHeight: 48, // Touch target minimum
+    minHeight: 48,
   },
   backButtonTextParent: {
     ...theme.textStyles.button,

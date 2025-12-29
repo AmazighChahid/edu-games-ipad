@@ -17,6 +17,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 
 import { fontFamily } from '../../theme/typography';
+import { Icons } from '../../constants/icons';
 
 // ========================================
 // TYPES
@@ -43,43 +44,43 @@ interface CategoryFilterConfig {
 const FILTER_CATEGORIES: CategoryFilterConfig[] = [
   {
     id: 'all',
-    icon: '🏠',
+    icon: Icons.categoryAll,
     label: 'Tous',
     gradient: ['#90CAF9', '#42A5F5'],
   },
   {
     id: 'favorites',
-    icon: '❤️',
+    icon: Icons.categoryFavorites,
     label: 'Favoris',
     gradient: ['#F8BBD9', '#E91E63'],
   },
   {
     id: 'logic',
-    icon: '🧠',
+    icon: Icons.categoryLogic,
     label: 'Logique',
     gradient: ['#FFB74D', '#F57C00'],
   },
   {
     id: 'numbers',
-    icon: '🔢',
+    icon: Icons.categoryMath,
     label: 'Chiffres',
     gradient: ['#5C6BC0', '#3F51B5'],
   },
   {
     id: 'words',
-    icon: '📖',
+    icon: Icons.categoryReading,
     label: 'Mots',
     gradient: ['#81C784', '#4CAF50'],
   },
   {
     id: 'memory',
-    icon: '🎯',
+    icon: Icons.categoryTarget,
     label: 'Mémoire',
     gradient: ['#4DB6AC', '#009688'],
   },
   {
     id: 'shapes',
-    icon: '🧩',
+    icon: Icons.categoryPuzzle,
     label: 'Formes',
     gradient: ['#EF5350', '#E53935'],
   },

@@ -28,7 +28,7 @@
  * />
  */
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, Pressable, StyleSheet, ViewStyle } from 'react-native';
 import Animated, {
   useAnimatedStyle,
@@ -54,12 +54,12 @@ type ButtonVariant = 'orange' | 'blue' | 'green';
 export interface MascotBubbleProps {
   /** Message à afficher (peut contenir des React.ReactNode pour highlights) */
   message: React.ReactNode;
-  /** Texte du bouton CTA */
-  buttonText: string;
+  /** Texte du bouton CTA (optionnel - si absent, pas de bouton) */
+  buttonText?: string;
   /** Icône emoji du bouton (optionnel) */
   buttonIcon?: string;
-  /** Callback au press du bouton */
-  onPress: () => void;
+  /** Callback au press du bouton (optionnel) */
+  onPress?: () => void;
   /** Variante de couleur du bouton */
   buttonVariant?: ButtonVariant;
   /** Afficher les décorations (gland, champignon, feuille) */
@@ -78,6 +78,12 @@ export interface MascotBubbleProps {
   disableEnterAnimation?: boolean;
   /** Accessible label personnalisé */
   accessibilityLabel?: string;
+  /** Activer l'effet de frappe progressive (typewriter) - uniquement pour message string */
+  typing?: boolean;
+  /** Vitesse de frappe en ms par caractère */
+  typingSpeed?: number;
+  /** Callback appelé quand la frappe est terminée */
+  onTypingComplete?: () => void;
 }
 
 // ============================================================================
@@ -159,8 +165,48 @@ export function MascotBubble({
   style,
   disableEnterAnimation = false,
   accessibilityLabel,
+  typing = false,
+  typingSpeed = 25,
+  onTypingComplete,
 }: MascotBubbleProps) {
   const hapticEnabled = useStore((state) => state.hapticEnabled);
+
+  // Typewriter state (uniquement pour messages string)
+  const [displayedText, setDisplayedText] = useState('');
+  const [lastMessage, setLastMessage] = useState('');
+  const isStringMessage = typeof message === 'string';
+
+  // Effet de frappe progressive (typewriter)
+  useEffect(() => {
+    if (!typing || !isStringMessage || !message) {
+      // Si pas de typing ou message non-string, afficher directement
+      if (isStringMessage) {
+        setDisplayedText(message as string);
+      }
+      return;
+    }
+
+    const msgString = message as string;
+
+    // Skip si le message n'a pas changé
+    if (msgString === lastMessage && displayedText.length > 0) return;
+
+    setLastMessage(msgString);
+    setDisplayedText('');
+    let currentIndex = 0;
+
+    const interval = setInterval(() => {
+      if (currentIndex < msgString.length) {
+        setDisplayedText(msgString.slice(0, currentIndex + 1));
+        currentIndex++;
+      } else {
+        clearInterval(interval);
+        onTypingComplete?.();
+      }
+    }, typingSpeed);
+
+    return () => clearInterval(interval);
+  }, [message, typing, typingSpeed, isStringMessage]);
 
   // Animation values
   const buttonScale = useSharedValue(1);
@@ -217,6 +263,7 @@ export function MascotBubble({
   };
 
   const handlePress = () => {
+    if (!onPress) return;
     if (hapticEnabled) {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     }
@@ -398,27 +445,31 @@ export function MascotBubble({
 
       {/* Content */}
       <View style={styles.content}>
-        <Text style={styles.messageText}>{message}</Text>
+        <Text style={[styles.messageText, !buttonText && styles.messageTextNoButton]}>
+          {typing && isStringMessage ? displayedText : message}
+        </Text>
 
-        <AnimatedPressable
-          onPressIn={handlePressIn}
-          onPressOut={handlePressOut}
-          onPress={handlePress}
-          style={[
-            styles.button,
-            {
-              backgroundColor: buttonColors.bg,
-              shadowColor: buttonColors.shadow,
-            },
-            buttonAnimatedStyle,
-          ]}
-          accessibilityRole="button"
-          accessibilityLabel={buttonText}
-          accessibilityHint="Appuie pour continuer"
-        >
-          {buttonIcon && <Text style={styles.buttonIcon}>{buttonIcon}</Text>}
-          <Text style={styles.buttonText}>{buttonText}</Text>
-        </AnimatedPressable>
+        {buttonText && onPress && (
+          <AnimatedPressable
+            onPressIn={handlePressIn}
+            onPressOut={handlePressOut}
+            onPress={handlePress}
+            style={[
+              styles.button,
+              {
+                backgroundColor: buttonColors.bg,
+                shadowColor: buttonColors.shadow,
+              },
+              buttonAnimatedStyle,
+            ]}
+            accessibilityRole="button"
+            accessibilityLabel={buttonText}
+            accessibilityHint="Appuie pour continuer"
+          >
+            {buttonIcon && <Text style={styles.buttonIcon}>{buttonIcon}</Text>}
+            <Text style={styles.buttonText}>{buttonText}</Text>
+          </AnimatedPressable>
+        )}
       </View>
     </Animated.View>
   );
@@ -492,6 +543,9 @@ const styles = StyleSheet.create({
     color: WOOD_COLORS.text,
     lineHeight: 27, // 1.5 × 18
     marginBottom: spacing[4],
+  },
+  messageTextNoButton: {
+    marginBottom: 0,
   },
 
   // Button
