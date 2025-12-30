@@ -1,15 +1,47 @@
 /**
- * La Fabrique de Reactions - Main exports
- * Chain reaction logic puzzle game for children 7-10 years old
- * Status: Coming Soon
+ * La Fabrique de Réactions - Main exports
+ * ========================================
+ * Jeu de puzzle logique de réactions en chaîne
+ * Mascotte : Gédéon le Hamster Ingénieur
+ * Âge cible : 7-10 ans
+ *
+ * @see docs/TRAME_REFERENTIEL.md - Activité 14
  */
 
-// Types
+// ============================================
+// TYPES
+// ============================================
+
 export * from './types';
 
-// TODO: Uncomment when implemented
-// export * from './data';
-// export * from './logic';
-// export * from './components';
-// export * from './hooks';
-// export * from './screens';
+// ============================================
+// DATA
+// ============================================
+
+export { ELEMENTS, getElementDefinition, getUnlockedElements } from './data/elements';
+export { LEVELS, getLevelById, getLevelByNumber } from './data/levels';
+export {
+  fabriqueAssistantScripts,
+  GEDEON_MESSAGES,
+  getRandomMessage,
+} from './data/assistantScripts';
+
+// ============================================
+// HOOKS
+// ============================================
+
+export { useFabriqueGame } from './hooks/useFabriqueGame';
+export { useFabriqueSound } from './hooks/useFabriqueSound';
+export { useFabriqueIntro } from './hooks/useFabriqueIntro';
+
+// ============================================
+// COMPONENTS
+// ============================================
+
+export { GedeonMascot } from './components/GedeonMascot';
+
+// ============================================
+// SCREENS
+// ============================================
+
+export { FabriqueIntroScreen } from './screens';

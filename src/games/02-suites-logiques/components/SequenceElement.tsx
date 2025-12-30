@@ -199,10 +199,10 @@ export const SequenceElement: React.FC<Props> = ({
       const numDigits = valueStr.length;
 
       // Largeur basée sur le nombre de chiffres
-      // Environ 0.6 * fontSize par chiffre + padding
+      // Utiliser une largeur par caractère plus généreuse pour éviter le chevauchement
       const fontSize = size * 0.5;
-      const charWidth = fontSize * 0.65; // Largeur approximative d'un chiffre
-      const padding = 24; // Padding horizontal total
+      const charWidth = fontSize * 0.7; // Largeur approximative d'un chiffre (augmentée)
+      const padding = 32; // Padding horizontal total (augmenté)
       const calculatedWidth = Math.max(size, numDigits * charWidth + padding);
 
       return {

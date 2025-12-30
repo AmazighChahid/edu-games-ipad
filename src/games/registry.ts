@@ -174,7 +174,6 @@ export const gameRegistry: GameMetadata[] = [
     status: 'coming_soon',
     route: '/(games)/12-matrices-magiques',
   },
-  // === JEUX PLANIFIÉS (Coming Soon) ===
   {
     id: 'embouteillage',
     name: 'Embouteillage',
@@ -186,7 +185,7 @@ export const gameRegistry: GameMetadata[] = [
     maxAge: 10,
     category: 'logic',
     skills: ['planning', 'problem_solving', 'spatial_reasoning', 'perseverance'],
-    status: 'coming_soon',
+    status: 'available',
     route: '/(games)/13-embouteillage',
   },
   {
@@ -200,9 +199,10 @@ export const gameRegistry: GameMetadata[] = [
     maxAge: 10,
     category: 'logic',
     skills: ['planning', 'sequencing', 'problem_solving', 'logical_thinking'],
-    status: 'coming_soon',
+    status: 'available',
     route: '/(games)/14-fabrique-reactions',
   },
+  // === JEUX PLANIFIÉS (Coming Soon) ===
   {
     id: 'chasseur-papillons',
     name: 'Chasseur de Papillons',
@@ -214,7 +214,7 @@ export const gameRegistry: GameMetadata[] = [
     maxAge: 8,
     category: 'memory',
     skills: ['concentration', 'working_memory', 'inhibition', 'pattern_recognition'],
-    status: 'coming_soon',
+    status: 'available',
     route: '/(games)/15-chasseur-papillons',
   },
 ];

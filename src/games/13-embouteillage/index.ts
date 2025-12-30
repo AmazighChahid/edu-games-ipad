@@ -1,15 +1,20 @@
 /**
  * Embouteillage - Main exports
  * Rush Hour-style puzzle game for children 6-10 years old
- * Status: Coming Soon
+ * Libère la voiture rouge du parking !
  */
 
 // Types
 export * from './types';
 
-// TODO: Uncomment when implemented
-// export * from './data';
-// export * from './logic';
-// export * from './components';
-// export * from './hooks';
-// export * from './screens';
+// Data
+export * from './data';
+
+// Components
+export * from './components';
+
+// Hooks
+export * from './hooks';
+
+// Screens
+export * from './screens';

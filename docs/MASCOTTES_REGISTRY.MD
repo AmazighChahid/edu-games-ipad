@@ -24,6 +24,7 @@ L'application utilise des mascottes pour guider les enfants dans chaque activit�
 | Mots Croisés | Lexie le Perroquet | 🦜 | Bavard, joueur avec les mots | TBD |
 | MathBlocks | Calc le Castor | 🦫 | Constructeur, méthodique | TBD |
 | Matrices Magiques | Pixel le Renard | 🦊 | Malin, analytique, guide | `PixelMascot.tsx` |
+| Embouteillage | Caro le Castor | 🦫 | Travailleur, patient, stratège | `TrafficMascot.tsx` |
 
 ---
 
@@ -402,6 +403,80 @@ export const PlumeColors = {
 
 ---
 
+## 🦫 CARO LE CASTOR — Embouteillage
+
+### Identité
+
+| Attribut | Valeur |
+|----------|--------|
+| **Nom** | Caro |
+| **Espèce** | Castor |
+| **Emoji** | 🦫 |
+| **Personnalité** | Travailleur, patient, stratège |
+| **Accessoire** | Casque de chantier jaune |
+| **Catchphrase** | "Libérons la voiture rouge !" |
+
+### Design visuel
+
+```typescript
+// Dans TrafficMascot.tsx
+export const BEAVER_COLORS = {
+  body: '#8B5A2B',        // Brown body
+  bodyDark: '#6B4423',    // Darker brown
+  bodyLight: '#A67B5B',   // Lighter brown
+  belly: '#DEB887',       // Cream belly
+  nose: '#2C1810',        // Dark nose
+  eyes: '#1A1A1A',        // Dark eyes
+  eyeWhite: '#FFFFFF',
+  teeth: '#FFFEF0',       // Off-white teeth
+  tail: '#5D3A1A',        // Dark brown tail
+  cheeks: '#E8A87C',      // Rosy cheeks
+  hardHat: '#FFD700',     // Yellow construction hat
+  hardHatBand: '#FF8C00', // Orange band
+};
+```
+
+### Émotions
+
+| Émotion | Expression | Contexte |
+|---------|------------|----------|
+| neutral | Bouche fermée, yeux normaux | État par défaut |
+| happy | Sourire, yeux brillants | Niveau sélectionné, bon coup |
+| thinking | Bouche pensive, yeux réduits | Indice demandé |
+| excited | Grand sourire, yeux agrandis | Victoire, défi réussi |
+| encouraging | Sourire doux, joues rosées | Après erreur |
+
+### Dialogues
+
+| Contexte | Message |
+|----------|---------|
+| Introduction | "Salut ! Je suis Caro le Castor. Libérons la voiture rouge !" |
+| Niveau facile | "Parfait pour commencer !" |
+| Niveau difficile | "Un vrai défi !" |
+| Début jeu | "C'est parti ! Libère la voiture rouge !" |
+| Bon coup | "Bien joué !" |
+| Véhicule sélectionné | "Voiture rouge sélectionnée !" / "Véhicule sélectionné !" |
+| Annulation | "Coup annulé !" |
+| Reset | "On recommence ! Observe bien le parking..." |
+| Indice | "Regarde quel véhicule bloque la voiture rouge..." |
+| Victoire | "Super ! Tu as libéré la voiture !" |
+| Erreur | "Hmm, ce véhicule est bloqué. Essaie un autre !" |
+
+### Animations
+
+| Animation | Trigger | Durée |
+|-----------|---------|-------|
+| Flottement (idle) | Permanent | 2.4s loop |
+| Queue qui remue | Permanent | 0.8s loop |
+| Casque qui rebondit | Émotion excited | 0.4s loop |
+| Pulsation yeux | Changement d'émotion | Variable |
+
+### Fichier source
+- Composant : `src/games/13-embouteillage/components/TrafficMascot.tsx`
+- Scripts : `src/games/13-embouteillage/data/assistantScripts.ts`
+
+---
+
 ## 🦊 PIXEL LE RENARD — Matrices Magiques
 
 > **Note** : La documentation originale mentionnait "Mystic", mais le code implémente "Pixel le Renard" via `PixelMascot.tsx`.
@@ -501,8 +576,9 @@ export const MascotAnimations = {
 | Félix | `src/games/05-sudoku/components/FelixMascot.tsx` | Sudoku |
 | Plume | `src/games/06-conteur-curieux/components/PlumeMascot.tsx` | Conteur |
 | Pixel Renard | `src/games/12-matrices-magiques/components/mascot/PixelMascot.tsx` | Matrices |
+| Caro | `src/games/13-embouteillage/components/TrafficMascot.tsx` | Embouteillage |
 
 ---
 
 *Document de référence pour l'implémentation des mascottes*
-*Mis à jour : 28 Décembre 2024 — v2.0*
+*Mis à jour : 30 Décembre 2024 — v2.1*

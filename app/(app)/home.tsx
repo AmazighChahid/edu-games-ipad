@@ -82,7 +82,7 @@ const GAME_ROUTES: Record<string, string> = {
 };
 
 // Jeux Coming Soon (pas encore jouables)
-const COMING_SOON_GAMES = ['embouteillage', 'fabrique-reactions', 'chasseur-papillons'];
+const COMING_SOON_GAMES: string[] = [];
 
 export default function HomeScreen() {
   const router = useRouter();

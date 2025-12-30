@@ -34,13 +34,8 @@ export const SequenceDisplay: React.FC<Props> = ({
   }, [screenWidth]);
 
   // Taille fixe des éléments pour garantir la lisibilité
-  // On privilégie une bonne taille plutôt que de tout faire rentrer
   const elementSize = useMemo(() => {
-    // Sur iPad (écran large), on peut avoir des éléments plus grands
     const isLargeScreen = screenWidth > 768;
-
-    // Taille fixe selon la taille de l'écran
-    // Le scroll horizontal s'activera si nécessaire
     return isLargeScreen ? 120 : 80;
   }, [screenWidth]);
 

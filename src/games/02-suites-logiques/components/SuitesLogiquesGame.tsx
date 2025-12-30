@@ -131,26 +131,17 @@ export const SuitesLogiquesGame: React.FC<Props> = ({
       // Jouer le son d'erreur
       playError();
 
-      // DEBUG: Voir ce qui arrive lors d'une erreur
-      console.log('[ERROR DEBUG] currentPuzzle:', currentPuzzle);
-      console.log('[ERROR DEBUG] currentPuzzle?.pattern:', currentPuzzle?.pattern);
-      console.log('[ERROR DEBUG] currentPuzzle?.pattern?.type:', currentPuzzle?.pattern?.type);
-      console.log('[ERROR DEBUG] currentPuzzle?.pattern?.cycle:', currentPuzzle?.pattern?.cycle);
-      console.log('[ERROR DEBUG] attempts:', gameState.attempts);
-
       // Utiliser le message contextuel basé sur le pattern si disponible
       if (currentPuzzle?.pattern) {
         const contextualMessage = getErrorHintMessage(
           currentPuzzle.pattern,
           gameState.attempts
         );
-        console.log('[ERROR DEBUG] Using contextualMessage:', contextualMessage);
-        setMascotMessage(contextualMessage);
+        // DEBUG: Afficher dans la mascotte avec le pattern type
+        setMascotMessage(`[${currentPuzzle.pattern.type}] ${contextualMessage}`);
       } else {
-        console.log('[ERROR DEBUG] No pattern, using generic message');
-        // Fallback sur les anciens messages génériques
-        const messages = PIXEL_MESSAGES.error;
-        setMascotMessage(messages[Math.floor(Math.random() * messages.length)]);
+        // DEBUG: Afficher qu'on n'a pas de pattern
+        setMascotMessage(`[NO PATTERN] puzzle=${!!currentPuzzle} - Message générique`);
       }
       setMascotEmotion('encouraging'); // Encourager après une erreur
     } else if (gameState.status === 'hint') {
