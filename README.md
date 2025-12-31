@@ -1,50 +1,165 @@
-# Welcome to your Expo app 👋
+# 📦 MISE À JOUR DOCUMENTATION — Hello Guys
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+> **Date** : Décembre 2024
+> **Objectif** : Éliminer les doublons et établir des sources de vérité uniques
 
-## Get started
+---
 
-1. Install dependencies
+## Principe appliqué
 
-   ```bash
-   npm install
-   ```
+**Chaque information a UN SEUL propriétaire. Les autres documents pointent vers la source.**
 
-2. Start the app
+### Sources de vérité établies
 
-   ```bash
-   npx expo start
-   ```
+| Type d'info | Source unique | Modifier ICI uniquement |
+|-------------|---------------|-------------------------|
+| Règles code | `CLAUDE_CODE_RULES.md` | Imports, interdictions, checklist |
+| Tokens design | `DESIGN_SYSTEM.md` | Couleurs, typo, spacing |
+| Props composants | `UI_COMPONENTS_CATALOG.md` | Détails de chaque composant |
+| Architecture jeux | `GAME_ARCHITECTURE.md` | Pattern Hook+Template |
+| Types universels | `TRAME_REFERENTIEL.md` | GameMetadata, CognitiveSkill |
+| Mascottes | `MASCOTTES_REGISTRY.md` | Liste et dialogues |
+| Icônes | `ICONS_REGISTRY.md` | 78 icônes centralisées |
+| Vision pédagogique | `INSTRUCTIONS_PROJET_APP_EDUCATIVE.md` | Principes Montessori |
+| Principes UX | `GUIDE_UX_UI_APP_EDUCATIVE.md` | Guidelines enfant |
+| Préprompts | Fichiers séparés (`.md`) | Templates complets |
 
-In the output, you'll find options to open the app in a
+---
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## Fichiers modifiés
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+### 🔄 Documents restructurés (contenu dupliqué → références)
 
-## Get a fresh project
+| Fichier | Modification |
+|---------|--------------|
+| `00-INDEX.md` | Résumés + liens vers préprompts détaillés |
+| `claude.md` | Réduit de ~200 à ~80 lignes, avec références |
+| `CLAUDE_CODE_RULES.md` | Consolidé comme source unique des règles |
+| `PROMPT_REFACTORING.md` | Sections dupliquées remplacées par références |
+| `INSTRUCTIONS_PROJET_APP_EDUCATIVE.md` | Sections techniques → références |
+| `GUIDE_UX_UI_APP_EDUCATIVE.md` | Valeurs exactes → références vers DESIGN_SYSTEM |
 
-When you're ready, run:
+### 📝 Documents renommés
 
-```bash
-npm run reset-project
+| Ancien nom | Nouveau nom | Raison |
+|------------|-------------|--------|
+| `ACTIVITES_APP_EDUCATIVE.md` | `ROADMAP_ACTIVITES.md` | Clarifier le rôle (vision, pas état actuel) |
+
+### ✅ Préprompts conservés (contenu unique)
+
+Ces fichiers contiennent des templates complets non présents ailleurs :
+
+- `nouveau-jeu.md` — Template création jeu complet
+- `nouveau-composant.md` — Template création composant
+- `fiche-educative.md` — Templates des 4 fiches
+- `audit.md` — Scoring et commandes bash
+- `sync-docs.md` — Process de synchronisation
+
+### 🗑️ Fichiers à supprimer (recommandation)
+
+| Fichier | Raison |
+|---------|--------|
+| `Informations/DESIGN_SYSTEM_V2.md` | Encodage corrompu + doublon |
+
+### 📦 Fichiers à archiver (recommandation)
+
+| Fichier | Raison |
+|---------|--------|
+| `Informations/*.docx` | Sources Word originales |
+| `Informations/*.html` | Maquettes HTML (référence visuelle) |
+
+---
+
+## Comment utiliser cette mise à jour
+
+### Option 1 : Remplacement complet
+
+1. Sauvegarder l'ancien dossier `docs/`
+2. Extraire le contenu du ZIP
+3. Remplacer les fichiers correspondants
+
+### Option 2 : Mise à jour sélective
+
+1. Remplacer uniquement les fichiers `.md` modifiés
+2. Conserver les fichiers non modifiés (DESIGN_SYSTEM, UI_COMPONENTS_CATALOG, etc.)
+
+---
+
+## Structure après mise à jour
+
+```
+docs/
+├── 00-INDEX.md                              ← Hub + résumés préprompts
+│
+├── Méthodologies/
+│   │
+│   ├── [RÈGLES - Sources de vérité]
+│   │   ├── CLAUDE_CODE_RULES.md             ← Règles code
+│   │   ├── DESIGN_SYSTEM.md                 ← (inchangé)
+│   │   ├── UI_COMPONENTS_CATALOG.md         ← (inchangé)
+│   │   └── UI_PATTERNS.md                   ← (inchangé)
+│   │
+│   ├── [ARCHITECTURE]
+│   │   ├── TRAME_REFERENTIEL.md             ← (inchangé)
+│   │   ├── GAME_ARCHITECTURE.md             ← (inchangé)
+│   │   └── PROJECT_STRUCTURE.md             ← (inchangé)
+│   │
+│   ├── [REGISTRES]
+│   │   ├── MASCOTTES_REGISTRY.md            ← (inchangé)
+│   │   └── ICONS_REGISTRY.md                ← (inchangé)
+│   │
+│   ├── [PRÉPROMPTS]
+│   │   ├── nouveau-jeu.md                   ← Mis à jour
+│   │   ├── nouveau-composant.md             ← Mis à jour
+│   │   ├── fiche-educative.md               ← Mis à jour
+│   │   ├── audit.md                         ← Mis à jour
+│   │   └── sync-docs.md                     ← Mis à jour
+│   │
+│   ├── [CONTEXTE]
+│   │   ├── INSTRUCTIONS_PROJET_APP_EDUCATIVE.md  ← Mis à jour
+│   │   ├── GUIDE_UX_UI_APP_EDUCATIVE.md          ← Mis à jour
+│   │   └── ROADMAP_ACTIVITES.md                  ← Nouveau (renommé)
+│   │
+│   ├── [ÉTAT]
+│   │   ├── GUIDELINES_AUDIT.md              ← (inchangé)
+│   │   ├── MIGRATION_STATUS.md              ← (inchangé)
+│   │   └── PROMPT_REFACTORING.md            ← Mis à jour
+│   │
+│   └── ... autres fichiers inchangés
+│
+├── Informations/                            ← À archiver/nettoyer
+│   └── ...
+│
+└── claude.md (racine)                       ← Mis à jour (simplifié)
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+---
 
-## Learn more
+## Bénéfices attendus
 
-To learn more about developing your project with Expo, look at the following resources:
+| Avant | Après |
+|-------|-------|
+| 40-50% de redondance | <10% de redondance |
+| 2-3 endroits à modifier par règle | 1 source unique |
+| Risque de divergence | Cohérence garantie |
+| Documentation longue à parcourir | Navigation claire avec références |
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+---
 
-## Join the community
+## Maintenance future
 
-Join our community of developers creating universal apps.
+### Quand modifier une règle
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+1. Identifier la **source de vérité** (voir tableau ci-dessus)
+2. Modifier **uniquement** ce fichier
+3. Les autres docs pointent déjà vers lui
+
+### Quand ajouter un nouveau jeu
+
+1. Utiliser `nouveau-jeu.md` (préprompt complet)
+2. Mettre à jour `registry.ts` (source de vérité code)
+3. Le reste se synchronise via `sync-docs.md`
+
+---
+
+*Mise à jour documentée — Décembre 2024*

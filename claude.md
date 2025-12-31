@@ -22,7 +22,7 @@ L'objectif n'est PAS le résultat correct, mais la **transmission des MÉTHODES 
 ### Avant TOUTE tâche
 
 ```
-1. LIRE   → docs/00-INDEX_UPDATED.md (trouver le pré-prompt adapté)
+1. LIRE   → docs/00-INDEX.md (trouver le pré-prompt adapté)
 2. LIRE   → Documents référencés dans le pré-prompt
 3. SUIVRE → Protocole 3 étapes (Confirmer → Questions → Plan)
 ```
@@ -51,19 +51,21 @@ L'objectif n'est PAS le résultat correct, mais la **transmission des MÉTHODES 
 
 | Besoin | Document | Priorité |
 |--------|----------|----------|
-| **Point d'entrée** | `docs/00-INDEX_UPDATED.md` | ⭐⭐⭐ |
-| **Règles code** | `docs/CLAUDE_CODE_RULES.md` | ⭐⭐⭐ |
-| **Design System** | `docs/DESIGN_SYSTEM.md` | ⭐⭐⭐ |
-| **Composants UI** | `docs/UI_COMPONENTS_CATALOG.md` | ⭐⭐ |
-| **Structure projet** | `docs/PROJECT_STRUCTURE.md` | ⭐⭐ |
-| **Architecture jeux** | `docs/TRAME_REFERENTIEL.md` | ⭐⭐ |
-| **Mascottes** | `docs/MASCOTTES_REGISTRY.md` | ⭐ |
-| **Icônes** | `docs/ICONS_REGISTRY.md` | ⭐ |
-| **Fiches pédagogiques** | `/Fiches Educatives/XX-NomJeu/` | Par jeu |
+| **Point d'entrée** | `docs/00-INDEX.md` | ⭐⭐⭐ |
+| **Règles code** | `docs/Méthodologies/CLAUDE_CODE_RULES.md` | ⭐⭐⭐ |
+| **Design tokens** | `docs/Méthodologies/DESIGN_SYSTEM.md` | ⭐⭐⭐ |
+| **Composants UI** | `docs/Méthodologies/UI_COMPONENTS_CATALOG.md` | ⭐⭐ |
+| **Architecture jeux** | `docs/Méthodologies/GAME_ARCHITECTURE.md` | ⭐⭐ |
+| **Structure projet** | `docs/Méthodologies/PROJECT_STRUCTURE.md` | ⭐⭐ |
+| **Types universels** | `docs/Méthodologies/TRAME_REFERENTIEL.md` | ⭐⭐ |
+| **Mascottes** | `docs/Méthodologies/MASCOTTES_REGISTRY.md` | ⭐ |
+| **Icônes** | `docs/Méthodologies/ICONS_REGISTRY.md` | ⭐ |
 
 ---
 
 ## ⛔ Règles critiques (Résumé)
+
+> **Détails complets** → `docs/Méthodologies/CLAUDE_CODE_RULES.md`
 
 ### Imports obligatoires
 ```typescript
@@ -77,6 +79,9 @@ import { Colors } from '@/constants/colors'; // DEPRECATED
 ```
 
 ### Contraintes enfant
+
+> **Détails complets** → `docs/Méthodologies/DESIGN_SYSTEM.md`
+
 | Règle | Valeur |
 |-------|--------|
 | Touch targets | ≥ **64dp** |
@@ -85,16 +90,21 @@ import { Colors } from '@/constants/colors'; // DEPRECATED
 | Feedback erreur | **JAMAIS punitif** |
 
 ### Composants à NE PAS recréer
+
+> **Liste complète avec props** → `docs/Méthodologies/UI_COMPONENTS_CATALOG.md`
+
 ```
 BackButton, ScreenHeader, PageContainer, GameModal,
-VictoryCard, Button, IconButton, MascotBubble, HintButton
+VictoryCard, Button, IconButton, MascotBubble, HintButton,
+GameIntroTemplate, Confetti, ProgressIndicator
 ```
-
-→ **Détails complets** : `docs/CLAUDE_CODE_RULES.md`
 
 ---
 
 ## 🎮 Jeux disponibles (15)
+
+> **Source de vérité** → `src/games/registry.ts`
+> **Mascottes détaillées** → `docs/Méthodologies/MASCOTTES_REGISTRY.md`
 
 | # | Jeu | Status | Mascotte |
 |---|-----|--------|----------|
@@ -104,19 +114,21 @@ VictoryCard, Button, IconButton, MascotBubble, HintButton
 | 04 | Balance Logique | ✅ | Dr. Hibou 🦉 |
 | 05 | Sudoku Montessori | ✅ | Prof. Hoo 🦉 |
 | 06 | Conteur Curieux | ✅ | Plume 🪶 |
-| 07 | Memory | 📋 | — |
-| 08 | Tangram | 📋 | — |
-| 09 | Logix Grid | 📋 | — |
-| 10 | Mots Croisés | 📋 | — |
-| 11 | MathBlocks | ✅ | — |
-| 12 | Matrices Magiques | 🔜 | Pixel 🦊 |
-| 13 | Chasseur Papillons | 🔜 | — |
-| 14 | Embouteillage | 🔜 | — |
-| 15 | Code Secret | 🔜 | — |
+| 07 | Memory | ✅ | Memo 🐘 |
+| 08 | Tangram | ✅ | Géo 🦊 |
+| 09 | Logix Grid | ✅ | Ada 🐜 |
+| 10 | Mots Croisés | ✅ | Lexie 🦜 |
+| 11 | MathBlocks | ✅ | Calc 🦫 |
+| 12 | Matrices Magiques | ✅ | Pixel 🦊 |
+| 13 | Embouteillage | 🔜 | — |
+| 14 | Fabrique Réactions | 🔜 | — |
+| 15 | Chasseur Papillons | 🔜 | — |
 
 ---
 
 ## 🤖 Assistant IA — Principes
+
+> **Dialogues détaillés** → `/Fiches Educatives/{XX-nom}/DIALOGUES_IA.md`
 
 1. **JAMAIS la réponse** — Guider par questions
 2. **Pas d'intervention non sollicitée** — Attendre l'action enfant
@@ -131,14 +143,4 @@ VictoryCard, Button, IconButton, MascotBubble, HintButton
 
 ---
 
-## 📚 Références UX
-
-- **Khan Academy Kids** : Sessions 3-5 min, +50% complétion avec feedback positif
-- **Duolingo Kids** : Touch targets larges, +15% réussite
-- **Toca Boca** : 3-5 choix max, environnement 100% sûr
-- **Endless Alphabet** : Audio + animation pour expliquer sans texte
-
----
-
-*Version 4.0 • Décembre 2024*
-*⚠️ Ce fichier est un RÉSUMÉ — Consulter /docs/ pour les détails*
+*Ce fichier est un résumé. Pour les détails, consulter les documents référencés.*
