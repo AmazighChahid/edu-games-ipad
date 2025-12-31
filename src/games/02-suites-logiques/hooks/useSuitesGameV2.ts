@@ -13,7 +13,7 @@ import {
   GameState,
   SessionState,
 } from '../types';
-import { GAME_CONFIG } from '../constants/gameConfig';
+import { GAME_CONFIG } from '../data/gameConfig';
 import {
   // Engine imports
   DifficultyController,
@@ -28,7 +28,7 @@ import {
   AttemptResult,
   HintPayload,
   ErrorType,
-} from '../engine';
+} from '../logic';
 import { useStreakTracker } from './useStreakTracker';
 import { suitesLogiquesLevels, getLevelByOrder, SuitesLogiquesLevel } from '../data/levels';
 

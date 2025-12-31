@@ -2,6 +2,11 @@
  * Tangram Game Module
  *
  * Puzzle Formes - Jeu de Tangram pour enfants
+ *
+ * REFACTORED:
+ * - Added GeoMascot (fox mascot)
+ * - Added TangramIntroScreen with GameIntroTemplate
+ * - Added useTangramIntro hook
  */
 
 // Types
@@ -12,9 +17,15 @@ export * from './logic';
 
 // Components
 export * from './components';
+export { GeoMascot } from './components/GeoMascot';
+export type { GeoEmotionType } from './components/GeoMascot';
 
 // Hooks
 export { useTangramGame } from './hooks/useTangramGame';
+export { useTangramIntro } from './hooks/useTangramIntro';
+
+// Screens
+export { default as TangramIntroScreen } from './screens/TangramIntroScreen';
 
 // Data
 export { TANGRAM_PUZZLES, getPuzzleById, getPuzzlesByDifficulty } from './data/puzzles';

@@ -30,6 +30,9 @@ export interface AppState {
 
   // Hydration status
   hasHydrated: boolean;
+
+  // Dev mode - unlocks all levels and adds force complete button
+  devMode: boolean;
 }
 
 export interface AppActions {
@@ -51,6 +54,10 @@ export interface AppActions {
   // Favorite games actions
   toggleFavoriteGame: (gameId: string) => void;
   isGameFavorite: (gameId: string) => boolean;
+
+  // Dev mode actions
+  setDevMode: (enabled: boolean) => void;
+  toggleDevMode: () => void;
 }
 
 export type AppSlice = AppState & AppActions;
@@ -71,6 +78,7 @@ export const initialAppState: AppState = {
   hasSeenHanoiTutorial: false,
   favoriteGameIds: [],
   hasHydrated: false,
+  devMode: false,
 };
 
 export const createAppSlice: StateCreator<AppSlice, [], [], AppSlice> = (set, get) => ({
@@ -102,4 +110,8 @@ export const createAppSlice: StateCreator<AppSlice, [], [], AppSlice> = (set, ge
       };
     }),
   isGameFavorite: (gameId) => get().favoriteGameIds.includes(gameId),
+
+  // Dev mode
+  setDevMode: (enabled) => set({ devMode: enabled }),
+  toggleDevMode: () => set((state) => ({ devMode: !state.devMode })),
 });

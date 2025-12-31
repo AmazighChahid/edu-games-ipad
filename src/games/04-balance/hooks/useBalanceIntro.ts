@@ -1,160 +1,274 @@
 /**
- * Balance Intro Hook - Orchestrateur
- * Gère la logique d'introduction, sélection de niveau, et progression
- * Sépare la logique métier de l'UI pour une meilleure testabilité
+ * useBalanceIntro - Hook orchestrateur pour Balance Logique
+ *
+ * Encapsule toute la logique métier de l'écran d'introduction :
+ * - Progression store (lecture/écriture)
+ * - Génération des niveaux
+ * - Messages mascotte
+ * - Sons
+ * - Animations de transition
+ * - Navigation
+ *
+ * @see docs/GAME_ARCHITECTURE.md pour le pattern complet
  */
 
-import { useState, useCallback, useMemo, useEffect } from 'react';
+import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { useRouter } from 'expo-router';
-import { useActiveProfile } from '../../../store/useStore';
-import { generateDefaultLevels, type LevelConfig, type TrainingParam } from '../../../components/common';
-import { getAllPuzzles, getPuzzleById, getPuzzlesByPhase } from '../data/puzzles';
+import {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  withDelay,
+  withSpring,
+  Easing,
+} from 'react-native-reanimated';
+
+import {
+  generateDefaultLevels,
+  type LevelConfig,
+} from '../../../components/common';
+import { useBalanceGame } from './useBalanceGame';
+import { useBalanceSound } from './useBalanceSound';
+import { useActiveProfile, useGameProgress, useStore } from '../../../store/useStore';
+import { getAllPuzzles, getPuzzleById } from '../data/puzzles';
+import { balanceParentGuideData } from '../data/parentGuideData';
 import { createInitialState, addObjectToPlate } from '../logic/balanceEngine';
 import { createObject } from '../data/objects';
-import { balanceParentGuideData } from '../data/parentGuideData';
-import type { Puzzle, Phase, MascotMood, BalanceState } from '../types';
-import { PHASE_INFO } from '../types';
 import { Icons } from '../../../constants/icons';
+import type { Puzzle, Phase, MascotMood, BalanceState, WeightObject as WeightObjectType } from '../types';
+import { PHASE_INFO } from '../types';
 
 // ============================================
 // TYPES
 // ============================================
 
-export type BalanceGameView = 'intro' | 'game' | 'sandbox' | 'journal';
-
-export interface UseBalanceIntroProps {
-  onNavigateBack?: () => void;
-}
+export type EmotionType = 'neutral' | 'happy' | 'thinking' | 'excited' | 'encouraging' | 'celebratory';
 
 export interface UseBalanceIntroReturn {
-  // État
-  selectedLevel: LevelConfig | null;
-  isPlaying: boolean;
-  isTrainingMode: boolean;
-  selectedPhase: Phase;
-  mascotMessage: string;
-  mascotMood: MascotMood;
-  currentPuzzle: Puzzle | null;
-  showParentDrawer: boolean;
+  // Niveaux
   levels: LevelConfig[];
-  trainingParams: TrainingParam[];
-  trainingValues: Record<string, string | number | boolean>;
+  selectedLevel: LevelConfig | null;
+  handleSelectLevel: (level: LevelConfig) => void;
+
+  // État jeu
+  isPlaying: boolean;
+  isVictory: boolean;
+  currentPuzzle: Puzzle | null;
+
+  // Parent drawer
+  showParentDrawer: boolean;
+  setShowParentDrawer: (show: boolean) => void;
+
+  // Animations (styles animés)
+  selectorStyle: ReturnType<typeof useAnimatedStyle>;
+  progressPanelStyle: ReturnType<typeof useAnimatedStyle>;
+
+  // Mascot
+  mascotMessage: string;
+  mascotEmotion: EmotionType;
+
+  // Balance state pour preview et jeu
+  balanceState: BalanceState;
+  availableObjects: WeightObjectType[];
   previewBalanceState: BalanceState | null;
 
-  // Statistiques
-  completedCount: number;
-  totalPuzzles: number;
+  // Progress data pour ProgressPanel
+  progressData: {
+    current: number;
+    total: number;
+    attempts: number;
+    hintsUsed: number;
+    discoveredEquivalences: number;
+  };
 
   // Handlers
   handleBack: () => void;
-  handleSelectLevel: (level: LevelConfig) => void;
   handleStartPlaying: () => void;
-  handleTrainingPress: () => void;
-  handleTrainingChange: (id: string, value: string | number | boolean) => void;
   handleParentPress: () => void;
-  handleCloseParentDrawer: () => void;
   handleHelpPress: () => void;
   handleReset: () => void;
   handleHint: () => void;
+  handlePlaceObject: (object: WeightObjectType, side: 'left' | 'right') => void;
+  handleRemoveObject: (objectId: string, side: 'left' | 'right') => void;
+  handleNextLevel: () => void;
 
-  // Données pour ParentDrawer
+  // Hints
+  hintsRemaining: number;
+
+  // Navigation vers modes spéciaux
+  handleGoToSandbox: () => void;
+  handleGoToJournal: () => void;
+
+  // Données parent
   parentGuideData: typeof balanceParentGuideData;
 
-  // Helper pour le rendu
+  // Helper
   getPhaseInfo: (phase: Phase) => typeof PHASE_INFO[Phase];
-  getMascotMessageType: () => 'victory' | 'hint' | 'encourage' | 'intro';
 }
 
 // ============================================
-// MESSAGES MASCOTTE
+// CONSTANTS
 // ============================================
 
-const MASCOT_MESSAGES = {
-  welcome: "Coucou ! Je suis Dr. Hibou ! Bienvenue dans mon laboratoire !",
-  help: "Place les objets sur la balance pour l'équilibrer ! Quand les deux côtés pèsent pareil, elle reste droite !",
-  trainingOn: "Mode entraînement ! Explore toutes les phases !",
-  trainingOff: "Retour aux niveaux !",
-  selectLevel: "Sélectionne un niveau pour voir l'expérience",
-  hint: "Observe bien les objets... Lequel va équilibrer la balance ?",
+const ANIMATION_CONFIG = {
+  selectorSlideDuration: 400,
+  selectorFadeDuration: 300,
+  progressDelayDuration: 200,
+  selectorSlideDistance: -150,
+  springDamping: 15,
+  springStiffness: 150,
 };
 
+const MASCOT_MESSAGES = {
+  welcome: `Bienvenue dans mon laboratoire ! ${Icons.lab} Je suis Dr. Hibou !`,
+  selectLevel: "Choisis un niveau pour commencer l'expérience !",
+  startPlaying: "C'est parti ! Équilibre la balance !",
+  hint: "Observe bien la balance... De quel côté penche-t-elle ?",
+  success: `${Icons.sparkles} Eurêka ! Parfait équilibre !`,
+  error: "Hmm, pas tout à fait... Essaie autre chose !",
+  closeBalance: "Elle oscille ! Tu es tout près !",
+  backToSelection: "On recommence ? Choisis un niveau !",
+};
+
+const MAX_HINTS = 3;
+
 // ============================================
-// HOOK PRINCIPAL
+// HOOK
 // ============================================
 
-export function useBalanceIntro({
-  onNavigateBack,
-}: UseBalanceIntroProps = {}): UseBalanceIntroReturn {
+export function useBalanceIntro(): UseBalanceIntroReturn {
   const router = useRouter();
   const profile = useActiveProfile();
 
-  // État principal
+  // Store - progression
+  const gameProgress = useGameProgress('balance');
+  const initGameProgress = useStore((state) => state.initGameProgress);
+
+  // Initialiser le progress si nécessaire
+  useEffect(() => {
+    initGameProgress('balance');
+  }, [initGameProgress]);
+
+  // État local
   const [selectedLevel, setSelectedLevel] = useState<LevelConfig | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [isTrainingMode, setIsTrainingMode] = useState(false);
-  const [selectedPhase, setSelectedPhase] = useState<Phase>(1);
-  const [mascotMessage, setMascotMessage] = useState(MASCOT_MESSAGES.welcome);
-  const [mascotMood, setMascotMood] = useState<MascotMood>('curious');
+  const [isVictory, setIsVictory] = useState(false);
   const [currentPuzzle, setCurrentPuzzle] = useState<Puzzle | null>(null);
+  const [mascotMessage, setMascotMessage] = useState(MASCOT_MESSAGES.welcome);
+  const [mascotEmotion, setMascotEmotion] = useState<EmotionType>('happy');
   const [showParentDrawer, setShowParentDrawer] = useState(false);
-  const [trainingValues, setTrainingValues] = useState<Record<string, string | number | boolean>>({
-    phase: '1',
-    mode: 'levels',
-  });
-
-  // Générer les niveaux basés sur l'âge de l'enfant
-  const levels = useMemo(() => {
-    return generateDefaultLevels('balance', profile?.birthDate, []);
-  }, [profile?.birthDate]);
+  const [hintsUsed, setHintsUsed] = useState(0);
 
   // Tous les puzzles
   const allPuzzles = useMemo(() => getAllPuzzles(), []);
-  const totalPuzzles = allPuzzles.length;
 
-  // TODO: Récupérer depuis le store Zustand
-  const completedCount = 0;
+  // Extraire les IDs des niveaux complétés depuis le store
+  const completedLevelIds = useMemo(() => {
+    if (!gameProgress?.completedLevels) return [];
+    return Object.keys(gameProgress.completedLevels).map(
+      (levelId) => `balance_${levelId}`
+    );
+  }, [gameProgress?.completedLevels]);
 
-  // Puzzle actuel basé sur le niveau sélectionné
-  useEffect(() => {
-    if (selectedLevel) {
-      const puzzle = getPuzzleById(selectedLevel.id);
-      if (puzzle) {
-        setCurrentPuzzle(puzzle);
-        const phaseInfo = PHASE_INFO[puzzle.phase];
-        setMascotMessage(`Phase ${puzzle.phase} : ${phaseInfo.name}`);
-        setMascotMood('curious');
-      }
-    }
-  }, [selectedLevel]);
+  // Générer les niveaux basés sur l'âge de l'enfant et les niveaux complétés
+  const levels = useMemo(() => {
+    return generateDefaultLevels('balance', profile?.birthDate, completedLevelIds);
+  }, [profile?.birthDate, completedLevelIds]);
 
-  // Paramètres du mode entraînement
-  const trainingParams: TrainingParam[] = useMemo(() => [
-    {
-      id: 'phase',
-      label: 'Phase',
-      type: 'select',
-      options: [
-        { value: '1', label: `${PHASE_INFO[1].icon} ${PHASE_INFO[1].name}` },
-        { value: '2', label: `${PHASE_INFO[2].icon} ${PHASE_INFO[2].name}` },
-        { value: '3', label: `${PHASE_INFO[3].icon} ${PHASE_INFO[3].name}` },
-        { value: '4', label: `${PHASE_INFO[4].icon} ${PHASE_INFO[4].name}` },
-      ],
-      defaultValue: '1',
+  // Hook du jeu
+  const gameHook = useBalanceGame({
+    puzzle: currentPuzzle || allPuzzles[0],
+    onComplete: (stats) => {
+      handlePuzzleComplete(stats);
     },
-    {
-      id: 'mode',
-      label: 'Mode',
-      type: 'select',
-      options: [
-        { value: 'levels', label: `${Icons.lab} Niveaux` },
-        { value: 'sandbox', label: `${Icons.sandbox} Mode Libre` },
-        { value: 'journal', label: `${Icons.journal} Mon Journal` },
-      ],
-      defaultValue: 'levels',
-    },
-  ], []);
+  });
 
-  // État de la balance pour preview
+  const {
+    balanceState,
+    availableObjects,
+    placeObject,
+    removeObject,
+    requestHint,
+    currentHint,
+    hintsUsed: gameHintsUsed,
+    attempts,
+    isVictory: gameIsVictory,
+    discoveredEquivalences,
+    reset: resetGame,
+  } = gameHook;
+
+  // Sons
+  const { playPlace, playRemove, playBalance, playHint } = useBalanceSound();
+
+  // Ref pour tracker l'initialisation
+  const hasInitializedRef = useRef(false);
+
+  // ============================================
+  // ANIMATIONS
+  // ============================================
+
+  const selectorY = useSharedValue(0);
+  const selectorOpacity = useSharedValue(1);
+  const progressPanelOpacity = useSharedValue(0);
+
+  const selectorStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: selectorY.value }],
+    opacity: selectorOpacity.value,
+  }));
+
+  const progressPanelStyle = useAnimatedStyle(() => ({
+    opacity: progressPanelOpacity.value,
+  }));
+
+  // ============================================
+  // TRANSITIONS
+  // ============================================
+
+  const transitionToPlayMode = useCallback(() => {
+    if (isPlaying) return;
+
+    // Vue 1 → Vue 2: Slide selector up and fade out
+    selectorY.value = withTiming(ANIMATION_CONFIG.selectorSlideDistance, {
+      duration: ANIMATION_CONFIG.selectorSlideDuration,
+      easing: Easing.out(Easing.quad),
+    });
+    selectorOpacity.value = withTiming(0, {
+      duration: ANIMATION_CONFIG.selectorFadeDuration,
+    });
+
+    // Fade in progress panel
+    progressPanelOpacity.value = withDelay(
+      ANIMATION_CONFIG.progressDelayDuration,
+      withTiming(1, { duration: ANIMATION_CONFIG.selectorFadeDuration })
+    );
+
+    // Start playing after animation
+    setTimeout(() => {
+      setIsPlaying(true);
+    }, 300);
+  }, [isPlaying, selectorY, selectorOpacity, progressPanelOpacity]);
+
+  const transitionToSelectionMode = useCallback(() => {
+    // Vue 2 → Vue 1: Show selector with spring animation
+    selectorY.value = withSpring(0, {
+      damping: ANIMATION_CONFIG.springDamping,
+      stiffness: ANIMATION_CONFIG.springStiffness,
+    });
+    selectorOpacity.value = withTiming(1, {
+      duration: ANIMATION_CONFIG.selectorFadeDuration,
+    });
+
+    // Hide progress panel
+    progressPanelOpacity.value = withTiming(0, { duration: 200 });
+
+    setIsPlaying(false);
+    setIsVictory(false);
+  }, [selectorY, selectorOpacity, progressPanelOpacity]);
+
+  // ============================================
+  // PREVIEW BALANCE STATE
+  // ============================================
+
   const previewBalanceState = useMemo(() => {
     if (!currentPuzzle) return null;
 
@@ -179,16 +293,61 @@ export function useBalanceIntro({
   }, [currentPuzzle]);
 
   // ============================================
-  // HANDLERS
+  // EFFECTS - Sélection automatique niveau
   // ============================================
 
-  const handleBack = useCallback(() => {
-    if (onNavigateBack) {
-      onNavigateBack();
-    } else {
-      router.back();
+  useEffect(() => {
+    if (levels.length > 0 && !selectedLevel) {
+      try {
+        // Trouver le premier niveau débloqué mais non complété
+        const firstIncompleteLevel = levels.find(
+          (level) => level.isUnlocked && !level.isCompleted
+        );
+
+        const defaultLevel = firstIncompleteLevel ||
+          levels.filter(l => l.isUnlocked).pop() ||
+          levels[0];
+
+        if (defaultLevel) {
+          setSelectedLevel(defaultLevel);
+          // Trouver le puzzle correspondant
+          const puzzle = getPuzzleById(defaultLevel.id);
+          if (puzzle) {
+            setCurrentPuzzle(puzzle);
+          }
+          setMascotMessage(MASCOT_MESSAGES.selectLevel);
+          setMascotEmotion('happy');
+        }
+      } catch {
+        // En cas d'erreur, sélectionner le niveau 1
+        const level1 = levels[0];
+        if (level1) {
+          setSelectedLevel(level1);
+          const puzzle = getPuzzleById(level1.id);
+          if (puzzle) {
+            setCurrentPuzzle(puzzle);
+          }
+        }
+      }
     }
-  }, [router, onNavigateBack]);
+  }, [levels, selectedLevel]);
+
+  // ============================================
+  // EFFECTS - Feedback jeu (victoire)
+  // ============================================
+
+  useEffect(() => {
+    if (gameIsVictory && !isVictory) {
+      setIsVictory(true);
+      playBalance();
+      setMascotMessage(MASCOT_MESSAGES.success);
+      setMascotEmotion('celebratory');
+    }
+  }, [gameIsVictory, isVictory, playBalance]);
+
+  // ============================================
+  // HANDLERS
+  // ============================================
 
   const handleSelectLevel = useCallback((level: LevelConfig) => {
     setSelectedLevel(level);
@@ -197,114 +356,193 @@ export function useBalanceIntro({
     const puzzle = getPuzzleById(level.id);
     if (puzzle) {
       setCurrentPuzzle(puzzle);
-      setSelectedPhase(puzzle.phase);
+      const phaseInfo = PHASE_INFO[puzzle.phase];
+      setMascotMessage(`Phase ${puzzle.phase} : ${phaseInfo.name} !`);
+      setMascotEmotion('happy');
     }
   }, []);
 
   const handleStartPlaying = useCallback(() => {
-    if (selectedLevel) {
-      setIsPlaying(true);
-      setMascotMood('excited');
+    if (!selectedLevel) return;
+    transitionToPlayMode();
+    setMascotMessage(MASCOT_MESSAGES.startPlaying);
+    setMascotEmotion('excited');
+    setHintsUsed(0);
+  }, [selectedLevel, transitionToPlayMode]);
+
+  const handleBack = useCallback(() => {
+    if (isPlaying) {
+      transitionToSelectionMode();
+      setMascotMessage(MASCOT_MESSAGES.backToSelection);
+      setMascotEmotion('encouraging');
+      resetGame();
+    } else {
+      // Retour à l'accueil depuis la sélection des niveaux
+      router.replace('/');
     }
-  }, [selectedLevel]);
-
-  const handleTrainingPress = useCallback(() => {
-    setIsTrainingMode(prev => !prev);
-    setMascotMessage(isTrainingMode ? MASCOT_MESSAGES.trainingOff : MASCOT_MESSAGES.trainingOn);
-    setMascotMood('curious');
-  }, [isTrainingMode]);
-
-  const handleTrainingChange = useCallback((id: string, value: string | number | boolean) => {
-    setTrainingValues(prev => ({ ...prev, [id]: value }));
-
-    if (id === 'phase') {
-      const phase = parseInt(value as string, 10) as Phase;
-      setSelectedPhase(phase);
-      const puzzles = getPuzzlesByPhase(phase);
-      if (puzzles.length > 0) {
-        setCurrentPuzzle(puzzles[0]);
-      }
-    }
-  }, []);
+  }, [isPlaying, router, transitionToSelectionMode, resetGame]);
 
   const handleParentPress = useCallback(() => {
     setShowParentDrawer(true);
   }, []);
 
-  const handleCloseParentDrawer = useCallback(() => {
-    setShowParentDrawer(false);
-  }, []);
-
   const handleHelpPress = useCallback(() => {
-    setMascotMessage(MASCOT_MESSAGES.help);
-    setMascotMood('excited');
+    setMascotMessage(MASCOT_MESSAGES.hint);
+    setMascotEmotion('thinking');
   }, []);
 
   const handleReset = useCallback(() => {
-    setCurrentPuzzle(prev => prev ? { ...prev } : null);
-    setMascotMessage(MASCOT_MESSAGES.hint);
-    setMascotMood('curious');
-  }, []);
+    resetGame();
+    setIsVictory(false);
+    setMascotMessage("Nouvelle expérience ! Observe bien...");
+    setMascotEmotion('neutral');
+  }, [resetGame]);
 
   const handleHint = useCallback(() => {
-    if (currentPuzzle && currentPuzzle.hints.length > 0) {
-      setMascotMessage(currentPuzzle.hints[0]);
-      setMascotMood('encouraging');
+    if (hintsUsed < MAX_HINTS) {
+      requestHint();
+      playHint();
+      setHintsUsed(prev => prev + 1);
+      setMascotMessage(currentHint || MASCOT_MESSAGES.hint);
+      setMascotEmotion('thinking');
     }
-  }, [currentPuzzle]);
+  }, [hintsUsed, requestHint, playHint, currentHint]);
 
-  // ============================================
-  // HELPERS
-  // ============================================
+  const handlePlaceObject = useCallback((object: WeightObjectType, side: 'left' | 'right') => {
+    placeObject(object, side);
+    playPlace();
+
+    // Vérifier si proche de l'équilibre
+    const newAngle = Math.abs(balanceState.angle);
+    if (newAngle < 5 && newAngle > 0) {
+      setMascotMessage(MASCOT_MESSAGES.closeBalance);
+      setMascotEmotion('excited');
+    }
+  }, [placeObject, playPlace, balanceState.angle]);
+
+  const handleRemoveObject = useCallback((objectId: string, side: 'left' | 'right') => {
+    removeObject(objectId, side);
+    playRemove();
+  }, [removeObject, playRemove]);
+
+  const handleNextLevel = useCallback(() => {
+    if (!currentPuzzle) return;
+
+    // Trouver le prochain puzzle
+    const currentIndex = allPuzzles.findIndex(p => p.id === currentPuzzle.id);
+    if (currentIndex < allPuzzles.length - 1) {
+      const nextPuzzle = allPuzzles[currentIndex + 1];
+      setCurrentPuzzle(nextPuzzle);
+
+      // Mettre à jour le niveau sélectionné
+      const nextLevel = levels.find(l => l.id === nextPuzzle.id);
+      if (nextLevel) {
+        setSelectedLevel(nextLevel);
+      }
+
+      resetGame();
+      setIsVictory(false);
+      setHintsUsed(0);
+
+      const phaseInfo = PHASE_INFO[nextPuzzle.phase];
+      setMascotMessage(`Niveau ${nextPuzzle.level} ! ${phaseInfo.name}`);
+      setMascotEmotion('happy');
+    } else {
+      // Tous les puzzles complétés, retour à la sélection
+      transitionToSelectionMode();
+      setMascotMessage("Bravo ! Tu as terminé tous les niveaux !");
+      setMascotEmotion('celebratory');
+    }
+  }, [currentPuzzle, allPuzzles, levels, resetGame, transitionToSelectionMode]);
+
+  const handlePuzzleComplete = useCallback((stats: {
+    puzzleId: string;
+    completed: boolean;
+    attempts: number;
+    hintsUsed: number;
+    timeSpent: number;
+    equivalenciesDiscovered: string[];
+  }) => {
+    // Le store sera mis à jour ici quand implémenté
+    console.log('Puzzle completed:', stats);
+  }, []);
+
+  const handleGoToSandbox = useCallback(() => {
+    router.push('/(games)/04-balance/sandbox' as const);
+  }, [router]);
+
+  const handleGoToJournal = useCallback(() => {
+    router.push('/(games)/04-balance/journal' as const);
+  }, [router]);
 
   const getPhaseInfo = useCallback((phase: Phase) => {
     return PHASE_INFO[phase];
   }, []);
 
-  const getMascotMessageType = useCallback((): 'victory' | 'hint' | 'encourage' | 'intro' => {
-    if (mascotMood === 'celebratory') return 'victory';
-    if (mascotMood === 'excited') return 'hint';
-    if (mascotMood === 'curious') return 'encourage';
-    return 'intro';
-  }, [mascotMood]);
+  // ============================================
+  // RETURN
+  // ============================================
 
   return {
-    // État
-    selectedLevel,
-    isPlaying,
-    isTrainingMode,
-    selectedPhase,
-    mascotMessage,
-    mascotMood,
-    currentPuzzle,
-    showParentDrawer,
+    // Niveaux
     levels,
-    trainingParams,
-    trainingValues,
+    selectedLevel,
+    handleSelectLevel,
+
+    // État jeu
+    isPlaying,
+    isVictory,
+    currentPuzzle,
+
+    // Parent drawer
+    showParentDrawer,
+    setShowParentDrawer,
+
+    // Animations
+    selectorStyle,
+    progressPanelStyle,
+
+    // Mascot
+    mascotMessage,
+    mascotEmotion,
+
+    // Balance
+    balanceState,
+    availableObjects,
     previewBalanceState,
 
-    // Statistiques
-    completedCount,
-    totalPuzzles,
+    // Progress data
+    progressData: {
+      current: currentPuzzle?.level || 0,
+      total: allPuzzles.length,
+      attempts,
+      hintsUsed: gameHintsUsed,
+      discoveredEquivalences: discoveredEquivalences.length,
+    },
 
     // Handlers
     handleBack,
-    handleSelectLevel,
     handleStartPlaying,
-    handleTrainingPress,
-    handleTrainingChange,
     handleParentPress,
-    handleCloseParentDrawer,
     handleHelpPress,
     handleReset,
     handleHint,
+    handlePlaceObject,
+    handleRemoveObject,
+    handleNextLevel,
 
-    // Données
+    // Hints
+    hintsRemaining: MAX_HINTS - hintsUsed,
+
+    // Navigation
+    handleGoToSandbox,
+    handleGoToJournal,
+
+    // Données parent
     parentGuideData: balanceParentGuideData,
 
-    // Helpers
+    // Helper
     getPhaseInfo,
-    getMascotMessageType,
   };
 }
 

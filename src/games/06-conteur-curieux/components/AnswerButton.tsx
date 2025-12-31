@@ -16,7 +16,8 @@ import Animated, {
 } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 
-import { spacing, borderRadius, shadows, fontFamily } from '../../../theme';
+import { spacing, borderRadius, shadows, fontFamily, touchTargets } from '../../../theme';
+import { Icons } from '../../../constants/icons';
 
 type AnswerState = 'default' | 'selected' | 'correct' | 'encourage';
 
@@ -144,10 +145,10 @@ export function AnswerButton({
 
       {/* State indicator */}
       {state === 'correct' && (
-        <Text style={styles.stateIcon}>✓</Text>
+        <Text style={styles.stateIcon}>{Icons.check}</Text>
       )}
       {state === 'encourage' && (
-        <Text style={styles.stateIcon}>💡</Text>
+        <Text style={styles.stateIcon}>{Icons.lightbulb}</Text>
       )}
     </AnimatedPressable>
   );
@@ -157,7 +158,7 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    minHeight: 64,
+    minHeight: touchTargets.minimum,
     paddingHorizontal: spacing[4],
     paddingVertical: spacing[3],
     borderRadius: borderRadius.xl,
@@ -171,23 +172,23 @@ const styles = StyleSheet.create({
 
   // Letter badge
   letterBadge: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
   },
   letterText: {
-    fontSize: 16,
+    fontSize: 18,
     fontFamily: fontFamily.bold,
   },
 
   // Text
   text: {
     flex: 1,
-    fontSize: 16,
+    fontSize: 18,
     fontFamily: fontFamily.medium,
-    lineHeight: 22,
+    lineHeight: 24,
   },
 
   // State icon

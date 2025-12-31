@@ -1,11 +1,57 @@
 /**
  * Memory Game Levels
  *
- * 10 niveaux progressifs pour le jeu Super Mémoire
+ * Niveau 0 (Entraînement) + 10 niveaux progressifs pour le jeu Super Mémoire
  * Progression : 4 → 6 → 8 → 10 → 12 paires
  */
 
-import type { MemoryLevel, Difficulty } from '../types';
+import type { MemoryLevel, Difficulty, CardTheme } from '../types';
+
+// ============================================================================
+// NIVEAU 0 - ENTRAÎNEMENT (personnalisable)
+// ============================================================================
+
+/**
+ * Niveau 0 - Mode Entraînement
+ * Permet de choisir le thème et le nombre de paires
+ * Toujours débloqué, pas de limite de temps
+ */
+const level0: MemoryLevel = {
+  id: 'memory-level-00',
+  name: 'Entraînement',
+  description: 'Entraîne-toi librement avec le thème de ton choix',
+  pairCount: 4,
+  theme: 'animals',
+  difficulty: 'easy',
+  timeLimit: 0,
+  idealTime: 0, // Pas d'objectif en mode entraînement
+  idealAttempts: 0,
+  ageRange: '4-10',
+  locked: false,
+  isTraining: true,
+};
+
+/**
+ * Crée un niveau d'entraînement personnalisé
+ */
+export function createTrainingLevel(
+  theme: CardTheme,
+  pairCount: number
+): MemoryLevel {
+  const difficulty: Difficulty =
+    pairCount <= 4 ? 'easy' :
+    pairCount <= 6 ? 'easy' :
+    pairCount <= 8 ? 'medium' : 'hard';
+
+  return {
+    ...level0,
+    theme,
+    pairCount,
+    difficulty,
+    name: `Entraînement (${pairCount} paires)`,
+    description: `Mode libre avec ${pairCount} paires`,
+  };
+}
 
 // ============================================================================
 // LES 10 NIVEAUX DU JEU
@@ -195,6 +241,22 @@ const level10: MemoryLevel = {
 // TABLEAU DES NIVEAUX
 // ============================================================================
 
+/** Tous les niveaux incluant le niveau 0 (entraînement) */
+const ALL_LEVELS_WITH_TRAINING: MemoryLevel[] = [
+  level0,
+  level1,
+  level2,
+  level3,
+  level4,
+  level5,
+  level6,
+  level7,
+  level8,
+  level9,
+  level10,
+];
+
+/** Niveaux de jeu uniquement (1-10) */
 const ALL_LEVELS: MemoryLevel[] = [
   level1,
   level2,
@@ -227,11 +289,27 @@ export function getLevelById(id: string): MemoryLevel | undefined {
 }
 
 /**
- * Obtient un niveau par son numéro (1-10)
+ * Obtient un niveau par son numéro (0-10)
+ * Le niveau 0 est le mode entraînement
  */
 export function getLevelByNumber(num: number): MemoryLevel | undefined {
-  if (num < 1 || num > 10) return undefined;
+  if (num < 0 || num > 10) return undefined;
+  if (num === 0) return level0;
   return ALL_LEVELS[num - 1];
+}
+
+/**
+ * Obtient le niveau d'entraînement (niveau 0)
+ */
+export function getTrainingLevel(): MemoryLevel {
+  return level0;
+}
+
+/**
+ * Obtient tous les niveaux incluant le niveau 0
+ */
+export function getAllLevelsWithTraining(): MemoryLevel[] {
+  return ALL_LEVELS_WITH_TRAINING;
 }
 
 /**
@@ -274,6 +352,7 @@ export function getTotalLevels(): number {
 
 export {
   ALL_LEVELS as MEMORY_LEVELS,
-  level1, level2, level3, level4, level5,
+  ALL_LEVELS_WITH_TRAINING as MEMORY_LEVELS_WITH_TRAINING,
+  level0, level1, level2, level3, level4, level5,
   level6, level7, level8, level9, level10,
 };

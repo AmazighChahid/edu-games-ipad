@@ -9,7 +9,7 @@ import { MascotRobot } from './MascotRobot';
 import { useSuitesGameV2 as useSuitesGame } from '../hooks/useSuitesGameV2';
 import { useSuitesSound } from '../hooks/useSuitesSound';
 import { ThemeType, SessionStats, SequenceElement } from '../types';
-import { PIXEL_MESSAGES } from '../constants/gameConfig';
+import { PIXEL_MESSAGES } from '../data/gameConfig';
 import { getErrorHintMessage, getHintLevelMessage } from '../utils/patternHintMessages';
 import { colors, spacing, textStyles, touchTargets, borderRadius, shadows } from '../../../theme';
 

@@ -36,7 +36,9 @@ export interface UseLogixGridGameReturn {
   isLoading: boolean;
   /** Erreurs dans la grille */
   errors: Array<{ rowItemId: string; colItemId: string }>;
-  /** Démarre une nouvelle partie */
+  /** Initialise le jeu sans démarrer le timer (pour afficher la grille en mode intro) */
+  initGame: (puzzle: LogixPuzzle) => void;
+  /** Démarre une nouvelle partie (lance le timer) */
   startGame: (puzzle: LogixPuzzle) => void;
   /** Toggle l'état d'une cellule */
   handleCellToggle: (rowItemId: string, colItemId: string) => void;
@@ -107,7 +109,20 @@ export function useLogixGridGame(): UseLogixGridGameReturn {
   // ============================================================================
 
   /**
-   * Démarre une nouvelle partie
+   * Initialise le jeu sans démarrer le timer (pour afficher la grille en mode intro)
+   */
+  const initGame = useCallback((puzzle: LogixPuzzle) => {
+    setResult(null);
+    setErrors([]);
+    currentPuzzleRef.current = puzzle;
+
+    const newGameState = createGame(puzzle);
+    // En mode intro, on garde la phase 'intro' pour désactiver les cellules
+    setGameState({ ...newGameState, phase: 'intro' });
+  }, []);
+
+  /**
+   * Démarre une nouvelle partie (passe en mode playing et lance le timer)
    */
   const startGame = useCallback((puzzle: LogixPuzzle) => {
     setIsLoading(true);
@@ -281,6 +296,7 @@ export function useLogixGridGame(): UseLogixGridGameReturn {
     result,
     isLoading,
     errors,
+    initGame,
     startGame,
     handleCellToggle,
     handleCellSet,

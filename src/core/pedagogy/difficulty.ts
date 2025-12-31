@@ -303,15 +303,3 @@ export function calculateDifficultyScore(
   return Math.min(100, Math.max(0, baseDifficulty[levelDifficulty] + helpModifier[helpLevel]));
 }
 
-// ============================================================================
-// EXPORTS
-// ============================================================================
-
-export {
-  adaptDifficulty,
-  getVisualHints,
-  shouldShowHint,
-  adjustHelpRealtime,
-  calculateDifficultyScore,
-  DEFAULT_ADAPTATION_CONFIG,
-};

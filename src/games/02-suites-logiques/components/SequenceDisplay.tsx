@@ -4,7 +4,7 @@ import Animated, { FadeInRight } from 'react-native-reanimated';
 import { Sequence, SequenceElement as ElementType, GameStatus } from '../types';
 import { SequenceElement } from './SequenceElement';
 import { MissingSlot } from './MissingSlot';
-import { DIMENSIONS } from '../constants/gameConfig';
+import { DIMENSIONS } from '../data/gameConfig';
 
 // ============================================
 // COMPOSANT SEQUENCE DISPLAY

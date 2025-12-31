@@ -163,7 +163,7 @@ const styles = StyleSheet.create({
   levelNumber: { fontSize: 24, fontFamily: fontFamily.bold, color: colors.text.primary },
   levelNumberSelected: { color: colors.primary.main },
   pairsBadge: { paddingHorizontal: spacing[2], paddingVertical: spacing[1], borderRadius: borderRadius.md, marginTop: spacing[1] },
-  pairsText: { fontSize: 12, fontFamily: fontFamily.bold, color: '#FFFFFF' },
+  pairsText: { fontSize: 14, fontFamily: fontFamily.bold, color: '#FFFFFF' },
   starsRow: { flexDirection: 'row', marginTop: spacing[1] },
   starFilled: { fontSize: 14, color: colors.secondary.main },
   starEmpty: { fontSize: 14, color: colors.text.muted, opacity: 0.3 },
@@ -180,7 +180,7 @@ const styles = StyleSheet.create({
   progressPanel: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing[5], backgroundColor: 'rgba(255,255,255,0.95)', paddingVertical: spacing[3], paddingHorizontal: spacing[5], borderRadius: borderRadius.xl, marginHorizontal: spacing[4], ...shadows.md },
   progressItem: { alignItems: 'center' },
   progressValue: { ...textStyles.h3, color: colors.primary.main, fontFamily: fontFamily.bold },
-  progressLabel: { ...textStyles.caption, color: colors.text.secondary, fontSize: 12 },
+  progressLabel: { ...textStyles.caption, color: colors.text.secondary, fontSize: 14 },
   progressDivider: { width: 1, height: 30, backgroundColor: colors.background.secondary },
 });
 

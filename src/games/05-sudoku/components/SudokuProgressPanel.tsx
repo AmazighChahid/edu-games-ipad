@@ -8,7 +8,8 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 
-import { colors, spacing, borderRadius, fontFamily, textStyles, shadows } from '@/theme';
+import { theme, colors, spacing, borderRadius, shadows, fontFamily } from '@/theme';
+import { Icons } from '@/constants/icons';
 
 // ============================================
 // TYPES
@@ -59,7 +60,7 @@ export function SudokuProgressPanel({
         {/* Cases restantes */}
         <View style={styles.statItem}>
           <View style={[styles.statIcon, styles.cellsIcon]}>
-            <Text style={styles.statEmoji}>🔲</Text>
+            <Text style={styles.statEmoji}>{Icons.square}</Text>
           </View>
           <View style={styles.statContent}>
             <Text style={styles.statValue}>
@@ -72,7 +73,7 @@ export function SudokuProgressPanel({
         {/* Indices */}
         <View style={styles.statItem}>
           <View style={[styles.statIcon, styles.hintsIcon]}>
-            <Text style={styles.statEmoji}>💡</Text>
+            <Text style={styles.statEmoji}>{Icons.lightbulb}</Text>
           </View>
           <View style={styles.statContent}>
             <Text style={styles.statValue}>
@@ -89,7 +90,7 @@ export function SudokuProgressPanel({
             styles.errorsIcon,
             errorsCount > 0 && styles.errorsIconActive,
           ]}>
-            <Text style={styles.statEmoji}>❌</Text>
+            <Text style={styles.statEmoji}>{Icons.error}</Text>
           </View>
           <View style={styles.statContent}>
             <Text style={[

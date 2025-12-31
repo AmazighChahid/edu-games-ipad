@@ -2,6 +2,11 @@
  * TangramBoard Component
  *
  * Plateau de jeu complet pour le Tangram
+ *
+ * REFACTORED:
+ * - Touch targets >= 64dp (Guidelines)
+ * - Font sizes >= 18pt (Guidelines)
+ * - Icons from @/constants/icons (centralized)
  */
 
 import React, { useMemo } from 'react';
@@ -19,7 +24,8 @@ import Animated, {
   withDelay,
 } from 'react-native-reanimated';
 
-import { colors, spacing, borderRadius, shadows, fontFamily } from '../../../theme';
+import { colors, spacing, borderRadius, shadows, fontFamily, touchTargets, fontSize } from '../../../theme';
+import { Icons } from '../../../constants/icons';
 import { useAccessibilityAnimations } from '../../../hooks';
 import type { TangramGameState } from '../types';
 import { TangramPiece } from './TangramPiece';
@@ -133,34 +139,47 @@ export function TangramBoard({
           style={styles.header}
           entering={shouldAnimate ? FadeInUp.duration(300) : undefined}
         >
-          {/* Bouton retour */}
-          <Pressable style={styles.backButton} onPress={onBack}>
-            <Text style={styles.backButtonText}>←</Text>
+          {/* Bouton retour - 64dp touch target */}
+          <Pressable
+            style={styles.backButton}
+            onPress={onBack}
+            accessibilityLabel="Retour"
+            accessibilityRole="button"
+          >
+            <Text style={styles.backButtonText}>{Icons.back}</Text>
           </Pressable>
 
           {/* Infos niveau */}
           <View style={styles.levelInfo}>
             <Text style={styles.levelName}>{gameState.level.name}</Text>
             <Text style={styles.levelDifficulty}>
-              {'⭐'.repeat(gameState.level.difficulty)}
+              {Icons.star.repeat(
+                gameState.level.puzzle.difficulty === 'easy' ? 1 :
+                gameState.level.puzzle.difficulty === 'medium' ? 2 : 3
+              )}
             </Text>
           </View>
 
           {/* Stats */}
           <View style={styles.stats}>
             <View style={styles.statItem}>
-              <Text style={styles.statIcon}>⏱️</Text>
+              <Text style={styles.statIcon}>{Icons.timer}</Text>
               <Text style={styles.statValue}>{formatTime(gameState.timeElapsed)}</Text>
             </View>
             <View style={styles.statItem}>
-              <Text style={styles.statIcon}>🔄</Text>
+              <Text style={styles.statIcon}>{Icons.refresh}</Text>
               <Text style={styles.statValue}>{gameState.moveCount}</Text>
             </View>
           </View>
 
-          {/* Bouton pause */}
-          <Pressable style={styles.pauseButton} onPress={onPause}>
-            <Text style={styles.pauseButtonText}>⏸️</Text>
+          {/* Bouton pause - 64dp touch target */}
+          <Pressable
+            style={styles.pauseButton}
+            onPress={onPause}
+            accessibilityLabel="Pause"
+            accessibilityRole="button"
+          >
+            <Text style={styles.pauseButtonText}>{Icons.pause}</Text>
           </Pressable>
         </Animated.View>
 
@@ -222,7 +241,7 @@ export function TangramBoard({
           </View>
         </View>
 
-        {/* Contrôles */}
+        {/* Contrôles - 64dp touch targets minimum */}
         <Animated.View
           style={styles.controls}
           entering={shouldAnimate ? FadeIn.delay(200).duration(300) : undefined}
@@ -235,8 +254,10 @@ export function TangramBoard({
             ]}
             onPress={() => selectedPiece && onRotatePiece(selectedPiece.id, false)}
             disabled={!selectedPiece}
+            accessibilityLabel="Tourner dans le sens antihoraire"
+            accessibilityRole="button"
           >
-            <Text style={styles.controlButtonText}>↺</Text>
+            <Text style={styles.controlButtonText}>{Icons.rotateLeft}</Text>
             <Text style={styles.controlButtonLabel}>Tourner</Text>
           </Pressable>
 
@@ -248,8 +269,10 @@ export function TangramBoard({
             ]}
             onPress={() => selectedPiece && onFlipPiece(selectedPiece.id)}
             disabled={!selectedPiece}
+            accessibilityLabel="Retourner la pièce"
+            accessibilityRole="button"
           >
-            <Text style={styles.controlButtonText}>⇄</Text>
+            <Text style={styles.controlButtonText}>{Icons.flip}</Text>
             <Text style={styles.controlButtonLabel}>Retourner</Text>
           </Pressable>
 
@@ -262,8 +285,10 @@ export function TangramBoard({
             ]}
             onPress={onHint}
             disabled={gameState.hintsUsed >= gameState.level.hintsAvailable}
+            accessibilityLabel={`Indice, ${gameState.level.hintsAvailable - gameState.hintsUsed} restants`}
+            accessibilityRole="button"
           >
-            <Text style={styles.controlButtonText}>💡</Text>
+            <Text style={styles.controlButtonText}>{Icons.hint}</Text>
             <Text style={styles.controlButtonLabel}>
               Indice ({gameState.level.hintsAvailable - gameState.hintsUsed})
             </Text>
@@ -277,8 +302,10 @@ export function TangramBoard({
             ]}
             onPress={() => selectedPiece && onRotatePiece(selectedPiece.id, true)}
             disabled={!selectedPiece}
+            accessibilityLabel="Tourner dans le sens horaire"
+            accessibilityRole="button"
           >
-            <Text style={styles.controlButtonText}>↻</Text>
+            <Text style={styles.controlButtonText}>{Icons.rotateRight}</Text>
             <Text style={styles.controlButtonLabel}>Tourner</Text>
           </Pressable>
         </Animated.View>
@@ -316,9 +343,10 @@ const styles = StyleSheet.create({
     paddingVertical: spacing[2],
     height: HEADER_HEIGHT,
   },
+  // Touch target >= 64dp (Guidelines AUDIT)
   backButton: {
-    width: 40,
-    height: 40,
+    width: touchTargets.minimum, // 64dp
+    height: touchTargets.minimum, // 64dp
     borderRadius: borderRadius.round,
     backgroundColor: colors.background.card,
     justifyContent: 'center',
@@ -326,7 +354,7 @@ const styles = StyleSheet.create({
     ...shadows.sm,
   },
   backButtonText: {
-    fontSize: 24,
+    fontSize: 28,
     color: colors.text.primary,
   },
   levelInfo: {
@@ -334,13 +362,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   levelName: {
-    fontSize: 18,
+    fontSize: fontSize.lg, // 18pt minimum (Guidelines)
     fontFamily: fontFamily.displayBold,
     fontWeight: '700',
     color: colors.text.primary,
   },
   levelDifficulty: {
-    fontSize: 14,
+    fontSize: fontSize.md, // 16pt
     marginTop: 2,
   },
   stats: {
@@ -353,16 +381,17 @@ const styles = StyleSheet.create({
     gap: spacing[1],
   },
   statIcon: {
-    fontSize: 16,
+    fontSize: fontSize.lg, // 18pt
   },
   statValue: {
-    fontSize: 14,
+    fontSize: fontSize.lg, // 18pt minimum (Guidelines)
     fontFamily: fontFamily.medium,
     color: colors.text.secondary,
   },
+  // Touch target >= 64dp (Guidelines AUDIT)
   pauseButton: {
-    width: 40,
-    height: 40,
+    width: touchTargets.minimum, // 64dp
+    height: touchTargets.minimum, // 64dp
     borderRadius: borderRadius.round,
     backgroundColor: colors.background.card,
     justifyContent: 'center',
@@ -370,7 +399,7 @@ const styles = StyleSheet.create({
     ...shadows.sm,
   },
   pauseButtonText: {
-    fontSize: 20,
+    fontSize: 24,
   },
   progressContainer: {
     paddingHorizontal: spacing[4],
@@ -388,7 +417,7 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.round,
   },
   progressText: {
-    fontSize: 14, // Amélioré (était 12)
+    fontSize: fontSize.lg, // 18pt minimum (Guidelines)
     color: colors.text.tertiary,
     textAlign: 'center',
     marginTop: spacing[1],
@@ -431,14 +460,16 @@ const styles = StyleSheet.create({
     gap: spacing[2],
     height: CONTROLS_HEIGHT,
   },
+  // Touch target >= 64dp (Guidelines AUDIT)
   controlButton: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: spacing[4],
+    paddingHorizontal: spacing[3],
     paddingVertical: spacing[2],
     backgroundColor: colors.background.card,
     borderRadius: borderRadius.lg,
-    minWidth: 70,
+    minWidth: touchTargets.minimum, // 64dp
+    minHeight: touchTargets.minimum, // 64dp
     ...shadows.sm,
   },
   controlButtonDisabled: {
@@ -448,10 +479,10 @@ const styles = StyleSheet.create({
     backgroundColor: colors.secondary.main,
   },
   controlButtonText: {
-    fontSize: 24,
+    fontSize: 28,
   },
   controlButtonLabel: {
-    fontSize: 14, // Amélioré (était 11)
+    fontSize: fontSize.md, // 16pt (labels can be slightly smaller)
     color: colors.text.secondary,
     marginTop: 2,
   },
@@ -460,7 +491,7 @@ const styles = StyleSheet.create({
     paddingBottom: spacing[4],
   },
   instructions: {
-    fontSize: 14,
+    fontSize: fontSize.lg, // 18pt minimum (Guidelines)
     color: colors.text.tertiary,
     textAlign: 'center',
     fontStyle: 'italic',

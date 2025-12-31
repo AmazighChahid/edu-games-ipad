@@ -45,6 +45,7 @@ const PERSISTED_KEYS: (keyof RootStore)[] = [
   'lastOpenedAt',
   'hasSeenHanoiTutorial',
   'favoriteGameIds',
+  'devMode',
   // ProgressSlice
   'gameProgress',
   'recentSessions',

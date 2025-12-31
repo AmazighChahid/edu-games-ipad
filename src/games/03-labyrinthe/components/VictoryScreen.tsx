@@ -19,7 +19,7 @@ const getLabyrintheBadge = (stats: SessionStats): VictoryBadge => {
   } else if (stats.stars >= 2) {
     return { icon: Icons.map, label: 'Aventurier' };
   } else if (stats.hintsUsed >= 3) {
-    return { icon: '💪', label: 'Persévérant' };
+    return { icon: Icons.muscle, label: 'Persévérant' };
   } else {
     return { icon: Icons.star, label: 'Curieux' };
   }

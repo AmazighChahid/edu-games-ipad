@@ -7,7 +7,25 @@ import Animated, {
 } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 import { theme } from '@/theme';
+import { Icons } from '@/constants/icons';
 import { Direction } from '../types';
+
+// ============================================
+// CONSTANTS - Couleurs centralisées
+// ============================================
+
+const DIRECTION_COLORS = {
+  up: theme.colors.primary.main,
+  down: theme.colors.feedback.success,
+  left: theme.colors.feedback.error,
+  right: theme.colors.secondary.main,
+} as const;
+
+const ACTION_COLORS = {
+  execute: theme.colors.feedback.success,
+  executeDisabled: theme.colors.text.muted,
+  reset: theme.colors.feedback.error,
+} as const;
 
 interface Props {
   onAddInstruction: (direction: Direction) => void;
@@ -132,8 +150,8 @@ export const ProgrammingControls: React.FC<Props> = ({
           <View style={styles.spacer} />
           <DirectionButton
             direction="up"
-            icon="↑"
-            color="#5B8DEE"
+            icon={Icons.back}
+            color={DIRECTION_COLORS.up}
             onPress={() => onAddInstruction('up')}
             disabled={isExecuting}
           />
@@ -144,8 +162,8 @@ export const ProgrammingControls: React.FC<Props> = ({
         <View style={styles.row}>
           <DirectionButton
             direction="left"
-            icon="←"
-            color="#E53E3E"
+            icon={Icons.back}
+            color={DIRECTION_COLORS.left}
             onPress={() => onAddInstruction('left')}
             disabled={isExecuting}
           />
@@ -154,8 +172,8 @@ export const ProgrammingControls: React.FC<Props> = ({
           </View>
           <DirectionButton
             direction="right"
-            icon="→"
-            color="#F6AD55"
+            icon={Icons.back}
+            color={DIRECTION_COLORS.right}
             onPress={() => onAddInstruction('right')}
             disabled={isExecuting}
           />
@@ -166,8 +184,8 @@ export const ProgrammingControls: React.FC<Props> = ({
           <View style={styles.spacer} />
           <DirectionButton
             direction="down"
-            icon="↓"
-            color="#68D391"
+            icon={Icons.back}
+            color={DIRECTION_COLORS.down}
             onPress={() => onAddInstruction('down')}
             disabled={isExecuting}
           />
@@ -180,14 +198,14 @@ export const ProgrammingControls: React.FC<Props> = ({
         <ActionButton
           icon="▶"
           label={isExecuting ? "En cours..." : "Lancer"}
-          color={isExecuting ? "#A0AEC0" : "#48BB78"}
+          color={isExecuting ? ACTION_COLORS.executeDisabled : ACTION_COLORS.execute}
           onPress={onExecute}
           disabled={!canExecute || isExecuting}
         />
         <ActionButton
           icon="↺"
           label="Recommencer"
-          color="#E53E3E"
+          color={ACTION_COLORS.reset}
           onPress={onReset}
           disabled={!canReset}
         />
@@ -196,8 +214,8 @@ export const ProgrammingControls: React.FC<Props> = ({
   );
 };
 
-// Taille compacte pour les boutons directionnels
-const BUTTON_SIZE = 48;
+// Taille des boutons directionnels (64dp minimum pour enfants)
+const BUTTON_SIZE = theme.touchTargets.large;
 
 const styles = StyleSheet.create({
   container: {
@@ -211,7 +229,7 @@ const styles = StyleSheet.create({
     ...theme.shadows.sm,
   },
   controlsTitle: {
-    fontSize: theme.fontSize.sm,
+    fontSize: theme.fontSize.lg,
     fontFamily: theme.fontFamily.bold,
     color: theme.colors.text.primary,
   },
@@ -266,19 +284,19 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: theme.spacing[2],
-    paddingVertical: theme.spacing[2],
+    paddingHorizontal: theme.spacing[3],
+    paddingVertical: theme.spacing[3],
     borderRadius: theme.borderRadius.md,
-    gap: theme.spacing[1],
+    gap: theme.spacing[2],
     ...theme.shadows.sm,
-    minHeight: 48,
+    minHeight: theme.touchTargets.large,
   },
   actionIcon: {
-    fontSize: 16,
+    fontSize: 20,
     color: theme.colors.background.primary,
   },
   actionLabel: {
-    fontSize: theme.fontSize.sm,
+    fontSize: theme.fontSize.lg,
     fontFamily: theme.fontFamily.bold,
     color: theme.colors.background.primary,
   },

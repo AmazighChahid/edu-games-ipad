@@ -1,15 +1,19 @@
 /**
  * SudokuGameArea Component
  * Zone de jeu contenant la grille Sudoku et le sélecteur de symboles
+ * Avec support du drag & drop
  */
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import { View, StyleSheet } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { colors, spacing } from '@/theme';
 import type { SudokuState, SudokuValue } from '../types';
 import { SudokuGrid } from './SudokuGrid';
 import { SymbolSelector } from './SymbolSelector';
+import { DragDropProvider, useDragDrop } from '../context/DragDropContext';
+import { FloatingDragPreview } from './DraggableSymbol';
 
 // ============================================
 // TYPES
@@ -22,28 +26,52 @@ interface SudokuGameAreaProps {
   onClear: () => void;
   selectedSymbol: SudokuValue;
   showConflicts?: boolean;
+  onDrop?: (
+    symbol: SudokuValue,
+    targetRow: number,
+    targetCol: number,
+    sourceCell?: { row: number; col: number }
+  ) => void;
 }
 
 // ============================================
-// COMPONENT
+// INNER COMPONENT (with drag/drop context)
 // ============================================
 
-export function SudokuGameArea({
+interface SudokuGameAreaInnerProps extends SudokuGameAreaProps {}
+
+function SudokuGameAreaInner({
   gameState,
   onCellPress,
   onSymbolSelect,
   onClear,
   selectedSymbol,
   showConflicts = true,
-}: SudokuGameAreaProps) {
+  onDrop,
+}: SudokuGameAreaInnerProps) {
   const { grid, selectedCell } = gameState;
+  const { dragState, dropTarget, endDrag } = useDragDrop();
 
-  // Calculer les symboles déjà utilisés (tous présents dans la grille)
+  // Handle drop when drag ends
+  useEffect(() => {
+    if (!dragState.isDragging && dropTarget && dragState.symbol !== null) {
+      // A drop just happened
+      if (onDrop) {
+        onDrop(
+          dragState.symbol,
+          dropTarget.row,
+          dropTarget.col,
+          dragState.sourceCell || undefined
+        );
+      }
+    }
+  }, [dragState.isDragging]);
+
+  // Calculate used symbols
   const usedSymbols = useMemo(() => {
     const used = new Set<SudokuValue>();
-
-    // Compter les occurrences de chaque symbole
     const counts: Record<string, number> = {};
+
     grid.cells.flat().forEach((cell) => {
       if (cell.value !== null) {
         const key = String(cell.value);
@@ -51,7 +79,6 @@ export function SudokuGameArea({
       }
     });
 
-    // Un symbole est "utilisé" s'il apparaît autant de fois que la taille de la grille
     grid.symbols.forEach((symbol) => {
       if (symbol !== null) {
         const key = String(symbol);
@@ -71,6 +98,7 @@ export function SudokuGameArea({
         <SudokuGrid
           grid={grid}
           selectedCell={selectedCell}
+          highlightedSymbol={gameState.highlightedSymbol}
           onCellPress={onCellPress}
           showConflicts={showConflicts}
         />
@@ -85,7 +113,24 @@ export function SudokuGameArea({
         theme={grid.theme}
         usedSymbols={usedSymbols}
       />
+
+      {/* Floating preview pendant le drag */}
+      <FloatingDragPreview theme={grid.theme} />
     </View>
+  );
+}
+
+// ============================================
+// MAIN COMPONENT (with provider wrapper)
+// ============================================
+
+export function SudokuGameArea(props: SudokuGameAreaProps) {
+  return (
+    <GestureHandlerRootView style={styles.gestureRoot}>
+      <DragDropProvider>
+        <SudokuGameAreaInner {...props} />
+      </DragDropProvider>
+    </GestureHandlerRootView>
   );
 }
 
@@ -94,6 +139,9 @@ export function SudokuGameArea({
 // ============================================
 
 const styles = StyleSheet.create({
+  gestureRoot: {
+    flex: 1,
+  },
   container: {
     flex: 1,
     justifyContent: 'space-between',

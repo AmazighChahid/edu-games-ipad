@@ -51,7 +51,7 @@ export function MemoryGrid({
     // Prendre le minimum pour garder les cartes carrées
     const size = Math.min(maxCardWidth, maxCardHeight, 100);
 
-    return Math.max(size, 60); // Minimum 60px
+    return Math.max(size, 64); // Minimum 64px pour touch targets enfant
   }, [width, height, rows, cols]);
 
   // Organiser les cartes en grille

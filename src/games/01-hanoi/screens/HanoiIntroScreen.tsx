@@ -247,7 +247,8 @@ export function HanoiIntroScreen() {
         onHint={intro.handleHint}
         hintsRemaining={intro.hintsRemaining}
         hintsDisabled={intro.hintsRemaining === 0}
-        showForceCompleteButton={false}
+        showForceCompleteButton={intro.devMode}
+        onForceComplete={intro.handleForceComplete}
 
         // Victory
         isVictory={intro.isVictory}
@@ -455,7 +456,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary.main,
     paddingVertical: spacing[3],
     paddingHorizontal: spacing[5],
-    borderRadius: borderRadius.full,
+    borderRadius: borderRadius.round,
     gap: spacing[2],
     minHeight: 52,
   },
@@ -466,7 +467,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.secondary.light,
     paddingVertical: spacing[3],
     paddingHorizontal: spacing[5],
-    borderRadius: borderRadius.full,
+    borderRadius: borderRadius.round,
     gap: spacing[2],
     minHeight: 52,
   },

@@ -1,11 +1,11 @@
 /**
  * Balance Logique - Point d'entrée
- * Utilise le nouveau BalanceHanoiIntroScreen avec le pattern Hanoi
+ * Menu principal avec accès aux niveaux, sandbox et journal
  */
 
 import React from 'react';
-import { BalanceHanoiIntroScreen } from '../../../src/games/04-balance';
+import { BalanceGameScreen } from '../../../src/games/04-balance';
 
 export default function BalanceScreen() {
-  return <BalanceHanoiIntroScreen />;
+  return <BalanceGameScreen />;
 }

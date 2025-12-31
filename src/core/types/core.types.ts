@@ -257,27 +257,3 @@ export interface VisualHintsConfig {
   showOptimalMoves: boolean;
 }
 
-// ============================================================================
-// EXPORTS GROUPÉS
-// ============================================================================
-
-export type {
-  HelpLevel,
-  LevelConfig,
-  LevelProgress,
-  PerformanceHistory,
-  SessionSummary,
-  FeedbackType,
-  FeedbackContext,
-  FeedbackMessage,
-  FeedbackAnimationConfig,
-  AssistantTrigger,
-  AssistantContext,
-  AssistantScript,
-  AssistantCondition,
-  AssistantMessage,
-  AssistantState,
-  DifficultyAdaptationConfig,
-  DifficultyRecommendation,
-  VisualHintsConfig,
-};

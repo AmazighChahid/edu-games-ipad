@@ -1,5 +1,5 @@
 import { PatternDefinition } from '../types';
-import { LogicFamily, getPatternFamily } from '../engine/types';
+import { LogicFamily, getPatternFamily } from '../logic/types';
 
 // ============================================
 // DÉFINITIONS DES PATTERNS PAR NIVEAU

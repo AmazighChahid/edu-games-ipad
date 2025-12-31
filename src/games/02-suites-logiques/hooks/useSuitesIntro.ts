@@ -31,7 +31,7 @@ import {
 import { useSuitesGame } from './useSuitesGame';
 import { useSuitesSound } from './useSuitesSound';
 import { useActiveProfile, useGameProgress, useStore } from '../../../store/useStore';
-import { PIXEL_MESSAGES } from '../constants/gameConfig';
+import { PIXEL_MESSAGES } from '../data/gameConfig';
 import type { SequenceElement } from '../types';
 
 // ============================================

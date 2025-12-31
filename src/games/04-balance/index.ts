@@ -5,7 +5,7 @@
 
 // Screens
 export { BalanceGameScreen } from './screens/BalanceGameScreen';
-export { BalanceIntroScreen } from './screens/BalanceIntroScreen';
+export { BalanceIntroScreen } from './screens';
 export { BalanceHanoiIntroScreen } from './screens';
 
 // Components

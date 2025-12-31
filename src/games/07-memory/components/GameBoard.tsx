@@ -2,14 +2,20 @@
  * GameBoard Component
  *
  * Plateau de jeu principal pour Memory
- * Inclut la grille, les stats et les contrôles
+ * Utilise ScreenHeader standardisé + stats bar + grille
+ *
+ * Refactorisé pour respecter les guidelines UX enfant:
+ * - Touch targets ≥ 64dp
+ * - fontSize ≥ 16pt (labels), ≥ 18pt (texte courant)
+ * - Imports depuis /theme/
  */
 
 import React from 'react';
 import { StyleSheet, View, Text, Pressable } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { colors, spacing, borderRadius, shadows, fontFamily, touchTargets } from '../../../theme';
+import { colors, spacing, borderRadius, shadows, fontFamily, touchTargets, textStyles } from '../../../theme';
+import { ScreenHeader } from '../../../components/common';
 import { MemoryGrid } from './MemoryGrid';
 import { Icons } from '../../../constants/icons';
 import type { MemoryGameState } from '../types';
@@ -57,39 +63,38 @@ export function GameBoard({
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
-      {/* Header */}
-      <View style={styles.header}>
-        <Pressable style={styles.backButton} onPress={onBack} accessibilityLabel="Retour" accessibilityRole="button">
-          <Text style={styles.backButtonText}>{Icons.back}</Text>
-        </Pressable>
-
-        <View style={styles.levelInfo}>
-          <Text style={styles.levelName}>{level.name}</Text>
-        </View>
-
-        <Pressable style={styles.pauseButton} onPress={onPause} accessibilityLabel="Pause" accessibilityRole="button">
-          <Text style={styles.pauseButtonText}>{Icons.pause}</Text>
-        </Pressable>
-      </View>
+      {/* Header standardisé */}
+      <ScreenHeader
+        variant="game"
+        title={level.name}
+        emoji={Icons.elephant}
+        onBack={onBack}
+        showParentButton={false}
+        showHelpButton={false}
+      />
 
       {/* Stats Bar */}
       <View style={styles.statsBar}>
         <View style={styles.stat}>
-          <Text style={styles.statLabel}>Paires</Text>
+          <Text style={styles.statIcon}>{Icons.memoryPairs}</Text>
           <Text style={styles.statValue}>
             {matchedPairs}/{totalPairs}
           </Text>
+          <Text style={styles.statLabel}>Paires</Text>
         </View>
 
+        <View style={styles.statDivider} />
+
         <View style={styles.stat}>
-          <Text style={styles.statLabel}>Essais</Text>
+          <Text style={styles.statIcon}>{Icons.target}</Text>
           <Text style={styles.statValue}>{attempts}</Text>
+          <Text style={styles.statLabel}>Essais</Text>
         </View>
 
+        <View style={styles.statDivider} />
+
         <View style={styles.stat}>
-          <Text style={styles.statLabel}>
-            {level.timeLimit > 0 ? 'Reste' : 'Temps'}
-          </Text>
+          <Text style={styles.statIcon}>{level.timeLimit > 0 ? Icons.timer : Icons.clock}</Text>
           <Text
             style={[
               styles.statValue,
@@ -97,6 +102,9 @@ export function GameBoard({
             ]}
           >
             {timeDisplay}
+          </Text>
+          <Text style={styles.statLabel}>
+            {level.timeLimit > 0 ? 'Reste' : 'Temps'}
           </Text>
         </View>
       </View>
@@ -111,6 +119,9 @@ export function GameBoard({
             ]}
           />
         </View>
+        <Text style={styles.progressText}>
+          {Math.round((matchedPairs / totalPairs) * 100)}%
+        </Text>
       </View>
 
       {/* Grid */}
@@ -122,10 +133,28 @@ export function GameBoard({
         />
       </View>
 
-      {/* Hint Button */}
+      {/* Footer avec boutons */}
       <View style={[styles.footer, { paddingBottom: insets.bottom + spacing[4] }]}>
-        <Pressable style={styles.hintButton} onPress={onHint} accessibilityLabel="Obtenir un indice" accessibilityRole="button">
-          <Text style={styles.hintButtonText}>{Icons.lightbulb} Indice</Text>
+        {/* Bouton Pause */}
+        <Pressable
+          style={styles.footerButton}
+          onPress={onPause}
+          accessibilityLabel="Pause"
+          accessibilityRole="button"
+        >
+          <Text style={styles.footerButtonIcon}>{Icons.pause}</Text>
+          <Text style={styles.footerButtonText}>Pause</Text>
+        </Pressable>
+
+        {/* Bouton Indice */}
+        <Pressable
+          style={[styles.footerButton, styles.hintButton]}
+          onPress={onHint}
+          accessibilityLabel="Obtenir un indice"
+          accessibilityRole="button"
+        >
+          <Text style={styles.footerButtonIcon}>{Icons.lightbulb}</Text>
+          <Text style={styles.footerButtonText}>Indice</Text>
         </Pressable>
       </View>
     </View>
@@ -141,84 +170,63 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background.primary,
   },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: spacing[4],
-    paddingVertical: spacing[3],
-    backgroundColor: colors.background.card,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.ui.border,
-  },
-  backButton: {
-    width: 64,
-    height: 64,
-    minWidth: 64,
-    minHeight: 64,
-    borderRadius: borderRadius.round,
-    backgroundColor: colors.background.secondary,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  backButtonText: {
-    fontSize: 28,
-    color: colors.text.primary,
-  },
-  levelInfo: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  levelName: {
-    fontSize: 18,
-    fontFamily: fontFamily.display,
-    fontWeight: '600',
-    color: colors.text.primary,
-  },
-  pauseButton: {
-    width: 64,
-    height: 64,
-    minWidth: 64,
-    minHeight: 64,
-    borderRadius: borderRadius.round,
-    backgroundColor: colors.background.secondary,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  pauseButtonText: {
-    fontSize: 24,
-  },
+
+  // ============================================
+  // STATS BAR
+  // ============================================
   statsBar: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
+    justifyContent: 'center',
+    alignItems: 'center',
     paddingVertical: spacing[3],
     paddingHorizontal: spacing[4],
     backgroundColor: colors.background.card,
+    marginHorizontal: spacing[4],
+    marginTop: spacing[2],
+    borderRadius: borderRadius.xl,
+    gap: spacing[4],
+    ...shadows.md,
   },
   stat: {
     alignItems: 'center',
+    minWidth: 80,
+  },
+  statIcon: {
+    fontSize: 24,
+    marginBottom: spacing[1],
   },
   statLabel: {
-    fontSize: 14,
+    fontSize: 16,
     fontFamily: fontFamily.regular,
     color: colors.text.muted,
-    marginBottom: 2,
   },
   statValue: {
-    fontSize: 20,
+    fontSize: 24,
     fontFamily: fontFamily.displayBold,
-    fontWeight: '700',
     color: colors.text.primary,
   },
   statValueWarning: {
     color: colors.feedback.error,
   },
+  statDivider: {
+    width: 1,
+    height: 50,
+    backgroundColor: colors.ui.border,
+  },
+
+  // ============================================
+  // PROGRESS BAR
+  // ============================================
   progressContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingHorizontal: spacing[4],
-    paddingVertical: spacing[2],
+    paddingVertical: spacing[3],
+    gap: spacing[3],
   },
   progressBar: {
-    height: 8,
+    flex: 1,
+    height: 12,
     backgroundColor: colors.ui.border,
     borderRadius: borderRadius.round,
     overflow: 'hidden',
@@ -228,30 +236,56 @@ const styles = StyleSheet.create({
     backgroundColor: colors.feedback.success,
     borderRadius: borderRadius.round,
   },
+  progressText: {
+    fontSize: 18,
+    fontFamily: fontFamily.bold,
+    color: colors.feedback.success,
+    minWidth: 50,
+    textAlign: 'right',
+  },
+
+  // ============================================
+  // GRID
+  // ============================================
   gridContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
+
+  // ============================================
+  // FOOTER BUTTONS
+  // ============================================
   footer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
     alignItems: 'center',
+    gap: spacing[4],
     paddingTop: spacing[4],
+  },
+  footerButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing[2],
+    backgroundColor: colors.background.card,
+    paddingVertical: spacing[3],
+    paddingHorizontal: spacing[5],
+    borderRadius: borderRadius.xl,
+    minHeight: touchTargets.large,
+    minWidth: 120,
+    ...shadows.md,
   },
   hintButton: {
     backgroundColor: colors.secondary.main,
-    paddingVertical: spacing[4],
-    paddingHorizontal: spacing[6],
-    borderRadius: borderRadius.xl,
-    minHeight: 64,
-    justifyContent: 'center',
-    alignItems: 'center',
-    ...shadows.md,
   },
-  hintButtonText: {
+  footerButtonIcon: {
+    fontSize: 24,
+  },
+  footerButtonText: {
     fontSize: 18,
     fontFamily: fontFamily.bold,
-    fontWeight: '600',
-    color: colors.text.inverse,
+    color: colors.text.primary,
   },
 });
 

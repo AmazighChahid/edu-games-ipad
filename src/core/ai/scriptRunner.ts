@@ -429,15 +429,3 @@ export function createScript(
   };
 }
 
-// ============================================================================
-// EXPORTS
-// ============================================================================
-
-export {
-  ScriptRunner,
-  validateScripts,
-  createScriptRunner,
-  mergeScripts,
-  filterScriptsByGame,
-  createScript,
-};

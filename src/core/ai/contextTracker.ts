@@ -284,8 +284,3 @@ export function isNearVictory(completionPercentage: number): boolean {
   return completionPercentage >= CONTEXT_THRESHOLDS.NEAR_VICTORY_THRESHOLD;
 }
 
-// ============================================================================
-// EXPORTS
-// ============================================================================
-
-export { ContextTracker, isComeback, calculateCompletionPercentage, isNearVictory };

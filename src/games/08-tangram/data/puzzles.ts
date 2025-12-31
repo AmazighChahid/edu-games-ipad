@@ -257,15 +257,9 @@ export function getLevelForPuzzle(puzzleId: string): TangramLevel | undefined {
 // TANGRAM_PUZZLES - Tous les puzzles combinés
 export const TANGRAM_PUZZLES: TangramPuzzle[] = [...animalPuzzles, ...objectPuzzles, ...peoplePuzzles];
 
+// Alias exports for backwards compatibility
 export {
   animalPuzzles as TANGRAM_ANIMAL_PUZZLES,
   objectPuzzles as TANGRAM_OBJECT_PUZZLES,
   peoplePuzzles as TANGRAM_PEOPLE_PUZZLES,
-  getAllPuzzles,
-  getPuzzleById,
-  getPuzzlesByCategory,
-  getPuzzlesByDifficulty,
-  getFirstPuzzle,
-  getLevelForPuzzle,
-  createLevelFromPuzzle,
 };

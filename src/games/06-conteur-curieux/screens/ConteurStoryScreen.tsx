@@ -8,7 +8,7 @@
  * - Popup de vocabulaire au tap
  */
 
-import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react';
+import React, { useState, useCallback, useMemo, useRef } from 'react';
 import {
   View,
   Text,
@@ -21,19 +21,17 @@ import {
   NativeSyntheticEvent,
   NativeScrollEvent,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import Animated, {
   FadeIn,
-  FadeInRight,
-  FadeInLeft,
-  SlideInRight,
-  SlideInLeft,
 } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 
-import { colors, spacing, borderRadius, shadows, fontFamily } from '../../../theme';
+import { colors, spacing, borderRadius, shadows, fontFamily, touchTargets } from '../../../theme';
+import { Icons } from '../../../constants/icons';
 import { useAccessibilityAnimations } from '../../../hooks';
+import { PageContainer } from '../../../components/common/PageContainer';
+import { ScreenHeader } from '../../../components/common/ScreenHeader';
 
 import { PlumeMascot } from '../components/PlumeMascot';
 import { AudioPlayer } from '../components/AudioPlayer';
@@ -87,9 +85,6 @@ export function ConteurStoryScreen({ levelId, mode, onFinish }: ConteurStoryScre
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
   const [audioPosition, setAudioPosition] = useState(0);
   const [readingStartTime] = useState(Date.now());
-
-  // Largeur de la page pour le scroll horizontal
-  const pageWidth = width - spacing[4] * 2;
 
   // Responsive
   const isTablet = width >= 768;
@@ -215,79 +210,42 @@ export function ConteurStoryScreen({ levelId, mode, onFinish }: ConteurStoryScre
     setIsAudioPlaying((prev) => !prev);
   }, []);
 
-  // Rendu du texte avec mots de vocabulaire cliquables
-  const renderTextWithVocabulary = useCallback(() => {
-    if (vocabularyInParagraph.length === 0) {
-      return <Text style={styles.paragraphText}>{currentText}</Text>;
-    }
-
-    // Créer une regex pour tous les mots de vocabulaire
-    const vocabWords = vocabularyInParagraph.map((v) => v.word);
-    const regex = new RegExp(`(${vocabWords.join('|')})`, 'gi');
-    const parts = currentText.split(regex);
-
-    return (
-      <Text style={styles.paragraphText}>
-        {parts.map((part, index) => {
-          const vocabWord = vocabularyInParagraph.find(
-            (v) => v.word.toLowerCase() === part.toLowerCase()
-          );
-
-          if (vocabWord) {
-            return (
-              <Text
-                key={index}
-                style={styles.vocabularyWord}
-                onPress={() => handleVocabularyTap(vocabWord)}
-              >
-                {part}
-              </Text>
-            );
-          }
-
-          return <Text key={index}>{part}</Text>;
-        })}
-      </Text>
-    );
-  }, [currentText, vocabularyInParagraph, handleVocabularyTap]);
-
   if (!level) {
     return (
-      <SafeAreaView style={styles.container} edges={['top']}>
+      <PageContainer variant="neutral" safeAreaEdges={['top']}>
         <View style={styles.errorContainer}>
-          <Text style={styles.errorEmoji}>😕</Text>
+          <Text style={styles.errorEmoji}>{Icons.thinking}</Text>
           <Text style={styles.errorText}>Histoire introuvable</Text>
           <Pressable style={styles.errorButton} onPress={() => router.back()}>
             <Text style={styles.errorButtonText}>Retour</Text>
           </Pressable>
         </View>
-      </SafeAreaView>
+      </PageContainer>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <PageContainer variant="neutral" scrollable={false} safeAreaEdges={['top']}>
       {/* Header */}
-      <View style={styles.header}>
-        <Pressable style={styles.headerButton} onPress={handleBack}>
-          <Text style={styles.headerButtonText}>{'<'}</Text>
-        </Pressable>
+      <ScreenHeader
+        variant="game"
+        title={level.story.title}
+        emoji={level.story.emoji}
+        onBack={handleBack}
+        showHelpButton
+        onHelpPress={handlePause}
+      />
 
-        {/* Progress bar */}
-        <View style={styles.progressContainer}>
-          <View style={styles.progressBar}>
-            <Animated.View
-              style={[styles.progressFill, { width: `${progressPercent}%` }]}
-            />
-          </View>
-          <Text style={styles.progressText}>
-            {currentParagraph + 1} / {totalParagraphs}
-          </Text>
+      {/* Progress bar */}
+      <View style={styles.progressContainer}>
+        <View style={styles.progressBar}>
+          <Animated.View
+            style={[styles.progressFill, { width: `${progressPercent}%` }]}
+          />
         </View>
-
-        <Pressable style={styles.headerButton} onPress={handlePause}>
-          <Text style={styles.headerButtonText}>⏸️</Text>
-        </Pressable>
+        <Text style={styles.progressText}>
+          {currentParagraph + 1} / {totalParagraphs}
+        </Text>
       </View>
 
       {/* Main content */}
@@ -337,8 +295,10 @@ export function ConteurStoryScreen({ levelId, mode, onFinish }: ConteurStoryScre
               style={[styles.chevronButton, styles.chevronLeft, isFirstParagraph && styles.chevronDisabled]}
               onPress={handlePreviousParagraph}
               disabled={isFirstParagraph}
+              accessibilityLabel="Page précédente"
+              accessibilityRole="button"
             >
-              <Text style={[styles.chevronText, isFirstParagraph && styles.chevronTextDisabled]}>‹</Text>
+              <Text style={[styles.chevronText, isFirstParagraph && styles.chevronTextDisabled]}>{Icons.arrowLeft}</Text>
             </Pressable>
 
             {/* FlatList horizontal */}
@@ -374,7 +334,7 @@ export function ConteurStoryScreen({ levelId, mode, onFinish }: ConteurStoryScre
 
                   return (
                     <Text style={styles.paragraphText}>
-                      {parts.map((part, partIndex) => {
+                      {parts.map((part: string, partIndex: number) => {
                         const vocabWord = vocabInThisParagraph.find(
                           (v) => v.word.toLowerCase() === part.toLowerCase()
                         );
@@ -405,7 +365,7 @@ export function ConteurStoryScreen({ levelId, mode, onFinish }: ConteurStoryScre
                     {/* Vocabulary hint */}
                     {vocabInThisParagraph.length > 0 && (
                       <Text style={styles.vocabularyHint}>
-                        Tape sur les mots soulignés pour voir leur définition
+                        {Icons.lightbulb} Tape sur les mots soulignés pour voir leur définition
                       </Text>
                     )}
                   </ScrollView>
@@ -418,8 +378,10 @@ export function ConteurStoryScreen({ levelId, mode, onFinish }: ConteurStoryScre
               style={[styles.chevronButton, styles.chevronRight, isLastParagraph && styles.chevronDisabled]}
               onPress={handleNextParagraph}
               disabled={isLastParagraph}
+              accessibilityLabel="Page suivante"
+              accessibilityRole="button"
             >
-              <Text style={[styles.chevronText, isLastParagraph && styles.chevronTextDisabled]}>›</Text>
+              <Text style={[styles.chevronText, isLastParagraph && styles.chevronTextDisabled]}>{Icons.arrowRight}</Text>
             </Pressable>
           </View>
 
@@ -452,7 +414,7 @@ export function ConteurStoryScreen({ levelId, mode, onFinish }: ConteurStoryScre
       <View style={styles.navigation}>
         {isLastParagraph ? (
           <Pressable style={styles.finishButton} onPress={handleFinishReading}>
-            <Text style={styles.finishButtonText}>Questions ! 🎯</Text>
+            <Text style={styles.finishButtonText}>Questions ! {Icons.target}</Text>
           </Pressable>
         ) : (
           <View style={styles.pageIndicatorContainer}>
@@ -475,38 +437,15 @@ export function ConteurStoryScreen({ levelId, mode, onFinish }: ConteurStoryScre
         visible={!!vocabularyPopup}
         onClose={handleCloseVocabulary}
       />
-    </SafeAreaView>
+    </PageContainer>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FFF9F0',
-  },
-
-  // Header
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: spacing[4],
-    paddingVertical: spacing[3],
-    gap: spacing[3],
-  },
-  headerButton: {
-    width: 64,
-    height: 64,
-    borderRadius: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    ...shadows.md,
-  },
-  headerButtonText: {
-    fontSize: 24,
-  },
+  // Progress bar (moved below header)
   progressContainer: {
-    flex: 1,
+    paddingHorizontal: spacing[4],
+    paddingVertical: spacing[2],
     alignItems: 'center',
   },
   progressBar: {
@@ -522,7 +461,8 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   progressText: {
-    fontSize: 12,
+    fontSize: 18,
+    fontFamily: fontFamily.medium,
     color: '#718096',
     marginTop: spacing[1],
   },
@@ -578,9 +518,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   chevronButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: touchTargets.minimum,
+    height: touchTargets.minimum,
+    borderRadius: touchTargets.minimum / 2,
     backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
@@ -599,10 +539,9 @@ const styles = StyleSheet.create({
     opacity: 0.3,
   },
   chevronText: {
-    fontSize: 32,
+    fontSize: 28,
     fontWeight: '300',
     color: '#9B59B6',
-    marginTop: -2,
   },
   chevronTextDisabled: {
     color: '#A0AEC0',
@@ -629,7 +568,8 @@ const styles = StyleSheet.create({
   },
   vocabularyHint: {
     marginTop: spacing[4],
-    fontSize: 14,
+    fontSize: 18,
+    fontFamily: fontFamily.regular,
     color: '#718096',
     fontStyle: 'italic',
     textAlign: 'center',
@@ -657,44 +597,14 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: 'rgba(0,0,0,0.05)',
   },
-  navButton: {
-    paddingHorizontal: spacing[4],
-    paddingVertical: spacing[3],
-    borderRadius: borderRadius.lg,
-    backgroundColor: '#FFFFFF',
-    ...shadows.sm,
-  },
-  navButtonDisabled: {
-    opacity: 0.4,
-  },
-  navButtonText: {
-    fontSize: 16,
-    fontFamily: fontFamily.medium,
-    color: '#718096',
-  },
-  navButtonTextDisabled: {
-    color: '#A0AEC0',
-  },
-  nextButton: {
-    flex: 1,
-    paddingVertical: spacing[4],
-    borderRadius: borderRadius.xl,
-    backgroundColor: '#9B59B6',
-    alignItems: 'center',
-    boxShadow: '0px 2px 4px rgba(155, 89, 182, 0.25)',
-    elevation: 3,
-  },
-  nextButtonText: {
-    fontSize: 18,
-    fontFamily: fontFamily.bold,
-    color: '#FFFFFF',
-  },
   finishButton: {
     flex: 1,
+    minHeight: touchTargets.minimum,
     paddingVertical: spacing[4],
     borderRadius: borderRadius.xl,
     backgroundColor: '#7BC74D',
     alignItems: 'center',
+    justifyContent: 'center',
     boxShadow: '0px 2px 4px rgba(123, 199, 77, 0.25)',
     elevation: 3,
   },
@@ -736,17 +646,21 @@ const styles = StyleSheet.create({
   },
   errorText: {
     fontSize: 18,
+    fontFamily: fontFamily.medium,
     color: colors.text.secondary,
     marginBottom: spacing[4],
   },
   errorButton: {
     backgroundColor: colors.primary.main,
+    minHeight: touchTargets.minimum,
     paddingHorizontal: spacing[6],
     paddingVertical: spacing[3],
     borderRadius: borderRadius.lg,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   errorButtonText: {
-    fontSize: 16,
+    fontSize: 18,
     color: '#FFFFFF',
     fontFamily: fontFamily.medium,
   },

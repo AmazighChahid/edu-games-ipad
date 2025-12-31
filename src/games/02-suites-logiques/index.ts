@@ -19,4 +19,4 @@ export type {
 export { THEMES, DEFAULT_THEME } from './data/themes';
 
 // Configuration
-export { GAME_CONFIG } from './constants/gameConfig';
+export { GAME_CONFIG } from './data/gameConfig';

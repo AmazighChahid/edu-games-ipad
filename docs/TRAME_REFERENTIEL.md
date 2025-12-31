@@ -461,37 +461,54 @@ const availableGames = getAvailableGames();
 
 ## 5. Couche 4 : Structure d'un Jeu
 
-### Pattern obligatoire
+### Architecture Cible (Obligatoire)
 
-Chaque jeu dans `/src/games/{XX-nomJeu}/` doit suivre cette structure :
+Chaque jeu dans `/src/games/{XX-nom-activite}/` doit suivre cette structure :
 
 ```
-{nomJeu}/
-├── index.ts                    # Exports publics (OBLIGATOIRE)
-├── types.ts                    # Types spécifiques au jeu
-│
-├── components/                 # Composants UI
-│   ├── index.ts                # Exports
-│   ├── {Element}.tsx           # Éléments visuels
-│   └── feedback/               # Écrans de victoire
-│
-├── hooks/
-│   └── use{NomJeu}Game.ts      # Hook principal (~400 lignes)
-│
-├── logic/
-│   ├── {nomJeu}Engine.ts       # Mécanique pure (pas de React)
-│   └── validator.ts            # Validation des actions
-│
-├── data/
-│   ├── levels.ts               # Configuration des niveaux
-│   ├── assistantScripts.ts     # Scripts de l'assistant IA
-│   └── themes.ts               # Thèmes visuels (optionnel)
-│
-└── screens/
-    ├── index.ts
-    ├── {NomJeu}IntroScreen.tsx  # Écran d'introduction
-    └── {NomJeu}VictoryScreen.tsx # Écran de victoire
+XX-nom-activite/
+├── components/              # Composants UI spécifiques
+│   ├── XxxGame.tsx          # Composant principal gameplay
+│   └── VictoryScreen.tsx    # Utilise VictoryCard
+├── data/                    # Configuration statique
+│   ├── levels.ts            # [OBLIGATOIRE]
+│   ├── parentGuideData.ts   # [OBLIGATOIRE]
+│   └── assistantScripts.ts  # [OBLIGATOIRE]
+├── hooks/                   # Logique React
+│   ├── useXxxIntro.ts       # [OBLIGATOIRE]
+│   ├── useXxxGame.ts        # [OBLIGATOIRE]
+│   └── useXxxSound.ts       # [RECOMMANDÉ]
+├── logic/                   # Logique métier pure
+├── screens/
+│   └── XxxIntroScreen.tsx   # Utilise GameIntroTemplate
+├── types/
+│   └── index.ts             # Types centralisés
+├── index.ts
+└── README.md                # [OPTIONNEL]
 ```
+
+### Éléments Obligatoires
+
+| Élément | Description |
+|---------|-------------|
+| `components/XxxGame.tsx` | Composant principal de gameplay |
+| `components/VictoryScreen.tsx` | Écran de victoire (utilise VictoryCard) |
+| `data/levels.ts` | Configuration des niveaux |
+| `data/parentGuideData.ts` | Données pour ParentDrawer |
+| `data/assistantScripts.ts` | Dialogues de la mascotte |
+| `hooks/useXxxIntro.ts` | Hook orchestrateur intro |
+| `hooks/useXxxGame.ts` | Hook logique de jeu |
+| `screens/XxxIntroScreen.tsx` | Écran intro (utilise GameIntroTemplate) |
+| `types/index.ts` | Types centralisés |
+| `index.ts` | Exports du module |
+
+### Éléments Recommandés
+
+| Élément | Description |
+|---------|-------------|
+| `hooks/useXxxSound.ts` | Gestion audio |
+| `logic/` | Logique métier pure (engine) |
+| `README.md` | Documentation du jeu |
 
 ### 5.1 Hook Principal (`use{NomJeu}Game.ts`)
 

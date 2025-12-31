@@ -55,12 +55,23 @@ export function useSudokuGame({ config, onComplete }: UseSudokuGameProps) {
     (row: number, col: number) => {
       const cell = gameState.grid.cells[row][col];
 
-      // Cannot select fixed cells
-      if (cell.isFixed) return;
+      // Update highlighted symbol (for showing all identical values)
+      const newHighlightedSymbol = cell.value;
+
+      // Cannot select fixed cells for editing, but still highlight
+      if (cell.isFixed) {
+        setGameState((prev) => ({
+          ...prev,
+          highlightedSymbol: newHighlightedSymbol,
+          selectedCell: null, // Deselect if clicking on fixed
+        }));
+        return;
+      }
 
       setGameState((prev) => ({
         ...prev,
         selectedCell: { row, col },
+        highlightedSymbol: newHighlightedSymbol,
       }));
     },
     [gameState.grid.cells]
@@ -178,6 +189,62 @@ export function useSudokuGame({ config, onComplete }: UseSudokuGameProps) {
     return isGridComplete(gridWithConflicts);
   }, [gameState.grid]);
 
+  // Handle drag & drop placement
+  const handleDrop = useCallback(
+    (
+      symbol: SudokuValue,
+      targetRow: number,
+      targetCol: number,
+      sourceCell?: { row: number; col: number }
+    ) => {
+      const targetCellData = gameState.grid.cells[targetRow][targetCol];
+
+      // Cannot drop on fixed cells
+      if (targetCellData.isFixed) return;
+
+      // Validate the placement
+      const validation = validatePlacement(gameState.grid, targetRow, targetCol, symbol);
+
+      if (!validation.valid && config.showConflicts) {
+        setErrorCount((prev) => prev + 1);
+      }
+
+      setGameState((prev) => {
+        const newGrid: SudokuGrid = {
+          ...prev.grid,
+          cells: prev.grid.cells.map((rowCells, r) =>
+            rowCells.map((c, col_) => {
+              // Clear source cell if dragging from a cell
+              if (sourceCell && r === sourceCell.row && col_ === sourceCell.col) {
+                return { ...c, value: null };
+              }
+              // Place symbol in target cell
+              if (r === targetRow && col_ === targetCol) {
+                return { ...c, value: symbol };
+              }
+              return { ...c };
+            })
+          ),
+        };
+
+        const gridWithConflicts = config.showConflicts
+          ? markConflicts(newGrid)
+          : newGrid;
+
+        return {
+          ...prev,
+          grid: gridWithConflicts,
+          history: [...prev.history, prev.grid],
+          selectedCell: { row: targetRow, col: targetCol },
+          highlightedSymbol: symbol,
+        };
+      });
+
+      setSelectedSymbol(symbol);
+    },
+    [gameState.grid, config.showConflicts]
+  );
+
   return {
     gameState,
     selectedSymbol,
@@ -189,6 +256,7 @@ export function useSudokuGame({ config, onComplete }: UseSudokuGameProps) {
     handleHint,
     handleReset,
     handleVerify,
+    handleDrop,
   };
 }
 
@@ -202,6 +270,7 @@ function initializeGame(config: SudokuConfig): SudokuState {
   return {
     grid,
     selectedCell: null,
+    highlightedSymbol: null,
     history: [],
     hintsUsed: 0,
     startTime: new Date(),

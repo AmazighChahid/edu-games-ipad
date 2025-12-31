@@ -17,7 +17,6 @@ import {
   useWindowDimensions,
   Platform,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import Animated, {
   FadeIn,
@@ -33,8 +32,11 @@ import Animated, {
 import { Audio } from 'expo-av';
 import * as Haptics from 'expo-haptics';
 
-import { colors, spacing, borderRadius, shadows, fontFamily } from '../../../theme';
+import { colors, spacing, borderRadius, shadows, fontFamily, touchTargets } from '../../../theme';
+import { Icons } from '../../../constants/icons';
 import { useAccessibilityAnimations } from '../../../hooks';
+import { PageContainer } from '../../../components/common/PageContainer';
+import { ScreenHeader } from '../../../components/common/ScreenHeader';
 
 import { PlumeMascot } from '../components/PlumeMascot';
 import { getLevelById } from '../data/stories';
@@ -99,7 +101,7 @@ export function ConteurRecordingScreen({
 
   // Ref pour l'enregistrement
   const recordingRef = useRef<Audio.Recording | null>(null);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Animation du bouton d'enregistrement
   const pulseScale = useSharedValue(1);
@@ -218,6 +220,7 @@ export function ConteurRecordingScreen({
             uri,
             storyId: resolvedLevelId || '',
             storyTitle: level.story.title,
+            storyEmoji: level.story.emoji,
             date: new Date().toISOString(),
             duration: finalDuration,
           });
@@ -279,20 +282,20 @@ export function ConteurRecordingScreen({
 
   if (!level) {
     return (
-      <SafeAreaView style={styles.container} edges={['top']}>
+      <PageContainer variant="neutral" safeAreaEdges={['top']}>
         <View style={styles.errorContainer}>
-          <Text style={styles.errorEmoji}>😕</Text>
+          <Text style={styles.errorEmoji}>{Icons.thinking}</Text>
           <Text style={styles.errorText}>Histoire introuvable</Text>
           <Pressable style={styles.errorButton} onPress={() => router.back()}>
             <Text style={styles.errorButtonText}>Retour</Text>
           </Pressable>
         </View>
-      </SafeAreaView>
+      </PageContainer>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <PageContainer variant="neutral" scrollable={false} safeAreaEdges={['top']}>
       {/* Header */}
       <View style={styles.header}>
         <Pressable style={styles.skipButton} onPress={handleSkip}>
@@ -343,8 +346,10 @@ export function ConteurRecordingScreen({
           <Pressable
             style={[styles.summaryButton, showSummary && styles.summaryButtonActive]}
             onPress={handleToggleSummary}
+            accessibilityLabel={showSummary ? 'Masquer le résumé' : 'Voir le résumé de l\'histoire'}
+            accessibilityRole="button"
           >
-            <Text style={styles.summaryButtonIcon}>📖</Text>
+            <Text style={styles.summaryButtonIcon}>{Icons.book}</Text>
             <Text style={[styles.summaryButtonText, showSummary && styles.summaryButtonTextActive]}>
               {showSummary ? 'Masquer le résumé' : 'Voir le résumé de l\'histoire'}
             </Text>
@@ -382,8 +387,10 @@ export function ConteurRecordingScreen({
             <Pressable
               style={[styles.micButton, isRecording && styles.micButtonRecording]}
               onPress={handleToggleRecording}
+              accessibilityLabel={isRecording ? 'Arrêter l\'enregistrement' : 'Commencer l\'enregistrement'}
+              accessibilityRole="button"
             >
-              <Text style={styles.micIcon}>{isRecording ? '⏹️' : '🎙️'}</Text>
+              <Text style={styles.micIcon}>{isRecording ? Icons.stop : Icons.microphone}</Text>
             </Pressable>
           </View>
 
@@ -404,16 +411,11 @@ export function ConteurRecordingScreen({
           </Animated.View>
         )}
       </ScrollView>
-    </SafeAreaView>
+    </PageContainer>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FFF9F0',
-  },
-
   // Header
   header: {
     flexDirection: 'row',
@@ -423,21 +425,23 @@ const styles = StyleSheet.create({
     paddingVertical: spacing[3],
   },
   skipButton: {
-    paddingHorizontal: spacing[3],
-    paddingVertical: spacing[2],
+    minHeight: touchTargets.minimum,
+    paddingHorizontal: spacing[4],
+    paddingVertical: spacing[3],
+    justifyContent: 'center',
   },
   skipButtonText: {
-    fontSize: 16,
+    fontSize: 18,
     fontFamily: fontFamily.medium,
     color: '#718096',
   },
   headerTitle: {
-    fontSize: 18,
+    fontSize: 20,
     fontFamily: fontFamily.displayBold,
     color: '#2D3748',
   },
   headerSpacer: {
-    width: 60,
+    width: 80,
   },
 
   // Content
@@ -475,17 +479,18 @@ const styles = StyleSheet.create({
     marginBottom: spacing[2],
   },
   instructionsText: {
-    fontSize: 16,
+    fontSize: 18,
     fontFamily: fontFamily.regular,
     color: '#718096',
     textAlign: 'center',
-    lineHeight: 24,
+    lineHeight: 26,
   },
 
   // Bouton résumé
   summaryButton: {
     flexDirection: 'row',
     alignItems: 'center',
+    minHeight: touchTargets.minimum,
     backgroundColor: '#FFB347',
     paddingHorizontal: spacing[4],
     paddingVertical: spacing[3],
@@ -503,7 +508,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
   },
   summaryButtonText: {
-    fontSize: 14,
+    fontSize: 18,
     fontFamily: fontFamily.medium,
     color: '#FFFFFF',
   },
@@ -524,7 +529,7 @@ const styles = StyleSheet.create({
     borderLeftColor: '#9B59B6',
   },
   summaryLabel: {
-    fontSize: 12,
+    fontSize: 18,
     fontFamily: fontFamily.bold,
     color: '#9B59B6',
     textTransform: 'uppercase',
@@ -543,11 +548,11 @@ const styles = StyleSheet.create({
     marginBottom: spacing[3],
   },
   summaryText: {
-    fontSize: 15,
+    fontSize: 18,
     fontFamily: fontFamily.regular,
     color: '#4A5568',
     textAlign: 'center',
-    lineHeight: 24,
+    lineHeight: 26,
     fontStyle: 'italic',
   },
 
@@ -594,7 +599,7 @@ const styles = StyleSheet.create({
     fontSize: 40,
   },
   micHint: {
-    fontSize: 14,
+    fontSize: 18,
     fontFamily: fontFamily.medium,
     color: '#718096',
   },
@@ -606,10 +611,12 @@ const styles = StyleSheet.create({
     marginTop: spacing[6],
   },
   continueButton: {
+    minHeight: touchTargets.minimum,
     backgroundColor: '#7BC74D',
     paddingVertical: spacing[4],
     borderRadius: borderRadius.xl,
     alignItems: 'center',
+    justifyContent: 'center',
     boxShadow: '0px 2px 4px rgba(123, 199, 77, 0.25)',
     elevation: 3,
   },
@@ -632,17 +639,21 @@ const styles = StyleSheet.create({
   },
   errorText: {
     fontSize: 18,
+    fontFamily: fontFamily.medium,
     color: colors.text.secondary,
     marginBottom: spacing[4],
   },
   errorButton: {
     backgroundColor: colors.primary.main,
+    minHeight: touchTargets.minimum,
     paddingHorizontal: spacing[6],
     paddingVertical: spacing[3],
     borderRadius: borderRadius.lg,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   errorButtonText: {
-    fontSize: 16,
+    fontSize: 18,
     color: '#FFFFFF',
     fontFamily: fontFamily.medium,
   },

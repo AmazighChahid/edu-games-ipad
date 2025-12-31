@@ -40,26 +40,52 @@ Chaque jeu éducatif **devrait** suivre une architecture standardisée pour maxi
 
 ---
 
-## Structure des fichiers
+## Structure des fichiers (Architecture Cible)
 
 ```
-src/games/XX-nom-jeu/
-├── hooks/
-│   ├── useXxxGame.ts       # Logique de jeu pure (règles, état, validation)
-│   ├── useXxxSound.ts      # Chargement et lecture des sons
-│   └── useXxxIntro.ts      # ORCHESTRATEUR : progression, UI state, navigation
+src/games/XX-nom-activite/
+├── components/              # Composants UI spécifiques
+│   ├── XxxGame.tsx          # Composant principal gameplay
+│   └── VictoryScreen.tsx    # Utilise VictoryCard
+├── data/                    # Configuration statique
+│   ├── levels.ts            # [OBLIGATOIRE]
+│   ├── parentGuideData.ts   # [OBLIGATOIRE]
+│   └── assistantScripts.ts  # [OBLIGATOIRE]
+├── hooks/                   # Logique React
+│   ├── useXxxIntro.ts       # [OBLIGATOIRE] Orchestrateur intro
+│   ├── useXxxGame.ts        # [OBLIGATOIRE] Logique de jeu
+│   └── useXxxSound.ts       # [RECOMMANDÉ] Gestion audio
+├── logic/                   # Logique métier pure (engine)
 ├── screens/
-│   └── XxxIntroScreen.tsx  # Assemblage minimal (~100-150 lignes)
-├── components/
-│   ├── XxxMascot.tsx       # Mascotte spécifique au jeu
-│   └── ...                 # Composants visuels spécifiques
-├── constants/
-│   └── gameConfig.ts       # Messages, config, thèmes
-├── data/
-│   └── levels.ts           # Définition des niveaux
-└── types/
-    └── index.ts            # Types TypeScript
+│   └── XxxIntroScreen.tsx   # [OBLIGATOIRE] Utilise GameIntroTemplate
+├── types/
+│   └── index.ts             # Types centralisés
+├── index.ts                 # Exports du module
+└── README.md                # [OPTIONNEL]
 ```
+
+### Éléments Obligatoires
+
+| Élément | Description |
+|---------|-------------|
+| `components/XxxGame.tsx` | Composant principal de gameplay |
+| `components/VictoryScreen.tsx` | Écran de victoire (utilise VictoryCard) |
+| `data/levels.ts` | Configuration des niveaux |
+| `data/parentGuideData.ts` | Données pour ParentDrawer |
+| `data/assistantScripts.ts` | Dialogues de la mascotte |
+| `hooks/useXxxIntro.ts` | Hook orchestrateur intro |
+| `hooks/useXxxGame.ts` | Hook logique de jeu |
+| `screens/XxxIntroScreen.tsx` | Écran intro (utilise GameIntroTemplate) |
+| `types/index.ts` | Types centralisés |
+| `index.ts` | Exports du module |
+
+### Éléments Recommandés
+
+| Élément | Description |
+|---------|-------------|
+| `hooks/useXxxSound.ts` | Gestion audio |
+| `logic/` | Logique métier pure (engine) |
+| `README.md` | Documentation du jeu |
 
 ---
 

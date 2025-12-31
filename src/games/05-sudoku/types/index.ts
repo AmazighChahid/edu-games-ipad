@@ -39,6 +39,7 @@ export interface ValidationResult {
 export interface SudokuState {
   grid: SudokuGrid;
   selectedCell: { row: number; col: number } | null;
+  highlightedSymbol: SudokuValue; // Symbol to highlight across grid (same value cells)
   history: SudokuGrid[];   // For undo functionality
   hintsUsed: number;
   startTime: Date;

@@ -192,6 +192,7 @@ export function useLogixGridIntro(): UseLogixGridIntroReturn {
     errors,
     isLoading,
     startGame,
+    initGame,
     handleCellToggle: cellToggle,
     handleCellSelect: cellSelect,
     handleClueUse: clueUse,
@@ -326,6 +327,17 @@ export function useLogixGridIntro(): UseLogixGridIntroReturn {
       }
     }
   }, [levels, selectedLevel, params.level]);
+
+  // ============================================
+  // EFFECTS - Initialiser le jeu quand un niveau est sélectionné
+  // ============================================
+
+  useEffect(() => {
+    if (selectedLogixLevel && !isPlaying) {
+      // Initialiser le jeu pour afficher la grille en mode intro (sans timer)
+      initGame(selectedLogixLevel.puzzle);
+    }
+  }, [selectedLogixLevel, isPlaying, initGame]);
 
   // ============================================
   // EFFECTS - Feedback jeu

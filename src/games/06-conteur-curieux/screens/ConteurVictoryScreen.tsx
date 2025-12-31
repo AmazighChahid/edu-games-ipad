@@ -17,23 +17,19 @@ import {
   ScrollView,
   useWindowDimensions,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import Animated, {
   FadeIn,
   FadeInUp,
   FadeInDown,
   ZoomIn,
-  useSharedValue,
-  useAnimatedStyle,
-  withRepeat,
-  withSequence,
-  withTiming,
 } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 
-import { colors, spacing, borderRadius, shadows, fontFamily } from '../../../theme';
+import { colors, spacing, borderRadius, shadows, fontFamily, touchTargets } from '../../../theme';
+import { Icons } from '../../../constants/icons';
 import { useAccessibilityAnimations } from '../../../hooks';
+import { PageContainer } from '../../../components/common/PageContainer';
 
 import { Confetti } from '../../../components/common';
 import { PlumeMascot } from '../components/PlumeMascot';
@@ -47,35 +43,35 @@ import type { ConteurLevel, EarnedSkill, QuestionCategory } from '../types';
 // Messages de Plume pour la victoire
 const PLUME_VICTORY_MESSAGES = {
   perfect: [
-    'INCROYABLE ! Tu as tout compris ! 🌟',
-    'PARFAIT ! Quelle lecture ! ✨',
-    'WOW ! Tu es un champion de lecture ! 🏆',
+    'INCROYABLE ! Tu as tout compris !',
+    'PARFAIT ! Quelle lecture !',
+    'WOW ! Tu es un champion de lecture !',
   ],
   great: [
-    'BRAVO ! Super travail ! 🎉',
-    'GÉNIAL ! Tu as très bien compris ! 🌟',
-    'EXCELLENT ! Continue comme ça ! 👏',
+    'BRAVO ! Super travail !',
+    'GÉNIAL ! Tu as très bien compris !',
+    'EXCELLENT ! Continue comme ça !',
   ],
   good: [
-    'BIEN JOUÉ ! Tu progresses ! 💪',
-    'SUPER ! Tu t\'améliores ! 🚀',
-    'C\'est bien ! Tu peux être fier ! 😊',
+    'BIEN JOUÉ ! Tu progresses !',
+    'SUPER ! Tu t\'améliores !',
+    'C\'est bien ! Tu peux être fier !',
   ],
   encourage: [
-    'Tu as terminé ! C\'est déjà super ! 🌈',
-    'Bravo d\'avoir essayé ! 💪',
-    'Continue, tu vas y arriver ! ⭐',
+    'Tu as terminé ! C\'est déjà super !',
+    'Bravo d\'avoir essayé !',
+    'Continue, tu vas y arriver !',
   ],
 };
 
 // Compétences possibles par catégorie
 const SKILL_CONFIG: Record<QuestionCategory, EarnedSkill> = {
-  factual: { id: 'factual', emoji: '🔍', label: 'Observation', category: 'factual' },
-  sequential: { id: 'sequential', emoji: '📋', label: 'Séquence', category: 'sequential' },
-  causal: { id: 'causal', emoji: '🔗', label: 'Cause & Effet', category: 'causal' },
-  emotional: { id: 'emotional', emoji: '🎭', label: 'Émotions', category: 'emotional' },
-  inferential: { id: 'inferential', emoji: '💭', label: 'Inférence', category: 'inferential' },
-  opinion: { id: 'opinion', emoji: '💡', label: 'Opinion', category: 'opinion' },
+  factual: { id: 'factual', emoji: Icons.search, label: 'Observation', category: 'factual' },
+  sequential: { id: 'sequential', emoji: Icons.list, label: 'Séquence', category: 'sequential' },
+  causal: { id: 'causal', emoji: Icons.link, label: 'Cause & Effet', category: 'causal' },
+  emotional: { id: 'emotional', emoji: Icons.thinking, label: 'Émotions', category: 'emotional' },
+  inferential: { id: 'inferential', emoji: Icons.thinking, label: 'Inférence', category: 'inferential' },
+  opinion: { id: 'opinion', emoji: Icons.lightbulb, label: 'Opinion', category: 'opinion' },
 };
 
 interface ConteurVictoryScreenProps {
@@ -198,15 +194,20 @@ export function ConteurVictoryScreen({
   }, [readingTime]);
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      {/* Animated Confetti */}
-      {shouldAnimate && <Confetti type="shapes" count={25} duration={4000} loop={false} />}
-
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.content}
-        showsVerticalScrollIndicator={false}
+    <View style={styles.container}>
+      <PageContainer
+        variant="neutral"
+        scrollable={false}
+        safeAreaEdges={['top']}
       >
+        {/* Animated Confetti */}
+        {shouldAnimate && <Confetti type="shapes" count={25} duration={4000} loop={false} />}
+
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.content}
+          showsVerticalScrollIndicator={false}
+        >
         {/* Title with Rays */}
         <Animated.View
           style={styles.titleSection}
@@ -320,21 +321,37 @@ export function ConteurVictoryScreen({
           style={styles.buttonsContainer}
           entering={shouldAnimate ? FadeInUp.delay(1500).duration(getDuration(400)) : undefined}
         >
-          <Pressable style={styles.primaryButton} onPress={handleNewStory}>
+          <Pressable
+            style={styles.primaryButton}
+            onPress={handleNewStory}
+            accessibilityLabel="Choisir une nouvelle histoire"
+            accessibilityRole="button"
+          >
             <Text style={styles.primaryButtonText}>Nouvelle histoire</Text>
           </Pressable>
 
           <View style={styles.secondaryButtons}>
-            <Pressable style={styles.secondaryButton} onPress={handleReplay}>
+            <Pressable
+              style={styles.secondaryButton}
+              onPress={handleReplay}
+              accessibilityLabel="Relire cette histoire"
+              accessibilityRole="button"
+            >
               <Text style={styles.secondaryButtonText}>Relire</Text>
             </Pressable>
-            <Pressable style={styles.secondaryButton} onPress={handleHome}>
+            <Pressable
+              style={styles.secondaryButton}
+              onPress={handleHome}
+              accessibilityLabel="Retourner à l'accueil"
+              accessibilityRole="button"
+            >
               <Text style={styles.secondaryButtonText}>Accueil</Text>
             </Pressable>
           </View>
         </Animated.View>
       </ScrollView>
-    </SafeAreaView>
+      </PageContainer>
+    </View>
   );
 }
 
@@ -342,16 +359,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#9B59B6',
-  },
-
-  // Confetti
-  confettiContainer: {
-    ...StyleSheet.absoluteFillObject,
-    zIndex: 10,
-  },
-  confetti: {
-    position: 'absolute',
-    fontSize: 30,
   },
 
   // Content
@@ -374,10 +381,13 @@ const styles = StyleSheet.create({
     fontSize: 48,
     fontFamily: fontFamily.displayBold,
     color: '#FFFFFF',
-    textShadow: '0px 2px 4px rgba(0,0,0,0.2)',
+    textShadowColor: 'rgba(0,0,0,0.2)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
   subtitle: {
     fontSize: 20,
+    fontFamily: fontFamily.medium,
     color: 'rgba(255,255,255,0.9)',
     marginTop: spacing[1],
   },
@@ -409,7 +419,8 @@ const styles = StyleSheet.create({
     paddingVertical: spacing[2],
   },
   statLabel: {
-    fontSize: 16,
+    fontSize: 18,
+    fontFamily: fontFamily.regular,
     color: colors.text.secondary,
   },
   statValue: {
@@ -469,10 +480,12 @@ const styles = StyleSheet.create({
     gap: spacing[3],
   },
   primaryButton: {
+    minHeight: touchTargets.minimum,
     backgroundColor: '#FFFFFF',
     paddingVertical: spacing[4],
     borderRadius: borderRadius.xl,
     alignItems: 'center',
+    justifyContent: 'center',
     ...shadows.md,
   },
   primaryButtonText: {
@@ -486,13 +499,15 @@ const styles = StyleSheet.create({
   },
   secondaryButton: {
     flex: 1,
+    minHeight: touchTargets.minimum,
     backgroundColor: 'rgba(255,255,255,0.2)',
     paddingVertical: spacing[3],
     borderRadius: borderRadius.lg,
     alignItems: 'center',
+    justifyContent: 'center',
   },
   secondaryButtonText: {
-    fontSize: 16,
+    fontSize: 18,
     fontFamily: fontFamily.medium,
     color: '#FFFFFF',
   },

@@ -374,6 +374,29 @@ export function useHanoiGame(options: UseHanoiGameOptions = {}) {
     }
   }, [getHint, performMove, playSound]);
 
+  // Force victory (DEV MODE only) - sets victory state without completing the puzzle
+  const forceVictory = useCallback(() => {
+    if (isVictory) return;
+    setIsVictory(true);
+    setStatus('victory');
+
+    if (hapticEnabled) {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    }
+
+    playSound('victory', 0.7);
+
+    const victoryScript = hanoiScripts.find((s) => s.id === 'hanoi_victory');
+    if (victoryScript && victoryScript.messages[0]) {
+      queueMessage({
+        ...victoryScript.messages[0],
+        triggerType: 'victory',
+      });
+    }
+
+    onVictory?.();
+  }, [isVictory, setStatus, hapticEnabled, playSound, queueMessage, onVictory]);
+
   return {
     gameState,
     level,
@@ -391,5 +414,6 @@ export function useHanoiGame(options: UseHanoiGameOptions = {}) {
     reset,
     getHint,
     playHint,
+    forceVictory,
   };
 }

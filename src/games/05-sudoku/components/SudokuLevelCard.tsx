@@ -54,11 +54,11 @@ const SIZE_LABELS: Record<SudokuSize, string> = {
   9: '9×9',
 };
 
-/** Couleurs pour les tailles de grille */
+/** Couleurs pour les tailles de grille (spécifiques Sudoku) */
 const SIZE_COLORS: Record<SudokuSize, string> = {
-  4: '#A8E6CF', // Vert clair
-  6: '#FFE082', // Jaune
-  9: '#FFAB91', // Orange clair
+  4: '#A8E6CF', // Vert clair - Facile
+  6: '#FFE082', // Jaune - Moyen
+  9: '#FFAB91', // Orange clair - Difficile
 };
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
@@ -129,7 +129,7 @@ export function SudokuLevelCard({
                 star <= (level.stars || 0) ? styles.starFilled : styles.starEmpty,
               ]}
             >
-              ★
+              {star <= (level.stars || 0) ? Icons.starFull : Icons.starEmpty}
             </Text>
           ))}
         </View>

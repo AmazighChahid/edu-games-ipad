@@ -132,8 +132,3 @@ export function createDyslexicTextStyle(
   return baseStyle;
 }
 
-// ============================================================================
-// EXPORTS
-// ============================================================================
-
-export { useDyslexicFont, useFontFamily, createDyslexicTextStyle };

@@ -3,6 +3,7 @@ export { SudokuCell } from './SudokuCell';
 export { SudokuGrid } from './SudokuGrid';
 export { SymbolSelector } from './SymbolSelector';
 export { SudokuBackground } from './SudokuBackground';
+export { DraggableSymbol, FloatingDragPreview } from './DraggableSymbol';
 
 // Mascot - Félix le Renard (mascotte SVG animée)
 export { FelixMascot } from './FelixMascot';
@@ -19,4 +20,3 @@ export { LibraryDecoration } from './LibraryDecoration';
 export { StatsPanel } from './StatsPanel';
 export { GameTimer } from './GameTimer';
 export { ProgressBar } from './ProgressBar';
-export { FloatingActionButtons } from './FloatingActionButtons';

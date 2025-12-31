@@ -300,18 +300,3 @@ export function createAccessibleTiming(
   };
 }
 
-// ============================================================================
-// EXPORTS
-// ============================================================================
-
-export {
-  useAccessibilityAnimations,
-  useFeedbackAnimation,
-  useGameAnimations,
-  useMascotAnimations,
-  useBackgroundAnimations,
-  createAccessibleSpring,
-  createAccessibleTiming,
-  DEFAULT_SPRING_CONFIG,
-  REDUCED_SPRING_CONFIG,
-};

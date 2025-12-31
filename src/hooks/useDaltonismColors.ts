@@ -145,14 +145,3 @@ export function useCategoryColors(): DaltonismPalette['categories'] {
   return useMemo(() => daltonismPalettes[mode].categories, [mode]);
 }
 
-// ============================================================================
-// EXPORTS
-// ============================================================================
-
-export {
-  useDaltonismColors,
-  useFeedbackColors,
-  useSudokuColors,
-  useHanoiDiskColors,
-  useCategoryColors,
-};

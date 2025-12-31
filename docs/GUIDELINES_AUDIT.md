@@ -357,29 +357,54 @@ Avant chaque commit d'un nouveau composant :
 
 ---
 
-## 📐 ARCHITECTURE HOOK + TEMPLATE
+## 📐 ARCHITECTURE CIBLE
 
-### Pattern obligatoire pour chaque jeu
+### Structure obligatoire pour chaque jeu
 
 ```
-src/games/XX-nom-jeu/
-├── hooks/
-│   ├── useXxxGame.ts       # Logique PURE (pas d'UI)
-│   ├── useXxxSound.ts      # Sons
-│   └── useXxxIntro.ts      # ORCHESTRATEUR
+XX-nom-activite/
+├── components/              # Composants UI spécifiques
+│   ├── XxxGame.tsx          # Composant principal gameplay
+│   └── VictoryScreen.tsx    # Utilise VictoryCard
+├── data/                    # Configuration statique
+│   ├── levels.ts            # [OBLIGATOIRE]
+│   ├── parentGuideData.ts   # [OBLIGATOIRE]
+│   └── assistantScripts.ts  # [OBLIGATOIRE]
+├── hooks/                   # Logique React
+│   ├── useXxxIntro.ts       # [OBLIGATOIRE]
+│   ├── useXxxGame.ts        # [OBLIGATOIRE]
+│   └── useXxxSound.ts       # [RECOMMANDÉ]
+├── logic/                   # Logique métier pure
 ├── screens/
-│   └── XxxIntroScreen.tsx  # ~100-150 lignes MAX
-└── components/
-    └── XxxMascot.tsx       # Mascotte spécifique
+│   └── XxxIntroScreen.tsx   # Utilise GameIntroTemplate
+├── types/
+│   └── index.ts             # Types centralisés
+├── index.ts
+└── README.md                # [OPTIONNEL]
 ```
 
-### Responsabilités
+### Éléments Obligatoires
 
-| Hook | Responsabilité |
-|------|----------------|
-| `useXxxGame` | Règles du jeu, état partie, validation |
-| `useXxxSound` | Chargement/lecture sons |
-| `useXxxIntro` | Progression, UI state, animations, navigation |
+| Élément | Description |
+|---------|-------------|
+| `components/XxxGame.tsx` | Composant principal de gameplay |
+| `components/VictoryScreen.tsx` | Écran de victoire (utilise VictoryCard) |
+| `data/levels.ts` | Configuration des niveaux |
+| `data/parentGuideData.ts` | Données pour ParentDrawer |
+| `data/assistantScripts.ts` | Dialogues de la mascotte |
+| `hooks/useXxxIntro.ts` | Hook orchestrateur intro |
+| `hooks/useXxxGame.ts` | Hook logique de jeu |
+| `screens/XxxIntroScreen.tsx` | Écran intro (utilise GameIntroTemplate) |
+| `types/index.ts` | Types centralisés |
+| `index.ts` | Exports du module |
+
+### Éléments Recommandés
+
+| Élément | Description |
+|---------|-------------|
+| `hooks/useXxxSound.ts` | Gestion audio |
+| `logic/` | Logique métier pure (engine) |
+| `README.md` | Documentation du jeu |
 
 ### Référence : `src/games/02-suites-logiques/`
 

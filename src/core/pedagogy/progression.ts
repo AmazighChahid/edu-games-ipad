@@ -327,19 +327,3 @@ export function calculateStars(
   return stars;
 }
 
-// ============================================================================
-// EXPORTS
-// ============================================================================
-
-export {
-  checkLevelUnlock,
-  canUnlockNextLevel,
-  getUnlockedLevels,
-  getAdaptiveHelpLevel,
-  shouldOfferHint,
-  calculateMontessoriProgress,
-  calculatePerformanceStats,
-  calculateStars,
-  DEFAULT_REQUIRED_COMPLETIONS,
-  HELP_LEVEL_THRESHOLDS,
-};

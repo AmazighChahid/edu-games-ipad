@@ -207,7 +207,7 @@ export type {
   QualityReport,
   EngineConfig,
   SeededRandom,
-} from '../engine/types';
+} from '../logic/types';
 
 export {
   PATTERN_TO_FAMILY,
@@ -215,4 +215,4 @@ export {
   DEFAULT_ENGINE_CONFIG,
   createSeededRandom,
   defaultRandom,
-} from '../engine/types';
+} from '../logic/types';

@@ -84,6 +84,7 @@ export interface UseSudokuIntroReturn {
   handleSymbolSelect: ReturnType<typeof useSudokuGame>['handleSymbolSelect'];
   handleClearCell: ReturnType<typeof useSudokuGame>['handleClearCell'];
   handleUndo: ReturnType<typeof useSudokuGame>['handleUndo'];
+  handleDrop: ReturnType<typeof useSudokuGame>['handleDrop'];
 
   // Mascot
   mascotMessage: string;
@@ -252,6 +253,7 @@ export function useSudokuIntro(): UseSudokuIntroReturn {
     handleUndo,
     handleHint: gameHandleHint,
     handleReset: gameHandleReset,
+    handleDrop,
   } = gameHook;
 
   // ============================================
@@ -601,6 +603,7 @@ export function useSudokuIntro(): UseSudokuIntroReturn {
     handleSymbolSelect,
     handleClearCell,
     handleUndo,
+    handleDrop,
 
     // Mascot
     mascotMessage,

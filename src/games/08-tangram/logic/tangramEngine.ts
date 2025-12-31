@@ -11,6 +11,7 @@ import type {
   TangramGameState,
   TangramLevel,
   TangramResult,
+  TangramHint,
   Transform,
   Point,
   PieceType,
@@ -42,9 +43,11 @@ export function createGame(level: TangramLevel): TangramGameState {
     placedCount: 0,
     totalPieces: pieces.length,
     timeElapsed: 0,
+    moveCount: 0,
     rotationCount: 0,
     hintsUsed: 0,
     isAnimating: false,
+    activeHint: null,
   };
 }
 
@@ -134,6 +137,7 @@ export function movePiece(
     ...state,
     pieces,
     placedCount: pieces.filter(p => p.isPlaced).length,
+    moveCount: state.moveCount + 1,
   };
 }
 
@@ -331,7 +335,7 @@ export function isPuzzleComplete(state: TangramGameState): boolean {
  * Calcule le résultat final
  */
 export function calculateResult(state: TangramGameState): TangramResult {
-  const { puzzle, timeElapsed, rotationCount, hintsUsed, placedCount, totalPieces } = state;
+  const { puzzle, timeElapsed, moveCount, rotationCount, hintsUsed, placedCount, totalPieces } = state;
   const isVictory = placedCount >= totalPieces;
 
   // Score basé sur temps, rotations et indices
@@ -347,6 +351,7 @@ export function calculateResult(state: TangramGameState): TangramResult {
     puzzleId: puzzle.id,
     isVictory,
     timeSeconds: timeElapsed,
+    moveCount,
     rotations: rotationCount,
     hintsUsed,
     score,
@@ -414,6 +419,14 @@ export function getHint(state: TangramGameState): TangramGameState {
     pieces,
     hintsUsed: state.hintsUsed + 1,
     selectedPieceId: unplacedPiece.id,
+    activeHint: {
+      pieceId: unplacedPiece.id,
+      targetPosition: {
+        x: unplacedPiece.targetTransform.x,
+        y: unplacedPiece.targetTransform.y,
+      },
+      targetRotation: unplacedPiece.targetTransform.rotation,
+    },
   };
 }
 
@@ -445,24 +458,3 @@ export function transformPoints(points: Point[], transform: Transform): Point[] 
   });
 }
 
-// ============================================================================
-// EXPORTS
-// ============================================================================
-
-export {
-  createGame,
-  createPieces,
-  movePiece,
-  setPiecePosition,
-  rotatePiece,
-  flipPiece,
-  selectPiece,
-  trySnapPiece,
-  isPieceNearTarget,
-  isPuzzleComplete,
-  calculateResult,
-  calculateStars,
-  tickTime,
-  getHint,
-  transformPoints,
-};

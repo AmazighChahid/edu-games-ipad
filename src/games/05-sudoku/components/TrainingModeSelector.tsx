@@ -25,11 +25,23 @@ import {
 } from '@/theme';
 import { useStore } from '@/store';
 import type { TrainingConfig, SudokuSize, SudokuTheme, SudokuDifficulty } from '../types';
+import { Icons } from '@/constants/icons';
 import {
   TRAINING_OPTIONS,
   TRAINING_LABELS,
   THEME_PREVIEW_EMOJIS,
 } from '../data/levels';
+
+// ============================================
+// COULEURS SPÉCIFIQUES SUDOKU
+// ============================================
+
+/** Couleurs pour les tailles de grille (partagées avec SudokuLevelCard) */
+const SIZE_COLORS: Record<SudokuSize, string> = {
+  4: '#A8E6CF', // Vert clair - Facile
+  6: '#FFE082', // Jaune - Moyen
+  9: '#FFAB91', // Orange clair - Difficile
+};
 
 // ============================================
 // TYPES
@@ -203,22 +215,16 @@ interface SizeOptionProps {
 }
 
 function SizeOption({ size, isSelected, onSelect }: SizeOptionProps) {
-  const sizeColors: Record<SudokuSize, string> = {
-    4: '#A8E6CF',
-    6: '#FFE082',
-    9: '#FFAB91',
-  };
-
   return (
     <Pressable
       onPress={onSelect}
       style={[
         styles.sizeOption,
         isSelected && styles.optionSelected,
-        isSelected && { borderColor: sizeColors[size] },
+        isSelected && { borderColor: SIZE_COLORS[size] },
       ]}
     >
-      <View style={[styles.sizePreview, { backgroundColor: sizeColors[size] }]}>
+      <View style={[styles.sizePreview, { backgroundColor: SIZE_COLORS[size] }]}>
         <Text style={styles.sizeNumber}>{size}</Text>
       </View>
       <Text style={[styles.optionLabel, isSelected && styles.optionLabelSelected]}>
@@ -234,14 +240,14 @@ interface DifficultyOptionProps {
   onSelect: () => void;
 }
 
-function DifficultyOption({ difficulty, isSelected, onSelect }: DifficultyOptionProps) {
-  const difficultyColors: Record<SudokuDifficulty, string> = {
-    1: colors.feedback.success,
-    2: colors.secondary.main,
-    3: colors.primary.main,
-  };
+const DIFFICULTY_COLORS: Record<SudokuDifficulty, string> = {
+  1: colors.feedback.success,
+  2: colors.secondary.main,
+  3: colors.primary.main,
+};
 
-  const stars = '★'.repeat(difficulty);
+function DifficultyOption({ difficulty, isSelected, onSelect }: DifficultyOptionProps) {
+  const stars = Icons.starFull.repeat(difficulty);
 
   return (
     <Pressable
@@ -249,10 +255,10 @@ function DifficultyOption({ difficulty, isSelected, onSelect }: DifficultyOption
       style={[
         styles.difficultyOption,
         isSelected && styles.optionSelected,
-        isSelected && { borderColor: difficultyColors[difficulty] },
+        isSelected && { borderColor: DIFFICULTY_COLORS[difficulty] },
       ]}
     >
-      <Text style={[styles.difficultyStars, { color: difficultyColors[difficulty] }]}>
+      <Text style={[styles.difficultyStars, { color: DIFFICULTY_COLORS[difficulty] }]}>
         {stars}
       </Text>
       <Text style={[styles.optionLabel, isSelected && styles.optionLabelSelected]}>

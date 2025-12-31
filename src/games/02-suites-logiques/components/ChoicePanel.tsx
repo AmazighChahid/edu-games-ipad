@@ -10,7 +10,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { SequenceElement as ElementType } from '../types';
 import { SequenceElement } from './SequenceElement';
-import { DIMENSIONS } from '../constants/gameConfig';
+import { DIMENSIONS } from '../data/gameConfig';
 
 // ============================================
 // COMPOSANT CHOICE PANEL

@@ -17,13 +17,15 @@ export type AssistantMood =
 export type AssistantTrigger =
   | 'game_start'
   | 'first_move'
+  | 'valid_move'
   | 'invalid_move'
   | 'repeated_invalid'
   | 'stuck'
   | 'hint_requested'
   | 'good_progress'
   | 'near_victory'
-  | 'victory';
+  | 'victory'
+  | 'effort';
 
 // ============================================
 // ASSISTANT MESSAGES

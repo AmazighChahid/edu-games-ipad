@@ -25,6 +25,9 @@ interface HomeHeaderV10Props {
   onParentPress?: () => void;
   onAvatarPress?: () => void;
   showPlayground?: boolean;
+  // Dev mode
+  devMode?: boolean;
+  onDevModeToggle?: () => void;
 }
 
 // Playground Button Icon (code/palette icon)
@@ -139,11 +142,31 @@ const PlaygroundButton = memo(({ onPress }: { onPress?: () => void }) => (
 
 PlaygroundButton.displayName = 'PlaygroundButton';
 
+// Dev Mode Button Component
+const DevModeButton = memo(({ active, onPress }: { active: boolean; onPress?: () => void }) => (
+  <Pressable
+    onPress={onPress}
+    onLongPress={onPress}
+    delayLongPress={500}
+    style={({ pressed }) => [
+      styles.devButton,
+      active && styles.devButtonActive,
+      pressed && styles.devButtonPressed,
+    ]}
+  >
+    <Text style={styles.devButtonText}>DEV</Text>
+  </Pressable>
+));
+
+DevModeButton.displayName = 'DevModeButton';
+
 export const HomeHeaderV10 = memo(({
   profile,
   onParentPress,
   onAvatarPress,
   showPlayground = true,
+  devMode = false,
+  onDevModeToggle,
 }: HomeHeaderV10Props) => {
   const insets = useSafeAreaInsets();
   const router = useRouter();
@@ -174,11 +197,12 @@ export const HomeHeaderV10 = memo(({
         </View>
       </View>
 
-      {/* Right: Stats + Playground */}
+      {/* Right: Stats + Playground + Dev */}
       <View style={styles.statsContainer}>
         <StatBadge icon="💎" value={profile.gems} />
         <StatBadge icon="🏅" value={profile.totalMedals} />
         {showPlayground && <PlaygroundButton onPress={handlePlaygroundPress} />}
+        <DevModeButton active={devMode} onPress={onDevModeToggle} />
       </View>
     </View>
   );
@@ -332,5 +356,27 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+
+  // Dev Mode Button
+  devButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    backgroundColor: '#6B7280',
+    boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
+    elevation: 2,
+  },
+  devButtonActive: {
+    backgroundColor: '#EF4444',
+  },
+  devButtonPressed: {
+    transform: [{ scale: 0.95 }],
+  },
+  devButtonText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#fff',
+    letterSpacing: 1,
   },
 });

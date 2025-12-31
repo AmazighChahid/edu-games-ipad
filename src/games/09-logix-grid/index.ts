@@ -13,6 +13,9 @@ export * from './logic';
 // Components
 export * from './components';
 
+// Screens
+export * from './screens';
+
 // Hooks
 export { useLogixGridGame } from './hooks/useLogixGridGame';
 export { useLogixGridSound } from './hooks/useLogixGridSound';

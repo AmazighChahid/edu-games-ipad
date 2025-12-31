@@ -397,8 +397,3 @@ export function createChildAssistant(
   return new ChildAssistant(gameId, levelId, scripts);
 }
 
-// ============================================================================
-// EXPORTS
-// ============================================================================
-
-export { ChildAssistant, createChildAssistant };

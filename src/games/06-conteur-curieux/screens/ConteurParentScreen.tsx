@@ -19,13 +19,15 @@ import {
   Alert,
   ActivityIndicator,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import Animated, { FadeIn, FadeInUp } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 
-import { colors, spacing, borderRadius, shadows, fontFamily } from '../../../theme';
+import { colors, spacing, borderRadius, shadows, fontFamily, touchTargets } from '../../../theme';
+import { Icons } from '../../../constants/icons';
 import { useAccessibilityAnimations } from '../../../hooks';
+import { PageContainer } from '../../../components/common/PageContainer';
+import { ScreenHeader } from '../../../components/common/ScreenHeader';
 
 import { RadarChart } from '../components/RadarChart';
 import { RecordingsList } from '../components/RecordingsList';
@@ -53,9 +55,9 @@ const DIFFICULTY_LABELS: Record<ConteurDifficulty, string> = {
 
 // Reading mode labels
 const MODE_LABELS: Record<ReadingMode, { label: string; emoji: string }> = {
-  listen: { label: 'Écouter', emoji: '🎧' },
-  read: { label: 'Lire', emoji: '📖' },
-  mixed: { label: 'Mixte', emoji: '📚' },
+  listen: { label: 'Écouter', emoji: Icons.audio },
+  read: { label: 'Lire', emoji: Icons.book },
+  mixed: { label: 'Mixte', emoji: Icons.book },
 };
 
 export function ConteurParentScreen() {
@@ -168,33 +170,23 @@ export function ConteurParentScreen() {
 
   if (loading) {
     return (
-      <SafeAreaView style={styles.container} edges={['top']}>
+      <PageContainer variant="neutral" safeAreaEdges={['top']}>
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#9B59B6" />
           <Text style={styles.loadingText}>Chargement...</Text>
         </View>
-      </SafeAreaView>
+      </PageContainer>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <PageContainer variant="neutral" scrollable={false} safeAreaEdges={['top']}>
       {/* Header */}
-      <Animated.View
-        style={styles.header}
-        entering={shouldAnimate ? FadeIn.duration(getDuration(300)) : undefined}
-      >
-        <Pressable style={styles.backButton} onPress={handleBack}>
-          <Text style={styles.backButtonIcon}>{'<'}</Text>
-        </Pressable>
-
-        <View style={styles.headerCenter}>
-          <Text style={styles.headerEmoji}>👨‍👩‍👧</Text>
-          <Text style={styles.headerTitle}>Espace Parent</Text>
-        </View>
-
-        <View style={styles.headerRight} />
-      </Animated.View>
+      <ScreenHeader
+        variant="parent"
+        title="Espace Parent"
+        onBack={handleBack}
+      />
 
       {/* Tabs */}
       <Animated.View
@@ -206,11 +198,17 @@ export function ConteurParentScreen() {
             key={tab}
             style={[styles.tab, activeTab === tab && styles.tabActive]}
             onPress={() => handleTabChange(tab)}
+            accessibilityLabel={
+              tab === 'stats' ? 'Statistiques' :
+              tab === 'recordings' ? 'Enregistrements' : 'Paramètres'
+            }
+            accessibilityRole="tab"
+            accessibilityState={{ selected: activeTab === tab }}
           >
             <Text style={[styles.tabText, activeTab === tab && styles.tabTextActive]}>
-              {tab === 'stats' && '📊 Statistiques'}
-              {tab === 'recordings' && '🎙️ Enregistrements'}
-              {tab === 'settings' && '⚙️ Paramètres'}
+              {tab === 'stats' && `${Icons.chart} Statistiques`}
+              {tab === 'recordings' && `${Icons.microphone} Enregistrements`}
+              {tab === 'settings' && `${Icons.settings} Paramètres`}
             </Text>
           </Pressable>
         ))}
@@ -230,19 +228,19 @@ export function ConteurParentScreen() {
             {/* Metrics Cards */}
             <View style={[styles.metricsRow, isTablet && styles.metricsRowTablet]}>
               <View style={[styles.metricCard, { backgroundColor: '#E8F5E9' }]}>
-                <Text style={styles.metricEmoji}>📚</Text>
+                <Text style={styles.metricEmoji}>{Icons.book}</Text>
                 <Text style={styles.metricValue}>{dashboardData.totalStoriesCompleted}</Text>
                 <Text style={styles.metricLabel}>Histoires</Text>
               </View>
 
               <View style={[styles.metricCard, { backgroundColor: '#E3F2FD' }]}>
-                <Text style={styles.metricEmoji}>🎯</Text>
+                <Text style={styles.metricEmoji}>{Icons.target}</Text>
                 <Text style={styles.metricValue}>{dashboardData.averageScore}%</Text>
                 <Text style={styles.metricLabel}>Réussite</Text>
               </View>
 
               <View style={[styles.metricCard, { backgroundColor: '#FFF3E0' }]}>
-                <Text style={styles.metricEmoji}>⏱️</Text>
+                <Text style={styles.metricEmoji}>{Icons.timer}</Text>
                 <Text style={styles.metricValue}>{formatTime(dashboardData.totalReadingTime)}</Text>
                 <Text style={styles.metricLabel}>Lecture</Text>
               </View>
@@ -250,7 +248,7 @@ export function ConteurParentScreen() {
 
             {/* Radar Chart */}
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>📊 Compétences</Text>
+              <Text style={styles.sectionTitle}>{Icons.chart} Compétences</Text>
               <View style={styles.radarContainer}>
                 <RadarChart
                   data={dashboardData.competencyScores}
@@ -266,7 +264,7 @@ export function ConteurParentScreen() {
             {/* Recent Sessions */}
             {dashboardData.recentSessions.length > 0 && (
               <View style={styles.section}>
-                <Text style={styles.sectionTitle}>📅 Dernières sessions</Text>
+                <Text style={styles.sectionTitle}>{Icons.calendar} Dernières sessions</Text>
                 {dashboardData.recentSessions.slice(0, 5).map((session, index) => (
                   <View key={session.id} style={styles.sessionCard}>
                     <Text style={styles.sessionEmoji}>{session.storyEmoji}</Text>
@@ -284,7 +282,7 @@ export function ConteurParentScreen() {
                           key={star}
                           style={[styles.sessionStar, star > session.stars && styles.sessionStarEmpty]}
                         >
-                          ⭐
+                          {Icons.star}
                         </Text>
                       ))}
                     </View>
@@ -296,7 +294,7 @@ export function ConteurParentScreen() {
             {/* Empty state */}
             {dashboardData.totalStoriesCompleted === 0 && (
               <View style={styles.emptyState}>
-                <Text style={styles.emptyEmoji}>📚</Text>
+                <Text style={styles.emptyEmoji}>{Icons.book}</Text>
                 <Text style={styles.emptyTitle}>Aucune donnée</Text>
                 <Text style={styles.emptyText}>
                   Les statistiques apparaîtront après que votre enfant aura complété des histoires
@@ -312,7 +310,7 @@ export function ConteurParentScreen() {
             entering={shouldAnimate ? FadeInUp.duration(getDuration(300)) : undefined}
             style={styles.recordingsSection}
           >
-            <Text style={styles.sectionTitle}>🎙️ Productions orales</Text>
+            <Text style={styles.sectionTitle}>{Icons.microphone} Productions orales</Text>
             <Text style={styles.sectionSubtitle}>
               Écoutez les reformulations de votre enfant après chaque histoire
             </Text>
@@ -330,7 +328,7 @@ export function ConteurParentScreen() {
           >
             {/* Difficulty Setting */}
             <View style={styles.settingSection}>
-              <Text style={styles.settingTitle}>🎚️ Niveau de difficulté</Text>
+              <Text style={styles.settingTitle}>{Icons.settings} Niveau de difficulté</Text>
               <Text style={styles.settingDescription}>
                 Ajuste la complexité des histoires et des questions
               </Text>
@@ -344,6 +342,9 @@ export function ConteurParentScreen() {
                         styles.settingOptionActive,
                     ]}
                     onPress={() => handleUpdateDifficulty(difficulty)}
+                    accessibilityLabel={`Difficulté ${DIFFICULTY_LABELS[difficulty]}`}
+                    accessibilityRole="radio"
+                    accessibilityState={{ checked: dashboardData.settings.preferredDifficulty === difficulty }}
                   >
                     <Text
                       style={[
@@ -361,7 +362,7 @@ export function ConteurParentScreen() {
 
             {/* Reading Mode Setting */}
             <View style={styles.settingSection}>
-              <Text style={styles.settingTitle}>📖 Mode de lecture par défaut</Text>
+              <Text style={styles.settingTitle}>{Icons.book} Mode de lecture par défaut</Text>
               <Text style={styles.settingDescription}>
                 Le mode suggéré lors du choix d'une histoire
               </Text>
@@ -375,6 +376,9 @@ export function ConteurParentScreen() {
                         styles.settingOptionActive,
                     ]}
                     onPress={() => handleUpdateReadingMode(mode)}
+                    accessibilityLabel={`Mode ${MODE_LABELS[mode].label}`}
+                    accessibilityRole="radio"
+                    accessibilityState={{ checked: dashboardData.settings.defaultReadingMode === mode }}
                   >
                     <Text style={styles.settingOptionEmoji}>
                       {MODE_LABELS[mode].emoji}
@@ -395,11 +399,16 @@ export function ConteurParentScreen() {
 
             {/* Reset Data */}
             <View style={styles.settingSection}>
-              <Text style={styles.settingTitle}>🗑️ Réinitialiser</Text>
+              <Text style={styles.settingTitle}>{Icons.trash} Réinitialiser</Text>
               <Text style={styles.settingDescription}>
                 Efface tout l'historique et les enregistrements
               </Text>
-              <Pressable style={styles.resetButton} onPress={handleResetData}>
+              <Pressable
+                style={styles.resetButton}
+                onPress={handleResetData}
+                accessibilityLabel="Réinitialiser toutes les données"
+                accessibilityRole="button"
+              >
                 <Text style={styles.resetButtonText}>Réinitialiser les données</Text>
               </Pressable>
             </View>
@@ -420,16 +429,11 @@ export function ConteurParentScreen() {
           </Animated.View>
         )}
       </ScrollView>
-    </SafeAreaView>
+    </PageContainer>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FFF9F0',
-  },
-
   // Loading
   loadingContainer: {
     flex: 1,
@@ -438,48 +442,9 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     marginTop: spacing[3],
-    fontSize: 16,
+    fontSize: 18,
+    fontFamily: fontFamily.medium,
     color: '#718096',
-  },
-
-  // Header
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: spacing[4],
-    paddingVertical: spacing[3],
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0,0,0,0.05)',
-  },
-  backButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: '#FFFFFF',
-    alignItems: 'center',
-    justifyContent: 'center',
-    ...shadows.sm,
-  },
-  backButtonIcon: {
-    fontSize: 20,
-    color: '#4A5568',
-  },
-  headerCenter: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing[2],
-  },
-  headerEmoji: {
-    fontSize: 24,
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontFamily: fontFamily.displayBold,
-    color: '#9B59B6',
-  },
-  headerRight: {
-    width: 44,
   },
 
   // Tabs
@@ -491,20 +456,23 @@ const styles = StyleSheet.create({
   },
   tab: {
     flex: 1,
-    paddingVertical: spacing[2],
+    minHeight: touchTargets.minimum,
+    paddingVertical: spacing[3],
     paddingHorizontal: spacing[3],
     borderRadius: borderRadius.lg,
     backgroundColor: '#FFFFFF',
     alignItems: 'center',
+    justifyContent: 'center',
     ...shadows.sm,
   },
   tabActive: {
     backgroundColor: '#9B59B6',
   },
   tabText: {
-    fontSize: 12,
+    fontSize: 18,
     fontFamily: fontFamily.medium,
     color: '#718096',
+    textAlign: 'center',
   },
   tabTextActive: {
     color: '#FFFFFF',
@@ -531,9 +499,11 @@ const styles = StyleSheet.create({
   },
   metricCard: {
     flex: 1,
+    minHeight: touchTargets.minimum,
     padding: spacing[4],
     borderRadius: borderRadius.xl,
     alignItems: 'center',
+    justifyContent: 'center',
     ...shadows.sm,
   },
   metricEmoji: {
@@ -546,7 +516,8 @@ const styles = StyleSheet.create({
     color: '#2D3748',
   },
   metricLabel: {
-    fontSize: 12,
+    fontSize: 18,
+    fontFamily: fontFamily.regular,
     color: '#718096',
     marginTop: spacing[1],
   },
@@ -562,7 +533,8 @@ const styles = StyleSheet.create({
     marginBottom: spacing[3],
   },
   sectionSubtitle: {
-    fontSize: 14,
+    fontSize: 18,
+    fontFamily: fontFamily.regular,
     color: '#718096',
     marginBottom: spacing[4],
   },
@@ -576,7 +548,8 @@ const styles = StyleSheet.create({
     ...shadows.md,
   },
   radarHint: {
-    fontSize: 12,
+    fontSize: 18,
+    fontFamily: fontFamily.regular,
     color: '#718096',
     textAlign: 'center',
     marginTop: spacing[3],
@@ -591,6 +564,7 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.lg,
     padding: spacing[3],
     marginBottom: spacing[2],
+    minHeight: touchTargets.minimum,
     ...shadows.sm,
   },
   sessionEmoji: {
@@ -601,12 +575,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   sessionTitle: {
-    fontSize: 14,
+    fontSize: 18,
     fontFamily: fontFamily.bold,
     color: '#2D3748',
   },
   sessionMeta: {
-    fontSize: 12,
+    fontSize: 18,
+    fontFamily: fontFamily.regular,
     color: '#718096',
     marginTop: spacing[1],
   },
@@ -614,7 +589,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   sessionStar: {
-    fontSize: 12,
+    fontSize: 18,
   },
   sessionStarEmpty: {
     opacity: 0.3,
@@ -634,13 +609,14 @@ const styles = StyleSheet.create({
     ...shadows.sm,
   },
   settingTitle: {
-    fontSize: 16,
+    fontSize: 18,
     fontFamily: fontFamily.bold,
     color: '#2D3748',
     marginBottom: spacing[1],
   },
   settingDescription: {
-    fontSize: 13,
+    fontSize: 18,
+    fontFamily: fontFamily.regular,
     color: '#718096',
     marginBottom: spacing[3],
   },
@@ -653,6 +629,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    minHeight: touchTargets.minimum,
     paddingVertical: spacing[3],
     paddingHorizontal: spacing[2],
     borderRadius: borderRadius.lg,
@@ -663,10 +640,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#9B59B6',
   },
   settingOptionEmoji: {
-    fontSize: 16,
+    fontSize: 18,
   },
   settingOptionText: {
-    fontSize: 14,
+    fontSize: 18,
     fontFamily: fontFamily.medium,
     color: '#4A5568',
   },
@@ -675,15 +652,17 @@ const styles = StyleSheet.create({
     fontFamily: fontFamily.bold,
   },
   resetButton: {
+    minHeight: touchTargets.minimum,
     backgroundColor: '#FFEBEE',
     paddingVertical: spacing[3],
     borderRadius: borderRadius.lg,
     alignItems: 'center',
+    justifyContent: 'center',
     borderWidth: 1,
     borderColor: '#FFCDD2',
   },
   resetButtonText: {
-    fontSize: 14,
+    fontSize: 18,
     fontFamily: fontFamily.medium,
     color: '#E74C3C',
   },
@@ -696,15 +675,16 @@ const styles = StyleSheet.create({
     marginTop: spacing[4],
   },
   infoTitle: {
-    fontSize: 14,
+    fontSize: 18,
     fontFamily: fontFamily.bold,
     color: '#9B59B6',
     marginBottom: spacing[2],
   },
   infoText: {
-    fontSize: 13,
+    fontSize: 18,
+    fontFamily: fontFamily.regular,
     color: '#718096',
-    lineHeight: 20,
+    lineHeight: 26,
     marginBottom: spacing[2],
   },
 
@@ -724,7 +704,8 @@ const styles = StyleSheet.create({
     marginBottom: spacing[2],
   },
   emptyText: {
-    fontSize: 14,
+    fontSize: 18,
+    fontFamily: fontFamily.regular,
     color: '#718096',
     textAlign: 'center',
     paddingHorizontal: spacing[4],

@@ -375,22 +375,3 @@ export const SUITES_MESSAGES = {
   },
 };
 
-// ============================================================================
-// EXPORTS
-// ============================================================================
-
-export {
-  getFeedbackMessage,
-  getAnimationConfig,
-  SUCCESS_MESSAGES,
-  VICTORY_MESSAGES,
-  ERROR_MESSAGES,
-  ENCOURAGEMENT_MESSAGES,
-  HINT_MESSAGES,
-  STREAK_MESSAGES,
-  MILESTONE_MESSAGES,
-  HANOI_MESSAGES,
-  SUDOKU_MESSAGES,
-  BALANCE_MESSAGES,
-  SUITES_MESSAGES,
-};

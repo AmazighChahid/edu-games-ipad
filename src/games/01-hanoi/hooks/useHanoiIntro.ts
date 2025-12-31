@@ -99,6 +99,10 @@ export interface UseHanoiIntroReturn {
 
   // Best score for current level
   bestMoves: number | undefined;
+
+  // Dev mode
+  devMode: boolean;
+  handleForceComplete: () => void;
 }
 
 // ============================================
@@ -144,6 +148,7 @@ export function useHanoiIntro(): UseHanoiIntroReturn {
   const recordCompletion = useStore((state) => state.recordCompletion);
   const hasSeenHanoiTutorial = useStore((state) => state.hasSeenHanoiTutorial);
   const setHasSeenHanoiTutorial = useStore((state) => state.setHasSeenHanoiTutorial);
+  const devMode = useStore((state) => state.devMode);
 
   // État local
   const [selectedLevel, setSelectedLevel] = useState<LevelConfig | null>(null);
@@ -178,6 +183,7 @@ export function useHanoiIntro(): UseHanoiIntroReturn {
     reset,
     getHint,
     playHint: executeHint,
+    forceVictory,
   } = game;
 
   // Refs
@@ -332,12 +338,10 @@ export function useHanoiIntro(): UseHanoiIntroReturn {
       recordCompletion({
         gameId: 'hanoi',
         levelId: currentLevelId,
-        profileId: profile?.id || 'default',
         completedAt: Date.now(),
         moveCount,
         timeSeconds: timeElapsed,
         hintsUsed,
-        wasSuccessful: true,
       });
     } else if (consecutiveInvalid >= 2) {
       setMascotMessage(MESSAGES.error);
@@ -480,6 +484,28 @@ export function useHanoiIntro(): UseHanoiIntroReturn {
     transitionToSelectionMode();
   }, [reset, transitionToSelectionMode]);
 
+  // Force complete level (DEV MODE only)
+  const handleForceComplete = useCallback(() => {
+    if (!devMode || isVictory) return;
+
+    // Record completion with current stats
+    recordCompletion({
+      gameId: 'hanoi',
+      levelId: currentLevelId,
+      completedAt: Date.now(),
+      moveCount: moveCount || 1,
+      timeSeconds: timeElapsed || 1,
+      hintsUsed,
+    });
+
+    // Trigger victory state
+    setMascotMessage(MESSAGES.victory);
+    setMascotEmotion('excited');
+
+    // Force game to victory state
+    forceVictory();
+  }, [devMode, isVictory, recordCompletion, currentLevelId, moveCount, timeElapsed, hintsUsed, forceVictory]);
+
   // ============================================
   // RETURN
   // ============================================
@@ -544,6 +570,10 @@ export function useHanoiIntro(): UseHanoiIntroReturn {
 
     // Best score
     bestMoves,
+
+    // Dev mode
+    devMode,
+    handleForceComplete,
   };
 }
 

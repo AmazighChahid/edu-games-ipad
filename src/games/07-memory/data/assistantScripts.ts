@@ -3,30 +3,51 @@
  *
  * Dialogues de Memo l'Éléphant pour le jeu Memory
  * Ton bienveillant et encourageant, accent sur la mémoire
+ *
+ * Conforme au système AssistantScript de core.types
  */
 
-import type { AssistantScript } from '../../../core/types/core.types';
+import type { AssistantScript, AssistantTrigger } from '../../../core/types/core.types';
 
 // ============================================================================
-// SCRIPTS D'ACCUEIL
+// HELPERS
+// ============================================================================
+
+let scriptIdCounter = 0;
+const createScript = (
+  trigger: AssistantTrigger,
+  messages: string[],
+  priority: number = 1,
+  conditions?: AssistantScript['conditions'],
+  mood: 'happy' | 'encouraging' | 'neutral' | 'thinking' | 'excited' = 'happy'
+): AssistantScript => ({
+  id: `memory-script-${++scriptIdCounter}`,
+  gameId: '07-memory',
+  trigger,
+  priority,
+  messages: messages.map((text, index) => ({
+    id: `msg-${scriptIdCounter}-${index}`,
+    text,
+    mood,
+    duration: 3000,
+  })),
+  conditions,
+});
+
+// ============================================================================
+// SCRIPTS D'ACCUEIL (game_start)
 // ============================================================================
 
 const welcomeScripts: AssistantScript[] = [
-  {
-    trigger: 'level_start',
-    message: 'Coucou ! Je suis Memo. Les éléphants ont une super mémoire, et toi aussi ! 🐘',
-    animation: 'wave',
-  },
-  {
-    trigger: 'level_start',
-    message: 'Trouve les paires de cartes identiques ! Retourne deux cartes à la fois.',
-    animation: 'explain',
-  },
-  {
-    trigger: 'level_start',
-    message: 'Mémorise bien l\'emplacement des cartes. C\'est le secret ! 🧠',
-    animation: 'thinking',
-  },
+  createScript('game_start', [
+    'Coucou ! Je suis Memo. Les éléphants ont une super mémoire, et toi aussi !',
+  ], 10),
+  createScript('game_start', [
+    'Trouve les paires de cartes identiques ! Retourne deux cartes à la fois.',
+  ], 9),
+  createScript('game_start', [
+    'Mémorise bien l\'emplacement des cartes. C\'est le secret !',
+  ], 8),
 ];
 
 // ============================================================================
@@ -34,38 +55,28 @@ const welcomeScripts: AssistantScript[] = [
 // ============================================================================
 
 const firstMoveScripts: AssistantScript[] = [
-  {
-    trigger: 'first_move',
-    message: 'Bien joué ! Maintenant, cherche sa paire. 🔍',
-    animation: 'encourage',
-  },
-  {
-    trigger: 'first_move',
-    message: 'Premier coup ! Souviens-toi de ce que tu vois.',
-    animation: 'thinking',
-  },
+  createScript('first_move', [
+    'Bien joué ! Maintenant, cherche sa paire.',
+  ], 5),
+  createScript('first_move', [
+    'Premier coup ! Souviens-toi de ce que tu vois.',
+  ], 4),
 ];
 
 // ============================================================================
-// SCRIPTS D'ERREUR (PAS DE MATCH)
+// SCRIPTS D'ERREUR (invalid_move)
 // ============================================================================
 
 const errorScripts: AssistantScript[] = [
-  {
-    trigger: 'error',
-    message: 'Pas de match cette fois. Mais tu sais où sont ces cartes maintenant ! 🐘',
-    animation: 'gentle',
-  },
-  {
-    trigger: 'error',
-    message: 'Ce n\'est pas la bonne paire. Mémorise leur position !',
-    animation: 'thinking',
-  },
-  {
-    trigger: 'error',
-    message: 'Pas grave ! Chaque erreur t\'aide à mieux mémoriser.',
-    animation: 'encourage',
-  },
+  createScript('invalid_move', [
+    'Pas de match cette fois. Mais tu sais où sont ces cartes maintenant !',
+  ], 3),
+  createScript('invalid_move', [
+    'Ce n\'est pas la bonne paire. Mémorise leur position !',
+  ], 2),
+  createScript('invalid_move', [
+    'Pas grave ! Chaque erreur t\'aide à mieux mémoriser.',
+  ], 2),
 ];
 
 // ============================================================================
@@ -73,48 +84,31 @@ const errorScripts: AssistantScript[] = [
 // ============================================================================
 
 const repeatedErrorScripts: AssistantScript[] = [
-  {
-    trigger: 'repeated_error',
-    message: 'Essaie de te rappeler : où as-tu vu cette carte avant ? 💡',
-    animation: 'helpful',
-    visualHint: 'pulseHint',
-  },
-  {
-    trigger: 'repeated_error',
-    message: 'Astuce : concentre-toi sur une zone de la grille à la fois.',
-    animation: 'pointing',
-    visualHint: 'highlightZone',
-  },
-  {
-    trigger: 'repeated_error',
-    message: 'Tu peux y arriver ! Prends ton temps pour observer. 🐘',
-    animation: 'supportive',
-  },
+  createScript('repeated_error', [
+    'Essaie de te rappeler : où as-tu vu cette carte avant ?',
+  ], 6),
+  createScript('repeated_error', [
+    'Astuce : concentre-toi sur une zone de la grille à la fois.',
+  ], 5),
+  createScript('repeated_error', [
+    'Tu peux y arriver ! Prends ton temps pour observer.',
+  ], 4),
 ];
 
 // ============================================================================
-// SCRIPTS DE MATCH TROUVÉ
+// SCRIPTS DE MATCH TROUVÉ (valid_move)
 // ============================================================================
 
 const matchScripts: AssistantScript[] = [
-  {
-    trigger: 'first_move', // Utilisé après un match réussi
-    message: 'Super ! Tu as trouvé une paire ! 🎉',
-    animation: 'celebrate',
-    conditions: { isMatch: true },
-  },
-  {
-    trigger: 'first_move',
-    message: 'Bravo ! Ta mémoire fonctionne parfaitement ! 🧠',
-    animation: 'proud',
-    conditions: { isMatch: true },
-  },
-  {
-    trigger: 'first_move',
-    message: 'Excellent ! Continue comme ça !',
-    animation: 'thumbsUp',
-    conditions: { isMatch: true },
-  },
+  createScript('valid_move', [
+    'Super ! Tu as trouvé une paire !',
+  ], 7),
+  createScript('valid_move', [
+    'Bravo ! Ta mémoire fonctionne parfaitement !',
+  ], 6),
+  createScript('valid_move', [
+    'Excellent ! Continue comme ça !',
+  ], 5),
 ];
 
 // ============================================================================
@@ -122,24 +116,15 @@ const matchScripts: AssistantScript[] = [
 // ============================================================================
 
 const hintScripts: AssistantScript[] = [
-  {
-    trigger: 'hint_requested',
-    message: 'Un indice ? Regarde dans ce coin, je crois avoir vu quelque chose... 👀',
-    animation: 'pointing',
-    visualHint: 'highlightArea',
-  },
-  {
-    trigger: 'hint_requested',
-    message: 'Observe bien cette zone de la grille !',
-    animation: 'detective',
-    visualHint: 'focusZone',
-  },
-  {
-    trigger: 'hint_requested',
-    message: 'Je me souviens ! Cette carte a une jumelle par là... 🐘',
-    animation: 'remember',
-    visualHint: 'hintPair',
-  },
+  createScript('hint_requested', [
+    'Un indice ? Regarde dans ce coin, je crois avoir vu quelque chose...',
+  ], 8),
+  createScript('hint_requested', [
+    'Observe bien cette zone de la grille !',
+  ], 7),
+  createScript('hint_requested', [
+    'Je me souviens ! Cette carte a une jumelle par là...',
+  ], 6),
 ];
 
 // ============================================================================
@@ -147,21 +132,15 @@ const hintScripts: AssistantScript[] = [
 // ============================================================================
 
 const stuckScripts: AssistantScript[] = [
-  {
-    trigger: 'stuck',
-    message: 'Tu réfléchis ? Un éléphant n\'oublie jamais, et toi non plus ! 🐘',
-    animation: 'patient',
-  },
-  {
-    trigger: 'stuck',
-    message: 'Prends ton temps. La mémoire aime le calme.',
-    animation: 'relaxed',
-  },
-  {
-    trigger: 'stuck',
-    message: 'Besoin d\'aide ? Je suis là !',
-    animation: 'wave',
-  },
+  createScript('stuck', [
+    'Tu réfléchis ? Un éléphant n\'oublie jamais, et toi non plus !',
+  ], 4),
+  createScript('stuck', [
+    'Prends ton temps. La mémoire aime le calme.',
+  ], 3),
+  createScript('stuck', [
+    'Besoin d\'aide ? Je suis là !',
+  ], 2),
 ];
 
 // ============================================================================
@@ -169,16 +148,12 @@ const stuckScripts: AssistantScript[] = [
 // ============================================================================
 
 const nearVictoryScripts: AssistantScript[] = [
-  {
-    trigger: 'near_victory',
-    message: 'Plus que quelques paires ! Tu y es presque ! 🌟',
-    animation: 'excited',
-  },
-  {
-    trigger: 'near_victory',
-    message: 'La victoire est proche ! Concentre-toi ! 🐘',
-    animation: 'encouraging',
-  },
+  createScript('near_victory', [
+    'Plus que quelques paires ! Tu y es presque !',
+  ], 9),
+  createScript('near_victory', [
+    'La victoire est proche ! Concentre-toi !',
+  ], 8),
 ];
 
 // ============================================================================
@@ -186,21 +161,15 @@ const nearVictoryScripts: AssistantScript[] = [
 // ============================================================================
 
 const victoryScripts: AssistantScript[] = [
-  {
-    trigger: 'victory',
-    message: 'BRAVO ! 🎊 Tu as trouvé toutes les paires ! Ta mémoire est incroyable !',
-    animation: 'celebrate',
-  },
-  {
-    trigger: 'victory',
-    message: 'Félicitations ! 🐘🏆 Un vrai champion de la mémoire !',
-    animation: 'proud',
-  },
-  {
-    trigger: 'victory',
-    message: 'Victoire ! Même un éléphant serait impressionné ! 🌟',
-    animation: 'jump',
-  },
+  createScript('victory', [
+    'BRAVO ! Tu as trouvé toutes les paires ! Ta mémoire est incroyable !',
+  ], 10),
+  createScript('victory', [
+    'Félicitations ! Un vrai champion de la mémoire !',
+  ], 10),
+  createScript('victory', [
+    'Victoire ! Même un éléphant serait impressionné !',
+  ], 10),
 ];
 
 // ============================================================================
@@ -208,50 +177,12 @@ const victoryScripts: AssistantScript[] = [
 // ============================================================================
 
 const streakScripts: AssistantScript[] = [
-  {
-    trigger: 'streak',
-    message: 'Waouh ! Tu enchaînes les paires ! 🔥',
-    animation: 'fire',
-  },
-  {
-    trigger: 'streak',
-    message: 'Incroyable ! Ta mémoire est en feu ! 🧠⚡',
-    animation: 'excited',
-  },
-];
-
-// ============================================================================
-// SCRIPTS SPÉCIFIQUES
-// ============================================================================
-
-const memorySpecificScripts: AssistantScript[] = [
-  // Par nombre de paires
-  {
-    trigger: 'level_start',
-    message: '4 paires seulement ! Parfait pour s\'échauffer. 🐘',
-    animation: 'easy',
-    conditions: { pairCount: 4 },
-  },
-  {
-    trigger: 'level_start',
-    message: '8 paires ! Le défi commence vraiment. 💪',
-    animation: 'challenge',
-    conditions: { pairCount: 8 },
-  },
-  {
-    trigger: 'level_start',
-    message: '12 paires ! Le niveau maximum ! Es-tu prêt ? 🐘🔥',
-    animation: 'impressed',
-    conditions: { pairCount: 12 },
-  },
-
-  // Avec limite de temps
-  {
-    trigger: 'level_start',
-    message: 'Attention, le temps est compté ! Mais pas de panique. 🐘',
-    animation: 'alert',
-    conditions: { hasTimeLimit: true },
-  },
+  createScript('streak', [
+    'Waouh ! Tu enchaînes les paires !',
+  ], 8),
+  createScript('streak', [
+    'Incroyable ! Ta mémoire est en feu !',
+  ], 7),
 ];
 
 // ============================================================================
@@ -259,16 +190,12 @@ const memorySpecificScripts: AssistantScript[] = [
 // ============================================================================
 
 const comebackScripts: AssistantScript[] = [
-  {
-    trigger: 'comeback',
-    message: 'Re-bonjour ! Je n\'ai pas oublié que tu es super fort ! 🐘',
-    animation: 'wave',
-  },
-  {
-    trigger: 'comeback',
-    message: 'Tu es de retour ! Prêt à entraîner ta mémoire ?',
-    animation: 'happy',
-  },
+  createScript('comeback', [
+    'Re-bonjour ! Je n\'ai pas oublié que tu es super fort !',
+  ], 10),
+  createScript('comeback', [
+    'Tu es de retour ! Prêt à entraîner ta mémoire ?',
+  ], 9),
 ];
 
 // ============================================================================
@@ -286,7 +213,6 @@ export const memoryAssistantScripts: AssistantScript[] = [
   ...nearVictoryScripts,
   ...victoryScripts,
   ...streakScripts,
-  ...memorySpecificScripts,
   ...comebackScripts,
 ];
 

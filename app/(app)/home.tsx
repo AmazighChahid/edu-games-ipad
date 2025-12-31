@@ -187,6 +187,10 @@ export default function HomeScreen() {
   const favoriteGameIds = useStore((state) => state.favoriteGameIds);
   const toggleFavoriteGame = useStore((state) => state.toggleFavoriteGame);
 
+  // Dev mode
+  const devMode = useStore((state) => state.devMode);
+  const toggleDevMode = useStore((state) => state.toggleDevMode);
+
   // Calculate stats for parent drawer
   const totalGames = Object.values(gameProgress).reduce(
     (sum, gp) => sum + Object.keys(gp.completedLevels).length,
@@ -334,6 +338,8 @@ export default function HomeScreen() {
             profile={profile}
             onParentPress={handleParentPress}
             onAvatarPress={openSwitcher}
+            devMode={devMode}
+            onDevModeToggle={toggleDevMode}
           />
         </View>
 

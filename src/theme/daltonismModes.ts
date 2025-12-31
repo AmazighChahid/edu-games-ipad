@@ -57,7 +57,7 @@ export interface DaltonismPalette {
 /**
  * Palette normale (par défaut)
  */
-const normalPalette: DaltonismPalette = {
+export const normalPalette: DaltonismPalette = {
   diskColors: [
     colors.game.disk1, // Rouge
     colors.game.disk2, // Orange
@@ -97,7 +97,7 @@ const normalPalette: DaltonismPalette = {
  * Palette Deutéranopie (difficulté rouge-vert)
  * Utilise des contrastes bleu-jaune-orange
  */
-const deuteranopiaPalette: DaltonismPalette = {
+export const deuteranopiaPalette: DaltonismPalette = {
   diskColors: [
     '#0077BB', // Bleu foncé
     '#33BBEE', // Bleu clair
@@ -137,7 +137,7 @@ const deuteranopiaPalette: DaltonismPalette = {
  * Palette Protanopie (difficulté rouge-vert, variant)
  * Similaire à deutéranopie avec ajustements
  */
-const protanopiaPalette: DaltonismPalette = {
+export const protanopiaPalette: DaltonismPalette = {
   diskColors: [
     '#004488', // Bleu marine
     '#6699CC', // Bleu moyen
@@ -177,7 +177,7 @@ const protanopiaPalette: DaltonismPalette = {
  * Palette Tritanopie (difficulté bleu-jaune)
  * Utilise des contrastes rouge-vert-magenta
  */
-const tritanopiaPalette: DaltonismPalette = {
+export const tritanopiaPalette: DaltonismPalette = {
   diskColors: [
     '#EE3377', // Magenta
     '#CC3311', // Rouge
@@ -332,19 +332,3 @@ export const availableDaltonismModes: DaltonismMode[] = [
   'tritanopia',
 ];
 
-// ============================================================================
-// EXPORTS
-// ============================================================================
-
-export {
-  normalPalette,
-  deuteranopiaPalette,
-  protanopiaPalette,
-  tritanopiaPalette,
-  getPalette,
-  getDiskColor,
-  getFeedbackColors,
-  getSudokuColors,
-  getCategoryColor,
-  isDaltonismMode,
-};

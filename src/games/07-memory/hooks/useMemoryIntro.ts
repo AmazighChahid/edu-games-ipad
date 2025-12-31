@@ -33,7 +33,7 @@ import {
 import { useMemoryGame } from './useMemoryGame';
 import { useMemorySound } from './useMemorySound';
 import { useActiveProfile, useGameProgress, useStore } from '../../../store/useStore';
-import { getAllLevels, getLevelByNumber } from '../data/levels';
+import { getAllLevels, getLevelByNumber, createTrainingLevel, getTrainingLevel } from '../data/levels';
 import { Icons } from '../../../constants/icons';
 import type { MemoryLevel, CardTheme } from '../types';
 import type { MemoEmotionType } from '../components/mascot';
@@ -362,14 +362,27 @@ export function useMemoryIntro(): UseMemoryIntroReturn {
   }, [playSelect]);
 
   const handleStartPlaying = useCallback(() => {
-    if (!selectedLevel || !currentMemoryLevel) return;
+    if (!selectedLevel) return;
+
+    // En mode entraînement (niveau 0), créer un niveau personnalisé
+    let levelToPlay: MemoryLevel | null = null;
+
+    if (isTrainingMode || selectedLevel.number === 0) {
+      const pairCount = parseInt(trainingValues.pairs as string, 10) || 4;
+      levelToPlay = createTrainingLevel(selectedTheme, pairCount);
+    } else {
+      levelToPlay = currentMemoryLevel;
+    }
+
+    if (!levelToPlay) return;
+
     playStart();
-    startGame(currentMemoryLevel);
+    startGame(levelToPlay);
     transitionToPlayMode();
     setMascotMessage(MEMO_MESSAGES.start);
     setMascotEmotion('excited');
     setHintsRemaining(3);
-  }, [selectedLevel, currentMemoryLevel, startGame, transitionToPlayMode, playStart]);
+  }, [selectedLevel, currentMemoryLevel, isTrainingMode, trainingValues, selectedTheme, startGame, transitionToPlayMode, playStart]);
 
   const handleBack = useCallback(() => {
     if (isPlaying) {

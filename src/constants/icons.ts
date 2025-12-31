@@ -163,6 +163,8 @@ export const Icons = {
   // FEEDBACK & STATUS
   // ============================================
   success: '✅',
+  square: '🔲',
+  squareFilled: '🔳',
   checkmark: '✓',
   check: '✓',
   error: '❌',
@@ -171,6 +173,7 @@ export const Icons = {
   lock: '🔒',
   unlock: '🔓',
   lightbulb: '💡',
+  hint: '💡',
   refresh: '↻',
   close: '✕',
   search: '🔍',
@@ -179,6 +182,13 @@ export const Icons = {
   starFull: '★',
   swap: '↔',
   backspace: '⌫',
+
+  // ============================================
+  // ROTATION & TRANSFORMATION
+  // ============================================
+  rotateLeft: '↺',
+  rotateRight: '↻',
+  flip: '⇄',
 
   // ============================================
   // FLÈCHES & DIRECTIONS
@@ -215,6 +225,14 @@ export const Icons = {
   plate: '🍽️',
   friends: '🤝',
   chocolate: '🍫',
+  trash: '🗑️',
+  microphone: '🎙️',
+  audio: '🎧',
+  stop: '⏹️',
+  compass: '🧭',
+  heart: '❤️',
+  question: '❓',
+  list: '📋',
 
 } as const;
 

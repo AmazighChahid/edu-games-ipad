@@ -12,24 +12,24 @@ import {
   View,
   Text,
   StyleSheet,
-  Pressable,
   FlatList,
   useWindowDimensions,
   ListRenderItemInfo,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import Animated, { FadeIn, FadeInUp, FadeInRight } from 'react-native-reanimated';
+import Animated, { FadeInUp, FadeInRight } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 
-import { colors, spacing, borderRadius, shadows, fontFamily } from '../../../theme';
+import { colors, spacing, fontFamily } from '../../../theme';
+import { Icons } from '../../../constants/icons';
 import { useAccessibilityAnimations } from '../../../hooks';
+import { PageContainer } from '../../../components/common/PageContainer';
+import { ScreenHeader } from '../../../components/common/ScreenHeader';
 
 import { PlumeMascot } from '../components/PlumeMascot';
 import { StoryCard } from '../components/StoryCard';
 import { FilterTabs } from '../components/FilterTabs';
 import { ModeSelectionModal } from '../components/ModeSelectionModal';
-import { LibraryBackground } from '../components/LibraryBackground';
 import { getAllLevels, getLevelsByTheme } from '../data/stories';
 import type { ConteurLevel, ReadingMode, StoryTheme } from '../types';
 
@@ -153,34 +153,16 @@ export function ConteurIntroScreen({ onStartStory }: ConteurIntroScreenProps) {
   const keyExtractor = useCallback((item: ConteurLevel) => item.id, []);
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      {/* Library Background */}
-      <LibraryBackground />
-
-      {/* Header */}
-      <Animated.View
-        style={styles.header}
-        entering={shouldAnimate ? FadeIn.duration(getDuration(300)) : undefined}
-      >
-        {/* Back button */}
-        <Pressable style={styles.headerButton} onPress={handleBack}>
-          <Text style={styles.headerButtonText}>←</Text>
-        </Pressable>
-
-        {/* Title centered */}
-        <View style={styles.headerTitleWrapper}>
-          <View style={styles.headerTitleContainer}>
-            <Text style={styles.headerEmoji}>📖</Text>
-            <Text style={styles.title}>Le Conteur Curieux</Text>
-          </View>
-        </View>
-
-        {/* Parent button */}
-        <Pressable style={styles.parentButton} onPress={handleOpenParent}>
-          <Text style={styles.parentButtonIcon}>👨‍👩‍👧</Text>
-          <Text style={styles.parentButtonText}>Parent</Text>
-        </Pressable>
-      </Animated.View>
+    <PageContainer variant="neutral" scrollable={false} safeAreaEdges={['top']}>
+      {/* Header avec ScreenHeader standardisé */}
+      <ScreenHeader
+        variant="game"
+        title="Le Conteur Curieux"
+        emoji={Icons.book}
+        onBack={handleBack}
+        showParentButton
+        onParentPress={handleOpenParent}
+      />
 
       {/* Main content */}
       <View style={[styles.content, isTablet && isLandscape && styles.contentLandscape]}>
@@ -236,7 +218,7 @@ export function ConteurIntroScreen({ onStartStory }: ConteurIntroScreenProps) {
             showsVerticalScrollIndicator={false}
             ListEmptyComponent={
               <View style={styles.emptyState}>
-                <Text style={styles.emptyEmoji}>📚</Text>
+                <Text style={styles.emptyEmoji}>{Icons.book}</Text>
                 <Text style={styles.emptyText}>
                   Aucune histoire dans ce thème pour l'instant !
                 </Text>
@@ -255,82 +237,11 @@ export function ConteurIntroScreen({ onStartStory }: ConteurIntroScreenProps) {
         onStart={handleStartStory}
         onClose={handleCloseModal}
       />
-    </SafeAreaView>
+    </PageContainer>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FFF9F0', // Warm library background
-  },
-
-  // Header
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: spacing[4],
-    paddingVertical: spacing[3],
-    zIndex: 100,
-  },
-  headerButton: {
-    width: 64,
-    height: 64,
-    borderRadius: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    ...shadows.md,
-  },
-  headerButtonText: {
-    fontSize: 24,
-    color: colors.primary.main,
-  },
-  headerTitleWrapper: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    alignItems: 'center',
-    zIndex: -1,
-  },
-  headerTitleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing[2],
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-    paddingVertical: spacing[2],
-    paddingHorizontal: spacing[5],
-    borderRadius: 20,
-    ...shadows.md,
-  },
-  headerEmoji: {
-    fontSize: 24,
-  },
-  title: {
-    fontSize: 20,
-    fontFamily: fontFamily.displayBold,
-    color: '#9B59B6', // Purple theme
-  },
-  parentButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing[2],
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
-    paddingVertical: spacing[2],
-    paddingHorizontal: spacing[4],
-    borderRadius: borderRadius.md,
-    ...shadows.md,
-  },
-  parentButtonIcon: {
-    fontSize: 18,
-  },
-  parentButtonText: {
-    fontSize: 14,
-    fontFamily: fontFamily.semiBold,
-    color: '#7A7A7A',
-  },
-
   // Content
   content: {
     flex: 1,
@@ -389,7 +300,8 @@ const styles = StyleSheet.create({
     marginBottom: spacing[4],
   },
   emptyText: {
-    fontSize: 16,
+    fontSize: 18,
+    fontFamily: fontFamily.medium,
     color: colors.text.secondary,
     textAlign: 'center',
   },

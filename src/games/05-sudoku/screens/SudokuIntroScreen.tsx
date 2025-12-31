@@ -24,7 +24,7 @@ import { ParentDrawer } from '@/components/parent/ParentDrawer';
 import { CardUnlockScreen } from '@/components/collection';
 import { useCardUnlock } from '@/hooks/useCardUnlock';
 import { useCollection } from '@/store';
-import { colors, spacing } from '@/theme';
+import { theme } from '@/theme';
 import { Icons } from '@/constants/icons';
 
 import { useSudokuIntro } from '../hooks/useSudokuIntro';
@@ -119,6 +119,7 @@ export function SudokuIntroScreen() {
         onClear={intro.handleClearCell}
         selectedSymbol={intro.selectedSymbol}
         showConflicts={intro.gameConfig?.showConflicts}
+        onDrop={intro.handleDrop}
       />
     ),
     [
@@ -128,6 +129,7 @@ export function SudokuIntroScreen() {
       intro.handleClearCell,
       intro.selectedSymbol,
       intro.gameConfig?.showConflicts,
+      intro.handleDrop,
     ]
   );
 

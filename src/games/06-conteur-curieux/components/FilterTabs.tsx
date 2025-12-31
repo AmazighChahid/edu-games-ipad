@@ -15,7 +15,8 @@ import Animated, {
 } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 
-import { spacing, borderRadius, fontFamily } from '../../../theme';
+import { spacing, borderRadius, fontFamily, touchTargets } from '../../../theme';
+import { Icons } from '../../../constants/icons';
 import type { StoryTheme, ThemeConfig } from '../types';
 
 type FilterValue = StoryTheme | 'all';
@@ -28,12 +29,12 @@ interface FilterTabsProps {
 
 // Configuration des thèmes
 const THEME_CONFIGS: ThemeConfig[] = [
-  { id: 'nature', label: 'Nature', emoji: '🌿', color: '#27AE60' },
-  { id: 'adventure', label: 'Aventure', emoji: '🗺️', color: '#E67E22' },
-  { id: 'magic', label: 'Magie', emoji: '✨', color: '#9B59B6' },
-  { id: 'family', label: 'Famille', emoji: '👨‍👩‍👧', color: '#3498DB' },
-  { id: 'friendship', label: 'Amitié', emoji: '🤝', color: '#E91E63' },
-  { id: 'discovery', label: 'Découverte', emoji: '🔍', color: '#00BCD4' },
+  { id: 'nature', label: 'Nature', emoji: Icons.tree, color: '#27AE60' },
+  { id: 'adventure', label: 'Aventure', emoji: Icons.compass, color: '#E67E22' },
+  { id: 'magic', label: 'Magie', emoji: Icons.sparkles, color: '#9B59B6' },
+  { id: 'family', label: 'Famille', emoji: Icons.family, color: '#3498DB' },
+  { id: 'friendship', label: 'Amitié', emoji: Icons.heart, color: '#E91E63' },
+  { id: 'discovery', label: 'Découverte', emoji: Icons.search, color: '#00BCD4' },
 ];
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
@@ -147,16 +148,18 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing[2],
+    minHeight: touchTargets.minimum,
     paddingHorizontal: spacing[4],
     paddingVertical: spacing[3],
     borderRadius: borderRadius.round,
+    justifyContent: 'center',
   },
   tabEmoji: {
-    fontSize: 14,
+    fontSize: 18,
   },
   tabLabel: {
     fontFamily: fontFamily.bold,
-    fontSize: 13,
+    fontSize: 18,
     color: '#718096',
   },
   tabLabelActive: {

@@ -14,14 +14,13 @@ import { theme } from '../../../src/theme';
 import {
   GameIntroTemplate,
   VictoryCard,
-  HintButton,
-  Button,
 } from '../../../src/components/common';
 import { Icons } from '../../../src/constants/icons';
 import {
   useLogixGridIntro,
   GameBoard,
   AdaMascot,
+  LogixGrid,
 } from '../../../src/games/09-logix-grid';
 
 // ============================================================================
@@ -38,10 +37,6 @@ export default function LogixGridScreen() {
     // État jeu
     isPlaying,
     isVictory,
-
-    // Animations
-    selectorStyle,
-    progressPanelStyle,
 
     // Mascot
     mascotMessage,
@@ -108,47 +103,40 @@ export default function LogixGridScreen() {
     );
   }
 
-  // Rendu du jeu actif
+  // Rendu du jeu - grille simple en intro, GameBoard complet en playing
   const renderGame = () => {
     if (!gameState) return null;
 
+    // En mode playing, afficher le GameBoard complet avec timer, contrôles, etc.
+    if (isPlaying) {
+      return (
+        <GameBoard
+          gameState={gameState}
+          errors={errors}
+          onCellToggle={handleCellToggle}
+          onCellSelect={handleCellSelect}
+          onClueUse={handleClueUse}
+          onHintRequest={handleHintRequest}
+          getCellState={getCellStateValue}
+          onPause={() => {}}
+          onBack={handleBack}
+        />
+      );
+    }
+
+    // En mode intro (isPlaying=false), afficher juste la grille en aperçu
     return (
-      <GameBoard
-        gameState={gameState}
-        errors={errors}
-        onCellToggle={handleCellToggle}
-        onCellSelect={handleCellSelect}
-        onClueUse={handleClueUse}
-        onHintRequest={handleHintRequest}
-        getCellState={getCellStateValue}
-        onPause={() => {}}
-        onBack={handleBack}
-      />
+      <View style={styles.previewContainer}>
+        <LogixGrid
+          gameState={gameState}
+          errors={errors}
+          onCellToggle={handleCellToggle}
+          onCellSelect={handleCellSelect}
+          getCellState={getCellStateValue}
+        />
+      </View>
     );
   };
-
-  // Boutons d'action
-  const renderActionButtons = () => (
-    <View style={styles.actionButtons}>
-      <Button
-        label="C'est parti !"
-        onPress={handleStartPlaying}
-        variant="primary"
-        size="large"
-        disabled={!selectedLevel}
-      />
-    </View>
-  );
-
-  // Bouton indice
-  const renderHintButton = () => (
-    <HintButton
-      remaining={hintsRemaining}
-      maxHints={gameState?.puzzle.hintsAvailable ?? 3}
-      onPress={handleHintRequest}
-      disabled={hintsRemaining === 0}
-    />
-  );
 
   return (
     <GameIntroTemplate
@@ -190,8 +178,8 @@ export default function LogixGridScreen() {
 
       // Progress (en mode jeu)
       renderProgress={isPlaying ? () => (
-        <View style={{ alignItems: 'center' }}>
-          <Text style={{ fontSize: 14, color: '#666' }}>
+        <View style={styles.progressPanel}>
+          <Text style={styles.progressText}>
             Indices utilisés: {progressData.cluesUsed}/{progressData.totalClues}
           </Text>
         </View>
@@ -205,8 +193,17 @@ export default function LogixGridScreen() {
 // ============================================================================
 
 const styles = StyleSheet.create({
-  actionButtons: {
+  previewContainer: {
+    flex: 1,
+    width: '100%',
+    opacity: 0.8,
+  },
+  progressPanel: {
     alignItems: 'center',
-    paddingVertical: theme.spacing[4],
+  },
+  progressText: {
+    fontSize: theme.fontSize.lg,
+    fontFamily: theme.fontFamily.regular,
+    color: theme.colors.text.secondary,
   },
 });

@@ -324,21 +324,3 @@ export function getGridDimensions(pairCount: number): { rows: number; cols: numb
   return configs[pairCount] || { rows: 4, cols: Math.ceil(totalCards / 4) };
 }
 
-// ============================================================================
-// EXPORTS
-// ============================================================================
-
-export {
-  createGame,
-  createShuffledCards,
-  flipCard,
-  checkMatch,
-  resetRevealedCards,
-  calculateResult,
-  calculateStars,
-  isGameComplete,
-  isTimeUp,
-  tickTime,
-  getRevealedCount,
-  getGridDimensions,
-};

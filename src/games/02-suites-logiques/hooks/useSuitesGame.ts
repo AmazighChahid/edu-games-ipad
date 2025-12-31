@@ -6,7 +6,7 @@ import {
   SequenceElement,
   ThemeType,
 } from '../types';
-import { GAME_CONFIG } from '../constants/gameConfig';
+import { GAME_CONFIG } from '../data/gameConfig';
 import { useSequenceGenerator } from './useSequenceGenerator';
 import { useStreakTracker } from './useStreakTracker';
 import { suitesLogiquesLevels, getLevelByOrder, SuitesLogiquesLevel } from '../data/levels';

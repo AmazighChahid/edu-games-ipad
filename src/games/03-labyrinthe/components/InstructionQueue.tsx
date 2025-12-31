@@ -10,6 +10,7 @@ import Animated, {
   withSequence,
 } from 'react-native-reanimated';
 import { theme } from '@/theme';
+import { Icons } from '@/constants/icons';
 import { Direction } from '../types';
 
 export interface Instruction {
@@ -27,18 +28,20 @@ interface Props {
   maxInstructions?: number;
 }
 
+// Utiliser Icons.back avec rotation pour les directions
 const DIRECTION_ICONS: Record<Direction, string> = {
-  up: '↑',
-  down: '↓',
-  left: '←',
-  right: '→',
+  up: Icons.back,
+  down: Icons.back,
+  left: Icons.back,
+  right: Icons.back,
 };
 
+// Couleurs via theme
 const DIRECTION_COLORS: Record<Direction, string> = {
-  up: '#5B8DEE',    // Bleu
-  down: '#68D391',  // Vert
-  left: '#E53E3E',  // Rouge
-  right: '#F6AD55', // Orange
+  up: theme.colors.primary.main,
+  down: theme.colors.feedback.success,
+  left: theme.colors.feedback.error,
+  right: theme.colors.secondary.main,
 };
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
@@ -170,8 +173,8 @@ export const InstructionQueue: React.FC<Props> = ({
   );
 };
 
-// Taille compacte pour les cartes d'instruction
-const CARD_SIZE = 48;
+// Taille des cartes d'instruction (56dp pour touch target enfant)
+const CARD_SIZE = 56;
 
 const styles = StyleSheet.create({
   container: {
@@ -187,7 +190,7 @@ const styles = StyleSheet.create({
     gap: theme.spacing[2],
   },
   title: {
-    fontSize: theme.fontSize.sm,
+    fontSize: theme.fontSize.lg,
     fontFamily: theme.fontFamily.bold,
     color: theme.colors.text.primary,
   },
@@ -200,21 +203,21 @@ const styles = StyleSheet.create({
   counterText: {
     fontSize: theme.fontSize.xs,
     fontFamily: theme.fontFamily.bold,
-    color: theme.colors.primary,
+    color: theme.colors.primary.main,
   },
   clearButton: {
     marginLeft: 'auto',
-    paddingHorizontal: theme.spacing[2],
-    paddingVertical: theme.spacing[1],
+    paddingHorizontal: theme.spacing[3],
+    paddingVertical: theme.spacing[2],
     backgroundColor: 'rgba(229, 62, 62, 0.1)',
     borderRadius: theme.borderRadius.sm,
-    minHeight: 32,
+    minHeight: 44,
     justifyContent: 'center',
   },
   clearButtonText: {
-    fontSize: theme.fontSize.xs,
+    fontSize: theme.fontSize.base,
     fontFamily: theme.fontFamily.bold,
-    color: theme.colors.error,
+    color: theme.colors.feedback.error,
   },
   instructionsList: {
     flexDirection: 'row',
@@ -233,12 +236,12 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   currentInstruction: {
-    borderColor: theme.colors.primary,
+    borderColor: theme.colors.primary.main,
     borderWidth: 3,
     ...theme.shadows.md,
   },
   executedInstruction: {
-    borderColor: theme.colors.success,
+    borderColor: theme.colors.feedback.success,
     opacity: 0.7,
   },
   instructionIcon: {
@@ -255,7 +258,7 @@ const styles = StyleSheet.create({
     width: 18,
     height: 18,
     borderRadius: 9,
-    backgroundColor: theme.colors.error,
+    backgroundColor: theme.colors.feedback.error,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -283,9 +286,9 @@ const styles = StyleSheet.create({
   },
   helpText: {
     textAlign: 'center',
-    fontSize: theme.fontSize.xs,
+    fontSize: theme.fontSize.base,
     fontFamily: theme.fontFamily.regular,
     color: theme.colors.text.secondary,
-    marginTop: 2,
+    marginTop: theme.spacing[1],
   },
 });

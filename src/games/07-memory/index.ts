@@ -4,14 +4,27 @@
  * Super Mémoire - Jeu de mémoire pour enfants
  */
 
-// Types
-export * from './types';
+// Types (renamed type to avoid conflict with component)
+export type {
+  MemoryCard as MemoryCardType,
+  MemoryLevel,
+  MemoryGameState,
+  MemoryResult,
+  MemoryConfig,
+  MemoryAction,
+  ThemeConfig,
+  CardTheme,
+  CardState,
+  GamePhase,
+  Difficulty,
+} from './types';
+export { DEFAULT_MEMORY_CONFIG } from './types';
 
 // Logic
 export * from './logic';
 
 // Components
-export * from './components';
+export { MemoryCard, MemoryGrid, GameBoard } from './components';
 
 // Screens
 export { MemoryIntroScreen } from './screens';
@@ -31,5 +44,7 @@ export {
   getLevelByNumber as getMemoryLevelByNumber,
   getFirstLevel as getFirstMemoryLevel,
   getTotalLevels as getMemoryTotalLevels,
+  getTrainingLevel as getMemoryTrainingLevel,
+  createTrainingLevel as createMemoryTrainingLevel,
 } from './data/levels';
 export { memoryAssistantScripts } from './data/assistantScripts';

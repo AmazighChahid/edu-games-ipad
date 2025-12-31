@@ -8,7 +8,7 @@ import Animated, {
   Easing,
 } from 'react-native-reanimated';
 import { SequenceElement as ElementType } from '../types';
-import { DIMENSIONS, ELEMENT_COLORS } from '../constants/gameConfig';
+import { DIMENSIONS, ELEMENT_COLORS } from '../data/gameConfig';
 
 // Import des SVG
 import {

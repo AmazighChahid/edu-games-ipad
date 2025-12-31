@@ -18,7 +18,6 @@ import {
   useWindowDimensions,
   Alert,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import Animated, {
   FadeIn,
@@ -27,8 +26,11 @@ import Animated, {
 } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 
-import { colors, spacing, borderRadius, shadows, fontFamily } from '../../../theme';
+import { colors, spacing, borderRadius, shadows, fontFamily, touchTargets } from '../../../theme';
+import { Icons } from '../../../constants/icons';
 import { useAccessibilityAnimations } from '../../../hooks';
+import { PageContainer } from '../../../components/common/PageContainer';
+import { ScreenHeader } from '../../../components/common/ScreenHeader';
 
 import { PlumeMascot } from '../components/PlumeMascot';
 import { AnswerButton } from '../components/AnswerButton';
@@ -55,12 +57,12 @@ const PLUME_MESSAGES = {
 
 // Configuration des catégories
 const CATEGORY_CONFIG: Record<QuestionCategory, { emoji: string; label: string }> = {
-  factual: { emoji: '🔍', label: 'Qui/Quoi/Où' },
-  sequential: { emoji: '📋', label: 'Ordre' },
-  causal: { emoji: '🔗', label: 'Pourquoi' },
-  emotional: { emoji: '💭', label: 'Sentiments' },
-  inferential: { emoji: '🔮', label: 'Entre les lignes' },
-  opinion: { emoji: '💡', label: 'Ton avis' },
+  factual: { emoji: Icons.search, label: 'Qui/Quoi/Où' },
+  sequential: { emoji: Icons.list, label: 'Ordre' },
+  causal: { emoji: Icons.link, label: 'Pourquoi' },
+  emotional: { emoji: Icons.thinking, label: 'Sentiments' },
+  inferential: { emoji: Icons.sparkles, label: 'Entre les lignes' },
+  opinion: { emoji: Icons.lightbulb, label: 'Ton avis' },
 };
 
 const LETTERS = ['A', 'B', 'C', 'D'];
@@ -274,20 +276,29 @@ export function ConteurQuestionsScreen({
             }
           });
 
+          // Convertir categoryScores en Partial<CompetencyScores> (pourcentages)
+          const competencyScores: Partial<Record<QuestionCategory, number>> = {};
+          Object.entries(categoryScores).forEach(([cat, data]) => {
+            if (data.total > 0) {
+              competencyScores[cat as QuestionCategory] = Math.round((data.correct / data.total) * 100);
+            }
+          });
+
           // Sauvegarder la session dans le storage
           try {
             await saveSessionResult({
               id: `session_${Date.now()}`,
               levelId: resolvedLevelId || '',
               storyTitle: level?.story.title || '',
+              storyEmoji: level?.story.emoji || '',
               date: new Date().toISOString(),
               scorePercent,
               stars: stars as 1 | 2 | 3 | 4 | 5,
-              categoryScores,
-              questionsByCategory: Object.entries(categoryScores).reduce((acc, [cat, data]) => ({
-                ...acc,
-                [cat]: data.total,
-              }), {} as Record<QuestionCategory, number>),
+              readingTimeSeconds: 0, // TODO: passer le temps de lecture depuis la page précédente
+              questionsTimeSeconds: Math.floor((Date.now() - questionStartTime) / 1000),
+              hintsUsed,
+              categoryScores: competencyScores,
+              questionsByCategory: categoryScores,
             });
           } catch (error) {
             console.error('Error saving session result:', error);
@@ -337,15 +348,15 @@ export function ConteurQuestionsScreen({
 
   if (!level || !currentQuestion) {
     return (
-      <SafeAreaView style={styles.container} edges={['top']}>
+      <PageContainer variant="neutral" safeAreaEdges={['top']}>
         <View style={styles.errorContainer}>
-          <Text style={styles.errorEmoji}>😕</Text>
+          <Text style={styles.errorEmoji}>{Icons.thinking}</Text>
           <Text style={styles.errorText}>Questions introuvables</Text>
           <Pressable style={styles.errorButton} onPress={() => router.back()}>
             <Text style={styles.errorButtonText}>Retour</Text>
           </Pressable>
         </View>
-      </SafeAreaView>
+      </PageContainer>
     );
   }
 
@@ -354,13 +365,17 @@ export function ConteurQuestionsScreen({
     : null;
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <PageContainer variant="neutral" scrollable={false} safeAreaEdges={['top']}>
       {/* Header */}
-      <View style={styles.header}>
-        <Pressable style={styles.headerButton} onPress={handleBack}>
-          <Text style={styles.headerButtonText}>{'<'}</Text>
-        </Pressable>
+      <ScreenHeader
+        variant="game"
+        title="Questions"
+        emoji={Icons.question}
+        onBack={handleBack}
+      />
 
+      {/* Progress & Hints */}
+      <View style={styles.progressHeader}>
         {/* Progress */}
         <View style={styles.progressContainer}>
           <View style={styles.progressDots}>
@@ -385,8 +400,10 @@ export function ConteurQuestionsScreen({
           style={[styles.hintButton, hintsRemaining <= 0 && styles.hintButtonDisabled]}
           onPress={handleRequestHint}
           disabled={hintsRemaining <= 0 || showHint}
+          accessibilityLabel={`Demander un indice, ${hintsRemaining} restants`}
+          accessibilityRole="button"
         >
-          <Text style={styles.hintButtonText}>💡 {hintsRemaining}</Text>
+          <Text style={styles.hintButtonText}>{Icons.lightbulb} {hintsRemaining}</Text>
         </Pressable>
       </View>
 
@@ -435,8 +452,10 @@ export function ConteurQuestionsScreen({
               <Pressable
                 style={[styles.textHintButton, showTextHint && styles.textHintButtonActive]}
                 onPress={handleToggleTextHint}
+                accessibilityLabel={showTextHint ? 'Masquer le texte' : 'Voir le texte de l\'histoire'}
+                accessibilityRole="button"
               >
-                <Text style={styles.textHintIcon}>📖</Text>
+                <Text style={styles.textHintIcon}>{Icons.book}</Text>
                 <Text style={styles.textHintLabel}>
                   {showTextHint ? 'Masquer le texte' : 'Voir le texte'}
                 </Text>
@@ -450,7 +469,7 @@ export function ConteurQuestionsScreen({
               style={styles.textReferenceBubble}
               entering={FadeInUp.duration(getDuration(200))}
             >
-              <Text style={styles.textReferenceLabel}>📖 Extrait de l'histoire</Text>
+              <Text style={styles.textReferenceLabel}>{Icons.book} Extrait de l'histoire</Text>
               <Text style={styles.textReferenceText}>« {currentQuestion.textReference} »</Text>
             </Animated.View>
           )}
@@ -461,7 +480,7 @@ export function ConteurQuestionsScreen({
               style={styles.hintBubble}
               entering={FadeInUp.duration(getDuration(200))}
             >
-              <Text style={styles.hintText}>💡 {currentQuestion.hint}</Text>
+              <Text style={styles.hintText}>{Icons.lightbulb} {currentQuestion.hint}</Text>
             </Animated.View>
           )}
 
@@ -509,6 +528,8 @@ export function ConteurQuestionsScreen({
               style={[styles.validateButton, !selectedOptionId && styles.validateButtonDisabled]}
               onPress={handleValidate}
               disabled={!selectedOptionId}
+              accessibilityLabel="Valider ma réponse"
+              accessibilityRole="button"
             >
               <Text style={styles.validateButtonText}>Valider</Text>
             </Pressable>
@@ -547,35 +568,18 @@ export function ConteurQuestionsScreen({
         onClose={handleFeedbackClose}
         autoCloseDelay={answerState === 'correct' ? 1500 : 2500}
       />
-    </SafeAreaView>
+    </PageContainer>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FFF9F0',
-  },
-
-  // Header
-  header: {
+  // Progress header (below ScreenHeader)
+  progressHeader: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: spacing[4],
-    paddingVertical: spacing[3],
-    gap: spacing[3],
-  },
-  headerButton: {
-    width: 64,
-    height: 64,
-    borderRadius: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    ...shadows.md,
-  },
-  headerButtonText: {
-    fontSize: 24,
+    paddingVertical: spacing[2],
   },
   progressContainer: {
     flex: 1,
@@ -600,21 +604,25 @@ const styles = StyleSheet.create({
     transform: [{ scale: 1.2 }],
   },
   progressText: {
-    fontSize: 12,
+    fontSize: 18,
+    fontFamily: fontFamily.medium,
     color: '#718096',
   },
   hintButton: {
-    paddingHorizontal: spacing[3],
-    paddingVertical: spacing[2],
+    minHeight: touchTargets.minimum,
+    paddingHorizontal: spacing[4],
+    paddingVertical: spacing[3],
     borderRadius: borderRadius.lg,
     backgroundColor: '#FFE4B5',
+    alignItems: 'center',
+    justifyContent: 'center',
     ...shadows.sm,
   },
   hintButtonDisabled: {
     opacity: 0.5,
   },
   hintButtonText: {
-    fontSize: 16,
+    fontSize: 18,
     fontFamily: fontFamily.medium,
   },
 
@@ -646,17 +654,18 @@ const styles = StyleSheet.create({
     marginBottom: spacing[2],
   },
   recapTitle: {
-    fontSize: 16,
+    fontSize: 18,
     fontFamily: fontFamily.displayBold,
     color: '#2D3748',
     textAlign: 'center',
     marginBottom: spacing[2],
   },
   recapSummary: {
-    fontSize: 12,
+    fontSize: 18,
+    fontFamily: fontFamily.regular,
     color: '#718096',
     textAlign: 'center',
-    lineHeight: 18,
+    lineHeight: 24,
   },
 
   // Question section
@@ -675,16 +684,16 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     backgroundColor: 'rgba(155,89,182,0.1)',
     paddingHorizontal: spacing[3],
-    paddingVertical: spacing[1],
+    paddingVertical: spacing[2],
     borderRadius: borderRadius.round,
     gap: spacing[1],
     marginBottom: spacing[3],
   },
   categoryEmoji: {
-    fontSize: 14,
+    fontSize: 18,
   },
   categoryLabel: {
-    fontSize: 12,
+    fontSize: 18,
     fontFamily: fontFamily.medium,
     color: '#9B59B6',
   },
@@ -708,9 +717,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     alignSelf: 'center',
+    minHeight: touchTargets.minimum,
     backgroundColor: '#FFB347',
     paddingHorizontal: spacing[4],
-    paddingVertical: spacing[2],
+    paddingVertical: spacing[3],
     borderRadius: borderRadius.round,
     gap: spacing[2],
     boxShadow: '0px 2px 4px rgba(255, 179, 71, 0.25)',
@@ -724,7 +734,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
   },
   textHintLabel: {
-    fontSize: 14,
+    fontSize: 18,
     fontFamily: fontFamily.medium,
     color: '#FFFFFF',
   },
@@ -739,7 +749,7 @@ const styles = StyleSheet.create({
     borderLeftColor: '#9B59B6',
   },
   textReferenceLabel: {
-    fontSize: 12,
+    fontSize: 18,
     fontFamily: fontFamily.bold,
     color: '#9B59B6',
     marginBottom: spacing[2],
@@ -747,10 +757,10 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
   },
   textReferenceText: {
-    fontSize: 16,
+    fontSize: 18,
     fontFamily: fontFamily.regular,
     color: '#2D3748',
-    lineHeight: 24,
+    lineHeight: 28,
     fontStyle: 'italic',
   },
 
@@ -764,7 +774,8 @@ const styles = StyleSheet.create({
     borderLeftColor: '#FFB347',
   },
   hintText: {
-    fontSize: 14,
+    fontSize: 18,
+    fontFamily: fontFamily.regular,
     color: '#8B6914',
     fontStyle: 'italic',
   },
@@ -777,10 +788,12 @@ const styles = StyleSheet.create({
 
   // Validate button
   validateButton: {
+    minHeight: touchTargets.minimum,
     backgroundColor: '#9B59B6',
     paddingVertical: spacing[4],
     borderRadius: borderRadius.xl,
     alignItems: 'center',
+    justifyContent: 'center',
     boxShadow: '0px 2px 4px rgba(155, 89, 182, 0.25)',
     elevation: 3,
   },
@@ -821,17 +834,21 @@ const styles = StyleSheet.create({
   },
   errorText: {
     fontSize: 18,
+    fontFamily: fontFamily.medium,
     color: colors.text.secondary,
     marginBottom: spacing[4],
   },
   errorButton: {
     backgroundColor: colors.primary.main,
+    minHeight: touchTargets.minimum,
     paddingHorizontal: spacing[6],
     paddingVertical: spacing[3],
     borderRadius: borderRadius.lg,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   errorButtonText: {
-    fontSize: 16,
+    fontSize: 18,
     color: '#FFFFFF',
     fontFamily: fontFamily.medium,
   },

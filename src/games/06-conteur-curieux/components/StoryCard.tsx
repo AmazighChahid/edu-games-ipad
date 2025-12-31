@@ -16,7 +16,8 @@ import Animated, {
 } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 
-import { spacing, borderRadius, shadows, fontFamily } from '../../../theme';
+import { spacing, borderRadius, fontFamily, touchTargets } from '../../../theme';
+import { Icons } from '../../../constants/icons';
 import type { ConteurLevel, StoryTheme } from '../types';
 
 interface StoryCardProps {
@@ -36,6 +37,7 @@ const THEME_COLORS: Record<StoryTheme, { gradient: string[]; accent: string }> =
   family: { gradient: ['#3498DB', '#2980B9'], accent: '#3498DB' },
   friendship: { gradient: ['#E91E63', '#C2185B'], accent: '#E91E63' },
   discovery: { gradient: ['#00BCD4', '#0097A7'], accent: '#00BCD4' },
+  fantasy: { gradient: ['#7E57C2', '#5E35B1'], accent: '#7E57C2' },
 };
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
@@ -95,7 +97,7 @@ export function StoryCard({
       <View style={styles.starsContainer}>
         {[1, 2, 3, 4, 5].map((i) => (
           <Text key={i} style={[styles.star, i > stars && styles.starEmpty]}>
-            ⭐
+            {Icons.star}
           </Text>
         ))}
       </View>
@@ -106,7 +108,7 @@ export function StoryCard({
     <AnimatedPressable
       style={[
         styles.card,
-        { width: cardWidth, height: cardHeight },
+        { width: cardWidth, height: cardHeight, minHeight: touchTargets.minimum },
         cardStyle,
       ]}
       onPressIn={handlePressIn}
@@ -125,7 +127,7 @@ export function StoryCard({
         <View style={styles.levelBadge}>
           {[1, 2, 3].map((i) => (
             <Text key={i} style={styles.levelStar}>
-              {i <= level.difficulty ? '⭐' : '☆'}
+              {i <= level.difficulty ? Icons.star : Icons.starEmpty}
             </Text>
           ))}
         </View>
@@ -133,7 +135,7 @@ export function StoryCard({
         {/* Completed badge */}
         {isCompleted && (
           <View style={styles.completedBadge}>
-            <Text style={styles.completedIcon}>✓</Text>
+            <Text style={styles.completedIcon}>{Icons.check}</Text>
           </View>
         )}
 
@@ -154,7 +156,7 @@ export function StoryCard({
           {level.themeEmoji} {level.theme}
         </Text>
         <View style={styles.duration}>
-          <Text style={styles.durationIcon}>⏱️</Text>
+          <Text style={styles.durationIcon}>{Icons.timer}</Text>
           <Text style={styles.durationText}>{level.story.readingTime} min</Text>
         </View>
         {renderStars()}
@@ -163,7 +165,7 @@ export function StoryCard({
       {/* Lock overlay */}
       {isLocked && (
         <View style={styles.lockOverlay}>
-          <Text style={styles.lockIcon}>🔒</Text>
+          <Text style={styles.lockIcon}>{Icons.lock}</Text>
           <Text style={styles.lockText}>Continue pour débloquer</Text>
         </View>
       )}
@@ -199,22 +201,22 @@ const styles = StyleSheet.create({
     gap: 1,
   },
   levelStar: {
-    fontSize: 12,
+    fontSize: 18,
   },
   completedBadge: {
     position: 'absolute',
     top: 8,
     right: 8,
-    width: 24,
-    height: 24,
+    width: 28,
+    height: 28,
     backgroundColor: '#7BC74D',
-    borderRadius: 12,
+    borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
   },
   completedIcon: {
     color: '#FFFFFF',
-    fontSize: 14,
+    fontSize: 18,
     fontWeight: 'bold',
   },
   newBadge: {
@@ -223,12 +225,12 @@ const styles = StyleSheet.create({
     right: 8,
     backgroundColor: '#FF6B6B',
     paddingHorizontal: 8,
-    paddingVertical: 3,
+    paddingVertical: 4,
     borderRadius: 8,
   },
   newBadgeText: {
     color: '#FFFFFF',
-    fontSize: 9,
+    fontSize: 10,
     fontWeight: '800',
     letterSpacing: 0.5,
   },
@@ -241,12 +243,13 @@ const styles = StyleSheet.create({
   },
   title: {
     fontFamily: fontFamily.displayBold,
-    fontSize: 14,
+    fontSize: 18,
     color: '#2D3748',
-    lineHeight: 18,
+    lineHeight: 22,
   },
   theme: {
-    fontSize: 11,
+    fontSize: 18,
+    fontFamily: fontFamily.regular,
     color: '#718096',
     marginTop: 2,
   },
@@ -257,12 +260,12 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   durationIcon: {
-    fontSize: 12,
+    fontSize: 18,
   },
   durationText: {
-    fontSize: 11,
+    fontSize: 18,
+    fontFamily: fontFamily.medium,
     color: '#9B59B6',
-    fontWeight: '600',
   },
   starsContainer: {
     flexDirection: 'row',
@@ -270,7 +273,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   star: {
-    fontSize: 12,
+    fontSize: 18,
   },
   starEmpty: {
     opacity: 0.3,
@@ -290,8 +293,8 @@ const styles = StyleSheet.create({
   },
   lockText: {
     color: '#FFFFFF',
-    fontSize: 11,
-    fontWeight: '600',
+    fontSize: 18,
+    fontFamily: fontFamily.medium,
     textAlign: 'center',
     paddingHorizontal: spacing[2],
   },

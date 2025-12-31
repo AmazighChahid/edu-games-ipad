@@ -1,5 +1,5 @@
 // Export principal
-export { LabyrintheGame } from './LabyrintheGame';
+export { LabyrintheGame } from './components/LabyrintheGame';
 
 // Export des écrans
 export { LabyrintheIntroScreen } from './screens';
