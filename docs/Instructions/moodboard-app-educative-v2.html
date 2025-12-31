@@ -1,0 +1,1366 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Moodboard - Hello Guys â€¢ App Ã‰ducative iPad</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      /* Couleurs principales */
+      --primary: #5B8DEE;
+      --primary-dark: #4A7BD9;
+      --primary-light: #8BB0F4;
+      --secondary: #FFB347;
+      --secondary-dark: #FFA020;
+      --secondary-light: #FFD699;
+      --success: #7BC74D;
+      --success-dark: #5FB030;
+      --success-light: #A8E080;
+      --accent: #E056FD;
+      --accent-dark: #C840E0;
+      --accent-light: #F0A0FF;
+      --attention: #F39C12;
+      --attention-dark: #E08900;
+      
+      /* Neutres */
+      --background: #FFF9F0;
+      --background-warm: #FFF5E6;
+      --surface: #FFFFFF;
+      --text-dark: #2D3748;
+      --text-medium: #4A5568;
+      --text-muted: #718096;
+      
+      /* V10 - ForÃªt Magique */
+      --sky-top: #87CEEB;
+      --sky-bottom: #7BC74D;
+      --mountain-far: #6B8E7B;
+      --mountain-near: #4A6D5A;
+      --hill-back: #5BAE6B;
+      --hill-front: #6BC77B;
+      --tree-trunk: #8B5A2B;
+      --tree-foliage: #3D8B4F;
+      
+      /* MÃ©dailles */
+      --medal-bronze: #CD7F32;
+      --medal-silver: #C0C0C0;
+      --medal-gold: #FFD700;
+      --medal-diamond: #B9F2FF;
+      
+      /* Shadows */
+      --shadow-soft: 0 8px 32px rgba(91, 141, 238, 0.15);
+      --shadow-medium: 0 12px 40px rgba(0, 0, 0, 0.12);
+      --shadow-card: 0 8px 24px rgba(0, 0, 0, 0.1);
+    }
+    
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: linear-gradient(135deg, #FFF9F0 0%, #FFF5E6 50%, #FFF0DD 100%);
+      padding: 40px;
+      min-height: 100vh;
+    }
+    
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: 48px;
+      position: relative;
+    }
+    .header::before {
+      content: '';
+      position: absolute;
+      top: -16px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 140px;
+      height: 6px;
+      background: linear-gradient(90deg, var(--primary), var(--accent), var(--secondary));
+      border-radius: 3px;
+    }
+    .header h1 {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 48px;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin-bottom: 8px;
+      letter-spacing: -0.5px;
+    }
+    .header h1 .highlight { color: var(--primary); }
+    .header .subtitle {
+      font-size: 20px;
+      color: var(--text-medium);
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+    .header .badges {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .header .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--primary);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .header .badge.v10 { background: linear-gradient(135deg, var(--success), var(--success-dark)); }
+    .header .badge.games { background: linear-gradient(135deg, var(--accent), var(--accent-dark)); }
+    
+    /* Grid Layout */
+    .moodboard-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 24px;
+      max-width: 1600px;
+      margin: 0 auto;
+    }
+    
+    /* Card Base */
+    .card {
+      background: white;
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: var(--shadow-soft);
+      position: relative;
+      overflow: hidden;
+    }
+    .card-title {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-medium);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .card-title::before {
+      content: '';
+      width: 4px;
+      height: 14px;
+      background: var(--primary);
+      border-radius: 2px;
+    }
+    
+    /* ===== SECTION 1: VISION + PALETTE ===== */
+    
+    /* Vision Card */
+    .vision-card {
+      grid-column: span 4;
+      background: linear-gradient(135deg, var(--primary), #4A7BD9);
+      color: white;
+    }
+    .vision-card .card-title { color: rgba(255,255,255,0.8); }
+    .vision-card .card-title::before { background: white; }
+    .vision-quote {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 28px;
+      font-weight: 600;
+      line-height: 1.3;
+      margin-bottom: 16px;
+    }
+    .vision-desc {
+      font-size: 15px;
+      opacity: 0.9;
+      line-height: 1.6;
+    }
+    .vision-icon {
+      position: absolute;
+      bottom: -20px;
+      right: -20px;
+      font-size: 120px;
+      opacity: 0.15;
+    }
+    
+    /* Color Palette */
+    .palette-card {
+      grid-column: span 8;
+    }
+    .palette-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 14px;
+    }
+    .color-swatch {
+      aspect-ratio: 1;
+      border-radius: 18px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 14px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+      transition: transform 0.3s ease;
+      cursor: pointer;
+    }
+    .color-swatch:hover { transform: translateY(-4px) scale(1.02); }
+    .color-swatch.primary { background: linear-gradient(135deg, #5B8DEE, #4A7BD9); }
+    .color-swatch.secondary { background: linear-gradient(135deg, #FFB347, #FFA020); }
+    .color-swatch.success { background: linear-gradient(135deg, #7BC74D, #5FB030); }
+    .color-swatch.accent { background: linear-gradient(135deg, #E056FD, #C840E0); }
+    .color-swatch.attention { background: linear-gradient(135deg, #F39C12, #E08900); }
+    .color-name {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: white;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    }
+    .color-hex {
+      font-size: 11px;
+      color: rgba(255,255,255,0.85);
+      font-weight: 600;
+      margin-top: 2px;
+    }
+    .color-usage {
+      font-size: 10px;
+      color: rgba(255,255,255,0.7);
+      margin-top: 4px;
+    }
+    
+    /* ===== SECTION 2: HOME V10 - FORÃŠT MAGIQUE ===== */
+    
+    .forest-card {
+      grid-column: span 12;
+      background: linear-gradient(180deg, #87CEEB 0%, #B0E0E6 30%, #98D9A8 70%, #7BC74D 100%);
+      min-height: 320px;
+      position: relative;
+      overflow: hidden;
+    }
+    .forest-card .card-title { 
+      color: white; 
+      text-shadow: 0 1px 3px rgba(0,0,0,0.2);
+      position: relative;
+      z-index: 10;
+    }
+    .forest-card .card-title::before { background: white; }
+    
+    /* Sun */
+    .sun {
+      position: absolute;
+      top: 30px;
+      right: 80px;
+      width: 80px;
+      height: 80px;
+      background: radial-gradient(circle, #FFD93D 0%, #F5C800 100%);
+      border-radius: 50%;
+      box-shadow: 0 0 60px rgba(255, 217, 61, 0.6);
+      animation: sunPulse 4s ease-in-out infinite;
+    }
+    @keyframes sunPulse {
+      0%, 100% { transform: scale(1); box-shadow: 0 0 60px rgba(255, 217, 61, 0.6); }
+      50% { transform: scale(1.05); box-shadow: 0 0 80px rgba(255, 217, 61, 0.8); }
+    }
+    
+    /* Clouds */
+    .cloud {
+      position: absolute;
+      background: rgba(255,255,255,0.9);
+      border-radius: 50px;
+      animation: cloudDrift 40s linear infinite;
+    }
+    .cloud::before, .cloud::after {
+      content: '';
+      position: absolute;
+      background: rgba(255,255,255,0.9);
+      border-radius: 50%;
+    }
+    .cloud-1 { top: 40px; left: -100px; width: 100px; height: 40px; animation-duration: 35s; }
+    .cloud-1::before { width: 50px; height: 50px; top: -25px; left: 20px; }
+    .cloud-1::after { width: 35px; height: 35px; top: -15px; left: 55px; }
+    .cloud-2 { top: 80px; left: -150px; width: 80px; height: 32px; animation-duration: 45s; animation-delay: -15s; }
+    .cloud-2::before { width: 40px; height: 40px; top: -20px; left: 15px; }
+    @keyframes cloudDrift {
+      from { transform: translateX(0); }
+      to { transform: translateX(1800px); }
+    }
+    
+    /* Mountains */
+    .mountains {
+      position: absolute;
+      bottom: 120px;
+      left: 0;
+      right: 0;
+      height: 120px;
+    }
+    .mountain {
+      position: absolute;
+      bottom: 0;
+      width: 0;
+      height: 0;
+      border-style: solid;
+    }
+    .mountain-far-1 { left: 5%; border-width: 0 120px 100px 120px; border-color: transparent transparent #6B8E7B transparent; }
+    .mountain-far-2 { left: 25%; border-width: 0 150px 130px 150px; border-color: transparent transparent #5A7D6A transparent; }
+    .mountain-far-3 { right: 15%; border-width: 0 130px 110px 130px; border-color: transparent transparent #6B8E7B transparent; }
+    .mountain-near-1 { left: 15%; border-width: 0 100px 80px 100px; border-color: transparent transparent #4A6D5A transparent; }
+    .mountain-near-2 { right: 25%; border-width: 0 90px 70px 90px; border-color: transparent transparent #3D5C4A transparent; }
+    
+    /* Hills */
+    .hills {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 140px;
+    }
+    .hill {
+      position: absolute;
+      bottom: 0;
+      border-radius: 50% 50% 0 0;
+    }
+    .hill-back-1 { left: -5%; width: 40%; height: 100px; background: linear-gradient(180deg, #5BAE6B, #4A9D5A); }
+    .hill-back-2 { right: -5%; width: 45%; height: 90px; background: linear-gradient(180deg, #5BAE6B, #4A9D5A); }
+    .hill-front-1 { left: 20%; width: 35%; height: 80px; background: linear-gradient(180deg, #6BC77B, #5BAE6B); }
+    .hill-front-2 { right: 10%; width: 30%; height: 70px; background: linear-gradient(180deg, #6BC77B, #5BAE6B); }
+    
+    /* Trees */
+    .tree {
+      position: absolute;
+      bottom: 60px;
+    }
+    .tree-trunk {
+      width: 12px;
+      height: 30px;
+      background: linear-gradient(90deg, #8B5A2B, #6B4423);
+      margin: 0 auto;
+    }
+    .tree-foliage {
+      width: 0;
+      height: 0;
+      border-style: solid;
+      border-color: transparent transparent #3D8B4F transparent;
+      margin-bottom: -5px;
+    }
+    .tree-1 { left: 10%; }
+    .tree-1 .tree-foliage { border-width: 0 25px 50px 25px; }
+    .tree-2 { left: 30%; transform: scale(0.8); }
+    .tree-2 .tree-foliage { border-width: 0 20px 40px 20px; }
+    .tree-3 { right: 25%; }
+    .tree-3 .tree-foliage { border-width: 0 30px 60px 30px; }
+    .tree-4 { right: 8%; transform: scale(0.7); }
+    .tree-4 .tree-foliage { border-width: 0 18px 36px 18px; }
+    
+    /* Flowers */
+    .flowers {
+      position: absolute;
+      bottom: 20px;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: space-around;
+      padding: 0 100px;
+    }
+    .flower {
+      font-size: 24px;
+      animation: flowerSway 3s ease-in-out infinite;
+    }
+    .flower:nth-child(2) { animation-delay: 0.5s; }
+    .flower:nth-child(3) { animation-delay: 1s; }
+    .flower:nth-child(4) { animation-delay: 0.3s; }
+    .flower:nth-child(5) { animation-delay: 0.8s; }
+    @keyframes flowerSway {
+      0%, 100% { transform: rotate(-5deg); }
+      50% { transform: rotate(5deg); }
+    }
+    
+    /* Animals */
+    .bird {
+      position: absolute;
+      font-size: 20px;
+      animation: birdFly 18s linear infinite;
+    }
+    .bird-1 { top: 60px; left: -30px; animation-duration: 14s; }
+    .bird-2 { top: 100px; left: -50px; animation-delay: -5s; animation-duration: 18s; }
+    .bird-3 { top: 45px; left: -40px; animation-delay: -10s; animation-duration: 22s; }
+    @keyframes birdFly {
+      0% { transform: translateX(0) translateY(0); }
+      25% { transform: translateX(400px) translateY(-20px); }
+      50% { transform: translateX(800px) translateY(10px); }
+      75% { transform: translateX(1200px) translateY(-15px); }
+      100% { transform: translateX(1700px) translateY(0); opacity: 0; }
+    }
+    
+    .squirrel {
+      position: absolute;
+      bottom: 85px;
+      left: 15%;
+      font-size: 28px;
+      animation: squirrelMove 28s ease-in-out infinite;
+    }
+    @keyframes squirrelMove {
+      0%, 100% { transform: translateX(0) scaleX(1); }
+      25% { transform: translateX(200px) scaleX(1); }
+      50% { transform: translateX(200px) scaleX(-1); }
+      75% { transform: translateX(0) scaleX(-1); }
+    }
+    
+    /* Forest Info */
+    .forest-info {
+      position: absolute;
+      bottom: 20px;
+      left: 24px;
+      right: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      z-index: 10;
+    }
+    .forest-label {
+      background: rgba(255,255,255,0.95);
+      padding: 12px 20px;
+      border-radius: 16px;
+      font-family: 'Fredoka', sans-serif;
+      font-weight: 600;
+      color: var(--text-dark);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .forest-label span { color: var(--success); }
+    .z-index-info {
+      background: rgba(0,0,0,0.7);
+      color: white;
+      padding: 10px 16px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    
+    /* ===== SECTION 3: GAME CARDS V10 ===== */
+    
+    .games-card {
+      grid-column: span 12;
+    }
+    .games-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+    }
+    .game-card {
+      height: 140px;
+      border-radius: 20px;
+      padding: 16px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      cursor: pointer;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .game-card:hover {
+      transform: translateY(-5px) scale(1.02);
+      box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+    }
+    .game-card.blue { background: linear-gradient(135deg, #5B8DEE, #3B6FCE); }
+    .game-card.purple { background: linear-gradient(135deg, #9B59B6, #8E44AD); }
+    .game-card.green { background: linear-gradient(135deg, #27AE60, #1E8449); }
+    .game-card.orange { background: linear-gradient(135deg, #F39C12, #D68910); }
+    .game-card.teal { background: linear-gradient(135deg, #00B894, #00876A); }
+    .game-card.pink { background: linear-gradient(135deg, #FD79A8, #E84393); }
+    .game-card.indigo { background: linear-gradient(135deg, #6C5CE7, #5541D7); }
+    .game-card.red { background: linear-gradient(135deg, #E74C3C, #C0392B); }
+    .game-card.cyan { background: linear-gradient(135deg, #00CED1, #008B8B); }
+    .game-card.lime { background: linear-gradient(135deg, #A4DE02, #76BA1B); }
+    .game-card.coral { background: linear-gradient(135deg, #FF6B6B, #EE5A5A); }
+    .game-card.soon { background: linear-gradient(135deg, #95A5A6, #7F8C8D); opacity: 0.8; }
+    
+    .game-card-icon {
+      position: absolute;
+      right: -10px;
+      bottom: -10px;
+      font-size: 80px;
+      opacity: 0.2;
+    }
+    .game-card-badge {
+      align-self: flex-start;
+      background: white;
+      padding: 4px 10px;
+      border-radius: 8px;
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+    .game-card-badge.new { color: #27AE60; }
+    .game-card-badge.hot { color: #E74C3C; }
+    .game-card-badge.soon { color: #F39C12; }
+    
+    .game-card-content {
+      position: relative;
+      z-index: 1;
+    }
+    .game-card-title {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      color: white;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.2);
+      margin-bottom: 4px;
+    }
+    .game-card-mascot {
+      font-size: 13px;
+      color: rgba(255,255,255,0.9);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .game-card-mascot-emoji { font-size: 18px; }
+    
+    /* ===== SECTION 4: MEDALS ===== */
+    
+    .medals-card {
+      grid-column: span 4;
+    }
+    .medals-grid {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+    }
+    .medal {
+      width: 70px;
+      height: 90px;
+      border-radius: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: transform 0.3s ease;
+      cursor: pointer;
+    }
+    .medal:hover { transform: scale(1.1); }
+    .medal.bronze { background: linear-gradient(135deg, #CD7F32, #8B5A2B); }
+    .medal.silver { background: linear-gradient(135deg, #C0C0C0, #909090); }
+    .medal.gold { background: linear-gradient(135deg, #FFD700, #FFA500); }
+    .medal.diamond { background: linear-gradient(135deg, #B9F2FF, #00CED1); }
+    .medal-icon { font-size: 28px; }
+    .medal-label {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 11px;
+      font-weight: 600;
+      color: white;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    }
+    .medal.diamond .medal-label { color: #006666; }
+    
+    /* ===== SECTION 5: WIDGETS V10 ===== */
+    
+    .widgets-card {
+      grid-column: span 8;
+    }
+    .widgets-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+    .widget {
+      height: 100px;
+      border-radius: 18px;
+      padding: 16px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .widget.piou { background: linear-gradient(135deg, rgba(91,141,238,0.95), rgba(59,111,206,0.95)); }
+    .widget.garden { background: linear-gradient(135deg, rgba(39,174,96,0.95), rgba(30,132,73,0.95)); }
+    .widget.streak { background: linear-gradient(135deg, rgba(243,156,18,0.95), rgba(214,137,16,0.95)); }
+    .widget.collection { background: linear-gradient(135deg, rgba(155,89,182,0.95), rgba(142,68,173,0.95)); }
+    
+    .widget-icon {
+      position: absolute;
+      right: -10px;
+      bottom: -15px;
+      font-size: 80px;
+      opacity: 0.15;
+    }
+    .widget-title {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: white;
+    }
+    .widget-value {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 24px;
+      font-weight: 700;
+      color: white;
+    }
+    
+    /* Streak days */
+    .streak-days {
+      display: flex;
+      gap: 6px;
+    }
+    .streak-day {
+      width: 28px;
+      height: 28px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .streak-day.done { background: white; color: var(--attention); }
+    .streak-day.today { background: white; color: var(--attention); box-shadow: 0 0 0 3px rgba(255,255,255,0.4); }
+    .streak-day.future { background: rgba(255,255,255,0.25); color: rgba(255,255,255,0.8); }
+    
+    /* ===== SECTION 6: MASCOTTES ===== */
+    
+    .mascots-card {
+      grid-column: span 12;
+    }
+    .mascots-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 16px;
+    }
+    .mascot {
+      background: var(--background);
+      border-radius: 16px;
+      padding: 16px;
+      text-align: center;
+      transition: transform 0.3s ease;
+    }
+    .mascot:hover { transform: translateY(-4px); }
+    .mascot-emoji { font-size: 36px; margin-bottom: 8px; }
+    .mascot-name {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-dark);
+      margin-bottom: 4px;
+    }
+    .mascot-game {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+    .mascot-trait {
+      display: inline-block;
+      background: var(--primary-light);
+      color: var(--primary-dark);
+      padding: 2px 8px;
+      border-radius: 8px;
+      font-size: 10px;
+      font-weight: 600;
+      margin-top: 8px;
+    }
+    
+    /* ===== SECTION 7: TYPOGRAPHY ===== */
+    
+    .typo-card {
+      grid-column: span 6;
+    }
+    .typo-samples {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .typo-item {
+      padding: 16px;
+      background: var(--background);
+      border-radius: 14px;
+      border-left: 4px solid var(--primary);
+    }
+    .typo-label {
+      font-size: 10px;
+      color: var(--text-medium);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+      font-weight: 700;
+    }
+    .typo-fredoka {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 28px;
+      font-weight: 600;
+      color: var(--text-dark);
+    }
+    .typo-nunito {
+      font-family: 'Nunito', sans-serif;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-dark);
+      line-height: 1.5;
+    }
+    
+    /* ===== SECTION 8: TOUCH TARGETS ===== */
+    
+    .touch-card {
+      grid-column: span 6;
+    }
+    .touch-zones {
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      gap: 24px;
+      margin-bottom: 16px;
+    }
+    .touch-zone {
+      border-radius: 16px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-family: 'Fredoka', sans-serif;
+      font-weight: 700;
+      box-shadow: 0 4px 12px rgba(91,141,238,0.3);
+    }
+    .touch-zone.small { width: 48px; height: 48px; font-size: 14px; opacity: 0.5; }
+    .touch-zone.medium { width: 64px; height: 64px; font-size: 16px; }
+    .touch-zone.large { width: 80px; height: 80px; font-size: 18px; }
+    .touch-labels {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+    .touch-label { text-align: center; width: 80px; }
+    .touch-label.required { color: var(--success); font-weight: 700; }
+    
+    /* ===== SECTION 9: FEEDBACK ===== */
+    
+    .feedback-card {
+      grid-column: span 6;
+    }
+    .feedback-examples {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .feedback-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px;
+      border-radius: 14px;
+      border-width: 2px;
+      border-style: solid;
+    }
+    .feedback-item.success { background: rgba(123,199,77,0.1); border-color: var(--success); }
+    .feedback-item.encourage { background: rgba(255,179,71,0.1); border-color: var(--secondary); }
+    .feedback-item.hint { background: rgba(243,156,18,0.1); border-color: var(--attention); }
+    .feedback-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+    .success .feedback-icon { background: var(--success); }
+    .encourage .feedback-icon { background: var(--secondary); }
+    .hint .feedback-icon { background: var(--attention); }
+    .feedback-text {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-dark);
+    }
+    
+    /* ===== SECTION 10: PRINCIPLES ===== */
+    
+    .principles-card {
+      grid-column: span 6;
+    }
+    .principles-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+    .principle-item {
+      background: var(--background);
+      border-radius: 14px;
+      padding: 14px;
+      text-align: center;
+    }
+    .principle-icon { font-size: 28px; margin-bottom: 8px; }
+    .principle-title {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-dark);
+      margin-bottom: 4px;
+    }
+    .principle-desc {
+      font-size: 11px;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+    
+    /* ===== SECTION 11: GESTURES ===== */
+    
+    .gestures-card {
+      grid-column: span 4;
+    }
+    .gestures-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+    .gesture-item {
+      background: var(--background);
+      border-radius: 12px;
+      padding: 12px;
+      text-align: center;
+    }
+    .gesture-item.recommended { border: 2px solid var(--success); }
+    .gesture-item.avoid { border: 2px solid #E53E3E; opacity: 0.6; }
+    .gesture-icon { font-size: 24px; margin-bottom: 6px; }
+    .gesture-name { font-size: 12px; font-weight: 600; color: var(--text-dark); }
+    .gesture-status { font-size: 10px; color: var(--success); font-weight: 700; margin-top: 4px; }
+    .avoid .gesture-status { color: #E53E3E; }
+    
+    /* ===== SECTION 12: REFERENCES ===== */
+    
+    .references-card {
+      grid-column: span 8;
+    }
+    .references-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+    }
+    .reference-item {
+      background: var(--background);
+      border-radius: 14px;
+      padding: 14px;
+      text-align: center;
+    }
+    .reference-logo { font-size: 32px; margin-bottom: 8px; }
+    .reference-name {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-dark);
+      margin-bottom: 6px;
+    }
+    .reference-lesson {
+      font-size: 11px;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+    
+    /* ===== FOOTER ===== */
+    
+    .footer {
+      text-align: center;
+      margin-top: 48px;
+      padding: 32px;
+      background: linear-gradient(135deg, var(--text-dark), #1a202c);
+      border-radius: 24px;
+      max-width: 1600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .footer-title {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 24px;
+      font-weight: 700;
+      color: white;
+      margin-bottom: 8px;
+    }
+    .footer-text {
+      color: rgba(255,255,255,0.7);
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+    .footer-stack {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .stack-badge {
+      background: rgba(255,255,255,0.15);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .footer-version {
+      margin-top: 20px;
+      font-size: 12px;
+      color: rgba(255,255,255,0.5);
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <h1><span class="highlight">Hello Guys</span> â€” Moodboard</h1>
+    <p class="subtitle">Application Ã‰ducative iPad â€¢ Enfants 6-10 ans</p>
+    <div class="badges">
+      <span class="badge">React Native + Expo SDK 52+</span>
+      <span class="badge v10">ðŸŒ² Home V10 â€” ForÃªt Magique</span>
+      <span class="badge games">ðŸŽ® 12 Jeux Ã‰ducatifs</span>
+    </div>
+  </header>
+  
+  <div class="moodboard-grid">
+    
+    <!-- Vision Card -->
+    <div class="card vision-card">
+      <div class="card-title">Vision PÃ©dagogique</div>
+      <div class="vision-quote">Â« Apprendre Ã  penser, pas Ã  rÃ©pondre Â»</div>
+      <div class="vision-desc">L'objectif est de transmettre les MÃ‰THODES de raisonnement. L'enfant doit comprendre le "pourquoi" et le "comment".</div>
+      <div class="vision-icon">ðŸ§ </div>
+    </div>
+    
+    <!-- Color Palette -->
+    <div class="card palette-card">
+      <div class="card-title">Palette de Couleurs</div>
+      <div class="palette-grid">
+        <div class="color-swatch primary">
+          <div class="color-name">Primary</div>
+          <div class="color-hex">#5B8DEE</div>
+          <div class="color-usage">Boutons, navigation</div>
+        </div>
+        <div class="color-swatch secondary">
+          <div class="color-name">Secondary</div>
+          <div class="color-hex">#FFB347</div>
+          <div class="color-usage">Accents, CTA</div>
+        </div>
+        <div class="color-swatch success">
+          <div class="color-name">Success</div>
+          <div class="color-hex">#7BC74D</div>
+          <div class="color-usage">Validation, herbe</div>
+        </div>
+        <div class="color-swatch accent">
+          <div class="color-name">Accent</div>
+          <div class="color-hex">#E056FD</div>
+          <div class="color-usage">Ã‰lÃ©ments fun</div>
+        </div>
+        <div class="color-swatch attention">
+          <div class="color-name">Attention</div>
+          <div class="color-hex">#F39C12</div>
+          <div class="color-usage">Indices, alertes</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Home V10 - ForÃªt Magique -->
+    <div class="card forest-card">
+      <div class="card-title">Home V10 â€” ForÃªt Magique Immersive</div>
+      
+      <!-- Sun -->
+      <div class="sun"></div>
+      
+      <!-- Clouds -->
+      <div class="cloud cloud-1"></div>
+      <div class="cloud cloud-2"></div>
+      
+      <!-- Birds -->
+      <div class="bird bird-1">ðŸ¦</div>
+      <div class="bird bird-2">ðŸ•Šï¸</div>
+      <div class="bird bird-3">ðŸ¦</div>
+      
+      <!-- Mountains -->
+      <div class="mountains">
+        <div class="mountain mountain-far-1"></div>
+        <div class="mountain mountain-far-2"></div>
+        <div class="mountain mountain-far-3"></div>
+        <div class="mountain mountain-near-1"></div>
+        <div class="mountain mountain-near-2"></div>
+      </div>
+      
+      <!-- Hills -->
+      <div class="hills">
+        <div class="hill hill-back-1"></div>
+        <div class="hill hill-back-2"></div>
+        <div class="hill hill-front-1"></div>
+        <div class="hill hill-front-2"></div>
+      </div>
+      
+      <!-- Trees -->
+      <div class="tree tree-1">
+        <div class="tree-foliage"></div>
+        <div class="tree-trunk"></div>
+      </div>
+      <div class="tree tree-2">
+        <div class="tree-foliage"></div>
+        <div class="tree-trunk"></div>
+      </div>
+      <div class="tree tree-3">
+        <div class="tree-foliage"></div>
+        <div class="tree-trunk"></div>
+      </div>
+      <div class="tree tree-4">
+        <div class="tree-foliage"></div>
+        <div class="tree-trunk"></div>
+      </div>
+      
+      <!-- Squirrel -->
+      <div class="squirrel">ðŸ¿ï¸</div>
+      
+      <!-- Flowers -->
+      <div class="flowers">
+        <span class="flower">ðŸŒ¸</span>
+        <span class="flower">ðŸŒ»</span>
+        <span class="flower">ðŸŒ·</span>
+        <span class="flower">ðŸŒº</span>
+        <span class="flower">ðŸŒ¼</span>
+      </div>
+      
+      <!-- Info labels -->
+      <div class="forest-info">
+        <div class="forest-label">ðŸ¦‰ <span>Piou</span> flottant + ðŸ“š Collection</div>
+        <div class="z-index-info">12 couches z-index â€¢ Animations 60fps</div>
+      </div>
+    </div>
+    
+    <!-- 12 Game Cards -->
+    <div class="card games-card">
+      <div class="card-title">12 Jeux Ã‰ducatifs</div>
+      <div class="games-grid">
+        <div class="game-card blue">
+          <span class="game-card-badge new">Populaire</span>
+          <div class="game-card-content">
+            <div class="game-card-title">Tour de HanoÃ¯</div>
+            <div class="game-card-mascot"><span class="game-card-mascot-emoji">ðŸµ</span> LÃ©o</div>
+          </div>
+          <div class="game-card-icon">ðŸ—¼</div>
+        </div>
+        <div class="game-card purple">
+          <div class="game-card-content">
+            <div class="game-card-title">Suites Logiques</div>
+            <div class="game-card-mascot"><span class="game-card-mascot-emoji">ðŸ¤–</span> Pixel</div>
+          </div>
+          <div class="game-card-icon">ðŸ”¢</div>
+        </div>
+        <div class="game-card green">
+          <div class="game-card-content">
+            <div class="game-card-title">Labyrinthe</div>
+            <div class="game-card-mascot"><span class="game-card-mascot-emoji">ðŸ¿ï¸</span> Scout</div>
+          </div>
+          <div class="game-card-icon">ðŸŒ€</div>
+        </div>
+        <div class="game-card teal">
+          <div class="game-card-content">
+            <div class="game-card-title">Balance Logique</div>
+            <div class="game-card-mascot"><span class="game-card-mascot-emoji">ðŸ¦‰</span> Libra</div>
+          </div>
+          <div class="game-card-icon">âš–ï¸</div>
+        </div>
+        <div class="game-card indigo">
+          <span class="game-card-badge hot">ðŸ”¥ Hot</span>
+          <div class="game-card-content">
+            <div class="game-card-title">Sudoku Montessori</div>
+            <div class="game-card-mascot"><span class="game-card-mascot-emoji">ðŸ¦‰</span> Prof. Hoo</div>
+          </div>
+          <div class="game-card-icon">ðŸ”¢</div>
+        </div>
+        <div class="game-card pink">
+          <span class="game-card-badge new">Nouveau</span>
+          <div class="game-card-content">
+            <div class="game-card-title">Le Conteur Curieux</div>
+            <div class="game-card-mascot"><span class="game-card-mascot-emoji">ðŸª¶</span> Plume</div>
+          </div>
+          <div class="game-card-icon">ðŸ“–</div>
+        </div>
+        <div class="game-card orange">
+          <div class="game-card-content">
+            <div class="game-card-title">Memory</div>
+            <div class="game-card-mascot"><span class="game-card-mascot-emoji">ðŸ˜</span> Memo</div>
+          </div>
+          <div class="game-card-icon">ðŸƒ</div>
+        </div>
+        <div class="game-card coral">
+          <div class="game-card-content">
+            <div class="game-card-title">Puzzle Formes</div>
+            <div class="game-card-mascot"><span class="game-card-mascot-emoji">ðŸ¦Š</span> GÃ©o</div>
+          </div>
+          <div class="game-card-icon">ðŸ”·</div>
+        </div>
+        <div class="game-card cyan">
+          <div class="game-card-content">
+            <div class="game-card-title">Logix Grid</div>
+            <div class="game-card-mascot"><span class="game-card-mascot-emoji">ðŸœ</span> Ada</div>
+          </div>
+          <div class="game-card-icon">ðŸ“Š</div>
+        </div>
+        <div class="game-card red">
+          <div class="game-card-content">
+            <div class="game-card-title">Mots CroisÃ©s</div>
+            <div class="game-card-mascot"><span class="game-card-mascot-emoji">ðŸ¦œ</span> Lexie</div>
+          </div>
+          <div class="game-card-icon">ðŸ”¤</div>
+        </div>
+        <div class="game-card lime">
+          <div class="game-card-content">
+            <div class="game-card-title">MathBlocks</div>
+            <div class="game-card-mascot"><span class="game-card-mascot-emoji">ðŸ¦«</span> Calc</div>
+          </div>
+          <div class="game-card-icon">ðŸ§±</div>
+        </div>
+        <div class="game-card soon">
+          <span class="game-card-badge soon">BientÃ´t</span>
+          <div class="game-card-content">
+            <div class="game-card-title">Matrices Magiques</div>
+            <div class="game-card-mascot"><span class="game-card-mascot-emoji">âœ¨</span> Mystic</div>
+          </div>
+          <div class="game-card-icon">ðŸ”®</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Medals -->
+    <div class="card medals-card">
+      <div class="card-title">SystÃ¨me de MÃ©dailles</div>
+      <div class="medals-grid">
+        <div class="medal bronze">
+          <div class="medal-icon">ðŸ¥‰</div>
+          <div class="medal-label">Bronze</div>
+        </div>
+        <div class="medal silver">
+          <div class="medal-icon">ðŸ¥ˆ</div>
+          <div class="medal-label">Argent</div>
+        </div>
+        <div class="medal gold">
+          <div class="medal-icon">ðŸ¥‡</div>
+          <div class="medal-label">Or</div>
+        </div>
+        <div class="medal diamond">
+          <div class="medal-icon">ðŸ’Ž</div>
+          <div class="medal-label">Diamant</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Widgets V10 -->
+    <div class="card widgets-card">
+      <div class="card-title">Widgets Home V10</div>
+      <div class="widgets-grid">
+        <div class="widget piou">
+          <div class="widget-title">Message de Piou</div>
+          <div class="widget-value">Bonjour ! ðŸ¦‰</div>
+          <div class="widget-icon">ðŸ¦‰</div>
+        </div>
+        <div class="widget garden">
+          <div class="widget-title">Mon Jardin</div>
+          <div class="widget-value">12 fleurs ðŸŒ»</div>
+          <div class="widget-icon">ðŸŒ»</div>
+        </div>
+        <div class="widget streak">
+          <div class="widget-title">SÃ©rie en cours</div>
+          <div class="streak-days">
+            <span class="streak-day done">L</span>
+            <span class="streak-day done">M</span>
+            <span class="streak-day done">M</span>
+            <span class="streak-day today">J</span>
+            <span class="streak-day future">V</span>
+            <span class="streak-day future">S</span>
+            <span class="streak-day future">D</span>
+          </div>
+          <div class="widget-icon">ðŸ”¥</div>
+        </div>
+        <div class="widget collection">
+          <div class="widget-title">Ma Collection</div>
+          <div class="widget-value">24/50 cartes</div>
+          <div class="widget-icon">ðŸƒ</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Mascottes -->
+    <div class="card mascots-card">
+      <div class="card-title">12 Mascottes</div>
+      <div class="mascots-grid">
+        <div class="mascot">
+          <div class="mascot-emoji">ðŸ¦‰</div>
+          <div class="mascot-name">Piou</div>
+          <div class="mascot-game">Global / Home</div>
+          <span class="mascot-trait">Sage</span>
+        </div>
+        <div class="mascot">
+          <div class="mascot-emoji">ðŸµ</div>
+          <div class="mascot-name">LÃ©o</div>
+          <div class="mascot-game">Tour de HanoÃ¯</div>
+          <span class="mascot-trait">Joueur</span>
+        </div>
+        <div class="mascot">
+          <div class="mascot-emoji">ðŸ¤–</div>
+          <div class="mascot-name">Pixel</div>
+          <div class="mascot-game">Suites Logiques</div>
+          <span class="mascot-trait">Logique</span>
+        </div>
+        <div class="mascot">
+          <div class="mascot-emoji">ðŸ¿ï¸</div>
+          <div class="mascot-name">Scout</div>
+          <div class="mascot-game">Labyrinthe</div>
+          <span class="mascot-trait">Aventurier</span>
+        </div>
+        <div class="mascot">
+          <div class="mascot-emoji">ðŸª¶</div>
+          <div class="mascot-name">Plume</div>
+          <div class="mascot-game">Conteur Curieux</div>
+          <span class="mascot-trait">CrÃ©atif</span>
+        </div>
+        <div class="mascot">
+          <div class="mascot-emoji">ðŸ˜</div>
+          <div class="mascot-name">Memo</div>
+          <div class="mascot-game">Memory</div>
+          <span class="mascot-trait">ConcentrÃ©</span>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Typography -->
+    <div class="card typo-card">
+      <div class="card-title">Typographie</div>
+      <div class="typo-samples">
+        <div class="typo-item">
+          <div class="typo-label">Fredoka â€” Titres</div>
+          <div class="typo-fredoka">Bonjour Emma ! ðŸ‘‹</div>
+        </div>
+        <div class="typo-item">
+          <div class="typo-label">Nunito â€” Corps (18pt min)</div>
+          <div class="typo-nunito">DÃ©place les disques un par un pour reconstruire la tour.</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Touch Targets -->
+    <div class="card touch-card">
+      <div class="card-title">Zones Tactiles Enfant</div>
+      <div class="touch-zones">
+        <div class="touch-zone small">48</div>
+        <div class="touch-zone medium">64</div>
+        <div class="touch-zone large">80</div>
+      </div>
+      <div class="touch-labels">
+        <div class="touch-label">Adulte</div>
+        <div class="touch-label required">âœ“ Min. Enfant</div>
+        <div class="touch-label">Drag & Drop</div>
+      </div>
+    </div>
+    
+    <!-- Feedback -->
+    <div class="card feedback-card">
+      <div class="card-title">SystÃ¨me de Feedback</div>
+      <div class="feedback-examples">
+        <div class="feedback-item success">
+          <div class="feedback-icon">â­</div>
+          <div class="feedback-text">Super ! Tu as trouvÃ© la bonne mÃ©thode !</div>
+        </div>
+        <div class="feedback-item encourage">
+          <div class="feedback-icon">ðŸ’ª</div>
+          <div class="feedback-text">Presque ! Essaie encore, tu y es presque.</div>
+        </div>
+        <div class="feedback-item hint">
+          <div class="feedback-icon">ðŸ’¡</div>
+          <div class="feedback-text">Regarde bien le plus petit disque...</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Principles -->
+    <div class="card principles-card">
+      <div class="card-title">Principes PÃ©dagogiques</div>
+      <div class="principles-grid">
+        <div class="principle-item">
+          <div class="principle-icon">ðŸŽ¯</div>
+          <div class="principle-title">MÃ©thode avant rÃ©sultat</div>
+          <div class="principle-desc">Enseigner le processus, pas la rÃ©ponse</div>
+        </div>
+        <div class="principle-item">
+          <div class="principle-icon">ðŸŒ±</div>
+          <div class="principle-title">Erreur constructive</div>
+          <div class="principle-desc">Les erreurs sont des opportunitÃ©s</div>
+        </div>
+        <div class="principle-item">
+          <div class="principle-icon">ðŸªœ</div>
+          <div class="principle-title">Scaffolding</div>
+          <div class="principle-desc">Guidance dÃ©croissante</div>
+        </div>
+        <div class="principle-item">
+          <div class="principle-icon">ðŸ”„</div>
+          <div class="principle-title">Transfert</div>
+          <div class="principle-desc">CompÃ©tences applicables IRL</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Gestures -->
+    <div class="card gestures-card">
+      <div class="card-title">Gestes Tactiles</div>
+      <div class="gestures-grid">
+        <div class="gesture-item recommended">
+          <div class="gesture-icon">ðŸ‘†</div>
+          <div class="gesture-name">Tap</div>
+          <div class="gesture-status">âœ“ RecommandÃ©</div>
+        </div>
+        <div class="gesture-item recommended">
+          <div class="gesture-icon">âœ‹</div>
+          <div class="gesture-name">Drag</div>
+          <div class="gesture-status">âœ“ RecommandÃ©</div>
+        </div>
+        <div class="gesture-item recommended">
+          <div class="gesture-icon">ðŸ‘‰</div>
+          <div class="gesture-name">Swipe</div>
+          <div class="gesture-status">âœ“ RecommandÃ©</div>
+        </div>
+        <div class="gesture-item avoid">
+          <div class="gesture-icon">ðŸ‘†ðŸ‘†</div>
+          <div class="gesture-name">Double tap</div>
+          <div class="gesture-status">âœ— Ã‰viter</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- References -->
+    <div class="card references-card">
+      <div class="card-title">RÃ©fÃ©rences & Inspirations</div>
+      <div class="references-grid">
+        <div class="reference-item">
+          <div class="reference-logo">ðŸ¦</div>
+          <div class="reference-name">Khan Academy Kids</div>
+          <div class="reference-lesson">Parcours personnalisÃ©s, navigation sans lecture</div>
+        </div>
+        <div class="reference-item">
+          <div class="reference-logo">ðŸ¦‰</div>
+          <div class="reference-name">Duolingo</div>
+          <div class="reference-lesson">Feedback positif, gamification lÃ©gÃ¨re, streaks</div>
+        </div>
+        <div class="reference-item">
+          <div class="reference-logo">ðŸŽ¨</div>
+          <div class="reference-name">Toca Boca</div>
+          <div class="reference-lesson">Environnement 100% sÃ»r, exploration libre</div>
+        </div>
+        <div class="reference-item">
+          <div class="reference-logo">ðŸ§ </div>
+          <div class="reference-name">Lumosity</div>
+          <div class="reference-lesson">Suivi progression, catÃ©gories cognitives</div>
+        </div>
+      </div>
+    </div>
+    
+  </div>
+  
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-title">Hello Guys â€” PrÃªt Ã  dÃ©velopper ?</div>
+    <div class="footer-text">Ce moodboard sert de rÃ©fÃ©rence visuelle pour l'app Ã©ducative iPad</div>
+    <div class="footer-stack">
+      <span class="stack-badge">React Native</span>
+      <span class="stack-badge">Expo SDK 52+</span>
+      <span class="stack-badge">TypeScript</span>
+      <span class="stack-badge">Reanimated 3</span>
+      <span class="stack-badge">Zustand</span>
+    </div>
+    <div class="footer-version">Version 2.0 â€” DÃ©cembre 2024 â€¢ ConformitÃ© 89%</div>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Moodboard - App Ã‰ducative iPad</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --primary: #5B8DEE;
+      --primary-dark: #4A7BD9;
+      --secondary: #FFB347;
+      --secondary-light: #FFD699;
+      --success: #7BC74D;
+      --success-light: #A8E080;
+      --accent: #E056FD;
+      --accent-light: #F0A0FF;
+      --background: #FFF9F0;
+      --background-warm: #FFF5E6;
+      --text-dark: #2D3748;
+      --text-medium: #4A5568;
+      --attention: #F39C12;
+      --shadow-soft: 0 8px 32px rgba(91, 141, 238, 0.15);
+      --shadow-medium: 0 12px 40px rgba(0, 0, 0, 0.12);
+    }
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: linear-gradient(135deg, #FFF9F0 0%, #FFF5E6 50%, #FFF0DD 100%);
+      padding: 48px;
+      min-height: 100vh;
+    }
+    
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: 56px;
+      position: relative;
+    }
+    .header::before {
+      content: '';
+      position: absolute;
+      top: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 120px;
+      height: 8px;
+      background: linear-gradient(90deg, var(--primary), var(--accent), var(--secondary));
+      border-radius: 4px;
+    }
+    .header h1 {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 42px;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin-bottom: 8px;
+      letter-spacing: -0.5px;
+    }
+    .header h1 span { color: var(--primary); }
+    .header p {
+      font-size: 18px;
+      color: var(--text-medium);
+      font-weight: 600;
+    }
+    .header .badge {
+      display: inline-block;
+      background: var(--primary);
+      color: white;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 700;
+      margin-top: 12px;
+      letter-spacing: 0.5px;
+    }
+    
+    /* Grid Layout */
+    .moodboard-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 24px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    
+    /* Card Base */
+    .card {
+      background: white;
+      border-radius: 24px;
+      padding: 28px;
+      box-shadow: var(--shadow-soft);
+      position: relative;
+      overflow: hidden;
+    }
+    .card-title {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-medium);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .card-title::before {
+      content: '';
+      width: 4px;
+      height: 16px;
+      background: var(--primary);
+      border-radius: 2px;
+    }
+    
+    /* Color Palette Section */
+    .palette-card {
+      grid-column: span 8;
+    }
+    .palette-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 16px;
+    }
+    .color-swatch {
+      aspect-ratio: 1;
+      border-radius: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 16px;
+      position: relative;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+      transition: transform 0.3s ease;
+    }
+    .color-swatch:hover { transform: translateY(-4px) scale(1.02); }
+    .color-swatch.primary { background: linear-gradient(135deg, #5B8DEE, #4A7BD9); }
+    .color-swatch.secondary { background: linear-gradient(135deg, #FFB347, #FFA020); }
+    .color-swatch.success { background: linear-gradient(135deg, #7BC74D, #5FB030); }
+    .color-swatch.accent { background: linear-gradient(135deg, #E056FD, #C840E0); }
+    .color-swatch.attention { background: linear-gradient(135deg, #F39C12, #E08900); }
+    .color-name {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: white;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    }
+    .color-hex {
+      font-size: 11px;
+      color: rgba(255,255,255,0.85);
+      font-weight: 600;
+      margin-top: 2px;
+    }
+    .color-usage {
+      font-size: 10px;
+      color: rgba(255,255,255,0.7);
+      margin-top: 4px;
+    }
+    
+    /* Vision Card */
+    .vision-card {
+      grid-column: span 4;
+      background: linear-gradient(135deg, var(--primary), #4A7BD9);
+      color: white;
+    }
+    .vision-card .card-title { color: rgba(255,255,255,0.8); }
+    .vision-card .card-title::before { background: white; }
+    .vision-quote {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 26px;
+      font-weight: 600;
+      line-height: 1.3;
+      margin-bottom: 16px;
+    }
+    .vision-desc {
+      font-size: 14px;
+      opacity: 0.9;
+      line-height: 1.6;
+    }
+    .vision-icon {
+      position: absolute;
+      bottom: -20px;
+      right: -20px;
+      font-size: 120px;
+      opacity: 0.1;
+    }
+    
+    /* Typography Section */
+    .typo-card {
+      grid-column: span 6;
+    }
+    .typo-samples {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .typo-item {
+      padding: 20px;
+      background: var(--background);
+      border-radius: 16px;
+      border-left: 4px solid var(--primary);
+    }
+    .typo-label {
+      font-size: 11px;
+      color: var(--text-medium);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+    .typo-fredoka {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 32px;
+      font-weight: 600;
+      color: var(--text-dark);
+    }
+    .typo-nunito {
+      font-family: 'Nunito', sans-serif;
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--text-dark);
+      line-height: 1.5;
+    }
+    .typo-accessible {
+      font-family: 'Nunito', sans-serif;
+      font-size: 18px;
+      color: var(--text-dark);
+      letter-spacing: 0.5px;
+      line-height: 1.6;
+    }
+    
+    /* Buttons Section */
+    .buttons-card {
+      grid-column: span 6;
+    }
+    .buttons-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+    .demo-button {
+      height: 64px;
+      border-radius: 16px;
+      border: none;
+      font-family: 'Fredoka', sans-serif;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .demo-button:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.15); }
+    .demo-button:active { transform: scale(0.95); }
+    .demo-button.primary { background: var(--primary); color: white; }
+    .demo-button.secondary { background: var(--secondary); color: var(--text-dark); }
+    .demo-button.success { background: var(--success); color: white; }
+    .demo-button.accent { background: var(--accent); color: white; }
+    .demo-button.outline {
+      background: white;
+      color: var(--primary);
+      border: 3px solid var(--primary);
+    }
+    .demo-button.large {
+      grid-column: span 2;
+      height: 80px;
+      font-size: 22px;
+      border-radius: 20px;
+    }
+    .button-specs {
+      margin-top: 16px;
+      padding: 12px 16px;
+      background: var(--background);
+      border-radius: 12px;
+      font-size: 12px;
+      color: var(--text-medium);
+      display: flex;
+      gap: 16px;
+    }
+    .button-specs span { font-weight: 700; color: var(--primary); }
+    
+    /* Feedback Section */
+    .feedback-card {
+      grid-column: span 4;
+    }
+    .feedback-examples {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .feedback-item {
+      padding: 16px 20px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .feedback-item.success-fb {
+      background: linear-gradient(135deg, rgba(123, 199, 77, 0.15), rgba(123, 199, 77, 0.05));
+      border: 2px solid var(--success);
+    }
+    .feedback-item.encourage-fb {
+      background: linear-gradient(135deg, rgba(255, 179, 71, 0.15), rgba(255, 179, 71, 0.05));
+      border: 2px solid var(--secondary);
+    }
+    .feedback-item.hint-fb {
+      background: linear-gradient(135deg, rgba(243, 156, 18, 0.15), rgba(243, 156, 18, 0.05));
+      border: 2px solid var(--attention);
+    }
+    .feedback-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+    .success-fb .feedback-icon { background: var(--success); }
+    .encourage-fb .feedback-icon { background: var(--secondary); }
+    .hint-fb .feedback-icon { background: var(--attention); }
+    .feedback-text {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--text-dark);
+    }
+    
+    /* Icons Section */
+    .icons-card {
+      grid-column: span 4;
+    }
+    .icons-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+    .icon-item {
+      aspect-ratio: 1;
+      background: var(--background);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+    .icon-item:hover {
+      background: var(--primary);
+      transform: scale(1.1);
+    }
+    .icon-label {
+      margin-top: 12px;
+      font-size: 11px;
+      color: var(--text-medium);
+      text-align: center;
+    }
+    
+    /* Spacing Section */
+    .spacing-card {
+      grid-column: span 4;
+    }
+    .spacing-demo {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .spacing-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .spacing-box {
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      border-radius: 8px;
+      height: 24px;
+    }
+    .spacing-box.s-16 { width: 16px; }
+    .spacing-box.s-24 { width: 24px; }
+    .spacing-box.s-48 { width: 48px; }
+    .spacing-box.s-64 { width: 64px; }
+    .spacing-label {
+      font-size: 13px;
+      color: var(--text-medium);
+      font-weight: 600;
+    }
+    .spacing-label span { color: var(--primary); font-weight: 700; }
+    
+    /* Touch Zones */
+    .touch-card {
+      grid-column: span 6;
+      background: linear-gradient(135deg, var(--secondary), #FFA020);
+    }
+    .touch-card .card-title { color: rgba(0,0,0,0.6); }
+    .touch-card .card-title::before { background: white; }
+    .touch-zones {
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 24px;
+      padding: 20px 0;
+    }
+    .touch-zone {
+      background: white;
+      border-radius: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    }
+    .touch-zone.small { width: 48px; height: 48px; }
+    .touch-zone.medium { width: 64px; height: 64px; }
+    .touch-zone.large { width: 80px; height: 80px; }
+    .touch-zone span {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-dark);
+    }
+    .touch-labels {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      margin-top: 16px;
+    }
+    .touch-label {
+      font-size: 12px;
+      color: rgba(0,0,0,0.7);
+      font-weight: 700;
+      text-align: center;
+    }
+    .touch-label.recommended {
+      background: white;
+      padding: 4px 12px;
+      border-radius: 8px;
+    }
+    
+    /* Mascot Concept */
+    .mascot-card {
+      grid-column: span 6;
+      background: linear-gradient(135deg, var(--accent), #C840E0);
+      color: white;
+    }
+    .mascot-card .card-title { color: rgba(255,255,255,0.8); }
+    .mascot-card .card-title::before { background: white; }
+    .mascot-content {
+      display: flex;
+      gap: 24px;
+      align-items: center;
+    }
+    .mascot-avatar {
+      width: 120px;
+      height: 120px;
+      background: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 64px;
+      flex-shrink: 0;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    }
+    .mascot-info h3 {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 22px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    .mascot-info p {
+      font-size: 14px;
+      opacity: 0.9;
+      line-height: 1.5;
+    }
+    .mascot-traits {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .mascot-trait {
+      background: rgba(255,255,255,0.2);
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    
+    /* Component Preview */
+    .component-card {
+      grid-column: span 8;
+    }
+    .component-preview {
+      background: var(--background);
+      border-radius: 20px;
+      padding: 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+    .activity-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .back-btn {
+      width: 48px;
+      height: 48px;
+      background: white;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .activity-title {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--text-dark);
+    }
+    .progress-container {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .progress-bar {
+      flex: 1;
+      height: 12px;
+      background: rgba(91, 141, 238, 0.2);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      width: 65%;
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      border-radius: 6px;
+    }
+    .progress-stars {
+      display: flex;
+      gap: 4px;
+      font-size: 20px;
+    }
+    .game-area {
+      background: white;
+      border-radius: 20px;
+      padding: 40px;
+      min-height: 200px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+      position: relative;
+    }
+    .game-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+    .game-icon {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 40px;
+    }
+    .game-text {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 18px;
+      color: var(--text-medium);
+    }
+    .hint-button {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      width: 56px;
+      height: 56px;
+      background: var(--attention);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      box-shadow: 0 4px 12px rgba(243, 156, 18, 0.4);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.08); }
+    }
+    
+    /* Age Adaptation */
+    .age-card {
+      grid-column: span 4;
+    }
+    .age-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .age-item {
+      padding: 16px;
+      background: var(--background);
+      border-radius: 14px;
+      border-left: 4px solid;
+    }
+    .age-item.age-6 { border-color: var(--success); }
+    .age-item.age-8 { border-color: var(--secondary); }
+    .age-item.age-10 { border-color: var(--accent); }
+    .age-range {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-dark);
+      margin-bottom: 4px;
+    }
+    .age-desc {
+      font-size: 12px;
+      color: var(--text-medium);
+      line-height: 1.4;
+    }
+    
+    /* Principles */
+    .principles-card {
+      grid-column: span 6;
+    }
+    .principles-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+    .principle-item {
+      padding: 20px;
+      background: var(--background);
+      border-radius: 16px;
+      text-align: center;
+    }
+    .principle-icon {
+      font-size: 32px;
+      margin-bottom: 12px;
+    }
+    .principle-title {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-dark);
+      margin-bottom: 6px;
+    }
+    .principle-desc {
+      font-size: 11px;
+      color: var(--text-medium);
+      line-height: 1.4;
+    }
+    
+    /* Gestures */
+    .gestures-card {
+      grid-column: span 6;
+    }
+    .gestures-grid {
+      display: flex;
+      gap: 16px;
+    }
+    .gesture-item {
+      flex: 1;
+      padding: 20px;
+      background: var(--background);
+      border-radius: 16px;
+      text-align: center;
+    }
+    .gesture-item.recommended { border: 2px solid var(--success); }
+    .gesture-item.avoid { border: 2px solid #E74C3C; opacity: 0.6; }
+    .gesture-icon {
+      font-size: 32px;
+      margin-bottom: 12px;
+    }
+    .gesture-name {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-dark);
+    }
+    .gesture-status {
+      font-size: 10px;
+      margin-top: 6px;
+      font-weight: 700;
+    }
+    .gesture-item.recommended .gesture-status { color: var(--success); }
+    .gesture-item.avoid .gesture-status { color: #E74C3C; }
+    
+    /* References */
+    .references-card {
+      grid-column: span 12;
+      background: var(--text-dark);
+      color: white;
+    }
+    .references-card .card-title { color: rgba(255,255,255,0.6); }
+    .references-card .card-title::before { background: var(--accent); }
+    .references-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+    }
+    .reference-item {
+      background: rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 20px;
+      text-align: center;
+      transition: all 0.2s ease;
+    }
+    .reference-item:hover {
+      background: rgba(255,255,255,0.12);
+      transform: translateY(-4px);
+    }
+    .reference-logo {
+      font-size: 32px;
+      margin-bottom: 12px;
+    }
+    .reference-name {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .reference-lesson {
+      font-size: 12px;
+      opacity: 0.7;
+      line-height: 1.4;
+    }
+    
+    /* Footer */
+    .footer {
+      margin-top: 48px;
+      text-align: center;
+      padding: 24px;
+      background: white;
+      border-radius: 20px;
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .footer-title {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 18px;
+      color: var(--text-dark);
+      margin-bottom: 8px;
+    }
+    .footer-text {
+      font-size: 14px;
+      color: var(--text-medium);
+    }
+    .footer-stack {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .stack-badge {
+      background: var(--background);
+      padding: 8px 16px;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <h1>Moodboard <span>App Ã‰ducative</span></h1>
+    <p>iPad â€¢ Enfants 6-10 ans â€¢ Logique & Raisonnement</p>
+    <span class="badge">REACT NATIVE + EXPO SDK 52+</span>
+  </header>
+  
+  <div class="moodboard-grid">
+    <!-- Color Palette -->
+    <div class="card palette-card">
+      <div class="card-title">Palette de Couleurs</div>
+      <div class="palette-grid">
+        <div class="color-swatch primary">
+          <div class="color-name">Primary</div>
+          <div class="color-hex">#5B8DEE</div>
+          <div class="color-usage">Confiance â€¢ Navigation</div>
+        </div>
+        <div class="color-swatch secondary">
+          <div class="color-name">Secondary</div>
+          <div class="color-hex">#FFB347</div>
+          <div class="color-usage">Chaleur â€¢ Accents</div>
+        </div>
+        <div class="color-swatch success">
+          <div class="color-name">Success</div>
+          <div class="color-hex">#7BC74D</div>
+          <div class="color-usage">Validation â€¢ RÃ©ussite</div>
+        </div>
+        <div class="color-swatch accent">
+          <div class="color-name">Accent</div>
+          <div class="color-hex">#E056FD</div>
+          <div class="color-usage">Fun â€¢ Magie</div>
+        </div>
+        <div class="color-swatch attention">
+          <div class="color-name">Attention</div>
+          <div class="color-hex">#F39C12</div>
+          <div class="color-usage">Indices â€¢ Aide</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Vision -->
+    <div class="card vision-card">
+      <div class="card-title">Vision PÃ©dagogique</div>
+      <div class="vision-quote">Â« Apprendre Ã  penser, pas Ã  rÃ©pondre Â»</div>
+      <div class="vision-desc">L'objectif n'est pas le rÃ©sultat correct, mais la transmission des MÃ‰THODES de raisonnement. L'enfant comprend le "pourquoi" et le "comment".</div>
+      <div class="vision-icon">ðŸ§ </div>
+    </div>
+    
+    <!-- Typography -->
+    <div class="card typo-card">
+      <div class="card-title">Typographie</div>
+      <div class="typo-samples">
+        <div class="typo-item">
+          <div class="typo-label">Titres & Boutons â€¢ Fredoka</div>
+          <div class="typo-fredoka">Bravo, tu as compris !</div>
+        </div>
+        <div class="typo-item">
+          <div class="typo-label">Texte courant â€¢ Nunito</div>
+          <div class="typo-nunito">Glisse les disques un par un. Le plus grand reste toujours en bas !</div>
+        </div>
+        <div class="typo-item">
+          <div class="typo-label">AccessibilitÃ© Dyslexie â€¢ Nunito 18pt+</div>
+          <div class="typo-accessible">Phrases courtes. Mots simples. Toujours accompagnÃ©s d'icÃ´nes.</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Buttons -->
+    <div class="card buttons-card">
+      <div class="card-title">Boutons Enfant</div>
+      <div class="buttons-grid">
+        <button class="demo-button primary">â–¶ Jouer</button>
+        <button class="demo-button secondary">ðŸ’¡ Indice</button>
+        <button class="demo-button success">âœ“ Valider</button>
+        <button class="demo-button outline">â† Retour</button>
+        <button class="demo-button accent large">ðŸŽ® Nouvelle ActivitÃ©</button>
+      </div>
+      <div class="button-specs">
+        <div>Taille min: <span>64Ã—64 dp</span></div>
+        <div>Border-radius: <span>16-20px</span></div>
+        <div>Touch target: <span>80dp recommandÃ©</span></div>
+      </div>
+    </div>
+    
+    <!-- Feedback -->
+    <div class="card feedback-card">
+      <div class="card-title">SystÃ¨me de Feedback</div>
+      <div class="feedback-examples">
+        <div class="feedback-item success-fb">
+          <div class="feedback-icon">â­</div>
+          <div class="feedback-text">Super ! Tu as trouvÃ© la bonne mÃ©thode !</div>
+        </div>
+        <div class="feedback-item encourage-fb">
+          <div class="feedback-icon">ðŸ’ª</div>
+          <div class="feedback-text">Presque ! Essaie encore, tu y es presque.</div>
+        </div>
+        <div class="feedback-item hint-fb">
+          <div class="feedback-icon">ðŸ’¡</div>
+          <div class="feedback-text">Regarde bien le plus petit disque...</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Icons -->
+    <div class="card icons-card">
+      <div class="card-title">IcÃ´nes Navigation</div>
+      <div class="icons-grid">
+        <div class="icon-item">ðŸ </div>
+        <div class="icon-item">ðŸŽ®</div>
+        <div class="icon-item">ðŸ“Š</div>
+        <div class="icon-item">âš™ï¸</div>
+        <div class="icon-item">ðŸ§©</div>
+        <div class="icon-item">ðŸ”¢</div>
+        <div class="icon-item">ðŸ”·</div>
+        <div class="icon-item">ðŸ“</div>
+        <div class="icon-item">ðŸŽ¯</div>
+        <div class="icon-item">ðŸ†</div>
+        <div class="icon-item">ðŸ’¡</div>
+        <div class="icon-item">ðŸ”Š</div>
+      </div>
+      <div class="icon-label">Navigation 100% visuelle â€¢ Sans lecture obligatoire</div>
+    </div>
+    
+    <!-- Spacing -->
+    <div class="card spacing-card">
+      <div class="card-title">Espacements</div>
+      <div class="spacing-demo">
+        <div class="spacing-item">
+          <div class="spacing-box s-16"></div>
+          <div class="spacing-label"><span>16dp</span> â€” Entre Ã©lÃ©ments proches</div>
+        </div>
+        <div class="spacing-item">
+          <div class="spacing-box s-24"></div>
+          <div class="spacing-label"><span>24dp</span> â€” Marge standard</div>
+        </div>
+        <div class="spacing-item">
+          <div class="spacing-box s-48"></div>
+          <div class="spacing-label"><span>48dp</span> â€” Sections</div>
+        </div>
+        <div class="spacing-item">
+          <div class="spacing-box s-64"></div>
+          <div class="spacing-label"><span>64dp</span> â€” Touch target enfant</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Touch Zones -->
+    <div class="card touch-card">
+      <div class="card-title">Zones Tactiles Enfant</div>
+      <div class="touch-zones">
+        <div class="touch-zone small"><span>48</span></div>
+        <div class="touch-zone medium"><span>64</span></div>
+        <div class="touch-zone large"><span>80</span></div>
+      </div>
+      <div class="touch-labels">
+        <div class="touch-label">Minimum adulte</div>
+        <div class="touch-label recommended">Minimum enfant âœ“</div>
+        <div class="touch-label">Drag & Drop</div>
+      </div>
+    </div>
+    
+    <!-- Mascot -->
+    <div class="card mascot-card">
+      <div class="card-title">Mascotte IA</div>
+      <div class="mascot-content">
+        <div class="mascot-avatar">ðŸ¦‰</div>
+        <div class="mascot-info">
+          <h3>Assistant Bienveillant</h3>
+          <p>Guide l'enfant sans donner les rÃ©ponses. Pose des questions pour faire rÃ©flÃ©chir. CÃ©lÃ¨bre les efforts, pas juste les rÃ©sultats.</p>
+          <div class="mascot-traits">
+            <span class="mascot-trait">Patient</span>
+            <span class="mascot-trait">Encourageant</span>
+            <span class="mascot-trait">Curieux</span>
+            <span class="mascot-trait">Jamais punitif</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Component Preview -->
+    <div class="card component-card">
+      <div class="card-title">AperÃ§u Interface ActivitÃ©</div>
+      <div class="component-preview">
+        <div class="activity-header">
+          <div class="back-btn">â†</div>
+          <div class="activity-title">Tour de HanoÃ¯</div>
+          <div class="progress-container">
+            <div class="progress-bar">
+              <div class="progress-fill"></div>
+            </div>
+            <div class="progress-stars">â­â­â­</div>
+          </div>
+        </div>
+        <div class="game-area">
+          <div class="game-placeholder">
+            <div class="game-icon">ðŸ—¼</div>
+            <div class="game-text">Zone de jeu interactive</div>
+          </div>
+          <div class="hint-button">ðŸ’¡</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Age Adaptation -->
+    <div class="card age-card">
+      <div class="card-title">Adaptation par Ã‚ge</div>
+      <div class="age-list">
+        <div class="age-item age-6">
+          <div class="age-range">6-7 ans</div>
+          <div class="age-desc">IcÃ´nes + audio obligatoires. Sessions 8-10 min. Zones tactiles extra-larges.</div>
+        </div>
+        <div class="age-item age-8">
+          <div class="age-range">8-9 ans</div>
+          <div class="age-desc">Texte court acceptÃ©. Niveaux de difficultÃ©. DÃ©fis progressifs.</div>
+        </div>
+        <div class="age-item age-10">
+          <div class="age-range">9-10 ans</div>
+          <div class="age-desc">Interface plus mature. DÃ©fis complexes. Ã‰viter l'aspect "bÃ©bÃ©".</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Principles -->
+    <div class="card principles-card">
+      <div class="card-title">Principes PÃ©dagogiques</div>
+      <div class="principles-grid">
+        <div class="principle-item">
+          <div class="principle-icon">ðŸŽ¯</div>
+          <div class="principle-title">MÃ©thode avant rÃ©sultat</div>
+          <div class="principle-desc">Enseigner le processus de rÃ©flexion, pas la bonne rÃ©ponse</div>
+        </div>
+        <div class="principle-item">
+          <div class="principle-icon">ðŸŒ±</div>
+          <div class="principle-title">Erreur constructive</div>
+          <div class="principle-desc">Les erreurs sont des opportunitÃ©s, jamais des Ã©checs</div>
+        </div>
+        <div class="principle-item">
+          <div class="principle-icon">ðŸªœ</div>
+          <div class="principle-title">Scaffolding</div>
+          <div class="principle-desc">Guidance dÃ©croissante Ã  mesure que l'enfant progresse</div>
+        </div>
+        <div class="principle-item">
+          <div class="principle-icon">ðŸ”„</div>
+          <div class="principle-title">Transfert</div>
+          <div class="principle-desc">CompÃ©tences applicables Ã  l'Ã©cole et la vie quotidienne</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Gestures -->
+    <div class="card gestures-card">
+      <div class="card-title">Gestes Tactiles</div>
+      <div class="gestures-grid">
+        <div class="gesture-item recommended">
+          <div class="gesture-icon">ðŸ‘†</div>
+          <div class="gesture-name">Tap simple</div>
+          <div class="gesture-status">âœ“ RecommandÃ©</div>
+        </div>
+        <div class="gesture-item recommended">
+          <div class="gesture-icon">âœ‹</div>
+          <div class="gesture-name">Drag & Drop</div>
+          <div class="gesture-status">âœ“ RecommandÃ©</div>
+        </div>
+        <div class="gesture-item recommended">
+          <div class="gesture-icon">ðŸ‘‰</div>
+          <div class="gesture-name">Swipe</div>
+          <div class="gesture-status">âœ“ RecommandÃ©</div>
+        </div>
+        <div class="gesture-item avoid">
+          <div class="gesture-icon">ðŸ‘†ðŸ‘†</div>
+          <div class="gesture-name">Double tap</div>
+          <div class="gesture-status">âœ— Ã‰viter</div>
+        </div>
+        <div class="gesture-item avoid">
+          <div class="gesture-icon">ðŸ¤</div>
+          <div class="gesture-name">Rotation 2 doigts</div>
+          <div class="gesture-status">âœ— Ã‰viter</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- References -->
+    <div class="card references-card">
+      <div class="card-title">RÃ©fÃ©rences & Inspirations</div>
+      <div class="references-grid">
+        <div class="reference-item">
+          <div class="reference-logo">ðŸ¦</div>
+          <div class="reference-name">Khan Academy Kids</div>
+          <div class="reference-lesson">Parcours personnalisÃ©s, navigation sans lecture, 100% gratuit</div>
+        </div>
+        <div class="reference-item">
+          <div class="reference-logo">ðŸ¦‰</div>
+          <div class="reference-name">Duolingo</div>
+          <div class="reference-lesson">Feedback positif, gamification lÃ©gÃ¨re, sessions courtes, streaks</div>
+        </div>
+        <div class="reference-item">
+          <div class="reference-logo">ðŸŽ¨</div>
+          <div class="reference-name">Toca Boca</div>
+          <div class="reference-lesson">Environnement 100% sÃ»r, menus visuels, exploration libre, pas de pub</div>
+        </div>
+        <div class="reference-item">
+          <div class="reference-logo">ðŸ§ </div>
+          <div class="reference-name">Lumosity / Peak</div>
+          <div class="reference-lesson">Suivi de progression, adaptation du niveau, catÃ©gories cognitives</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <footer class="footer">
+    <div class="footer-title">PrÃªt Ã  dÃ©velopper ?</div>
+    <div class="footer-text">Ce moodboard sert de rÃ©fÃ©rence pour le dÃ©veloppement de l'app Ã©ducative iPad</div>
+    <div class="footer-stack">
+      <span class="stack-badge">React Native</span>
+      <span class="stack-badge">Expo SDK 52+</span>
+      <span class="stack-badge">TypeScript</span>
+      <span class="stack-badge">Reanimated 3</span>
+    </div>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,617 @@
+GUIDE UX/UI
+
+Application Éducative iPad • Enfants 6-10 ans
+
+*Basé sur les meilleures pratiques de Khan Academy Kids, Duolingo, Toca
+Boca*
+
+**Version 2.0 --- Incluant le Design System Home V10 (Forêt Magique
+Immersive)**
+
+1\. COMPRENDRE L\'UTILISATEUR ENFANT
+
+Caractéristiques cognitives par âge
+
+  -----------------------------------------------------------------------
+  **ÂGE**         **CAPACITÉS**               **IMPLICATIONS UX**
+  --------------- --------------------------- ---------------------------
+  **6-7 ans**     • Lecture débutante •       • Icônes + audio
+                  Attention : 8-10 min max •  obligatoires • Sessions
+                  Motricité fine en           très courtes • Zones
+                  développement               tactiles extra-larges
+
+  **8-9 ans**     • Lecture acquise •         • Texte court accepté •
+                  Attention : 10-15 min •     Niveaux de difficulté •
+                  Recherche de défis          Systèmes de progression
+
+  **9-10 ans**    • Autonomie accrue •        • Interface plus mature •
+                  Attention : 15-20 min •     Défis complexes • Éviter
+                  Sensibilité au \"bébé\"     l\'aspect \"enfantin\"
+  -----------------------------------------------------------------------
+
+**Référence :** *Khan Academy Kids adapte son contenu par tranche d\'âge
+avec des parcours personnalisés*
+
+2\. ZONES TACTILES ET INTERACTIONS
+
+Tailles minimales obligatoires
+
+  -----------------------------------------------------------------------
+  **ÉLÉMENT**             **TAILLE MINIMUM**      **RECOMMANDÉ ENFANT**
+  ----------------------- ----------------------- -----------------------
+  Boutons principaux      48 × 48 dp              **64 × 64 dp minimum**
+
+  Icônes interactives     44 × 44 pt (Apple)      **60 × 60 dp**
+
+  Éléments draggables     ---                     **80 × 80 dp**
+
+  Cartes de jeu (Home     200 × 120 dp            **320 × 180 dp**
+  V10)                                            
+
+  Espacement entre        8 dp                    **16-24 dp (60 dp pour
+  éléments                                        cartes)**
+  -----------------------------------------------------------------------
+
+Gestes à privilégier / éviter
+
+  -----------------------------------------------------------------------
+  **✓ GESTES RECOMMANDÉS**            **✗ GESTES À ÉVITER**
+  ----------------------------------- -----------------------------------
+  • Tap simple (un doigt) • Drag &    • Double tap • Gestes multi-doigts
+  drop basique • Swipe                complexes • Rotation à deux doigts
+  horizontal/vertical • Long press    • Swipe avec timing précis • Gestes
+  (avec feedback visuel) • Pinch to   combinés simultanés
+  zoom (optionnel)                    
+
+  -----------------------------------------------------------------------
+
+**Référence :** *Duolingo Kids utilise des boutons extra-larges (+15% de
+taux de réussite sur les tâches)*
+
+3\. NAVIGATION ET ARCHITECTURE
+
+Principes de navigation enfant
+
+1.  **Profondeur maximale : 3 niveaux.** L\'enfant doit toujours pouvoir
+    revenir à l\'accueil en 2 taps maximum.
+
+2.  **Navigation sans lecture.** 100% des actions doivent être
+    compréhensibles via icônes + couleurs uniquement.
+
+3.  **Pas de bouton \"retour\" texte.** Utiliser une flèche gauche
+    universelle, toujours au même endroit.
+
+4.  **Éviter les menus hamburger.** Les enfants ne comprennent pas cette
+    convention. Préférer les onglets visibles.
+
+5.  **Lancement immédiat.** Pour les 6-7 ans, l\'app doit démarrer
+    directement dans l\'activité.
+
+Structure recommandée
+
+Architecture à 3 niveaux maximum :
+
+-   **Niveau 1 :** Écran d\'accueil avec catégories visuelles (Home
+    V10 - Forêt Magique)
+
+-   **Niveau 2 :** Liste des activités dans la catégorie
+
+-   **Niveau 3 :** Activité/jeu (espace immersif sans distraction)
+
+4\. PALETTE DE COULEURS
+
+Palette principale
+
+  ------------------------------------------------------------------------
+  **COULEUR**       **CODE**       **USAGE**           **ÉMOTION**
+  ----------------- -------------- ------------------- -------------------
+  **Bleu Primary**  #5B8DEE        Boutons principaux, Confiance, calme,
+                                   navigation          concentration
+
+  **Orange          #FFB347        Accents,            Chaleur,
+  Secondary**                      highlights, CTA     enthousiasme,
+                                                       énergie
+
+  **Vert Success**  #7BC74D        Validation,         Accomplissement,
+                                   réussite,           fierté
+                                   progression         
+
+  **Violet Accent** #E056FD        Éléments ludiques,  Créativité, magie,
+                                   surprises           fun
+
+  **Crème           #FFF9F0        Fond principal,     Douceur, apaisement
+  Background**                     espaces             
+
+  **Jaune           #F39C12        Indices, aide,      Curiosité,
+  Attention**                      zones d\'attention  exploration
+  ------------------------------------------------------------------------
+
+Règles d\'accessibilité couleurs
+
+-   **Contraste WCAG AA minimum :** 4.5:1 pour le texte, 3:1 pour les
+    éléments graphiques
+
+-   **Éviter rouge/vert seuls :** 8% des garçons sont daltoniens.
+    Toujours combiner couleur + forme/icône
+
+-   **Mode daltonien :** Prévoir des icônes distinctives pour chaque
+    état (succès = check, erreur = X)
+
+5\. PAGE D\'ACCUEIL V10 --- FORÊT MAGIQUE IMMERSIVE
+
+**🌲 NOUVEAU : Design immersif avec fond animé couvrant 100% de
+l\'écran**
+
+5.1 Philosophie du design V10
+
+La page d\'accueil V10 adopte une approche radicalement immersive : le
+décor de forêt magique couvre l\'intégralité de l\'écran (1194×834px sur
+iPad). Le contenu scrollable flotte au-dessus de ce paysage vivant,
+créant une expérience enchantée qui capte l\'attention des enfants tout
+en restant fonctionnelle.
+
+Principes fondamentaux
+
+-   **Immersion totale :** Le fond animé crée un univers cohérent qui
+    invite à l\'exploration
+
+-   **Animations subtiles :** Les éléments bougent doucement (nuages,
+    animaux, fleurs) sans distraire de l\'interaction
+
+-   **Lisibilité préservée :** Les cartes de jeu utilisent des fonds
+    opaques pour garantir le contraste
+
+-   **Performance 60 FPS :** Toutes les animations utilisent React
+    Native Reanimated 3 avec useNativeDriver
+
+5.2 Structure en couches (Z-Index)
+
+Le design V10 utilise 12 couches distinctes pour créer la profondeur :
+
+  -------------------------------------------------------------------------
+  **Z-INDEX**   **COUCHE**          **CONTENU**
+  ------------- ------------------- ---------------------------------------
+  0             **Sky (Ciel)**      Dégradé vertical 7 couleurs (#87CEEB →
+                                    #7BC74D)
+
+  2             **Mountains Far**   4 montagnes lointaines avec calotte
+                                    neigeuse
+
+  3             **Mountains Near**  3 montagnes proches, couleurs plus
+                                    saturées
+
+  4             **Clouds**          4 nuages avec animation de défilement
+                                    infini (35-50s)
+
+  5             **Sun**             Soleil avec halo et animation de
+                                    pulsation (4s)
+
+  6             **Hills**           6 collines en 2 couches (arrière +
+                                    avant)
+
+  7             **Trees**           16 arbres en 3 profondeurs
+                                    (loin/milieu/proche)
+
+  8             **Bushes**          6 buissons à la base des arbres
+
+  9             **Garden**          7 fleurs emoji (🌸🌻🌷🌺🌼💐🪻) + 3
+                                    papillons
+
+  11            **Animals**         Oiseaux, écureuil, lapin, coccinelle,
+                                    abeille
+
+  30            **Content Layer**   ScrollView avec header, widgets et
+                                    cartes de jeu
+
+  50            **Floating          Mascotte Piou volante + Livre de
+                Elements**          collection flottant
+  -------------------------------------------------------------------------
+
+5.3 Palette de couleurs Forêt Magique
+
+  -----------------------------------------------------------------------
+  **ÉLÉMENT**         **COULEURS**    **NOTES**
+  ------------------- --------------- -----------------------------------
+  **Ciel (gradient)** #87CEEB →       Dégradé 7 couleurs : bleu ciel →
+                      #7BC74D         vert pâle → vert herbe
+
+  **Soleil**          #FFD93D         Avec halo radial-gradient et
+                                      animation pulse
+
+  **Nuages**          #FFFFFF 90%     Blanc semi-transparent pour
+                                      légèreté
+
+  **Montagnes         #6B8E7B,        Verts grisés pour effet de distance
+  lointaines**        #5A7D6A         atmosphérique
+
+  **Montagnes         #4A6D5A,        Verts plus saturés pour proximité
+  proches**           #3D5C4A         
+
+  **Neige sommet**    #FFFFFF 70%     Triangle blanc sur montagne
+                                      principale
+
+  **Collines          #5BAE6B,        Vert moyen, formes arrondies
+  arrière**           #4A9D5A         (border-radius 50%)
+
+  **Collines avant**  #6BC77B,        Vert plus clair, chevauchent les
+                      #5BAE6B         arrières
+
+  **Arbres - tronc**  #8B5A2B,        Gradient horizontal pour effet 3D
+                      #6B4423         
+
+  **Arbres -          #3D8B4F,        Gradient vertical, forme ovale
+  feuillage**         #2D6B3F         arrondie
+
+  **Buissons**        #4A9D5A,        Formes rondes à la base des arbres
+                      #3D8B4F         
+
+  **Herbe/Sol**       #7BC74D         Vert success pour continuité avec
+                                      la palette
+
+  **Piou (mascotte)** #C9A86C,        Corps beige/caramel, ventre
+                      #A68B5B         #F5E6D3, bec #FFB347
+  -----------------------------------------------------------------------
+
+5.4 Animations du décor (Reanimated 3)
+
+  -----------------------------------------------------------------------
+  **ÉLÉMENT**         **TYPE**        **DURÉE**       **COMPORTEMENT**
+  ------------------- --------------- --------------- -------------------
+  **Nuages**          translateX      35-50s          Défilement infini
+                                                      gauche→droite
+
+  **Soleil**          scale           4s              Pulsation douce 1.0
+                                                      → 1.05 → 1.0
+
+  **Fleurs (jardin)** rotate          3s              Balancement -5° →
+                                                      +5°, delays
+                                                      échelonnés
+
+  **Papillons**       translate +     8s              Vol en 8, mouvement
+                      rotate                          organique
+
+  **Oiseaux**         translateX +    14-22s          Traversée écran
+                      opacity                         avec fade in/out
+
+  **Écureuil**        translateX +    28s             Aller-retour avec
+                      scaleX                          flip direction
+
+  **Lapin**           translateX +    22s             Sauts successifs
+                      translateY                      avec rebonds
+
+  **Coccinelle**      translateX +    25s             Marche aléatoire
+                      translateY                      sur l\'herbe
+
+  **Abeille**         translate       18s             Vol traversant avec
+                      diagonal                        ondulations
+
+  **Piou (mascotte)** translate +     6s              Vol stationnaire
+                      rotate                          avec battement
+                                                      d\'ailes
+
+  **Collection        translateY +    5s              Flottement magique
+  (livre)**           rotate                          avec léger twist
+  -----------------------------------------------------------------------
+
+5.5 Layout des cartes de jeu
+
+Dimensions et espacement
+
+-   **Taille des cartes :** 320 × 180 dp (ratio 16:9 pour cohérence
+    visuelle)
+
+-   **Espacement entre cartes :** 60 dp horizontal et vertical (aéré
+    pour petits doigts)
+
+-   **Disposition :** 3 cartes par ligne maximum
+
+-   **Padding écran :** 260 dp en haut (espace pour header), 80 dp sur
+    les côtés
+
+Style des cartes V10
+
+-   **Fond :** Gradient linéaire 135° selon la catégorie du jeu
+
+-   **Border-radius :** 20 dp pour coins arrondis généreux
+
+-   **Shadow :** Ombre portée 0 8px 24px rgba(0,0,0,0.2)
+
+-   **Icône de fond :** Emoji 120px à 20% d\'opacité, positionné à
+    droite
+
+-   **Animation hover/press :** translateY -5dp + scale 1.02 avec spring
+
+Système de médailles
+
+Chaque carte affiche le niveau de progression de l\'enfant via un badge
+médaille :
+
+  ---------------------------------------------------------------------------
+  **MÉDAILLE**    **COULEURS**            **SIGNIFICATION**
+  --------------- ----------------------- -----------------------------------
+  **🥉 Bronze**   #CD7F32 → #8B5A2B       Niveau débutant atteint
+
+  **🥈 Argent**   #C0C0C0 → #909090       Niveau intermédiaire atteint
+
+  **🥇 Or**       #FFD700 → #FFA500       Niveau avancé maîtrisé
+
+  **💎 Diamant**  #B9F2FF → #00CED1       Maîtrise totale, excellence
+
+  **🔒            rgba(255,255,255,0.2)   Jeu pas encore débloqué
+  Verrouillé**                            
+  ---------------------------------------------------------------------------
+
+5.6 Éléments flottants interactifs
+
+Mascotte Piou volante
+
+-   **Position :** Fixe en bas à gauche (left: 40dp, bottom: 100dp)
+
+-   **Taille :** 80 × 85 dp
+
+-   **Animation :** Vol stationnaire (translateY ±8dp, 3s) + battement
+    d\'ailes (rotate ±15°, 0.4s)
+
+-   **Interaction :** Tap → affiche bulle de conseil personnalisé
+
+Livre de collection flottant
+
+-   **Position :** Fixe en bas à droite (right: 40dp, bottom: 100dp)
+
+-   **Taille :** 140 × 100 dp (livre avec mini-cartes)
+
+-   **Contenu visuel :** 4 mini-cartes (70×95dp) avec aperçu des
+    dernières obtenues
+
+-   **Animation :** Flottement magique (translateY ±6dp, 5s) + légère
+    rotation (±2°)
+
+-   **Badge :** Compteur \"7/20\" indiquant la progression de collection
+
+-   **Interaction :** Tap → ouvre la vue complète de la collection
+
+6\. TYPOGRAPHIE ET LISIBILITÉ
+
+Polices recommandées
+
+  -----------------------------------------------------------------------
+  **POLICE**          **USAGE**               **AVANTAGE**
+  ------------------- ----------------------- ---------------------------
+  **Nunito / Nunito   Texte principal         Ronde, amicale, très
+  Sans**              recommandé              lisible
+
+  **Fredoka One**     Titres, boutons         Ludique mais lisible
+
+  **OpenDyslexic**    Texte principal         Conçue pour la dyslexie
+                      (option)                
+
+  **Lexie Readable**  Alternative dyslexie    Plus discrète
+                                              qu\'OpenDyslexic
+  -----------------------------------------------------------------------
+
+Tailles de police
+
+6.  **Titres principaux :** 28-32 pt minimum
+
+7.  **Texte de bouton :** 20-24 pt minimum
+
+8.  **Texte courant :** 18-22 pt minimum (jamais moins de 16 pt)
+
+9.  **Interligne :** 1.4 à 1.6 pour une lecture confortable
+
+10. **Longueur de ligne :** 45-75 caractères maximum par ligne
+
+Règles de rédaction
+
+-   Phrases courtes : 5-10 mots maximum
+
+-   Vocabulaire simple et concret
+
+-   Éviter les négations (\"Ne pas\...\" → \"Essaie plutôt\...\")
+
+-   Tutoiement bienveillant
+
+-   Toujours accompagner le texte d\'une icône ou illustration
+
+7\. SYSTÈME DE FEEDBACK
+
+Feedback positif (réussite)
+
+11. **Visuel immédiat :** Animation de célébration (confettis, étoiles,
+    personnage qui danse)
+
+12. **Son joyeux :** Court (\< 2 sec), mélodique, non strident
+
+13. **Message encourageant :** \"Super !\", \"Bravo !\", \"Tu as compris
+    !\"
+
+14. **Progression visible :** Jauge qui se remplit, étoiles qui
+    s\'allument
+
+Feedback sur erreur (JAMAIS punitif)
+
+-   **Pas de son négatif ou buzzer.** Utiliser un son neutre/doux
+
+-   **Pas de rouge agressif.** Préférer orange doux ou animation subtile
+
+-   **Message constructif :** \"Essaie encore !\", \"Presque !\", \"Tu y
+    es presque !\"
+
+-   **Indice progressif :** Après 2 erreurs, proposer un indice visuel
+
+Système de récompenses (non compétitif)
+
+Éviter les classements et comparaisons entre enfants. Privilégier :
+
+-   **Badges d\'effort :** \"Persévérant\", \"Curieux\", \"10 essais
+    aujourd\'hui\"
+
+-   **Collection personnelle :** Cartes d\'animaux à débloquer (intégré
+    dans Home V10)
+
+-   **Jardin qui grandit :** Fleurs du jardin V10 qui s\'enrichissent
+    avec la progression
+
+-   **Séries quotidiennes :** \"5 jours d\'affilée !\" (widget Streak
+    dans Home V10)
+
+8\. ANIMATIONS ET MICRO-INTERACTIONS
+
+Principes d\'animation
+
+15. **Fluidité 60 FPS :** Utiliser React Native Reanimated 3 pour des
+    animations natives
+
+16. **Durée courte :** 200-400ms pour les transitions, 500-1000ms pour
+    les célébrations
+
+17. **Easing naturel :** ease-out pour les apparitions, ease-in-out pour
+    les mouvements
+
+18. **Feedback tactile :** Légère vibration ou scale sur tap (1.05x puis
+    retour)
+
+19. **Option de réduction :** Respecter les préférences système
+    \"Réduire les animations\"
+
+Animations essentielles
+
+  -----------------------------------------------------------------------
+  **CONTEXTE**            **ANIMATION RECOMMANDÉE**
+  ----------------------- -----------------------------------------------
+  **Tap sur bouton**      Scale 0.95 → 1.0 avec bounce léger (spring
+                          damping: 15)
+
+  **Bonne réponse**       Confettis + scale up de l\'élément + son joyeux
+
+  **Mauvaise réponse**    Shake horizontal léger (3x) + retour doux à la
+                          position
+
+  **Drag & drop**         Élément suit le doigt + ombre portée + zone
+                          cible s\'illumine
+
+  **Niveau complété**     Animation de mascotte + étoiles + fanfare +
+                          carte à collectionner
+
+  **Indice disponible**   Pulsation douce de l\'icône ampoule (glow)
+
+  **Carte de jeu hover**  translateY -5dp + scale 1.02 + shadow
+                          intensifiée (spring)
+  -----------------------------------------------------------------------
+
+9\. ESPACE PARENT
+
+Accès sécurisé
+
+20. **Gate parentale :** Problème mathématique simple (ex: \"15 + 27 =
+    ?\") ou PIN 4 chiffres
+
+21. **FaceID/TouchID :** Option pour accès rapide
+
+22. **Icône discrète :** Petit cadenas en haut à droite du header V10,
+    pas proéminent
+
+Contenu de l\'espace parent
+
+  -----------------------------------------------------------------------
+  **FONCTIONNALITÉ**          **DESCRIPTION**
+  --------------------------- -------------------------------------------
+  **Tableau de bord**         Temps de jeu, activités complétées,
+                              progression par compétence
+
+  **Fiches pédagogiques**     Explication des objectifs de chaque
+                              activité, compétences visées
+
+  **Conseils                  Comment aider sans interférer, questions à
+  d\'accompagnement**         poser
+
+  **Paramètres de temps**     Limite quotidienne, rappels de pause,
+                              horaires autorisés
+
+  **Transfert vie             Suggestions d\'activités réelles liées aux
+  quotidienne**               apprentissages
+  -----------------------------------------------------------------------
+
+10\. SÉCURITÉ ET CONFIDENTIALITÉ
+
+Règles obligatoires
+
+-   **Pas de publicité :** Aucune pub, aucun lien externe sans
+    validation parentale
+
+-   **Pas de collecte de données personnelles enfant :** Conformité
+    COPPA/RGPD
+
+-   **Pas de chat ou communication :** Aucune fonctionnalité sociale
+
+-   **Pas d\'achats in-app accessibles à l\'enfant :** Tout achat
+    derrière gate parentale
+
+-   **Mode hors-ligne :** L\'app doit fonctionner sans connexion
+    internet
+
+11\. CHECKLIST DE VALIDATION UX/UI
+
+Avant chaque release, vérifier :
+
+ACCESSIBILITÉ
+
+-   Zones tactiles ≥ 64×64 dp
+
+-   Contraste texte ≥ 4.5:1
+
+-   Pas de couleur seule pour l\'information (toujours icône + couleur)
+
+-   Police ≥ 18 pt pour le texte courant
+
+NAVIGATION
+
+-   Profondeur ≤ 3 niveaux
+
+-   Retour à l\'accueil en ≤ 2 taps
+
+-   Toutes les actions compréhensibles sans lire
+
+-   Pas de menu hamburger
+
+FEEDBACK
+
+-   Feedback visuel immédiat sur chaque interaction
+
+-   Pas de feedback négatif punitif
+
+-   Animations fluides 60 FPS
+
+-   Sons optionnels et désactivables
+
+SÉCURITÉ
+
+-   Espace parent protégé
+
+-   Pas de liens externes accessibles à l\'enfant
+
+-   Fonctionne hors-ligne
+
+-   Pas de collecte de données personnelles
+
+HOME V10 SPÉCIFIQUE
+
+-   Background couvre 100% de l\'écran (1194×834 iPad)
+
+-   Animations du décor fluides et non intrusives
+
+-   Cartes de jeu 320×180dp avec espacement 60dp
+
+-   Piou et Collection flottants toujours visibles
+
+-   Scroll vertical fluide sans saccades
+
+-   Z-index respectés (décor \< contenu \< éléments flottants)
+
+─────────────────────────────────────────
+
+*Guide UX/UI • Application Éducative iPad*
+
+*Version 2.0 --- Incluant Home V10 (Forêt Magique Immersive)*
+
+*Basé sur les recherches et meilleures pratiques du marché (2024-2025)*
