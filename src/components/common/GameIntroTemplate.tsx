@@ -1,30 +1,44 @@
 /**
  * GameIntroTemplate
  * =================
- * Template unifié pour les écrans d'introduction des jeux éducatifs.
+ * Template unifie pour les ecrans d'introduction des jeux educatifs.
  *
- * ARCHITECTURE À 2 VUES :
+ * ARCHITECTURE A 2 VUES :
  * -----------------------
- * VUE 1 - SELECTION : L'enfant choisit son niveau
+ *
+ * VUE 1 - SELECTION (isPlaying = false)
+ * -------------------------------------
+ * L'enfant choisit son niveau avant de jouer.
+ * Elements visibles :
  *   - Header avec titre du jeu
- *   - Grille de sélection des niveaux (1-10)
+ *   - Grille de selection des niveaux (1-10)
  *   - Mascotte en position centrale
- *   - Aperçu du jeu
+ *   - Apercu du jeu (inactif)
  *   - Bouton "C'est parti !"
  *
- * VUE 2 - PLAY : L'enfant joue
- *   - Header (même)
+ * VUE 2 - PLAY (isPlaying = true)
+ * -------------------------------
+ * L'enfant joue activement au jeu.
+ * Elements visibles :
+ *   - Header (identique)
  *   - Panneau de progression (remplace la grille)
- *   - Mascotte en position latérale (à gauche)
+ *   - Carte du niveau selectionne (animee depuis la grille)
+ *   - Mascotte en position fixe
  *   - Zone de jeu active
  *   - Boutons flottants (reset, indice, terminer)
  *
- * TRANSITION :
- * La transition entre les vues est gérée par la prop `isPlaying`.
- * Quand isPlaying passe à true :
- *   - La grille de niveaux disparait (slide up + fade)
- *   - Le panneau de progression apparait (fade in)
- *   - La mascotte se déplace à gauche
+ * TRANSITION (isPlaying: false -> true)
+ * -------------------------------------
+ * Quand l'utilisateur clique sur "C'est parti !" :
+ *   1. Toutes les cartes glissent vers la carte selectionnee (regroupement)
+ *   2. Le groupe se deplace vers sa position finale (gauche ou droite)
+ *   3. Le panneau de progression apparait progressivement
+ *
+ * TRANSITION RETOUR (isPlaying: true -> false)
+ * --------------------------------------------
+ * Quand l'utilisateur clique sur le bouton retour :
+ *   1. Le panneau de progression disparait progressivement
+ *   2. Toutes les cartes reviennent a leur position initiale (separation)
  *
  * @example
  * <GameIntroTemplate
@@ -67,11 +81,10 @@ import { HintButton } from './HintButton';
 import type {
   GameIntroTemplateProps,
   LevelConfig,
-  IntroAnimationConfig,
 } from './GameIntroTemplate.types';
 
 // ============================================
-// RE-EXPORTS (pour import simplifié)
+// RE-EXPORTS (pour import simplifie)
 // ============================================
 
 export type {
@@ -90,15 +103,15 @@ export {
 // CONSTANTES
 // ============================================
 
-/** Couleurs associées à chaque niveau de difficulté */
+/** Couleurs associees a chaque niveau de difficulte */
 const DIFFICULTY_COLORS: Record<LevelConfig['difficulty'], string> = {
-  easy: colors.feedback.success,    // Vert
-  medium: colors.secondary.main,    // Orange
-  hard: colors.primary.main,        // Bleu
-  expert: colors.home.categories.spatial, // Violet
+  easy: colors.feedback.success,           // Vert
+  medium: colors.secondary.main,           // Orange
+  hard: colors.primary.main,               // Bleu
+  expert: colors.home.categories.spatial,  // Violet
 };
 
-/** Labels français pour les difficultés */
+/** Labels francais pour les difficultes */
 const DIFFICULTY_LABELS: Record<LevelConfig['difficulty'], string> = {
   easy: 'Facile',
   medium: 'Moyen',
@@ -106,66 +119,53 @@ const DIFFICULTY_LABELS: Record<LevelConfig['difficulty'], string> = {
   expert: 'Expert',
 };
 
-/** Configuration d'animation par défaut */
-const DEFAULT_ANIM_CONFIG: IntroAnimationConfig = {
-  selectorSlideDuration: 400,
-  selectorFadeDuration: 300,
-  progressDelayDuration: 200,
-  mascotSlideDuration: 400,
-  selectorSlideDistance: -150,
-  mascotSlideDistance: -180,
-  springDamping: 15,
-  springStiffness: 150,
-};
+/** Largeur d'une carte + gap pour calcul de glissement */
+const CARD_WIDTH_WITH_GAP = 92;
 
 // ============================================
-// COMPOSANT: CARTE ANIMÉE (wrapper pour animation)
+// SOUS-COMPOSANT: AnimatedLevelCardWrapper
 // ============================================
+// Wrapper anime pour les cartes de niveau.
+// Toutes les cartes glissent vers la carte selectionnee (regroupement)
+// puis le groupe entier glisse vers sa position finale.
 
 interface AnimatedLevelCardWrapperProps {
   children: React.ReactNode;
   index: number;
-  /** Progression du fade (0 = visible, 1 = invisible) */
-  fadeProgress: SharedValue<number>;
-  /** Index de la carte sélectionnée */
   selectedLevelIndex: number;
-  /** Progression du glissement */
   slideProgress: SharedValue<number>;
-  /** Distance de glissement en pixels (calculée par le parent) */
-  slideDistance: number;
+  /** Distance pour regrouper cette carte vers la carte selectionnee */
+  groupSlideDistance: number;
+  /** Distance pour deplacer le groupe vers sa position finale */
+  finalSlideDistance: number;
 }
 
-/**
- * Wrapper animé pour les cartes de niveau.
- * - Carte sélectionnée : reste visible + glisse vers une position fixe (droite de la grille)
- * - Autres cartes : fade out mais gardent leur espace (visibility hidden style)
- */
 const AnimatedLevelCardWrapper: React.FC<AnimatedLevelCardWrapperProps> = ({
   children,
   index,
-  fadeProgress,
   selectedLevelIndex,
   slideProgress,
-  slideDistance,
+  groupSlideDistance,
+  finalSlideDistance,
 }) => {
   const animatedStyle = useAnimatedStyle(() => {
-    const fade = fadeProgress.value;
     const slide = slideProgress.value;
 
-    // Carte sélectionnée : reste visible + glisse vers la position cible
-    if (index === selectedLevelIndex) {
-      return {
-        opacity: 1,
-        transform: [{ translateX: interpolate(slide, [0, 1], [0, slideDistance]) }],
-        zIndex: 100,
-      };
-    }
+    // Phase 1 (0 -> 0.5) : regroupement vers la carte selectionnee
+    // Phase 2 (0.5 -> 1) : deplacement du groupe vers la position finale
+    const groupProgress = interpolate(slide, [0, 0.5], [0, 1], 'clamp');
+    const finalProgress = interpolate(slide, [0.5, 1], [0, 1], 'clamp');
 
-    // Autres cartes : fade out seulement (gardent leur espace dans le layout)
+    // Calcul du deplacement total
+    const groupOffset = groupSlideDistance * groupProgress;
+    const finalOffset = finalSlideDistance * finalProgress;
+
     return {
-      opacity: interpolate(fade, [0, 1], [1, 0]),
+      transform: [{ translateX: groupOffset + finalOffset }],
+      // La carte selectionnee reste au-dessus pendant l'animation
+      zIndex: index === selectedLevelIndex ? 100 : 1,
     };
-  }, [index, selectedLevelIndex, slideDistance]);
+  }, [index, selectedLevelIndex, groupSlideDistance, finalSlideDistance]);
 
   return (
     <Animated.View style={animatedStyle}>
@@ -175,8 +175,10 @@ const AnimatedLevelCardWrapper: React.FC<AnimatedLevelCardWrapperProps> = ({
 };
 
 // ============================================
-// COMPOSANT: CARTE DE NIVEAU (par défaut)
+// SOUS-COMPOSANT: DefaultLevelCard
 // ============================================
+// Carte de niveau par defaut.
+// Peut etre remplacee via la prop `renderLevelCard`.
 
 interface DefaultLevelCardProps {
   level: LevelConfig;
@@ -184,10 +186,6 @@ interface DefaultLevelCardProps {
   onPress: () => void;
 }
 
-/**
- * Carte de niveau par défaut.
- * Peut être remplacée via la prop `renderLevelCard`.
- */
 const DefaultLevelCard: React.FC<DefaultLevelCardProps> = ({
   level,
   isSelected,
@@ -207,10 +205,10 @@ const DefaultLevelCard: React.FC<DefaultLevelCardProps> = ({
         isSelected && { borderColor: difficultyColor },
       ]}
       accessible
-      accessibilityLabel={`Niveau ${level.number}${level.isCompleted ? ', complété' : ''}${!level.isUnlocked ? ', verrouillé' : ''}`}
+      accessibilityLabel={`Niveau ${level.number}${level.isCompleted ? ', complete' : ''}${!level.isUnlocked ? ', verrouille' : ''}`}
       accessibilityRole="button"
     >
-      {/* Étoiles (si niveau complété) */}
+      {/* Etoiles (si niveau complete) */}
       {level.isCompleted && level.stars !== undefined && (
         <View style={styles.starsContainer}>
           {[1, 2, 3].map((star) => (
@@ -227,7 +225,7 @@ const DefaultLevelCard: React.FC<DefaultLevelCardProps> = ({
         </View>
       )}
 
-      {/* Numéro du niveau */}
+      {/* Numero du niveau */}
       <Text
         style={[
           styles.levelNumber,
@@ -238,7 +236,7 @@ const DefaultLevelCard: React.FC<DefaultLevelCardProps> = ({
         {level.isUnlocked ? level.number : '🔒'}
       </Text>
 
-      {/* Badge de difficulté */}
+      {/* Badge de difficulte */}
       <View
         style={[
           styles.difficultyBadge,
@@ -246,7 +244,7 @@ const DefaultLevelCard: React.FC<DefaultLevelCardProps> = ({
         ]}
       >
         <Text style={styles.difficultyText}>
-          {level.isUnlocked ? DIFFICULTY_LABELS[level.difficulty] : 'Bloqué'}
+          {level.isUnlocked ? DIFFICULTY_LABELS[level.difficulty] : 'Bloque'}
         </Text>
       </View>
     </Pressable>
@@ -254,266 +252,53 @@ const DefaultLevelCard: React.FC<DefaultLevelCardProps> = ({
 };
 
 // ============================================
-// COMPOSANT PRINCIPAL
+// SOUS-COMPOSANT: SelectionView
 // ============================================
+// Vue 1 : Grille de selection des niveaux
+// Visible quand isPlaying = false
+// Contient le bouton mode entrainement et la grille de niveaux
 
-export const GameIntroTemplate: React.FC<GameIntroTemplateProps> = ({
-  // --- HEADER ---
-  title,
-  emoji,
-  onBack,
-  onParentPress,
-  onHelpPress,
-  showParentButton = true,
-  showHelpButton = true,
+interface SelectionViewProps {
+  levels: LevelConfig[];
+  selectedLevel: LevelConfig | null;
+  onSelectLevel: (level: LevelConfig) => void;
+  renderLevelCard?: (level: LevelConfig, isSelected: boolean) => React.ReactNode;
+  cardSlideProgress: SharedValue<number>;
+  selectedLevelIndex: number;
+  finalSlideDistance: number;
+  showTrainingMode: boolean;
+  onTrainingPress?: () => void;
+  isTrainingMode: boolean;
+  trainingConfig?: GameIntroTemplateProps['trainingConfig'];
+  isPlaying: boolean;
+}
 
-  // --- VUE 1: SELECTION DE NIVEAU ---
+const SelectionView: React.FC<SelectionViewProps> = ({
   levels,
   selectedLevel,
   onSelectLevel,
   renderLevelCard,
-
-  // --- MODE ENTRAINEMENT (optionnel) ---
-  showTrainingMode = false,
-  trainingConfig,
+  cardSlideProgress,
+  selectedLevelIndex,
+  finalSlideDistance,
+  showTrainingMode,
   onTrainingPress,
-  isTrainingMode = false,
-
-  // --- JEU ---
-  renderGame,
+  isTrainingMode,
+  trainingConfig,
   isPlaying,
-  onStartPlaying,
-
-  // --- VUE 2: PROGRESSION (visible quand isPlaying) ---
-  renderProgress,
-
-  // --- MASCOTTE ---
-  mascotComponent,
-
-  // --- ANIMATION (optionnel) ---
-  animationConfig: customAnimationConfig,
-
-  // --- BOUTONS FLOTTANTS (VUE 2) ---
-  showResetButton = true,
-  onReset,
-  showHintButton = true,
-  onHint,
-  hintsRemaining = 0,
-  hintsDisabled = false,
-  onForceComplete,
-  showForceCompleteButton = true,
-
-  // --- VICTOIRE ---
-  isVictory = false,
-  victoryComponent,
-
-  // --- BOUTON PLAY (VUE 1) ---
-  showPlayButton = true,
-  playButtonText = "C'est parti !",
-  playButtonEmoji = '🚀',
 }) => {
-  // ============================================
-  // CONFIGURATION ANIMATION
-  // ============================================
-
-  const animConfig = useMemo<IntroAnimationConfig>(
-    () => ({ ...DEFAULT_ANIM_CONFIG, ...customAnimationConfig }),
-    [customAnimationConfig]
-  );
-
-  // ============================================
-  // VALEURS ANIMÉES (Reanimated)
-  // ============================================
-
-  // Animation de fade des cartes (0 = visible, 1 = masqué)
-  const cardsFadeProgress = useSharedValue(0);
-
-  // Animation de glissement de la carte sélectionnée
-  const cardSlideProgress = useSharedValue(0);
-
-  // Index du niveau sélectionné
-  const selectedLevelIndex = useMemo(() => {
-    if (!selectedLevel) return 0;
-    return levels.findIndex(l => l.id === selectedLevel.id);
-  }, [selectedLevel, levels]);
-
-  // Calcul dynamique de la distance de glissement
-  // Basé sur : niveau min, niveau max, et valeur médiane
-  // - Niveaux <= médiane : regroupement vers la gauche (position min)
-  // - Niveaux > médiane : regroupement vers la droite (position max)
-  // Largeur carte (80px) + gap (12px) = 92px par position
-  const CARD_WIDTH_WITH_GAP = 92;
-  const slideDistance = useMemo(() => {
-    if (!selectedLevel || levels.length === 0) return 0;
-
-    // Identifier min, max et médiane des niveaux
-    const levelNumbers = levels.map(l => l.number);
-    const minLevel = Math.min(...levelNumbers);
-    const maxLevel = Math.max(...levelNumbers);
-    const medianLevel = (minLevel + maxLevel) / 2;
-
-    const levelNumber = selectedLevel.number;
-
-    if (levelNumber <= medianLevel) {
-      // Regroupement vers la gauche (position du niveau minimum)
-      // Ex: niveau 1 → 0, niveau 3 → -2 positions
-      const positionsToMove = minLevel - levelNumber;
-      return positionsToMove * CARD_WIDTH_WITH_GAP;
-    } else {
-      // Regroupement vers la droite (position du niveau maximum)
-      // Ex: niveau 10 → 0, niveau 6 → +4 positions
-      const positionsToMove = maxLevel - levelNumber;
-      return positionsToMove * CARD_WIDTH_WITH_GAP;
-    }
-  }, [selectedLevel, levels]);
-
-  // Vue 2 : Le panneau de progression apparait
-  const progressOpacity = useSharedValue(0);
-
-  // ============================================
-  // STYLES ANIMÉS
-  // ============================================
-
-  /** Style animé pour le panneau de progression */
-  const progressAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: progressOpacity.value,
-  }));
-
-  // ============================================
-  // TRANSITIONS
-  // ============================================
-
-  /**
-   * Transition VUE 1 → VUE 2
-   * Appelée quand l'enfant clique sur "C'est parti !"
-   *
-   * Animation en 2 phases :
-   * 1. Les autres cartes font un fade out + la carte sélectionnée glisse
-   * 2. Le panneau de progression apparait
-   */
-  const transitionToPlayMode = useCallback(() => {
-    if (isPlaying) return;
-
-    // Phase 1 : Fade out des autres cartes
-    cardsFadeProgress.value = withTiming(1, {
-      duration: animConfig.selectorFadeDuration,
-      easing: Easing.out(Easing.quad),
-    });
-
-    // Phase 1 : Glissement de la carte sélectionnée (en parallèle)
-    cardSlideProgress.value = withDelay(
-      100,
-      withTiming(1, { duration: 400, easing: Easing.out(Easing.quad) })
-    );
-
-    // Phase 2 : Panneau de progression apparait après
-    progressOpacity.value = withDelay(
-      animConfig.selectorFadeDuration + 100,
-      withTiming(1, { duration: animConfig.selectorFadeDuration })
-    );
-
-    // Notifier le parent
-    onStartPlaying?.();
-  }, [isPlaying, animConfig, cardsFadeProgress, cardSlideProgress, progressOpacity, onStartPlaying]);
-
-  /**
-   * Transition VUE 2 → VUE 1
-   * Appelée quand l'enfant clique sur le bouton retour pendant le jeu
-   */
-  const transitionToSelectionMode = useCallback(() => {
-    // Panneau de progression : fade out
-    progressOpacity.value = withTiming(0, { duration: 200 });
-
-    // Reset du glissement
-    cardSlideProgress.value = withTiming(0, { duration: 300 });
-
-    // Cartes : fade in (après le fade out du panneau)
-    cardsFadeProgress.value = withDelay(
-      200,
-      withTiming(0, {
-        duration: animConfig.selectorFadeDuration,
-        easing: Easing.out(Easing.quad),
-      })
-    );
-  }, [animConfig, cardsFadeProgress, cardSlideProgress, progressOpacity]);
-
-  // ============================================
-  // SYNC ANIMATIONS WITH isPlaying PROP
-  // ============================================
-
-  /**
-   * Synchronise les animations quand isPlaying change depuis l'extérieur.
-   * Cela permet aux jeux comme Hanoi de déclencher le mode play
-   * en faisant un mouvement direct (sans passer par le bouton "C'est parti").
-   */
-  useEffect(() => {
-    if (isPlaying) {
-      // Fade out des autres cartes
-      cardsFadeProgress.value = withTiming(1, {
-        duration: animConfig.selectorFadeDuration,
-        easing: Easing.out(Easing.quad),
-      });
-      // Glissement de la carte sélectionnée
-      cardSlideProgress.value = withDelay(
-        100,
-        withTiming(1, { duration: 400, easing: Easing.out(Easing.quad) })
-      );
-      // Progression apparait après
-      progressOpacity.value = withDelay(
-        animConfig.selectorFadeDuration + 100,
-        withTiming(1, { duration: animConfig.selectorFadeDuration })
-      );
-    } else {
-      // Progression fade out
-      progressOpacity.value = withTiming(0, { duration: 200 });
-      // Reset glissement
-      cardSlideProgress.value = withTiming(0, { duration: 300 });
-      // Cartes fade in
-      cardsFadeProgress.value = withDelay(
-        200,
-        withTiming(0, {
-          duration: animConfig.selectorFadeDuration,
-          easing: Easing.out(Easing.quad),
-        })
-      );
-    }
-  }, [isPlaying, animConfig, cardsFadeProgress, cardSlideProgress, progressOpacity]);
-
-  // ============================================
-  // HANDLERS
-  // ============================================
-
-  /**
-   * Gestion du bouton retour :
-   * - Si en train de jouer : anime la transition + délègue au parent (onBack)
-   * - Sinon : retour à l'écran précédent (onBack)
-   *
-   * Note: Le parent (hook) gère setIsPlaying(false) dans son handleBack
-   */
-  const handleBack = useCallback(() => {
-    if (isPlaying && !isVictory) {
-      // Animation de retour à la sélection
-      transitionToSelectionMode();
-    }
-    // Toujours appeler onBack pour que le parent gère la logique
-    onBack();
-  }, [isPlaying, isVictory, transitionToSelectionMode, onBack]);
-
-  // ============================================
-  // RENDER HELPERS
-  // ============================================
-
-  /** Rendu de la grille de niveaux (Vue 1) avec animation de fade */
+  // Rendu de la grille de niveaux
   const renderLevelGrid = () => (
     <View style={styles.levelGrid}>
       {levels.slice(0, 10).map((level, index) => {
         const isSelected = selectedLevel?.id === level.id;
 
-        // Contenu de la carte (custom ou par défaut)
+        // Calcul de la distance de regroupement pour cette carte
+        // Chaque carte glisse vers la position de la carte selectionnee
+        const groupSlideDistance = (selectedLevelIndex - index) * CARD_WIDTH_WITH_GAP;
+
         const cardContent = renderLevelCard ? (
-          <Pressable
-            onPress={() => level.isUnlocked && onSelectLevel(level)}
-          >
+          <Pressable onPress={() => level.isUnlocked && onSelectLevel(level)}>
             {renderLevelCard(level, isSelected)}
           </Pressable>
         ) : (
@@ -524,15 +309,14 @@ export const GameIntroTemplate: React.FC<GameIntroTemplateProps> = ({
           />
         );
 
-        // Wrapper animé pour le fade et glissement
         return (
           <AnimatedLevelCardWrapper
             key={level.id}
             index={index}
-            fadeProgress={cardsFadeProgress}
             selectedLevelIndex={selectedLevelIndex}
             slideProgress={cardSlideProgress}
-            slideDistance={slideDistance}
+            groupSlideDistance={groupSlideDistance}
+            finalSlideDistance={finalSlideDistance}
           >
             {cardContent}
           </AnimatedLevelCardWrapper>
@@ -541,7 +325,7 @@ export const GameIntroTemplate: React.FC<GameIntroTemplateProps> = ({
     </View>
   );
 
-  /** Rendu de la configuration d'entrainement */
+  // Rendu de la configuration d'entrainement
   const renderTrainingConfig = () => {
     if (!trainingConfig) return null;
 
@@ -581,15 +365,384 @@ export const GameIntroTemplate: React.FC<GameIntroTemplateProps> = ({
     );
   };
 
+  return (
+    <View
+      style={styles.selectorContainer}
+      pointerEvents={isPlaying ? 'none' : 'auto'}
+    >
+      {/* Bouton mode entrainement (optionnel) */}
+      {showTrainingMode && onTrainingPress && (
+        <Pressable
+          onPress={onTrainingPress}
+          style={[
+            styles.trainingButton,
+            isTrainingMode && styles.trainingButtonActive,
+          ]}
+          accessible
+          accessibilityLabel="Mode entrainement"
+          accessibilityRole="button"
+        >
+          <Text style={styles.trainingButtonEmoji}>🎯</Text>
+          <Text
+            style={[
+              styles.trainingButtonText,
+              isTrainingMode && styles.trainingButtonTextActive,
+            ]}
+          >
+            Entrainement
+          </Text>
+        </Pressable>
+      )}
+
+      {/* Grille de niveaux OU config entrainement */}
+      {isTrainingMode ? renderTrainingConfig() : renderLevelGrid()}
+    </View>
+  );
+};
+
+// ============================================
+// SOUS-COMPOSANT: PlayView
+// ============================================
+// Vue 2 : Elements visibles uniquement en mode jeu
+// Visible quand isPlaying = true
+
+interface PlayViewProps {
+  renderProgress?: () => React.ReactNode;
+  progressOpacity: SharedValue<number>;
+  isPlaying: boolean;
+  isVictory: boolean;
+  showResetButton: boolean;
+  onReset?: () => void;
+  showHintButton: boolean;
+  onHint?: () => void;
+  hintsRemaining: number;
+  hintsDisabled: boolean;
+  showForceCompleteButton: boolean;
+  onForceComplete?: () => void;
+}
+
+const PlayView: React.FC<PlayViewProps> = ({
+  renderProgress,
+  progressOpacity,
+  isPlaying,
+  isVictory,
+  showResetButton,
+  onReset,
+  showHintButton,
+  onHint,
+  hintsRemaining,
+  hintsDisabled,
+  showForceCompleteButton,
+  onForceComplete,
+}) => {
+  // Style anime pour le panneau de progression
+  const progressAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: progressOpacity.value,
+  }));
+
+  if (!isPlaying) return null;
+
+  return (
+    <>
+      {/* Panneau de progression */}
+      <Animated.View
+        style={[styles.progressContainer, progressAnimatedStyle]}
+        pointerEvents="auto"
+      >
+        {renderProgress?.()}
+      </Animated.View>
+
+      {/* Boutons flottants (sauf en victoire) */}
+      {!isVictory && (
+        <View style={styles.floatingButtons}>
+          {/* Bouton Reset */}
+          {showResetButton && onReset && (
+            <Pressable
+              onPress={onReset}
+              style={styles.floatingButton}
+              accessible
+              accessibilityLabel="Recommencer"
+              accessibilityRole="button"
+            >
+              <Text style={styles.floatingButtonEmoji}>🔄</Text>
+            </Pressable>
+          )}
+
+          {/* Bouton Indice */}
+          {showHintButton && onHint && !hintsDisabled && (
+            <HintButton
+              hintsRemaining={hintsRemaining}
+              maxHints={3}
+              onPress={onHint}
+              size="medium"
+              colorScheme="orange"
+            />
+          )}
+
+          {/* Bouton Terminer */}
+          {showForceCompleteButton && onForceComplete && (
+            <Pressable
+              onPress={onForceComplete}
+              style={[styles.floatingButton, styles.floatingButtonComplete]}
+              accessible
+              accessibilityLabel="Terminer le niveau"
+              accessibilityRole="button"
+            >
+              <Text style={styles.floatingButtonEmoji}>✅</Text>
+            </Pressable>
+          )}
+        </View>
+      )}
+    </>
+  );
+};
+
+// ============================================
+// SOUS-COMPOSANT: PlayButton
+// ============================================
+// Bouton "C'est parti !" visible en Vue 1
+// quand un niveau est selectionne
+
+interface PlayButtonProps {
+  isPlaying: boolean;
+  selectedLevel: LevelConfig | null;
+  showPlayButton: boolean;
+  playButtonEmoji: string;
+  playButtonText: string;
+  onPress: () => void;
+}
+
+const PlayButton: React.FC<PlayButtonProps> = ({
+  isPlaying,
+  selectedLevel,
+  showPlayButton,
+  playButtonEmoji,
+  playButtonText,
+  onPress,
+}) => {
+  if (isPlaying || !selectedLevel || !showPlayButton) return null;
+
+  return (
+    <Pressable
+      onPress={onPress}
+      style={styles.playButton}
+      accessible
+      accessibilityLabel="Commencer a jouer"
+      accessibilityRole="button"
+    >
+      <LinearGradient
+        colors={[colors.primary.main, colors.primary.dark]}
+        style={styles.playButtonGradient}
+      >
+        <Text style={styles.playButtonEmoji}>{playButtonEmoji}</Text>
+        <Text style={styles.playButtonText}>{playButtonText}</Text>
+      </LinearGradient>
+    </Pressable>
+  );
+};
+
+// ============================================
+// COMPOSANT PRINCIPAL: GameIntroTemplate
+// ============================================
+
+export const GameIntroTemplate: React.FC<GameIntroTemplateProps> = ({
+  // --- HEADER ---
+  title,
+  emoji,
+  onBack,
+  onParentPress,
+  onHelpPress,
+  showParentButton = true,
+  showHelpButton = true,
+
+  // --- VUE 1: SELECTION DE NIVEAU ---
+  levels,
+  selectedLevel,
+  onSelectLevel,
+  renderLevelCard,
+
+  // --- MODE ENTRAINEMENT (optionnel) ---
+  showTrainingMode = false,
+  trainingConfig,
+  onTrainingPress,
+  isTrainingMode = false,
+
+  // --- JEU ---
+  renderGame,
+  isPlaying,
+  onStartPlaying,
+
+  // --- VUE 2: PROGRESSION (visible quand isPlaying) ---
+  renderProgress,
+
+  // --- MASCOTTE ---
+  mascotComponent,
+
+  // --- BOUTONS FLOTTANTS (VUE 2) ---
+  showResetButton = true,
+  onReset,
+  showHintButton = true,
+  onHint,
+  hintsRemaining = 0,
+  hintsDisabled = false,
+  onForceComplete,
+  showForceCompleteButton = true,
+
+  // --- VICTOIRE ---
+  isVictory = false,
+  victoryComponent,
+
+  // --- BOUTON PLAY (VUE 1) ---
+  showPlayButton = true,
+  playButtonText = "C'est parti !",
+  playButtonEmoji = '🚀',
+}) => {
   // ============================================
-  // RENDER PRINCIPAL
+  // VALEURS ANIMEES (Reanimated)
+  // ============================================
+
+  // Animation de glissement des cartes (0 = positions initiales, 1 = regroupees + deplacement final)
+  const cardSlideProgress = useSharedValue(0);
+
+  // Opacite du panneau de progression (0 = invisible, 1 = visible)
+  const progressOpacity = useSharedValue(0);
+
+  // ============================================
+  // CALCULS DERIVES
+  // ============================================
+
+  // Index du niveau selectionne dans le tableau
+  const selectedLevelIndex = useMemo(() => {
+    if (!selectedLevel) return 0;
+    return levels.findIndex(l => l.id === selectedLevel.id);
+  }, [selectedLevel, levels]);
+
+  // Distance de deplacement final du groupe (vers gauche ou droite de l'ecran)
+  // Les niveaux 1-5 vont vers la gauche, les niveaux 6-10 vers la droite
+  const finalSlideDistance = useMemo(() => {
+    if (!selectedLevel || levels.length === 0) return 0;
+
+    const levelNumbers = levels.map(l => l.number);
+    const minLevel = Math.min(...levelNumbers);
+    const maxLevel = Math.max(...levelNumbers);
+    const medianLevel = (minLevel + maxLevel) / 2;
+
+    const levelNumber = selectedLevel.number;
+
+    if (levelNumber <= medianLevel) {
+      // Deplacement vers la gauche (negatif)
+      // Le groupe regroupé glisse pour que le niveau selectionne soit a gauche
+      return -selectedLevelIndex * CARD_WIDTH_WITH_GAP;
+    } else {
+      // Deplacement vers la droite (positif)
+      // Le groupe regroupé glisse pour que le niveau selectionne soit a droite
+      return (levels.length - 1 - selectedLevelIndex) * CARD_WIDTH_WITH_GAP;
+    }
+  }, [selectedLevel, levels, selectedLevelIndex]);
+
+  // ============================================
+  // ANIMATIONS DE TRANSITION
+  // ============================================
+
+  /**
+   * Transition VUE 1 -> VUE 2
+   * Declenchee par le bouton "C'est parti !"
+   */
+  const transitionToPlayMode = useCallback(() => {
+    if (isPlaying) return;
+
+    // Animation des cartes : regroupement puis deplacement final
+    cardSlideProgress.value = withTiming(1, {
+      duration: 600,
+      easing: Easing.out(Easing.quad),
+    });
+
+    // Panneau de progression apparait apres le regroupement
+    progressOpacity.value = withDelay(
+      400,
+      withTiming(1, { duration: 300 })
+    );
+
+    // Notifier le parent
+    onStartPlaying?.();
+  }, [isPlaying, cardSlideProgress, progressOpacity, onStartPlaying]);
+
+  /**
+   * Transition VUE 2 -> VUE 1
+   * Declenchee par le bouton retour pendant le jeu
+   */
+  const transitionToSelectionMode = useCallback(() => {
+    // Panneau de progression disparait
+    progressOpacity.value = withTiming(0, { duration: 200 });
+
+    // Les cartes reviennent a leur position initiale
+    cardSlideProgress.value = withDelay(
+      100,
+      withTiming(0, {
+        duration: 500,
+        easing: Easing.out(Easing.quad),
+      })
+    );
+  }, [cardSlideProgress, progressOpacity]);
+
+  // ============================================
+  // SYNCHRONISATION AVEC isPlaying
+  // ============================================
+
+  /**
+   * Synchronise les animations quand isPlaying change depuis l'exterieur.
+   * Permet aux jeux de declencher le mode play directement
+   * (ex: premier mouvement dans Hanoi sans cliquer sur "C'est parti").
+   */
+  useEffect(() => {
+    if (isPlaying) {
+      // Transition vers VUE 2 : regroupement + deplacement
+      cardSlideProgress.value = withTiming(1, {
+        duration: 600,
+        easing: Easing.out(Easing.quad),
+      });
+      progressOpacity.value = withDelay(
+        400,
+        withTiming(1, { duration: 300 })
+      );
+    } else {
+      // Transition vers VUE 1 : separation
+      progressOpacity.value = withTiming(0, { duration: 200 });
+      cardSlideProgress.value = withDelay(
+        100,
+        withTiming(0, {
+          duration: 500,
+          easing: Easing.out(Easing.quad),
+        })
+      );
+    }
+  }, [isPlaying, cardSlideProgress, progressOpacity]);
+
+  // ============================================
+  // HANDLERS
+  // ============================================
+
+  /**
+   * Gestion du bouton retour :
+   * - Si en mode jeu (pas victoire) : anime la transition vers selection
+   * - Dans tous les cas : delegue au parent via onBack()
+   */
+  const handleBack = useCallback(() => {
+    if (isPlaying && !isVictory) {
+      transitionToSelectionMode();
+    }
+    onBack();
+  }, [isPlaying, isVictory, transitionToSelectionMode, onBack]);
+
+  // ============================================
+  // RENDER
   // ============================================
 
   return (
     <PageContainer variant="playful" scrollable={false}>
-      {/* ================================================
+      {/* ========================================
           HEADER (commun aux 2 vues)
-          ================================================ */}
+          ======================================== */}
       <ScreenHeader
         variant="game"
         title={title}
@@ -602,148 +755,81 @@ export const GameIntroTemplate: React.FC<GameIntroTemplateProps> = ({
       />
 
       <View style={styles.mainContainer}>
-        {/* ================================================
-            VUE 2 - PANNEAU DE PROGRESSION
-            Visible uniquement quand isPlaying = true
-            La carte niveau glisse depuis la grille vers sa position finale
-            (gauche pour niveau 1-5, droite pour niveau 6-10)
-            ================================================ */}
-        {isPlaying && (
-          <Animated.View
-            style={[styles.progressContainer, progressAnimatedStyle]}
-            pointerEvents={isPlaying ? 'auto' : 'none'}
-          >
-            {/* Panneau de progression (métriques) - centré */}
-            {renderProgress?.()}
-          </Animated.View>
-        )}
+        {/* ========================================
+            VUE 2 - ELEMENTS SPECIFIQUES AU MODE JEU
+            (isPlaying = true)
+            - Panneau de progression
+            - Boutons flottants
+            ======================================== */}
+        <PlayView
+          renderProgress={renderProgress}
+          progressOpacity={progressOpacity}
+          isPlaying={isPlaying}
+          isVictory={isVictory}
+          showResetButton={showResetButton}
+          onReset={onReset}
+          showHintButton={showHintButton}
+          onHint={onHint}
+          hintsRemaining={hintsRemaining}
+          hintsDisabled={hintsDisabled}
+          showForceCompleteButton={showForceCompleteButton}
+          onForceComplete={onForceComplete}
+        />
 
-        {/* ================================================
+        {/* ========================================
             VUE 1 - GRILLE DE SELECTION DES NIVEAUX
-            Toujours monté pour permettre les animations de regroupement.
-            Chaque carte gère son propre fade (sauf la sélectionnée qui reste visible).
-            Position absolue pour maintenir Y pendant le glissement.
-            ================================================ */}
-        <View
-          style={styles.selectorContainer}
-          pointerEvents={isPlaying ? 'none' : 'auto'}
-        >
-          {/* Bouton mode entrainement (optionnel) */}
-          {showTrainingMode && onTrainingPress && (
-            <Pressable
-              onPress={onTrainingPress}
-              style={[
-                styles.trainingButton,
-                isTrainingMode && styles.trainingButtonActive,
-              ]}
-              accessible
-              accessibilityLabel="Mode entraînement"
-              accessibilityRole="button"
-            >
-              <Text style={styles.trainingButtonEmoji}>🎯</Text>
-              <Text
-                style={[
-                  styles.trainingButtonText,
-                  isTrainingMode && styles.trainingButtonTextActive,
-                ]}
-              >
-                Entraînement
-              </Text>
-            </Pressable>
-          )}
+            (isPlaying = false, mais toujours monte
+            pour les animations)
+            ======================================== */}
+        <SelectionView
+          levels={levels}
+          selectedLevel={selectedLevel}
+          onSelectLevel={onSelectLevel}
+          renderLevelCard={renderLevelCard}
+          cardSlideProgress={cardSlideProgress}
+          selectedLevelIndex={selectedLevelIndex}
+          finalSlideDistance={finalSlideDistance}
+          showTrainingMode={showTrainingMode}
+          onTrainingPress={onTrainingPress}
+          isTrainingMode={isTrainingMode}
+          trainingConfig={trainingConfig}
+          isPlaying={isPlaying}
+        />
 
-          {/* Grille de niveaux OU config entrainement */}
-          {isTrainingMode ? renderTrainingConfig() : renderLevelGrid()}
-        </View>
-
-        {/* Spacer pour réserver l'espace du selectorContainer (toujours présent) */}
+        {/* Spacer pour l'espace de la grille (position absolue) */}
         <View style={styles.selectorSpacer} />
 
-        {/* ================================================
-            MASCOTTE
-            Position fixe (non impactée par isPlaying)
-            ================================================ */}
+        {/* ========================================
+            MASCOTTE (commun aux 2 vues)
+            Position fixe, non impactee par isPlaying
+            ======================================== */}
         <View style={styles.mascotContainer} pointerEvents="box-none">
           {mascotComponent}
         </View>
 
-        {/* ================================================
-            ZONE DE JEU
-            Toujours visible (aperçu en Vue 1, actif en Vue 2)
-            ================================================ */}
+        {/* ========================================
+            ZONE DE JEU (commun aux 2 vues)
+            - Vue 1 : apercu inactif
+            - Vue 2 : jeu actif
+            ======================================== */}
         <View style={styles.gameContainer}>
           {renderGame()}
 
           {/* Bouton "C'est parti !" (Vue 1 uniquement) */}
-          {!isPlaying && selectedLevel && showPlayButton && (
-            <Pressable
-              onPress={transitionToPlayMode}
-              style={styles.playButton}
-              accessible
-              accessibilityLabel="Commencer à jouer"
-              accessibilityRole="button"
-            >
-              <LinearGradient
-                colors={[colors.primary.main, colors.primary.dark]}
-                style={styles.playButtonGradient}
-              >
-                <Text style={styles.playButtonEmoji}>{playButtonEmoji}</Text>
-                <Text style={styles.playButtonText}>{playButtonText}</Text>
-              </LinearGradient>
-            </Pressable>
-          )}
+          <PlayButton
+            isPlaying={isPlaying}
+            selectedLevel={selectedLevel}
+            showPlayButton={showPlayButton}
+            playButtonEmoji={playButtonEmoji}
+            playButtonText={playButtonText}
+            onPress={transitionToPlayMode}
+          />
         </View>
 
-        {/* ================================================
-            VUE 2 - BOUTONS FLOTTANTS
-            Visible uniquement quand isPlaying = true et pas de victoire
-            Position : en bas à droite
-            ================================================ */}
-        {isPlaying && !isVictory && (
-          <View style={styles.floatingButtons}>
-            {/* Bouton Reset */}
-            {showResetButton && onReset && (
-              <Pressable
-                onPress={onReset}
-                style={styles.floatingButton}
-                accessible
-                accessibilityLabel="Recommencer"
-                accessibilityRole="button"
-              >
-                <Text style={styles.floatingButtonEmoji}>🔄</Text>
-              </Pressable>
-            )}
-
-            {/* Bouton Indice - Utilise HintButton commun */}
-            {showHintButton && onHint && !hintsDisabled && (
-              <HintButton
-                hintsRemaining={hintsRemaining}
-                maxHints={3}
-                onPress={onHint}
-                size="medium"
-                colorScheme="orange"
-              />
-            )}
-
-            {/* Bouton Terminer (pour tous les utilisateurs) */}
-            {showForceCompleteButton && onForceComplete && (
-              <Pressable
-                onPress={onForceComplete}
-                style={[styles.floatingButton, styles.floatingButtonComplete]}
-                accessible
-                accessibilityLabel="Terminer le niveau"
-                accessibilityRole="button"
-              >
-                <Text style={styles.floatingButtonEmoji}>✅</Text>
-              </Pressable>
-            )}
-          </View>
-        )}
-
-        {/* ================================================
+        {/* ========================================
             OVERLAY VICTOIRE
-            Affiché par-dessus tout quand isVictory = true
-            ================================================ */}
+            Affiche par-dessus tout quand isVictory = true
+            ======================================== */}
         {isVictory && victoryComponent}
       </View>
     </PageContainer>
@@ -753,17 +839,20 @@ export const GameIntroTemplate: React.FC<GameIntroTemplateProps> = ({
 // ============================================
 // STYLES
 // ============================================
-// Organisation :
-// 1. Layout général
-// 2. Grille de niveaux (visible quand isPlaying = false)
-// 3. Panneau progression (visible quand isPlaying = true)
-// 4. Mascotte (toujours visible, position change selon isPlaying)
-// 5. Zone de jeu (toujours visible)
-// 6. Boutons (play quand !isPlaying, flottants quand isPlaying)
+//
+// Organisation par categorie :
+// 1. LAYOUT GENERAL
+// 2. VUE 1 - GRILLE DE NIVEAUX (isPlaying = false)
+// 3. VUE 2 - PANNEAU PROGRESSION (isPlaying = true)
+// 4. MASCOTTE (commun)
+// 5. ZONE DE JEU (commun)
+// 6. BOUTONS
+//    - Bouton "C'est parti !" (Vue 1)
+//    - Boutons flottants (Vue 2)
 
 const styles = StyleSheet.create({
   // =====================
-  // 1. LAYOUT GÉNÉRAL
+  // 1. LAYOUT GENERAL
   // =====================
   mainContainer: {
     flex: 1,
@@ -771,9 +860,8 @@ const styles = StyleSheet.create({
   },
 
   // =====================
-  // 2. GRILLE DE NIVEAUX
-  // (visible quand isPlaying = false)
-  // Position absolue pour maintenir la position Y pendant l'animation de glissement
+  // 2. VUE 1 - GRILLE DE NIVEAUX
+  // (isPlaying = false)
   // =====================
   selectorContainer: {
     position: 'absolute',
@@ -786,10 +874,8 @@ const styles = StyleSheet.create({
     zIndex: 50,
   },
 
-  // Spacer pour réserver l'espace du selectorContainer en position absolue
-  // Permet de pousser vers le bas la mascotte, le jeu et le bouton "C'est parti"
   selectorSpacer: {
-    height: 140, // Hauteur approximative des cartes de niveau + padding
+    height: 140,
   },
 
   levelGrid: {
@@ -799,7 +885,7 @@ const styles = StyleSheet.create({
     gap: spacing[3],
   },
 
-  // Carte de niveau - états
+  // Carte de niveau - etats
   levelCard: {
     backgroundColor: colors.background.card,
     borderRadius: borderRadius.xl,
@@ -824,7 +910,7 @@ const styles = StyleSheet.create({
     opacity: 0.7,
   },
 
-  // Étoiles dans la carte
+  // Etoiles dans la carte
   starsContainer: {
     flexDirection: 'row',
     marginBottom: spacing[1],
@@ -841,7 +927,7 @@ const styles = StyleSheet.create({
     opacity: 0.3,
   },
 
-  // Numéro et badge difficulté
+  // Numero et badge difficulte
   levelNumber: {
     fontSize: 36,
     fontFamily: fontFamily.bold,
@@ -863,7 +949,7 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
 
-  // Mode entrainement (optionnel, désactivé pour Suites Logiques)
+  // Mode entrainement
   trainingButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -933,9 +1019,8 @@ const styles = StyleSheet.create({
   },
 
   // =====================
-  // 3. PANNEAU PROGRESSION
-  // (visible quand isPlaying = true)
-  // Position absolue pour ne pas impacter le layout de la mascotte/jeu
+  // 3. VUE 2 - PANNEAU PROGRESSION
+  // (isPlaying = true)
   // =====================
   progressContainer: {
     position: 'absolute',
@@ -949,8 +1034,7 @@ const styles = StyleSheet.create({
   },
 
   // =====================
-  // 4. MASCOTTE
-  // (position fixe, non impactée par isPlaying)
+  // 4. MASCOTTE (commun)
   // =====================
   mascotContainer: {
     zIndex: 40,
@@ -962,8 +1046,7 @@ const styles = StyleSheet.create({
   },
 
   // =====================
-  // 5. ZONE DE JEU
-  // (toujours visible)
+  // 5. ZONE DE JEU (commun)
   // =====================
   gameContainer: {
     flex: 1,
@@ -978,7 +1061,7 @@ const styles = StyleSheet.create({
   // 6. BOUTONS
   // =====================
 
-  // Bouton "C'est parti !" (visible quand isPlaying = false)
+  // Bouton "C'est parti !" (Vue 1)
   playButton: {
     marginTop: spacing[4],
   },
@@ -1002,7 +1085,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
   },
 
-  // Boutons flottants (visible quand isPlaying = true)
+  // Boutons flottants (Vue 2)
   floatingButtons: {
     position: 'absolute',
     bottom: spacing[6],
@@ -1028,7 +1111,6 @@ const styles = StyleSheet.create({
   floatingButtonEmoji: {
     fontSize: 28,
   },
-
 });
 
 export default GameIntroTemplate;

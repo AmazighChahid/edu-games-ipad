@@ -8,6 +8,7 @@ import type {
   AppBehaviorData,
   CompetenceData,
   ScienceData,
+  AlgorithmData,
   AdviceData,
   QuestionData,
   DailyActivityData,
@@ -106,6 +107,29 @@ export const hanoiCompetences: CompetenceData[] = [
 
 export const hanoiScienceData: ScienceData = {
   text: "La Tour de Hanoï est utilisée en neuropsychologie pour évaluer les fonctions exécutives. Des études montrent que la pratique régulière améliore la capacité de planification (+15% en moyenne), la résistance à l'impulsivité, et les performances en mathématiques.",
+};
+
+export const hanoiAlgorithmData: AlgorithmData = {
+  stats: [
+    {
+      title: 'Complexité temporelle',
+      formula: 'O(2ⁿ)',
+      description: 'Croissance exponentielle - chaque disque supplémentaire double le nombre de mouvements requis',
+      color: 'pink',
+    },
+    {
+      title: 'Complexité spatiale',
+      formula: 'O(n)',
+      description: 'Espace linéaire - proportionnel au nombre de disques (profondeur de récursion)',
+      color: 'blue',
+    },
+    {
+      title: 'Mouvements minimum',
+      formula: '2ⁿ - 1',
+      description: 'Solution optimale mathématiquement prouvée (ex: 3 disques = 7 mouvements, 4 disques = 15 mouvements)',
+      color: 'cyan',
+    },
+  ],
 };
 
 // =============================================================================
@@ -264,6 +288,7 @@ export const hanoiParentGuideData = {
   appBehavior: hanoiAppBehavior,
   competences: hanoiCompetences,
   scienceData: hanoiScienceData,
+  algorithmData: hanoiAlgorithmData,
   advices: hanoiAdvices,
   warningText: hanoiWarningText,
   teamMessage: hanoiTeamMessage,

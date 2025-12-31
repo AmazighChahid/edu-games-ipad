@@ -50,7 +50,9 @@ const InstructionCard: React.FC<{
   disabled: boolean;
 }> = ({ instruction, index, onRemove, disabled }) => {
   const scale = useSharedValue(instruction.current ? 1.1 : 1);
-  const backgroundColor = instruction.executed
+
+  // Determine background color based on state
+  const bgColor = instruction.executed
     ? 'rgba(104, 211, 145, 0.3)'
     : instruction.current
       ? 'rgba(91, 141, 238, 0.2)'
@@ -58,6 +60,7 @@ const InstructionCard: React.FC<{
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
+    backgroundColor: bgColor,
   }));
 
   React.useEffect(() => {
@@ -81,7 +84,6 @@ const InstructionCard: React.FC<{
       exiting={FadeOut}
       style={[
         styles.instructionCard,
-        { backgroundColor },
         instruction.current && styles.currentInstruction,
         instruction.executed && styles.executedInstruction,
         animatedStyle,

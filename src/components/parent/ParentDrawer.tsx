@@ -67,6 +67,19 @@ export interface ScienceData {
   text: string;
 }
 
+/** Algorithm statistic item */
+export interface AlgorithmStatData {
+  title: string;
+  formula: string;
+  description: string;
+  color: 'pink' | 'blue' | 'cyan';
+}
+
+/** Algorithm explanation data */
+export interface AlgorithmData {
+  stats: AlgorithmStatData[];
+}
+
 /** Advice row for accompaniment tab */
 export interface AdviceData {
   situation: string;
@@ -147,6 +160,7 @@ export interface ParentDrawerProps {
   // Tab 2: Compétences
   competences?: CompetenceData[];
   scienceData?: ScienceData;
+  algorithmData?: AlgorithmData;
 
   // Tab 3: Accompagnement
   advices?: AdviceData[];
@@ -254,6 +268,7 @@ export function ParentDrawer({
   appBehavior = defaultAppBehavior,
   competences = [],
   scienceData = defaultScienceData,
+  algorithmData,
   advices = [],
   warningText = '',
   teamMessage = '',
@@ -495,6 +510,50 @@ export function ParentDrawer({
         </View>
         <Text style={styles.scienceBoxText}>{scienceData.text}</Text>
       </View>
+
+      {/* Algorithm Statistics Section */}
+      {algorithmData && algorithmData.stats.length > 0 && (
+        <View style={styles.algorithmSection}>
+          <View style={styles.algorithmHeader}>
+            <Text style={styles.algorithmHeaderEmoji}>📊</Text>
+            <Text style={styles.algorithmHeaderTitle}>Statistiques de l'algorithme</Text>
+          </View>
+          <View style={styles.algorithmGrid}>
+            {algorithmData.stats.map((stat, index) => (
+              <View
+                key={index}
+                style={[
+                  styles.algorithmCard,
+                  stat.color === 'pink' && styles.algorithmCardPink,
+                  stat.color === 'blue' && styles.algorithmCardBlue,
+                  stat.color === 'cyan' && styles.algorithmCardCyan,
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.algorithmCardTitle,
+                    stat.color === 'pink' && styles.algorithmCardTitlePink,
+                    stat.color === 'blue' && styles.algorithmCardBlue,
+                    stat.color === 'cyan' && styles.algorithmCardTitleCyan,
+                  ]}
+                >
+                  {stat.title}
+                </Text>
+                <Text style={styles.algorithmCardFormula}>{stat.formula}</Text>
+                <Text style={styles.algorithmCardDesc}>{stat.description}</Text>
+                <View
+                  style={[
+                    styles.algorithmProgressBar,
+                    stat.color === 'pink' && styles.algorithmProgressBarPink,
+                    stat.color === 'blue' && styles.algorithmProgressBarBlue,
+                    stat.color === 'cyan' && styles.algorithmProgressBarCyan,
+                  ]}
+                />
+              </View>
+            ))}
+          </View>
+        </View>
+      )}
     </View>
   );
 
@@ -1336,6 +1395,91 @@ const styles = StyleSheet.create({
     fontFamily: 'Nunito',
     color: theme.colors.text.secondary,
     lineHeight: 22,
+  },
+
+  // === ALGORITHM SECTION ===
+  algorithmSection: {
+    marginTop: 24,
+  },
+  algorithmHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 16,
+  },
+  algorithmHeaderEmoji: {
+    fontSize: 18,
+  },
+  algorithmHeaderTitle: {
+    fontSize: 16,
+    fontFamily: 'Fredoka',
+    fontWeight: '700',
+    color: theme.colors.text.primary,
+  },
+  algorithmGrid: {
+    gap: 12,
+  },
+  algorithmCard: {
+    backgroundColor: 'rgba(45, 55, 72, 0.95)',
+    borderRadius: 16,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  algorithmCardPink: {
+    borderLeftWidth: 4,
+    borderLeftColor: '#FF6B9D',
+  },
+  algorithmCardBlue: {
+    borderLeftWidth: 4,
+    borderLeftColor: '#6B8CFF',
+  },
+  algorithmCardCyan: {
+    borderLeftWidth: 4,
+    borderLeftColor: '#4ECDC4',
+  },
+  algorithmCardTitle: {
+    fontSize: 16,
+    fontFamily: 'Fredoka',
+    fontWeight: '700',
+    marginBottom: 8,
+  },
+  algorithmCardTitlePink: {
+    color: '#FF6B9D',
+  },
+  algorithmCardTitleBlue: {
+    color: '#6B8CFF',
+  },
+  algorithmCardTitleCyan: {
+    color: '#4ECDC4',
+  },
+  algorithmCardFormula: {
+    fontSize: 24,
+    fontFamily: 'Fredoka',
+    fontWeight: '800',
+    color: '#FFFFFF',
+    marginBottom: 8,
+  },
+  algorithmCardDesc: {
+    fontSize: 14,
+    fontFamily: 'Nunito',
+    color: 'rgba(255, 255, 255, 0.7)',
+    lineHeight: 20,
+    marginBottom: 12,
+  },
+  algorithmProgressBar: {
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  algorithmProgressBarPink: {
+    backgroundColor: '#FF6B9D',
+  },
+  algorithmProgressBarBlue: {
+    backgroundColor: '#6B8CFF',
+  },
+  algorithmProgressBarCyan: {
+    backgroundColor: '#4ECDC4',
   },
 
   // === ADVICE TABLE (Accompagnement) ===

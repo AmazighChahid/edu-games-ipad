@@ -13,6 +13,11 @@ const srcPath = path.resolve(__dirname, 'src');
 const originalResolveRequest = config.resolver.resolveRequest;
 
 config.resolver.resolveRequest = (context, moduleName, platform) => {
+  // Forcer zustand/middleware à utiliser la version CommonJS sur web (évite import.meta dans ESM)
+  if (platform === 'web' && moduleName === 'zustand/middleware') {
+    return context.resolveRequest(context, 'zustand/middleware.js', platform);
+  }
+
   // Transformer @/ en chemin absolu vers src/
   if (moduleName.startsWith('@/')) {
     const newModuleName = path.join(srcPath, moduleName.slice(2));

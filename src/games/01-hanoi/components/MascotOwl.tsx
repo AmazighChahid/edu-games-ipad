@@ -12,6 +12,7 @@ import Animated, {
   withSpring,
   withTiming,
 } from 'react-native-reanimated';
+
 import LottieView from 'lottie-react-native';
 
 import { spacing, borderRadius, shadows } from '../../../theme';

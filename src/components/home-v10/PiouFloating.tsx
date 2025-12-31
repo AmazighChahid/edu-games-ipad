@@ -18,12 +18,12 @@ import Animated, {
   Easing,
   useReducedMotion,
 } from 'react-native-reanimated';
-import LottieView from 'lottie-react-native';
 import {
   HomeV10Layout,
   HomeV10Animations,
 } from '../../theme/home-v10-colors';
-import { MascotBubble, bubbleTextStyles } from '../common/MascotBubble';
+import LottieView from 'lottie-react-native';
+import { MascotBubble, bubbleTextStyles } from '../common';
 
 interface PiouFloatingProps {
   message: string;

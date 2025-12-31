@@ -32,12 +32,13 @@ import { colors, spacing, borderRadius, shadows, fontFamily } from '../../../the
 // DEMO MODAL (extracted from original)
 // ============================================
 
-interface DemoModalProps {
+interface HowToPlayModalProps {
   visible: boolean;
   onClose: () => void;
+  onShowTutorial?: () => void;
 }
 
-function HanoiDemoModal({ visible, onClose }: DemoModalProps) {
+function HanoiDemoModal({ visible, onClose, onShowTutorial }: HowToPlayModalProps) {
   return (
     <Modal
       visible={visible}
@@ -53,6 +54,12 @@ function HanoiDemoModal({ visible, onClose }: DemoModalProps) {
 
           <Text style={styles.demoTitle}>Comment jouer</Text>
 
+          {/* Objectif */}
+          <Text style={styles.demoObjective}>
+            L'objectif est de déplacer tous les disques de la tour de gauche vers la tour de droite.
+          </Text>
+
+          {/* Démo visuelle */}
           <View style={styles.demoArea}>
             <View style={styles.demoPlatform} />
             <View style={styles.demoTowers}>
@@ -76,19 +83,66 @@ function HanoiDemoModal({ visible, onClose }: DemoModalProps) {
             </View>
           </View>
 
-          <View style={styles.demoHintContainer}>
-            <Text style={styles.demoHint}>Déplace tous les disques de A vers C</Text>
+          {/* Règles */}
+          <View style={styles.demoSection}>
+            <Text style={styles.demoSectionTitle}>Règles :</Text>
+            <View style={styles.demoRulesList}>
+              <View style={styles.demoRuleItem}>
+                <Text style={styles.demoRuleBullet}>•</Text>
+                <Text style={styles.demoRuleText}>Un seul disque peut être déplacé à la fois</Text>
+              </View>
+              <View style={styles.demoRuleItem}>
+                <Text style={styles.demoRuleBullet}>•</Text>
+                <Text style={styles.demoRuleText}>Un disque ne peut être placé que sur un disque plus grand ou sur une tour vide</Text>
+              </View>
+              <View style={styles.demoRuleItem}>
+                <Text style={styles.demoRuleBullet}>•</Text>
+                <Text style={styles.demoRuleText}>Touche une tour pour prendre ou déposer un disque</Text>
+              </View>
+            </View>
           </View>
 
-          <View style={styles.demoRules}>
-            <Text style={styles.demoRule}>1 disque à la fois</Text>
-            <Text style={styles.demoRuleSeparator}>•</Text>
-            <Text style={styles.demoRule}>Grand sur petit = interdit</Text>
+          {/* Contrôles */}
+          <View style={styles.demoSection}>
+            <Text style={styles.demoSectionTitle}>Contrôles :</Text>
+            <View style={styles.demoRulesList}>
+              <View style={styles.demoRuleItem}>
+                <Text style={styles.demoRuleBullet}>•</Text>
+                <View style={styles.demoRuleTextContainer}>
+                  <Text style={styles.demoRuleBold}>Toucher </Text>
+                  <Text style={styles.demoRuleText}>une tour pour sélectionner/désélectionner</Text>
+                </View>
+              </View>
+              <View style={styles.demoRuleItem}>
+                <Text style={styles.demoRuleBullet}>•</Text>
+                <View style={styles.demoRuleTextContainer}>
+                  <Text style={styles.demoRuleBold}>Glisser </Text>
+                  <Text style={styles.demoRuleText}>un disque vers une autre tour</Text>
+                </View>
+              </View>
+              <View style={styles.demoRuleItem}>
+                <Text style={styles.demoRuleBullet}>•</Text>
+                <View style={styles.demoRuleTextContainer}>
+                  <Text style={styles.demoRuleBold}>Double-tap </Text>
+                  <Text style={styles.demoRuleText}>pour annuler la sélection</Text>
+                </View>
+              </View>
+            </View>
           </View>
 
-          <Pressable onPress={onClose} style={styles.demoButton}>
-            <Text style={styles.demoButtonText}>Compris !</Text>
-          </Pressable>
+          {/* Boutons */}
+          <View style={styles.demoButtonsRow}>
+            <Pressable onPress={onClose} style={styles.demoButtonPrimary}>
+              <Text style={styles.demoButtonIcon}>{Icons.check}</Text>
+              <Text style={styles.demoButtonPrimaryText}>Compris !</Text>
+            </Pressable>
+            {onShowTutorial && (
+              <Pressable onPress={onShowTutorial} style={styles.demoButtonSecondary}>
+                <Text style={styles.demoButtonIcon}>{Icons.play}</Text>
+                <Text style={styles.demoButtonSecondaryText}>Voir le tutoriel</Text>
+              </Pressable>
+            )}
+          </View>
         </Animated.View>
       </View>
     </Modal>
@@ -224,6 +278,7 @@ export function HanoiIntroScreen() {
         appBehavior={hanoiParentGuideData.appBehavior}
         competences={hanoiParentGuideData.competences}
         scienceData={hanoiParentGuideData.scienceData}
+        algorithmData={hanoiParentGuideData.algorithmData}
         advices={hanoiParentGuideData.advices}
         warningText={hanoiParentGuideData.warningText}
         teamMessage={hanoiParentGuideData.teamMessage}
@@ -332,47 +387,139 @@ const styles = StyleSheet.create({
     color: colors.text.secondary,
   },
   demoTitle: {
-    fontSize: 24,
+    fontSize: 28,
+    fontFamily: fontFamily.bold,
+    color: colors.primary.light,
+    marginBottom: spacing[4],
+  },
+  demoObjective: {
+    fontSize: 16,
+    fontFamily: fontFamily.regular,
+    color: colors.text.secondary,
+    textAlign: 'center',
+    lineHeight: 24,
+    marginBottom: spacing[4],
+    paddingHorizontal: spacing[2],
+  },
+  demoSection: {
+    alignSelf: 'stretch',
+    marginTop: spacing[3],
+  },
+  demoSectionTitle: {
+    fontSize: 17,
     fontFamily: fontFamily.bold,
     color: colors.text.primary,
-    marginBottom: spacing[5],
+    marginBottom: spacing[2],
+  },
+  demoRulesList: {
+    alignSelf: 'stretch',
+  },
+  demoRuleItem: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginBottom: spacing[2],
+    paddingLeft: spacing[1],
+  },
+  demoRuleBullet: {
+    fontSize: 16,
+    color: colors.text.muted,
+    marginRight: spacing[2],
+    marginTop: 3,
+  },
+  demoRuleTextContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    flex: 1,
+  },
+  demoRuleText: {
+    fontSize: 15,
+    fontFamily: fontFamily.regular,
+    color: colors.text.secondary,
+    lineHeight: 22,
+  },
+  demoRuleBold: {
+    fontSize: 15,
+    fontFamily: fontFamily.bold,
+    color: colors.text.primary,
+    lineHeight: 22,
+  },
+  demoButtonsRow: {
+    flexDirection: 'row',
+    gap: spacing[3],
+    marginTop: spacing[4],
+  },
+  demoButtonPrimary: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.primary.main,
+    paddingVertical: spacing[3],
+    paddingHorizontal: spacing[5],
+    borderRadius: borderRadius.full,
+    gap: spacing[2],
+    minHeight: 52,
+  },
+  demoButtonSecondary: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.secondary.light,
+    paddingVertical: spacing[3],
+    paddingHorizontal: spacing[5],
+    borderRadius: borderRadius.full,
+    gap: spacing[2],
+    minHeight: 52,
+  },
+  demoButtonIcon: {
+    fontSize: 18,
+  },
+  demoButtonPrimaryText: {
+    fontSize: 16,
+    fontFamily: fontFamily.semiBold,
+    color: '#FFFFFF',
+  },
+  demoButtonSecondaryText: {
+    fontSize: 16,
+    fontFamily: fontFamily.semiBold,
+    color: colors.background.primary,
   },
   demoArea: {
     width: '100%',
-    height: 180,
+    height: 140,
     backgroundColor: colors.background.secondary,
     borderRadius: borderRadius.lg,
     position: 'relative',
     overflow: 'hidden',
+    marginBottom: spacing[2],
   },
   demoPlatform: {
     position: 'absolute',
     bottom: 0,
-    left: 20,
-    right: 20,
-    height: 12,
+    left: 16,
+    right: 16,
+    height: 10,
     backgroundColor: colors.game.towerBase,
-    borderRadius: 6,
+    borderRadius: 5,
   },
   demoTowers: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'flex-end',
     position: 'absolute',
-    bottom: 12,
+    bottom: 10,
     left: 0,
     right: 0,
-    height: 140,
+    height: 110,
   },
   demoTowerContainer: {
     alignItems: 'center',
-    width: 100,
+    width: 80,
   },
   demoTowerPole: {
-    width: 8,
-    height: 100,
+    width: 6,
+    height: 80,
     backgroundColor: colors.game.towerBase,
-    borderRadius: 4,
+    borderRadius: 3,
   },
   demoTowerPoleTarget: {
     backgroundColor: colors.feedback.success,
@@ -388,26 +535,26 @@ const styles = StyleSheet.create({
   },
   demoDisksContainer: {
     position: 'absolute',
-    bottom: 24,
+    bottom: 20,
     alignItems: 'center',
   },
   demoDiskStyle: {
-    height: 18,
-    borderRadius: 9,
+    height: 14,
+    borderRadius: 7,
     marginBottom: 2,
   },
   demoDiskSmall: {
-    width: 36,
+    width: 28,
     backgroundColor: colors.game.disk1,
     zIndex: 3,
   },
   demoDiskMedium: {
-    width: 54,
+    width: 44,
     backgroundColor: colors.game.disk2,
     zIndex: 2,
   },
   demoDiskLarge: {
-    width: 72,
+    width: 60,
     backgroundColor: colors.game.disk3,
     zIndex: 1,
   },
