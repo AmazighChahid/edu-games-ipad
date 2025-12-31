@@ -49,23 +49,26 @@ L'objectif n'est PAS le résultat correct, mais la **transmission des MÉTHODES 
 
 ## 📁 Documentation — Sources de vérité
 
-| Besoin | Document | Priorité |
-|--------|----------|----------|
-| **Point d'entrée** | `docs/00-INDEX.md` | ⭐⭐⭐ |
-| **Règles code** | `docs/Méthodologies/CLAUDE_CODE_RULES.md` | ⭐⭐⭐ |
-| **Design tokens** | `docs/Méthodologies/DESIGN_SYSTEM.md` | ⭐⭐⭐ |
-| **Composants UI** | `docs/Méthodologies/UI_COMPONENTS_CATALOG.md` | ⭐⭐ |
-| **Architecture jeux** | `docs/Méthodologies/GAME_ARCHITECTURE.md` | ⭐⭐ |
-| **Structure projet** | `docs/Méthodologies/PROJECT_STRUCTURE.md` | ⭐⭐ |
-| **Types universels** | `docs/Méthodologies/TRAME_REFERENTIEL.md` | ⭐⭐ |
-| **Mascottes** | `docs/Méthodologies/MASCOTTES_REGISTRY.md` | ⭐ |
-| **Icônes** | `docs/Méthodologies/ICONS_REGISTRY.md` | ⭐ |
+> **Chemins relatifs à la racine du projet**
+
+| Besoin | Document | Chemin |
+|--------|----------|--------|
+| **Point d'entrée** | `00-INDEX.md` | `docs/` |
+| **Règles code** | `CLAUDE_CODE_RULES.md` | `docs/Méthodologies/RÈGLES/` |
+| **Design tokens** | `DESIGN_SYSTEM.md` | `docs/Méthodologies/RÈGLES/` |
+| **Composants UI** | `UI_COMPONENTS_CATALOG.md` | `docs/Méthodologies/RÈGLES/` |
+| **Patterns UI** | `UI_PATTERNS.md` | `docs/Méthodologies/RÈGLES/` |
+| **Architecture jeux** | `GAME_ARCHITECTURE.md` | `docs/Méthodologies/ARCHITECTURE/` |
+| **Structure projet** | `PROJECT_STRUCTURE.md` | `docs/Méthodologies/ARCHITECTURE/` |
+| **Types universels** | `TRAME_REFERENTIEL.md` | `docs/Méthodologies/ARCHITECTURE/` |
+| **Mascottes** | `MASCOTTES_REGISTRY.md` | `docs/Méthodologies/REGISTRES/` |
+| **Icônes** | `ICONS_REGISTRY.md` | `docs/Méthodologies/REGISTRES/` |
 
 ---
 
 ## ⛔ Règles critiques (Résumé)
 
-> **Détails complets** → `docs/Méthodologies/CLAUDE_CODE_RULES.md`
+> **Détails complets** → `docs/Méthodologies/RÈGLES/CLAUDE_CODE_RULES.md`
 
 ### Imports obligatoires
 ```typescript
@@ -80,7 +83,7 @@ import { Colors } from '@/constants/colors'; // DEPRECATED
 
 ### Contraintes enfant
 
-> **Détails complets** → `docs/Méthodologies/DESIGN_SYSTEM.md`
+> **Détails complets** → `docs/Méthodologies/RÈGLES/DESIGN_SYSTEM.md`
 
 | Règle | Valeur |
 |-------|--------|
@@ -91,7 +94,7 @@ import { Colors } from '@/constants/colors'; // DEPRECATED
 
 ### Composants à NE PAS recréer
 
-> **Liste complète avec props** → `docs/Méthodologies/UI_COMPONENTS_CATALOG.md`
+> **Liste complète** → `docs/Méthodologies/RÈGLES/UI_COMPONENTS_CATALOG.md`
 
 ```
 BackButton, ScreenHeader, PageContainer, GameModal,
@@ -104,7 +107,7 @@ GameIntroTemplate, Confetti, ProgressIndicator
 ## 🎮 Jeux disponibles (15)
 
 > **Source de vérité** → `src/games/registry.ts`
-> **Mascottes détaillées** → `docs/Méthodologies/MASCOTTES_REGISTRY.md`
+> **Mascottes détaillées** → `docs/Méthodologies/REGISTRES/MASCOTTES_REGISTRY.md`
 
 | # | Jeu | Status | Mascotte |
 |---|-----|--------|----------|
@@ -135,12 +138,7 @@ GameIntroTemplate, Confetti, ProgressIndicator
 3. **Ton bienveillant** — Calme, simple, rassurant
 4. **Erreur = opportunité** — Jamais d'échec, toujours "essaie encore"
 
-### Exemple de guidance
-```
-❌ "La réponse est 3"
-✅ "Regarde bien ce disque. Est-ce qu'il peut aller sur un plus petit ?"
-```
-
 ---
 
 *Ce fichier est un résumé. Pour les détails, consulter les documents référencés.*
+*v4.0 — Décembre 2024*
