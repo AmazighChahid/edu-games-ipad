@@ -352,5 +352,128 @@ WidgetV10Style = {
 
 ---
 
-*Version 3.0 • Fusion DESIGN_SYSTEM.md + DESIGN_SYSTEM_V2.md*
+## 🧩 Composants UI Standardisés
+
+### ScreenHeader (`src/components/common/ScreenHeader.tsx`)
+
+3 variants disponibles :
+
+```tsx
+// Variant 'home' (Page d'accueil enfant)
+<ScreenHeader
+  variant="home"
+  childName="Emma"
+  avatarEmoji="🦊"
+  level={5}
+  totalStars={42}
+  totalBadges={12}
+  onAvatarPress={() => {}}
+  showParentButton
+  onParentPress={() => router.push('/(parent)')}
+/>
+
+// Variant 'game' (Écrans de jeux)
+<ScreenHeader
+  variant="game"
+  title="La Tour Magique"
+  emoji="🏰"
+  onBack={() => router.back()}
+  showParentButton
+  showHelpButton
+/>
+
+// Variant 'parent' (Espace parents)
+<ScreenHeader
+  variant="parent"
+  title="Espace Parents"
+  onBack={() => router.back()}
+/>
+```
+
+### BackButton (`src/components/common/BackButton.tsx`)
+
+```tsx
+// Variant 'icon' (défaut) - Cercle blanc avec flèche
+<BackButton onPress={() => router.back()} variant="icon" size="medium" />
+
+// Variant 'text' - Bouton rectangulaire
+<BackButton onPress={() => router.push('/')} variant="text" label="Menu" />
+```
+
+### PageContainer (`src/components/common/PageContainer.tsx`)
+
+Wrapper tout-en-un : SafeArea + Background + Scroll
+
+```tsx
+<PageContainer
+  variant="playful"   // 'playful' | 'neutral' | 'parent' | 'transparent'
+  scrollable={true}
+  showDecorations={true}
+  safeAreaEdges={['top', 'bottom']}
+>
+  {children}
+</PageContainer>
+```
+
+### Pattern Page Jeu
+
+```tsx
+import { PageContainer, ScreenHeader } from '@/components/common';
+
+export function GameIntroScreen() {
+  return (
+    <PageContainer variant="playful" scrollable>
+      <ScreenHeader
+        variant="game"
+        title="Nom du Jeu"
+        emoji="🎮"
+        onBack={() => router.push('/')}
+        showParentButton
+        onParentPress={() => router.push('/(parent)')}
+      />
+      {/* Contenu */}
+    </PageContainer>
+  );
+}
+```
+
+---
+
+## 🌲 Home V10 — Composants Forêt
+
+### ForestBackgroundV10 (`src/components/home-v10/ForestBackgroundV10.tsx`)
+
+Couches (du fond vers l'avant) : Sky → Sun → MountainsFar → Clouds → MountainsNear → Hills → Trees → Bushes → Garden → Animaux
+
+```tsx
+<ForestBackgroundV10>
+  <SafeAreaView style={{ flex: 1 }}>
+    <HomeHeaderV10 />
+    {/* Contenu */}
+  </SafeAreaView>
+</ForestBackgroundV10>
+```
+
+### HomeHeaderV10 & GameCardV10
+
+```tsx
+<HomeHeaderV10
+  childName="Emma"
+  avatarEmoji="🦊"
+  level={5}
+  onAvatarPress={() => {}}
+  onParentPress={() => router.push('/(parent)')}
+/>
+
+<GameCardV10
+  game={gameMetadata}
+  onPress={() => router.push(game.route)}
+  stars={3}
+  isNew={false}
+/>
+```
+
+---
+
+*Version 4.0 • Fusion avec UI_PATTERNS.md*
 *Source de vérité : `/src/theme/`*

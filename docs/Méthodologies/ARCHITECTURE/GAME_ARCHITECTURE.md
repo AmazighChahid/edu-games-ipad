@@ -1,6 +1,86 @@
 # Architecture des Jeux Éducatifs
 
-> **Dernière mise à jour** : 29 Décembre 2024
+> **Source de vérité** : `src/games/02-suites-logiques/` (référence complète)
+
+---
+
+## Vue d'ensemble - 6 couches
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│              COUCHE 6 : Store Global (Zustand)              │
+│                src/store/ - Progression, Sessions           │
+├─────────────────────────────────────────────────────────────┤
+│              COUCHE 5 : Données Pédagogiques                │
+│          parentGuideData.ts, assistantScripts.ts            │
+├─────────────────────────────────────────────────────────────┤
+│               COUCHE 4 : Structure Jeu                      │
+│        hooks/, components/, logic/, data/, screens/         │
+├─────────────────────────────────────────────────────────────┤
+│              COUCHE 3 : Registre Central                    │
+│                 src/games/registry.ts                       │
+├─────────────────────────────────────────────────────────────┤
+│              COUCHE 2 : Core Pédagogique                    │
+│            src/core/ - feedback, difficulty                 │
+├─────────────────────────────────────────────────────────────┤
+│              COUCHE 1 : Types Universels                    │
+│         src/types/game.types.ts, parent.types.ts            │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Core Pédagogique (`src/core/`)
+
+### Principe fondateur
+
+> « Apprendre à penser, pas à répondre »
+
+Chaque activité enseigne une **méthode de raisonnement**, pas juste un résultat.
+
+### Types pédagogiques (`core.types.ts`)
+
+```typescript
+type HelpLevel = 'full' | 'medium' | 'low' | 'none';  // Niveaux Montessori
+type FeedbackType = 'success' | 'victory' | 'error' | 'hint' | 'encouragement' | 'streak' | 'milestone';
+type AssistantTrigger = 'game_start' | 'first_move' | 'valid_move' | 'invalid_move' | 'stuck' | 'repeated_error' | 'hint_requested' | 'near_victory' | 'victory' | 'level_up' | 'comeback' | 'streak';
+```
+
+### Système de feedback (`feedback.ts`)
+
+**Jamais punitif**. Les erreurs sont des opportunités d'apprentissage.
+
+| Type | Mood | Exemple |
+|------|------|---------|
+| SUCCESS | `happy` | "Super !", "Bien joué !" |
+| VICTORY | `happy` + confetti | "Félicitations !" |
+| ERROR | `encouraging` | "Essaie encore !", "Tu y es presque !" |
+| HINT | `thinking` | "Voici un petit indice..." |
+| STREAK | `excited` | "3 de suite !", "Tu es en feu !" |
+
+### Adaptation de difficulté (`difficulty.ts`)
+
+Basé sur la **Zone de Développement Proximal (Vygotsky)** :
+
+| HelpLevel | Indices visuels |
+|-----------|-----------------|
+| `full` | Zones cibles, chemin, pulsation |
+| `medium` | Pulsation, options grisées |
+| `low` | Compteur de coups uniquement |
+| `none` | Aucune aide visuelle |
+
+### Assistant IA (`childAssistant.ts`)
+
+```typescript
+const assistant = createChildAssistant('hanoi', 'level-1', scripts);
+assistant.recordMove('moved_disk');
+assistant.recordError('big_on_small');
+const hint = assistant.getHint();
+```
+
+Cooldowns : 10s après encouragement, 15s après indice, 30s entre même type.
+
+---
 
 ## Pattern Hook + Template
 
@@ -414,46 +494,6 @@ interface VictoryCardProps {
 
 - **Suites Logiques** : `src/games/02-suites-logiques/` — **RÉFÉRENCE COMPLÈTE** ✅
 - **Tour de Hanoi** : `src/games/01-hanoi/` — Architecture partielle
-
----
-
-## 📊 État de conformité des 15 jeux
-
-| # | Jeu | useXxxGame | useXxxSound | useXxxIntro | GameIntroTemplate | Mascotte | Statut |
-|---|-----|:---:|:---:|:---:|:---:|:---:|:---:|
-| 01 | hanoi | ✅ | ❌ | ❌ | ❌ | ✅ MascotOwl | Partiel |
-| 02 | suites-logiques | ✅ | ✅ | ✅ | ✅ | ✅ MascotRobot | **RÉFÉRENCE** |
-| 03 | labyrinthe | ✅ | ❌ | ❌ | ✅ | ❌ | Partiel |
-| 04 | balance | ✅ | ❌ | ❌ | ✅ | ✅ DrHibou | Partiel |
-| 05 | sudoku | ✅ | ❌ | ❌ | ❌ | ✅ ProfessorHoo | Partiel |
-| 06 | conteur-curieux | ✅ | ❌ | ❌ | ❌ | ✅ PlumeMascot | Partiel |
-| 07 | memory | ✅ | ❌ | ❌ | ✅ | ❌ TBD | Partiel |
-| 08 | tangram | ✅ | ❌ | ❌ | ❌ | ❌ TBD | Partiel |
-| 09 | logix-grid | ✅ | ❌ | ❌ | ❌ | ❌ TBD | Partiel |
-| 10 | mots-croises | ✅ | ❌ | ❌ | ❌ | ❌ TBD | Partiel |
-| 11 | math-blocks | ✅ | ❌ | ❌ | ✅ | ❌ TBD | Partiel |
-| 12 | matrices-magiques | ✅ | ❌ | ❌ | ❌ | ✅ PixelMascot | Partiel |
-| 13 | embouteillage | ❌ | ❌ | ❌ | ❌ | ❌ | **STUB** |
-| 14 | fabrique-reactions | ❌ | ❌ | ❌ | ❌ | ❌ | **STUB** |
-| 15 | chasseur-papillons | ❌ | ❌ | ❌ | ❌ | ❌ | **STUB** |
-
-### Légende
-
-- **✅** : Implémenté
-- **❌** : Non implémenté
-- **TBD** : Mascotte planifiée mais pas encore créée
-- **STUB** : Jeu en placeholder (uniquement types.ts + index.ts)
-- **RÉFÉRENCE** : Architecture complète à suivre
-- **Partiel** : Architecture incomplète, à refactoriser
-
-### Résumé
-
-- **1 jeu** avec architecture complète (02-suites-logiques)
-- **5 jeux** utilisant GameIntroTemplate (02, 03, 04, 07, 11)
-- **6 jeux** avec mascottes implémentées
-- **3 jeux** en stub/placeholder (13-15)
-- **11 jeux** nécessitent useXxxSound.ts
-- **11 jeux** nécessitent useXxxIntro.ts
 
 ---
 

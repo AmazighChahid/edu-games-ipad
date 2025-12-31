@@ -1,18 +1,16 @@
-# 🎮 Création d'un Nouveau Jeu
-
-> **Usage** : `nouveau-jeu.md <nom-du-jeu>`
-> **Exemple** : `nouveau-jeu.md Code-Secret`
+# Création d'un Nouveau Jeu
 
 ---
 
-## Documents à lire AVANT de commencer
+## Documents à lire
 
-1. `TRAME_REFERENTIEL.md` — Architecture des activités, types universels
-2. `GAME_ARCHITECTURE.md` — Pattern Hook+Template
-3. `PROJECT_STRUCTURE.md` — Structure des fichiers
-4. `MASCOTTES_REGISTRY.md` — Registre des mascottes
-5. `DESIGN_SYSTEM.md` — Tokens UI
-6. `/Fiches Educatives/01-Tour de Hanoï/` — Exemple de fiches complètes
+| Document | Contenu |
+|----------|---------|
+| `ARCHITECTURE/GAME_ARCHITECTURE.md` | Pattern Hook+Template, structure fichiers |
+| `RÈGLES/DESIGN_SYSTEM.md` | Tokens UI |
+| `CONTEXTE/MASCOTTES_GUIDELINES.md` | Règles mascottes |
+
+**Référence code** : `src/games/02-suites-logiques/` (implémentation complète)
 
 ---
 
@@ -29,7 +27,7 @@ Créer le dossier `/Fiches Educatives/{XX-NomJeu}/` avec 4 fichiers :
 | `DIALOGUES_IA.md` | Scripts mascotte par âge |
 | `SPECS_TECHNIQUES.md` | Architecture, composants, animations |
 
-> **Templates complets** → `fiche-educative.md`
+**Exemple complet** : `/Fiches Educatives/01-Tour de Hanoï/`
 
 ### Phase 2 : Implémentation
 
@@ -229,7 +227,7 @@ export default function {NomJeu}Page() {
 **Intégration**
 - [ ] Ajouté dans `registry.ts`
 - [ ] Route créée dans `app/(games)/`
-- [ ] Mascotte assignée (voir `MASCOTTES_REGISTRY.md`)
+- [ ] Mascotte créée (voir `MASCOTTES_GUIDELINES.md`)
 
 **Pédagogie**
 - [ ] Méthode enseignée clairement définie

@@ -253,7 +253,7 @@ const styles = StyleSheet.create({
 
 ## ⛔ RÈGLE ABSOLUE #5 : ICÔNES CENTRALISÉES
 
-> **Liste complète des 78 icônes** → `ICONS_REGISTRY.md`
+> **Source de vérité** → `src/constants/icons.ts` (consulter le code)
 
 ### ❌ INTERDIT
 
@@ -356,16 +356,26 @@ grep -rn "['\"]\p{Emoji}" src/ --include="*.tsx"
 
 ---
 
-## 📚 RESSOURCES LIÉES
+## 📚 RESSOURCES
+
+### Documentation (règles stables)
 
 | Document | Contenu |
 |----------|---------|
-| `DESIGN_SYSTEM.md` | Tokens complets (couleurs, typo, spacing) |
-| `UI_COMPONENTS_CATALOG.md` | Props détaillées de chaque composant |
-| `ICONS_REGISTRY.md` | Liste des 78 icônes |
-| `GAME_ARCHITECTURE.md` | Pattern Hook+Template pour jeux |
+| `DESIGN_SYSTEM.md` | Tokens (couleurs, typo, spacing) |
+| `UI_COMPONENTS_CATALOG.md` | Props des composants |
+| `GAME_ARCHITECTURE.md` | Pattern Hook+Template |
+
+### Code source (état actuel)
+
+| Fichier | Consulter pour |
+|---------|----------------|
+| `src/constants/icons.ts` | Liste des icônes disponibles |
+| `src/games/registry.ts` | Liste des jeux et leur statut |
+| `src/games/*/components/*Mascot.tsx` | Mascottes implémentées |
+| `src/components/common/` | Composants UI disponibles |
+| `src/store/slices/` | Slices Zustand |
 
 ---
 
 *Ce fichier doit être LU EN PREMIER par Claude Code à chaque session.*
-*Dernière mise à jour : Décembre 2024*
