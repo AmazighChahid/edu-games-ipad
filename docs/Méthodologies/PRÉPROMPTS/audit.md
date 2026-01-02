@@ -1,17 +1,46 @@
-# 🔍 Audit Complet du Projet
+# Audit Complet du Projet
 
 > **Usage** : Vérifier la conformité globale du projet
 > **Fréquence recommandée** : Après chaque sprint ou ajout majeur
 
 ---
 
+## Protocole 3 étapes pour un audit
+
+### Étape 1 : Confirmer la lecture
+
+```
+✅ J'ai lu : CLAUDE_CODE_RULES.md, DESIGN_SYSTEM.md, UI_COMPONENTS_CATALOG.md
+✅ Périmètre audit : [jeu spécifique / projet global]
+✅ Score cible : [ex: 80/100]
+```
+
+### Étape 2 : Questions de clarification
+
+- Quel périmètre ? (1 jeu / tous les jeux / composants communs)
+- Score cible minimum ? (ex: 80/100)
+- Focus particulier ? (UI / Structure / Code quality)
+
+### Étape 3 : Plan d'audit
+
+```
+📋 PLAN :
+1. Exécuter les commandes de vérification par catégorie
+2. Compiler les résultats dans le format du rapport
+3. Prioriser les issues par sévérité
+4. Proposer le Top 5 des actions
+
+→ ATTENDRE VALIDATION avant de lancer l'audit complet
+```
+
+---
+
 ## Documents de référence à charger
 
-1. `CLAUDE_CODE_RULES.md` — Règles à vérifier
-2. `DESIGN_SYSTEM.md` — Tokens attendus
-3. `UI_COMPONENTS_CATALOG.md` — Composants obligatoires
-4. `TRAME_REFERENTIEL.md` — Architecture attendue
-5. `GUIDELINES_AUDIT.md` — Résultats précédents
+1. `RÈGLES/CLAUDE_CODE_RULES.md` — Règles à vérifier
+2. `RÈGLES/DESIGN_SYSTEM.md` — Tokens attendus
+3. `RÈGLES/UI_COMPONENTS_CATALOG.md` — Composants obligatoires
+4. `ARCHITECTURE/GAME_ARCHITECTURE.md` — Architecture attendue
 
 ---
 

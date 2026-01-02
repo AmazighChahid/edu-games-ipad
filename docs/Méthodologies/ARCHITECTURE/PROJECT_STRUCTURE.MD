@@ -551,26 +551,33 @@ assets/
 ### `/docs/` - Documentation
 
 ```
-docs/
-├── 00-INDEX_UPDATED.md         # ⭐ Index + pré-prompts Claude Code
-├── PROJECT_STRUCTURE.md        # Ce fichier
-├── DESIGN_SYSTEM.md            # Système de design (tokens, couleurs, typo)
-├── UI_COMPONENTS_CATALOG.md    # ⭐ Catalogue composants (17 exports)
-├── UI_PATTERNS.md              # Patterns UI réutilisables
-├── GAME_ARCHITECTURE.md        # ⭐ Architecture hook+template jeux
-├── GUIDELINES_AUDIT.md         # Audit conformité UX (91%)
-├── MASCOTTES_REGISTRY.md       # Registre mascottes par jeu
-├── ICONS_REGISTRY.md           # ⭐ Registre 78 icônes centralisées
-├── TRAME_REFERENTIEL.md        # Architecture activités, types universels
-├── PROMPT_REFACTORING.md       # Prompts homogénéisation
-├── AUDIO_IMPROVEMENTS.md       # Système sonore
-├── GUIDE_UX_UI_APP_EDUCATIVE.md # Principes UX enfant 6-10 ans
-├── INSTRUCTIONS_PROJET_APP_EDUCATIVE.md # Vision pédagogique
-├── AUDIT_DOCUMENTATION.md      # Méthodologie audit
-└── Etat-Historique/            # Rapports et historiques
-    ├── IMPLEMENTATION_SUMMARY.md
-    ├── SYNTHESE_STANDARDISATION.md
-    └── RAPPORT_VERIFICATION_MASCOTTES_COMPETENCES.md
+docs/Méthodologies/
+├── 00-INDEX.md                 # ⭐ Index + pré-prompts Claude Code
+│
+├── RÈGLES/                     # Règles stables (source de vérité)
+│   ├── CLAUDE_CODE_RULES.md    # Règles obligatoires Claude Code
+│   ├── DESIGN_SYSTEM.md        # Système de design (tokens, couleurs, typo)
+│   └── UI_COMPONENTS_CATALOG.md # ⭐ Catalogue composants
+│
+├── ARCHITECTURE/               # Architecture technique
+│   ├── GAME_ARCHITECTURE.md    # ⭐ Architecture hook+template jeux
+│   ├── STORE_ARCHITECTURE.md   # Store Zustand (9 slices)
+│   └── PROJECT_STRUCTURE.MD    # Ce fichier
+│
+├── CONTEXTE/                   # Contexte projet
+│   ├── INSTRUCTIONS_PROJET.md  # Vision pédagogique
+│   └── MASCOTTES_GUIDELINES.md # Guidelines mascottes
+│
+├── PRÉPROMPTS/                 # Prompts pour Claude Code
+│   ├── nouveau-jeu.md          # Process création nouveau jeu
+│   └── audit.md                # Méthodologie audit
+│
+└── Etat-Historique/            # Rapports et historiques (archives)
+
+**Sources de vérité code** (consulter plutôt que documenter) :
+- `src/games/registry.ts` — Liste des jeux et leur statut
+- `src/constants/icons.ts` — 78 icônes centralisées
+- `src/games/*/components/*Mascot.tsx` — Mascottes implémentées
 ```
 
 ---

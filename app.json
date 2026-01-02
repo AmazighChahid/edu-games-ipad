@@ -15,11 +15,14 @@
       "infoPlist": {
         "UISupportedInterfaceOrientations~ipad": [
           "UIInterfaceOrientationLandscapeLeft",
+          "UIInterfaceOrientationLandscapeRight",
+          "UIInterfaceOrientationLandscapeLeft",
           "UIInterfaceOrientationLandscapeRight"
         ]
       }
     },
     "android": {
+      "package": "com.helloguys.app",
       "adaptiveIcon": {
         "backgroundColor": "#F5F0E8",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -46,13 +49,28 @@
       [
         "expo-font",
         {
-          "fonts": ["./assets/fonts/FredokaOne-Regular.otf"]
+          "fonts": [
+            "./assets/fonts/FredokaOne-Regular.otf"
+          ]
         }
       ]
     ],
     "experiments": {
       "typedRoutes": true,
       "tsconfigPaths": false
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "cfd19b18-0301-41cf-984d-a1ac7533451b"
+      }
+    },
+    "owner": "jonrambo",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/cfd19b18-0301-41cf-984d-a1ac7533451b"
     }
   }
 }

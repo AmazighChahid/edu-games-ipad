@@ -1,7 +1,20 @@
-# 🆕 Création d'un Nouveau Composant UI
+# Création d'un Nouveau Composant UI
 
 > **Usage** : `nouveau-composant.md <NomComposant>`
 > **Exemple** : `nouveau-composant.md StreakBadge`
+
+---
+
+## Protocole 3 étapes
+
+> Ce pré-prompt suit le protocole : **Confirmer → Questionner → Planifier**
+> Les étapes ci-dessous correspondent à ce cadre.
+
+| Phase | Étapes correspondantes |
+|-------|------------------------|
+| **1. Confirmer** | Étape 1 (Vérifier existence) + Documents à lire |
+| **2. Questionner** | Étape 2 (Définir interface) |
+| **3. Planifier** | Étapes 3-5 (Template + Checklist + Doc) |
 
 ---
 

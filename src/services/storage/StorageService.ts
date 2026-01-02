@@ -8,9 +8,17 @@
  * - Sync serveur (future) - prêt pour migration cloud
  */
 
-import * as SQLite from 'expo-sqlite';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
+
+// Import dynamique de SQLite pour éviter les erreurs sur le web
+type SQLiteModule = typeof import('expo-sqlite');
+let SQLite: SQLiteModule | null = null;
+
+if (Platform.OS !== 'web') {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  SQLite = require('expo-sqlite');
+}
 
 // ============================================================================
 // TYPES
@@ -38,7 +46,7 @@ export interface SyncConfig {
 // ============================================================================
 
 class SQLiteAdapter implements StorageAdapter {
-  private db: SQLite.SQLiteDatabase | null = null;
+  private db: import('expo-sqlite').SQLiteDatabase | null = null;
   private dbName = 'edu_games.db';
   private tableName = 'app_storage';
   private initialized = false;
@@ -47,6 +55,9 @@ class SQLiteAdapter implements StorageAdapter {
     if (this.initialized) return;
 
     try {
+      if (!SQLite) {
+        throw new Error('SQLite not available on this platform');
+      }
       this.db = await SQLite.openDatabaseAsync(this.dbName);
 
       // Créer la table si elle n'existe pas

@@ -57,12 +57,17 @@ L'objectif n'est PAS le résultat correct, mais la **transmission des MÉTHODES 
 | **Règles code** | `CLAUDE_CODE_RULES.md` | `docs/Méthodologies/RÈGLES/` |
 | **Design tokens** | `DESIGN_SYSTEM.md` | `docs/Méthodologies/RÈGLES/` |
 | **Composants UI** | `UI_COMPONENTS_CATALOG.md` | `docs/Méthodologies/RÈGLES/` |
-| **Patterns UI** | `UI_PATTERNS.md` | `docs/Méthodologies/RÈGLES/` |
 | **Architecture jeux** | `GAME_ARCHITECTURE.md` | `docs/Méthodologies/ARCHITECTURE/` |
-| **Structure projet** | `PROJECT_STRUCTURE.md` | `docs/Méthodologies/ARCHITECTURE/` |
-| **Types universels** | `TRAME_REFERENTIEL.md` | `docs/Méthodologies/ARCHITECTURE/` |
-| **Mascottes** | `MASCOTTES_REGISTRY.md` | `docs/Méthodologies/REGISTRES/` |
-| **Icônes** | `ICONS_REGISTRY.md` | `docs/Méthodologies/REGISTRES/` |
+| **Store Zustand** | `STORE_ARCHITECTURE.md` | `docs/Méthodologies/ARCHITECTURE/` |
+| **Structure projet** | `PROJECT_STRUCTURE.MD` | `docs/Méthodologies/ARCHITECTURE/` |
+| **Mascottes** | `MASCOTTES_GUIDELINES.md` | `docs/Méthodologies/CONTEXTE/` |
+
+**Sources de vérité code** (consulter le code, pas les docs) :
+| Information | Fichier |
+|-------------|---------|
+| Liste des jeux | `src/games/registry.ts` |
+| Icônes | `src/constants/icons.ts` |
+| Mascottes | `src/games/*/components/*Mascot.tsx` |
 
 ---
 
@@ -107,7 +112,8 @@ GameIntroTemplate, Confetti, ProgressIndicator
 ## 🎮 Jeux disponibles (15)
 
 > **Source de vérité** → `src/games/registry.ts`
-> **Mascottes détaillées** → `docs/Méthodologies/REGISTRES/MASCOTTES_REGISTRY.md`
+> **Mascottes guidelines** → `docs/Méthodologies/CONTEXTE/MASCOTTES_GUIDELINES.md`
+> **Mascottes implémentées** → `src/games/*/components/*Mascot.tsx`
 
 | # | Jeu | Status | Mascotte |
 |---|-----|--------|----------|

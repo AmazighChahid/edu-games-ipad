@@ -2,6 +2,38 @@
 
 ---
 
+## Protocole 3 étapes
+
+### Étape 1 : Confirmer la lecture
+
+```text
+✅ J'ai lu : GAME_ARCHITECTURE.md, DESIGN_SYSTEM.md, MASCOTTES_GUIDELINES.md
+✅ Référence code : src/games/02-suites-logiques/
+✅ Points clés : Pattern Hook+Template, structure fichiers obligatoire
+```
+
+### Étape 2 : Questions de clarification
+
+1. Tranche d'âge cible ?
+2. Catégorie (logic / memory / spatial / math / language) ?
+3. Compétences cognitives visées ?
+4. Méthode enseignée ?
+
+### Étape 3 : Plan de création
+
+```text
+📋 PLAN :
+Les 4 phases ci-dessous constituent le plan :
+- Phase A : Fiches éducatives
+- Phase B : Implémentation code
+- Phase C : Intégration registry + routes
+- Phase D : Validation checklist
+
+→ ATTENDRE VALIDATION avant de commencer
+```
+
+---
+
 ## Documents à lire
 
 | Document | Contenu |
@@ -16,7 +48,7 @@
 
 ## Processus en 4 phases
 
-### Phase 1 : Préparation (Fiches Éducatives)
+### Phase A : Préparation (Fiches Éducatives)
 
 Créer le dossier `/Fiches Educatives/{XX-NomJeu}/` avec 4 fichiers :
 
@@ -256,7 +288,7 @@ interface {Nom}Level extends LevelConfig {
 
 ---
 
-### Phase 2 : Implémentation
+### Phase B : Implémentation
 
 Créer le dossier `/src/games/{XX-nomJeu}/` :
 
@@ -378,7 +410,7 @@ export function use{NomJeu}Game({ level, onVictory, onMove }: Use{NomJeu}GamePro
 }
 ```
 
-### Phase 3 : Intégration
+### Phase C : Intégration
 
 #### 1. Ajouter dans le registry
 
@@ -436,7 +468,7 @@ export default function {NomJeu}Page() {
 }
 ```
 
-### Phase 4 : Validation
+### Phase D : Validation
 
 #### Checklist obligatoire
 

@@ -79,13 +79,13 @@ Tu co-construis ce projet en adoptant une posture de collaborateur expert.
 | **math** | Raisonnement quantitatif, calcul mental |
 | **language** | Vocabulaire, compréhension, expression |
 
-> **Liste des 15 jeux** → `ROADMAP_ACTIVITES.md`
+> **Liste des jeux** → `src/games/registry.ts` (source de vérité code)
 
 ---
 
 ## 4. PRINCIPES UX ENFANT
 
-> **Détails complets** → `GUIDE_UX_UI_APP_EDUCATIVE.md`
+> **Détails complets** → `RÈGLES/DESIGN_SYSTEM.md`
 
 ### Règles fondamentales
 
@@ -163,7 +163,7 @@ Tu co-construis ce projet en adoptant une posture de collaborateur expert.
 
 ### Template Fiche Activité
 
-> **Template complet** → `fiche-educative.md`
+> **Template complet** → `PRÉPROMPTS/nouveau-jeu.md`
 
 ```markdown
 - **Nom du jeu** : [Nom]
@@ -205,11 +205,19 @@ Tu co-construis ce projet en adoptant une posture de collaborateur expert.
 
 | Document | Contenu |
 |----------|---------|
-| `GUIDE_UX_UI_APP_EDUCATIVE.md` | Principes UX détaillés |
-| `DESIGN_SYSTEM.md` | Tokens (couleurs, typo, spacing) |
-| `TRAME_REFERENTIEL.md` | Architecture technique des activités |
-| `ROADMAP_ACTIVITES.md` | Liste des 18 activités planifiées |
-| `MASCOTTES_REGISTRY.md` | Détails des mascottes |
+| `RÈGLES/DESIGN_SYSTEM.md` | Tokens (couleurs, typo, spacing) + Principes UX |
+| `RÈGLES/CLAUDE_CODE_RULES.md` | Règles obligatoires pour Claude Code |
+| `RÈGLES/UI_COMPONENTS_CATALOG.md` | Composants UI disponibles |
+| `ARCHITECTURE/GAME_ARCHITECTURE.md` | Architecture technique des activités |
+| `CONTEXTE/MASCOTTES_GUIDELINES.md` | Guidelines mascottes |
+| `PRÉPROMPTS/nouveau-jeu.md` | Process création nouveau jeu |
+
+**Sources de vérité code** :
+| Fichier | Contenu dynamique |
+|---------|-------------------|
+| `src/games/registry.ts` | Liste des jeux et leur statut |
+| `src/constants/icons.ts` | Icônes disponibles |
+| `src/games/*/components/*Mascot.tsx` | Mascottes implémentées |
 
 ---
 
