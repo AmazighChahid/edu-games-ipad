@@ -1,48 +1,38 @@
-# Création d'un Nouveau Jeu
+---
+name: nouveau-jeu
+description: Créer un nouveau jeu éducatif complet. Couvre les 4 phases - Fiches Éducatives, Implémentation (Hook+Template), Intégration (registry, routes), Validation. Suit l'architecture de référence src/games/02-suites-logiques/.
+model: opus
+color: orange
+---
+
+# Agent Nouveau Jeu — Hello Guys
+
+**Déclencheur**: `/nouveau-jeu` ou demande de création d'un nouveau jeu éducatif
 
 ---
 
-## Protocole 3 étapes
+## Mission
 
-### Étape 1 : Confirmer la lecture
-
-```text
-✅ J'ai lu : GAME_ARCHITECTURE.md, DESIGN_SYSTEM.md, MASCOTTES_GUIDELINES.md
-✅ Référence code : src/games/02-suites-logiques/
-✅ Points clés : Pattern Hook+Template, structure fichiers obligatoire
-```
-
-### Étape 2 : Questions de clarification
-
-1. Tranche d'âge cible ?
-2. Catégorie (logic / memory / spatial / math / language) ?
-3. Compétences cognitives visées ?
-4. Méthode enseignée ?
-
-### Étape 3 : Plan de création
-
-```text
-📋 PLAN :
-Les 4 phases ci-dessous constituent le plan :
-- Phase A : Fiches éducatives
-- Phase B : Implémentation code
-- Phase C : Intégration registry + routes
-- Phase D : Validation checklist
-
-→ ATTENDRE VALIDATION avant de commencer
-```
+Créer un nouveau jeu éducatif complet, de la conception pédagogique à l'implémentation technique, en suivant l'architecture Hook+Template du projet.
 
 ---
 
-## Documents à lire
+## Documents de référence (LIRE EN PREMIER)
 
-| Document | Contenu |
-|----------|---------|
-| `ARCHITECTURE/GAME_ARCHITECTURE.md` | Pattern Hook+Template, structure fichiers |
-| `RÈGLES/DESIGN_SYSTEM.md` | Tokens UI |
-| `CONTEXTE/MASCOTTES_GUIDELINES.md` | Règles mascottes |
+1. `docs/Méthodologies/ARCHITECTURE/GAME_ARCHITECTURE.md` — Pattern Hook+Template, structure fichiers
+2. `docs/Méthodologies/RÈGLES/DESIGN_SYSTEM.md` — Tokens UI
+3. `docs/Méthodologies/CONTEXTE/MASCOTTES_GUIDELINES.md` — Règles mascottes
 
 **Référence code** : `src/games/02-suites-logiques/` (implémentation complète)
+
+---
+
+## Étape 1 : Clarifier le besoin pédagogique
+
+1. **Tranche d'âge cible** : 6-7 / 7-8 / 8-9 / 9-10 ans ?
+2. **Catégorie** : logic / memory / spatial / math / language ?
+3. **Compétences cognitives visées** : lesquelles parmi les 22 disponibles ?
+4. **Méthode enseignée** : quel processus de réflexion l'enfant doit intérioriser ?
 
 ---
 
@@ -50,7 +40,7 @@ Les 4 phases ci-dessous constituent le plan :
 
 ### Phase A : Préparation (Fiches Éducatives)
 
-Créer le dossier `/Fiches Educatives/{XX-NomJeu}/` avec 4 fichiers :
+Créer le dossier `Fiches Educatives/{XX-NomJeu}/` avec 4 fichiers :
 
 | Fichier | Contenu |
 |---------|---------|
@@ -59,7 +49,7 @@ Créer le dossier `/Fiches Educatives/{XX-NomJeu}/` avec 4 fichiers :
 | `DIALOGUES_IA.md` | Scripts mascotte par âge |
 | `SPECS_TECHNIQUES.md` | Architecture, composants, animations |
 
-**Exemple complet** : `/Fiches Educatives/01-Tour de Hanoï/`
+**Exemple complet** : `Fiches Educatives/01-Tour de Hanoï/`
 
 #### Template FICHE_ACTIVITE.md
 
@@ -290,7 +280,7 @@ interface {Nom}Level extends LevelConfig {
 
 ### Phase B : Implémentation
 
-Créer le dossier `/src/games/{XX-nomJeu}/` :
+Créer le dossier `src/games/{XX-nomJeu}/` :
 
 ```
 {XX-nomJeu}/
@@ -341,13 +331,13 @@ export interface {NomJeu}Move {
 }
 ```
 
-#### Template Hook principal
+#### Template use{NomJeu}Game.ts
 
 ```typescript
 // src/games/{XX-nomJeu}/hooks/use{NomJeu}Game.ts
 
 import { useState, useCallback, useMemo } from 'react';
-import type { {NomJeu}State, {NomJeu}Level } from '../types';
+import type { {NomJeu}State, {NomJeu}Level, {NomJeu}Move } from '../types';
 
 interface Use{NomJeu}GameProps {
   level: {NomJeu}Level;
@@ -370,18 +360,18 @@ export function use{NomJeu}Game({ level, onVictory, onMove }: Use{NomJeu}GamePro
   // 3. Exécution d'un coup
   const executeMove = useCallback((move: {NomJeu}Move) => {
     if (!isValidMove(move)) return false;
-    
+
     setGameState(prev => {
       // Appliquer le coup
       return prev;
     });
-    
+
     setMoveCount(prev => prev + 1);
     onMove?.(move);
-    
+
     // Vérifier victoire
     // if (checkVictory()) onVictory();
-    
+
     return true;
   }, [isValidMove, onMove, onVictory]);
 
@@ -409,6 +399,8 @@ export function use{NomJeu}Game({ level, onVictory, onMove }: Use{NomJeu}GamePro
   };
 }
 ```
+
+---
 
 ### Phase C : Intégration
 
@@ -447,6 +439,7 @@ app/(games)/{XX-nomjeu}/
 ```
 
 **_layout.tsx** :
+
 ```typescript
 import { Stack } from 'expo-router';
 
@@ -460,6 +453,7 @@ export default function Layout() {
 ```
 
 **index.tsx** :
+
 ```typescript
 import {NomJeu}IntroScreen from '@/games/{XX-nomjeu}/screens/{NomJeu}IntroScreen';
 
@@ -468,27 +462,33 @@ export default function {NomJeu}Page() {
 }
 ```
 
+---
+
 ### Phase D : Validation
 
 #### Checklist obligatoire
 
 **Structure**
+
 - [ ] Tous les fichiers créés selon le template
 - [ ] Exports corrects dans `index.ts`
 - [ ] Types TypeScript complets
 
 **UI/UX**
+
 - [ ] Utilise `GameIntroTemplate` ou structure équivalente
-- [ ] Touch targets ≥ 64dp
-- [ ] Texte courant ≥ 18pt
+- [ ] Touch targets >= 64dp
+- [ ] Texte courant >= 18pt
 - [ ] Feedback jamais punitif
 
 **Intégration**
+
 - [ ] Ajouté dans `registry.ts`
 - [ ] Route créée dans `app/(games)/`
 - [ ] Mascotte créée (voir `MASCOTTES_GUIDELINES.md`)
 
 **Pédagogie**
+
 - [ ] Méthode enseignée clairement définie
 - [ ] 3-5 compétences cognitives ciblées
 - [ ] Dialogues IA adaptés par âge
@@ -496,35 +496,15 @@ export default function {NomJeu}Page() {
 
 ---
 
-## Questions à poser avant de commencer
-
-1. **Tranche d'âge cible** : 6-7 / 7-8 / 8-9 / 9-10 ans ?
-2. **Catégorie** : logic / memory / spatial / math / language ?
-3. **Compétences cognitives** : lesquelles parmi les 22 disponibles ?
-4. **Mascotte** : créer selon `MASCOTTES_GUIDELINES.md`
-5. **Niveaux** : combien ? quels paramètres varient ?
-6. **Méthode enseignée** : quel processus de réflexion ?
-
----
-
 ## Règles critiques
 
-> **Source complète** → `CLAUDE_CODE_RULES.md`
-
-```typescript
-// ✅ Imports obligatoires
-import { theme } from '@/theme';
-import { Icons } from '@/constants/icons';
-import { PageContainer, ScreenHeader, GameModal } from '@/components/common';
-
-// ✅ Touch targets enfant
-minWidth: theme.touchTargets.child, // 64dp
-minHeight: theme.touchTargets.child,
-
-// ✅ Skills valides (parmi les 22)
-skills: CognitiveSkill[]
-```
+- Touch targets >= 64dp
+- Texte courant >= 18pt
+- `import { theme } from '@/theme'`
+- `import { Icons } from '@/constants/icons'`
+- Feedback JAMAIS punitif
+- Méthode enseignée > Résultat correct
 
 ---
 
-*Préprompt création jeu — Décembre 2024*
+*Agent création jeu — Janvier 2026*

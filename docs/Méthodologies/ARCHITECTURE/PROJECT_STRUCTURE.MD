@@ -1,7 +1,7 @@
 # Architecture du Projet Hello Guys
 
 > Application éducative pour enfants (6-10 ans) - React Native / Expo
-> **Version** : 2.2 — 29 Décembre 2024
+> **Version** : 2.3 — Janvier 2026
 
 ---
 
@@ -394,19 +394,7 @@ src/hooks/
 
 ### `/src/store/` - État Global (Zustand)
 
-```
-src/store/
-├── useStore.ts                 # Store principal Zustand
-└── slices/                     # Slices du store
-    ├── appSlice.ts             # État de l'application (loading, errors)
-    ├── assistantSlice.ts       # Messages de l'assistant
-    ├── collectionSlice.ts      # Collection de cartes
-    ├── gameSessionSlice.ts     # Session de jeu en cours
-    ├── goalsSlice.ts           # Objectifs parentaux
-    ├── profileSlice.ts         # Profil utilisateur
-    ├── progressSlice.ts        # Progression globale
-    └── screenTimeSlice.ts      # Temps d'écran
-```
+> **Architecture détaillée** → `STORE_ARCHITECTURE.md`
 
 ---
 
@@ -552,7 +540,7 @@ assets/
 
 ```
 docs/Méthodologies/
-├── 00-INDEX.md                 # ⭐ Index + pré-prompts Claude Code
+├── 00-INDEX.md                 # ⭐ Index documentation
 │
 ├── RÈGLES/                     # Règles stables (source de vérité)
 │   ├── CLAUDE_CODE_RULES.md    # Règles obligatoires Claude Code
@@ -568,11 +556,17 @@ docs/Méthodologies/
 │   ├── INSTRUCTIONS_PROJET.md  # Vision pédagogique
 │   └── MASCOTTES_GUIDELINES.md # Guidelines mascottes
 │
-├── PRÉPROMPTS/                 # Prompts pour Claude Code
-│   ├── nouveau-jeu.md          # Process création nouveau jeu
-│   └── audit.md                # Méthodologie audit
-│
 └── Etat-Historique/            # Rapports et historiques (archives)
+
+.claude/agents/                 # ⭐ Agents Claude Code
+├── nouveau-jeu.md              # /nouveau-jeu — Créer un jeu
+├── nouveau-composant.md        # /nouveau-composant — Créer composant
+├── audit.md                    # /audit — Vérifier conformité
+├── bug.md                      # /bug — Corriger un bug
+├── refactoring.md              # /refactoring — Homogénéiser écran
+├── mascotte.md                 # /mascotte — Créer mascotte
+├── fiche-educative.md          # /fiche-educative — Docs pédagogiques
+└── test-runner.md              # Tests et validation
 
 **Sources de vérité code** (consulter plutôt que documenter) :
 - `src/games/registry.ts` — Liste des jeux et leur statut
@@ -741,12 +735,10 @@ import type { GameState, LevelConfig } from './types';
 
 5. **Animations** : Utiliser React Native Reanimated 3 pour toutes les animations (60 FPS).
 
-6. **Jeux disponibles** (15 total) :
-   - ✅ **Disponibles** (11) : 01-Hanoi, 02-Suites, 03-Labyrinthe, 04-Balance, 05-Sudoku, 06-Conteur, 07-Memory, 08-Tangram, 09-Logix, 10-MotsCroisés, 11-MathBlocks
-   - 🔜 **Coming Soon** (4) : 12-Matrices Magiques, 13-Embouteillage, 14-Fabrique Réactions, 15-Chasseur Papillons
+6. **Jeux disponibles** : Consulter `src/games/registry.ts` (source de vérité).
 
 7. **Import du thème** : Toujours utiliser `import { theme } from '@/theme'` et non `/constants/`.
 
 ---
 
-*Dernière mise à jour : 28 Décembre 2024 — v2.1*
+*Dernière mise à jour : Janvier 2026 — v2.3*

@@ -46,7 +46,7 @@ src/components/common/
 </View>
 
 // ❌ Créer son propre fond
-<View style={{ flex: 1, backgroundColor: '#FFF9F0' }}>
+<View style={{ flex: 1, backgroundColor: '#E8F4FC' }}>
 
 // ❌ Importer depuis /constants/ (DEPRECATED)
 import { Colors } from '@/constants/theme';
@@ -147,28 +147,28 @@ const styles = StyleSheet.create({
 
 > **Référence complète des tokens** → `DESIGN_SYSTEM.md`
 
-### ❌ INTERDIT - Valeurs hardcodées
+### Valeurs hardcodées INTERDITES
 
 ```tsx
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#FFF9F0',     // ❌ Couleur en dur
-    padding: 16,                     // ❌ Spacing en dur
-    borderRadius: 12,                // ❌ Border radius en dur
-    fontSize: 18,                    // ❌ Font size en dur
-    fontFamily: 'Nunito',           // ❌ Font family en dur
+    backgroundColor: '#E8F4FC',     // Couleur en dur
+    padding: 16,                     // Spacing en dur
+    borderRadius: 12,                // Border radius en dur
+    fontSize: 18,                    // Font size en dur
+    fontFamily: 'Nunito',           // Font family en dur
   },
 });
 ```
 
-### ✅ OBLIGATOIRE - Tokens du theme
+### Tokens du theme OBLIGATOIRES
 
 ```tsx
 import { theme } from '@/theme';
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: theme.colors.background.main,
+    backgroundColor: theme.colors.background.primary,
     padding: theme.spacing[4],
     borderRadius: theme.borderRadius.lg,
   },
@@ -184,11 +184,13 @@ const styles = StyleSheet.create({
 
 ```typescript
 // COULEURS
-theme.colors.primary.main        // #5B8DEE
-theme.colors.secondary.main      // #FFB347
-theme.colors.feedback.success    // #7BC74D
-theme.colors.feedback.error      // #E57373
-theme.colors.background.main     // #FFF9F0
+theme.colors.primary.main        // #4A90D9
+theme.colors.secondary.main      // #F5A623
+theme.colors.feedback.success    // #48BB78
+theme.colors.feedback.error      // #F56565
+theme.colors.feedback.warning    // #ECC94B
+theme.colors.background.primary  // #E8F4FC
+theme.colors.background.card     // #FFFFFF
 theme.colors.text.primary        // #2D3748
 
 // ESPACEMENTS
@@ -200,20 +202,21 @@ theme.spacing[6]   // 24
 theme.spacing[8]   // 32
 
 // TYPOGRAPHIE
-theme.fontSize.sm   // 14
-theme.fontSize.md   // 16
-theme.fontSize.lg   // 18 (minimum texte courant)
-theme.fontSize.xl   // 20
-theme.fontSize['2xl'] // 24
+theme.fontSize.sm    // 14
+theme.fontSize.base  // 16
+theme.fontSize.lg    // 18 (minimum texte courant)
+theme.fontSize.xl    // 24
+theme.fontSize['2xl'] // 32
 
 // POLICES
-theme.fontFamily.regular  // Nunito
-theme.fontFamily.bold     // Nunito-Bold
-theme.fontFamily.display  // Fredoka (titres)
+theme.fontFamily.regular  // Nunito_400Regular
+theme.fontFamily.bold     // Nunito_700Bold
+theme.fontFamily.display  // Fredoka_600SemiBold (titres)
+theme.fontFamily.title    // FredokaOne-Regular (gros titres)
 
 // TOUCH TARGETS
-theme.touchTargets.child  // 64 (minimum enfant)
-theme.touchTargets.adult  // 48
+theme.touchTargets.child     // 64 (minimum enfant)
+theme.touchTargets.minimum   // 44
 ```
 
 ---

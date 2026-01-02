@@ -1,28 +1,27 @@
-# Création d'un Nouveau Composant UI
+---
+name: nouveau-composant
+description: Créer un nouveau composant UI réutilisable dans src/components/common/. Respecte les contraintes enfant (touch targets 64dp, texte 18pt), tokens du theme et accessibilité. Utiliser avec `/nouveau-composant <NomComposant>`.
+model: opus
+color: green
+---
 
-> **Usage** : `nouveau-composant.md <NomComposant>`
-> **Exemple** : `nouveau-composant.md StreakBadge`
+# Agent Nouveau Composant — Hello Guys
+
+**Déclencheur**: `/nouveau-composant <NomComposant>` ou demande de création d'un composant UI
 
 ---
 
-## Protocole 3 étapes
+## Mission
 
-> Ce pré-prompt suit le protocole : **Confirmer → Questionner → Planifier**
-> Les étapes ci-dessous correspondent à ce cadre.
-
-| Phase | Étapes correspondantes |
-|-------|------------------------|
-| **1. Confirmer** | Étape 1 (Vérifier existence) + Documents à lire |
-| **2. Questionner** | Étape 2 (Définir interface) |
-| **3. Planifier** | Étapes 3-5 (Template + Checklist + Doc) |
+Créer un nouveau composant UI réutilisable dans `src/components/common/`, en respectant strictement les règles du projet (contraintes enfant, tokens du theme, accessibilité).
 
 ---
 
-## Documents à lire AVANT de commencer
+## Documents de référence (LIRE EN PREMIER)
 
-1. `CLAUDE_CODE_RULES.md` — Règles non-négociables
-2. `UI_COMPONENTS_CATALOG.md` — Composants existants (NE PAS RECRÉER)
-3. `DESIGN_SYSTEM.md` — Tokens à utiliser
+1. `docs/Méthodologies/RÈGLES/CLAUDE_CODE_RULES.md` — Règles non-négociables
+2. `docs/Méthodologies/RÈGLES/UI_COMPONENTS_CATALOG.md` — Composants existants (NE PAS RECRÉER)
+3. `docs/Méthodologies/RÈGLES/DESIGN_SYSTEM.md` — Tokens à utiliser
 
 ---
 
@@ -34,33 +33,32 @@
 ls -la src/components/common/
 ```
 
-Composants existants (NE PAS RECRÉER) :
+**Composants existants (NE PAS RECRÉER)** :
+
 - `BackButton`, `Button`, `IconButton`
 - `ScreenHeader`, `ScreenBackground`, `PageContainer`
 - `GameModal`, `VictoryCard`, `ParentGate`
 - `GameIntroTemplate`, `MascotBubble`, `HintButton`
 - `Confetti`, `ProgressIndicator`, `PetalsIndicator`
 
-> **Si le composant existe** → l'utiliser tel quel ou proposer une amélioration
+> Si le composant existe déjà → proposer de l'utiliser ou de l'améliorer
 
 ---
 
 ## Étape 2 : Définir l'interface
 
-```typescript
-// Répondre à ces questions :
+Demander à l'utilisateur :
 
-// 1. Quelles props obligatoires ?
-// 2. Quelles props optionnelles ?
-// 3. Quels variants ?
-// 4. Callbacks nécessaires ?
-```
+1. Quelles props obligatoires ?
+2. Quelles props optionnelles ?
+3. Quels variants visuels ?
+4. Quels callbacks nécessaires ?
 
 ---
 
-## Étape 3 : Template de composant
+## Étape 3 : Créer le composant
 
-### Structure de fichier
+### Structure de fichiers
 
 ```
 src/components/common/
@@ -74,14 +72,14 @@ src/components/common/
 // src/components/common/{NomComposant}.tsx
 
 import React from 'react';
-import { View, Text, StyleSheet, Pressable } from 'react-native';
-import Animated, { 
-  useAnimatedStyle, 
+import { View, Text, StyleSheet, Pressable, StyleProp, ViewStyle } from 'react-native';
+import Animated, {
+  useAnimatedStyle,
   withSpring,
   useSharedValue,
 } from 'react-native-reanimated';
 
-// ⚠️ IMPORTS OBLIGATOIRES
+// IMPORTS OBLIGATOIRES
 import { theme } from '@/theme';
 import { Icons } from '@/constants/icons';
 
@@ -92,22 +90,11 @@ import { Icons } from '@/constants/icons';
 export type {NomComposant}Variant = 'default' | 'primary' | 'secondary';
 
 export interface {NomComposant}Props {
-  /** Contenu principal */
   children?: React.ReactNode;
-  
-  /** Variant visuel */
   variant?: {NomComposant}Variant;
-  
-  /** Désactivé */
   disabled?: boolean;
-  
-  /** Callback au press */
   onPress?: () => void;
-  
-  /** Accessibilité */
   accessibilityLabel?: string;
-  
-  /** Style personnalisé */
   style?: StyleProp<ViewStyle>;
 }
 
@@ -123,14 +110,12 @@ export function {NomComposant}({
   accessibilityLabel,
   style,
 }: {NomComposant}Props) {
-  // Animation press
   const pressed = useSharedValue(false);
-  
+
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: withSpring(pressed.value ? 0.95 : 1) }],
   }));
 
-  // Styles selon variant
   const containerStyle = [
     styles.container,
     styles[`container_${variant}`],
@@ -161,49 +146,33 @@ export function {NomComposant}({
 
 const styles = StyleSheet.create({
   container: {
-    // ⚠️ Touch target minimum enfant
+    // Touch target minimum enfant
     minWidth: theme.touchTargets.child,  // 64dp
     minHeight: theme.touchTargets.child, // 64dp
-    
-    // Layout
     alignItems: 'center',
     justifyContent: 'center',
-    
-    // Spacing
     padding: theme.spacing[4],
     borderRadius: theme.borderRadius.lg,
-    
-    // Couleur par défaut
     backgroundColor: theme.colors.background.card,
   },
-  
   container_default: {
     backgroundColor: theme.colors.background.card,
   },
-  
   container_primary: {
     backgroundColor: theme.colors.primary.main,
   },
-  
   container_secondary: {
     backgroundColor: theme.colors.secondary.main,
   },
-  
   disabled: {
     opacity: 0.5,
   },
-  
   text: {
-    // ⚠️ Taille minimum enfant
-    fontSize: theme.fontSize.lg, // 18pt
+    fontSize: theme.fontSize.lg, // 18pt minimum
     fontFamily: theme.fontFamily.regular,
     color: theme.colors.text.primary,
   },
 });
-
-// ============================================
-// EXPORT DEFAULT
-// ============================================
 
 export default {NomComposant};
 ```
@@ -213,51 +182,15 @@ export default {NomComposant};
 ```typescript
 // src/components/common/index.ts
 
-// Ajouter la ligne :
 export { {NomComposant} } from './{NomComposant}';
 export type { {NomComposant}Props, {NomComposant}Variant } from './{NomComposant}';
 ```
 
 ---
 
-## Étape 4 : Checklist de validation
+## Étape 4 : Mettre à jour la documentation
 
-### Structure
-- [ ] Fichier dans `src/components/common/`
-- [ ] Export ajouté dans `index.ts`
-- [ ] Types exportés
-
-### Imports
-- [ ] `import { theme } from '@/theme'`
-- [ ] `import { Icons } from '@/constants/icons'` (si emojis)
-- [ ] Aucun import depuis `/constants/` deprecated
-
-### Contraintes enfant
-- [ ] `minWidth: theme.touchTargets.child` (64dp)
-- [ ] `minHeight: theme.touchTargets.child` (64dp)
-- [ ] `fontSize: theme.fontSize.lg` minimum pour texte (18pt)
-- [ ] `fontFamily` explicite sur tous les Text
-
-### Accessibilité
-- [ ] `accessible={true}`
-- [ ] `accessibilityLabel` prop
-- [ ] `accessibilityRole` approprié
-
-### Animations
-- [ ] Utiliser Reanimated 3
-- [ ] `withSpring` pour les transitions
-- [ ] Feedback visuel sur press
-
-### Styles
-- [ ] Aucune couleur hardcodée (`#XXX`)
-- [ ] Aucun spacing hardcodé
-- [ ] Utiliser `theme.xxx` pour tout
-
----
-
-## Étape 5 : Documentation
-
-Après création, mettre à jour `UI_COMPONENTS_CATALOG.md` :
+Après création, proposer d'ajouter au `UI_COMPONENTS_CATALOG.md` :
 
 ```markdown
 ### {NomComposant}
@@ -272,33 +205,72 @@ Après création, mettre à jour `UI_COMPONENTS_CATALOG.md` :
 | onPress | () => void | — | Callback au press |
 
 **Exemple** :
-```tsx
+\`\`\`tsx
 import { {NomComposant} } from '@/components/common';
 
 <{NomComposant} variant="primary" onPress={handlePress}>
   Contenu
 </{NomComposant}>
+\`\`\`
 ```
-```
+
+---
+
+## Checklist de validation
+
+### Structure
+
+- [ ] Fichier dans `src/components/common/`
+- [ ] Export ajouté dans `index.ts`
+- [ ] Types exportés
+
+### Imports
+
+- [ ] `import { theme } from '@/theme'`
+- [ ] `import { Icons } from '@/constants/icons'` (si emojis)
+- [ ] Aucun import depuis `/constants/` deprecated
+
+### Contraintes enfant
+
+- [ ] `minWidth: theme.touchTargets.child` (64dp)
+- [ ] `minHeight: theme.touchTargets.child` (64dp)
+- [ ] `fontSize: theme.fontSize.lg` minimum pour texte (18pt)
+- [ ] `fontFamily` explicite sur tous les Text
+
+### Accessibilité
+
+- [ ] `accessible={true}`
+- [ ] `accessibilityLabel` prop
+- [ ] `accessibilityRole` approprié
+
+### Animations
+
+- [ ] Utiliser Reanimated 3
+- [ ] `withSpring` pour les transitions
+- [ ] Feedback visuel sur press
+
+### Styles
+
+- [ ] Aucune couleur hardcodée (`#XXX`)
+- [ ] Aucun spacing hardcodé
+- [ ] Utiliser `theme.xxx` pour tout
 
 ---
 
 ## Règles critiques (rappel)
 
-> **Source complète** → `CLAUDE_CODE_RULES.md`
-
 ```typescript
-// ❌ INTERDIT
-backgroundColor: '#5B8DEE',  // Couleur hardcodée
+// INTERDIT
+backgroundColor: '#4A90D9',  // Couleur hardcodée
 padding: 16,                  // Spacing hardcodé
 width: 48,                    // Touch target trop petit
 
-// ✅ OBLIGATOIRE
-backgroundColor: theme.colors.primary.main,
+// OBLIGATOIRE
+backgroundColor: theme.colors.primary.main,  // #4A90D9
 padding: theme.spacing[4],
-minWidth: theme.touchTargets.child,
+minWidth: theme.touchTargets.child,  // 64dp
 ```
 
 ---
 
-*Préprompt création composant — Décembre 2024*
+*Agent création composant — Janvier 2026*

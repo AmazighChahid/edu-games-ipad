@@ -304,4 +304,4 @@
 
 ---
 
-*Document pour Claude Code — Décembre 2024*
+*Document pour Claude Code — Janvier 2026*

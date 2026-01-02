@@ -1,7 +1,7 @@
 # 🎨 DESIGN SYSTEM — Hello Guys
 ## App Éducative iPad • Enfants 6-10 ans
 
-> **Version** : 3.0 (Fusion V1 + V2) • Décembre 2024
+> **Version** : 4.1 • Janvier 2026
 > **Source de vérité code** : `/src/theme/`
 
 ---
@@ -27,23 +27,24 @@ import { theme } from '@/constants/theme';
 
 | Nom | Code | Usage | Émotion |
 |-----|------|-------|---------|
-| **Primary** | `#5B8DEE` | Boutons, navigation | Confiance, calme |
-| **Secondary** | `#FFB347` | Accents, CTA | Chaleur, énergie |
-| **Success** | `#7BC74D` | Validation, réussite | Accomplissement |
+| **Primary** | `#4A90D9` | Boutons, navigation | Confiance, calme |
+| **Secondary** | `#F5A623` | Accents, CTA | Chaleur, énergie |
+| **Success** | `#48BB78` | Validation, réussite | Accomplissement |
 | **Accent** | `#E056FD` | Éléments ludiques | Créativité, magie |
-| **Attention** | `#F39C12` | Indices, aide | Curiosité |
-| **Background** | `#FFF9F0` | Fond principal | Douceur |
-| **Error** | `#E17055` | Erreurs (rare) | Orange doux, PAS rouge |
+| **Warning** | `#ECC94B` | Indices, aide | Curiosité |
+| **Background** | `#E8F4FC` | Fond principal | Douceur, clarté |
+| **Error** | `#F56565` | Erreurs (rare) | Rouge doux |
 
 ### Tokens dans le code
 
 ```typescript
 // Accès via theme
-theme.colors.primary.main        // #5B8DEE
-theme.colors.secondary.main      // #FFB347
-theme.colors.feedback.success    // #7BC74D
-theme.colors.feedback.error      // #E57373
-theme.colors.background.main     // #FFF9F0
+theme.colors.primary.main        // #4A90D9
+theme.colors.secondary.main      // #F5A623
+theme.colors.feedback.success    // #48BB78
+theme.colors.feedback.error      // #F56565
+theme.colors.feedback.warning    // #ECC94B
+theme.colors.background.primary  // #E8F4FC
 theme.colors.background.card     // #FFFFFF
 theme.colors.text.primary        // #2D3748
 theme.colors.text.secondary      // #4A5568
@@ -54,9 +55,9 @@ theme.colors.text.secondary      // #4A5568
 ```typescript
 // Utilisation avec expo-linear-gradient
 theme.gradients = {
-  primary: ['#5B8DEE', '#4A7BD9'],
-  secondary: ['#FFB347', '#FFA020'],
-  success: ['#7BC74D', '#5FB030'],
+  primary: ['#4A90D9', '#3A7BC8'],
+  secondary: ['#F5A623', '#E09000'],
+  success: ['#48BB78', '#38A169'],
   accent: ['#E056FD', '#C840E0'],
 }
 ```
@@ -98,11 +99,13 @@ theme.gradients = {
 ### Tokens dans le code
 
 ```typescript
-theme.fontSize.h1           // 32
-theme.fontSize.body         // 18 (minimum enfant)
-theme.fontFamily.heading    // 'Fredoka'
-theme.fontFamily.body       // 'Nunito'
-theme.lineHeight.normal     // 1.4
+theme.fontSize.xl           // 24 (titres section)
+theme.fontSize.lg           // 18 (minimum enfant)
+theme.fontSize.base         // 16 (corps de texte)
+theme.fontFamily.display    // 'Fredoka_600SemiBold'
+theme.fontFamily.regular    // 'Nunito_400Regular'
+theme.fontFamily.title      // 'FredokaOne-Regular'
+theme.lineHeight.normal     // 1.5
 ```
 
 ---
@@ -271,19 +274,19 @@ GameCardV10Style = {
 
 | Catégorie | Gradient |
 |-----------|----------|
-| Logique | `['#5B8DEE', '#3B6FCE']` |
+| Logique | `['#4A90D9', '#3A7BC8']` |
 | Formes | `['#9B59B6', '#8E44AD']` |
-| Chiffres | `['#27AE60', '#1E8449']` |
-| Mémoire | `['#F39C12', '#D68910']` |
-| Mots | `['#E74C3C', '#C0392B']` |
+| Chiffres | `['#48BB78', '#38A169']` |
+| Mémoire | `['#F5A623', '#E09000']` |
+| Mots | `['#FF6B9D', '#FF4B7D']` |
 
 ### Badges
 
 | Type | Background | Text |
 |------|------------|------|
-| Nouveau | `#FFFFFF` | `#27AE60` |
-| Hot 🔥 | `#FFFFFF` | `#E74C3C` |
-| Bientôt | `#FFFFFF` | `#F39C12` |
+| Nouveau | `#FFFFFF` | `#48BB78` |
+| Hot | `#FFFFFF` | `#F56565` |
+| Bientôt | `#FFFFFF` | `#F5A623` |
 
 ---
 
@@ -319,10 +322,10 @@ WidgetV10Style = {
 
 | Widget | Gradient | Icône |
 |--------|----------|-------|
-| Piou (mascotte) | `['#5B8DEE', '#3B6FCE']` | 🦉 |
-| Jardin | `['#27AE60', '#1E8449']` | 🌻 |
-| Série (streak) | `['#F39C12', '#D68910']` | 🔥 |
-| Collection | `['#9B59B6', '#8E44AD']` | 🃏 |
+| Piou (mascotte) | `['#4A90D9', '#3A7BC8']` | Owl |
+| Jardin | `['#48BB78', '#38A169']` | Flower |
+| Série (streak) | `['#F5A623', '#E09000']` | Flame |
+| Collection | `['#9B59B6', '#8E44AD']` | Cards |
 
 ---
 
@@ -475,5 +478,5 @@ Couches (du fond vers l'avant) : Sky → Sun → MountainsFar → Clouds → Mou
 
 ---
 
-*Version 4.0 • Fusion avec UI_PATTERNS.md*
+*Version 4.2 — Janvier 2026*
 *Source de vérité : `/src/theme/`*

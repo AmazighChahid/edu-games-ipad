@@ -163,7 +163,7 @@ Tu co-construis ce projet en adoptant une posture de collaborateur expert.
 
 ### Template Fiche Activité
 
-> **Template complet** → `PRÉPROMPTS/nouveau-jeu.md`
+> **Agent complet** → `.claude/agents/nouveau-jeu.md` (commande `/nouveau-jeu`)
 
 ```markdown
 - **Nom du jeu** : [Nom]
@@ -210,7 +210,6 @@ Tu co-construis ce projet en adoptant une posture de collaborateur expert.
 | `RÈGLES/UI_COMPONENTS_CATALOG.md` | Composants UI disponibles |
 | `ARCHITECTURE/GAME_ARCHITECTURE.md` | Architecture technique des activités |
 | `CONTEXTE/MASCOTTES_GUIDELINES.md` | Guidelines mascottes |
-| `PRÉPROMPTS/nouveau-jeu.md` | Process création nouveau jeu |
 
 **Sources de vérité code** :
 | Fichier | Contenu dynamique |
@@ -221,4 +220,4 @@ Tu co-construis ce projet en adoptant une posture de collaborateur expert.
 
 ---
 
-*Document de vision pédagogique — Décembre 2024*
+*Document de vision pédagogique — Janvier 2026*

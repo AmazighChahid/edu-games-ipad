@@ -3,53 +3,59 @@
 
 ---
 
-## 🎯 Philosophie (Non-négociable)
+## Philosophie (Non-négociable)
 
 > **« Apprendre à penser, pas à répondre »**
 
 L'objectif n'est PAS le résultat correct, mais la **transmission des MÉTHODES de raisonnement**. L'enfant comprend le "pourquoi" et le "comment".
 
 ### Priorités absolues
-1. 🧒 **L'enfant** avant la technique
-2. 📚 **La pédagogie** avant la gamification
-3. 🎯 **L'expérience** avant la performance
-4. ✨ **La clarté** avant la rapidité
+1. **L'enfant** avant la technique
+2. **La pédagogie** avant la gamification
+3. **L'expérience** avant la performance
+4. **La clarté** avant la rapidité
 
 ---
 
-## 🚀 Workflow Claude Code
+## Workflow Claude Code
 
 ### Avant TOUTE tâche
 
 ```
-1. LIRE   → docs/00-INDEX.md (trouver le pré-prompt adapté)
-2. LIRE   → Documents référencés dans le pré-prompt
+1. LIRE   → docs/00-INDEX.md (point d'entrée documentation)
+2. LIRE   → Documents référencés selon la tâche
 3. SUIVRE → Protocole 3 étapes (Confirmer → Questions → Plan)
 ```
 
-### Protocole 3 étapes (OBLIGATOIRE)
-
-```
-✅ J'ai lu [documents] — Points clés : [résumé]
-✅ Règles critiques : [liste]
-✅ Composants à réutiliser : [liste]
-
-❓ Questions de clarification (2-3 max)
-
-📋 PLAN :
-1. Fichiers à examiner
-2. Modifications
-3. Tests
-4. Livrables
-
-→ ATTENDRE VALIDATION avant implémentation.
-```
+> **Protocole détaillé** → [`docs/00-INDEX.md`](docs/00-INDEX.md#protocole-claude-code-3-étapes)
 
 ---
 
-## 📁 Documentation — Sources de vérité
+## Agents spécialisés
 
-> **Chemins relatifs à la racine du projet**
+Les agents sont définis dans `.claude/agents/` :
+
+| Commande | Usage | Modèle |
+|----------|-------|--------|
+| `/nouveau-jeu` | Créer un jeu éducatif complet (4 phases) | opus |
+| `/nouveau-composant` | Créer un composant UI réutilisable | opus |
+| `/audit` | Vérifier conformité projet (score /100) | opus |
+| `/bug` | Diagnostiquer et corriger un bug | opus |
+| `/refactoring` | Homogénéiser un écran/composant | opus |
+| `/mascotte` | Créer/modifier une mascotte | opus |
+| `/fiche-educative` | Créer les 4 docs pédagogiques | opus |
+
+---
+
+## Documentation — Sources de vérité
+
+### Principe fondamental
+
+**Docs = RÈGLES stables** | **Code = État actuel**
+
+Ne jamais maintenir dans les docs des listes qui existent dans le code.
+
+### Documents de référence
 
 | Besoin | Document | Chemin |
 |--------|----------|--------|
@@ -59,30 +65,34 @@ L'objectif n'est PAS le résultat correct, mais la **transmission des MÉTHODES 
 | **Composants UI** | `UI_COMPONENTS_CATALOG.md` | `docs/Méthodologies/RÈGLES/` |
 | **Architecture jeux** | `GAME_ARCHITECTURE.md` | `docs/Méthodologies/ARCHITECTURE/` |
 | **Store Zustand** | `STORE_ARCHITECTURE.md` | `docs/Méthodologies/ARCHITECTURE/` |
-| **Structure projet** | `PROJECT_STRUCTURE.MD` | `docs/Méthodologies/ARCHITECTURE/` |
+| **Vision pédagogique** | `INSTRUCTIONS_PROJET.md` | `docs/Méthodologies/CONTEXTE/` |
 | **Mascottes** | `MASCOTTES_GUIDELINES.md` | `docs/Méthodologies/CONTEXTE/` |
 
-**Sources de vérité code** (consulter le code, pas les docs) :
+### Sources de vérité CODE (toujours consulter le code)
+
 | Information | Fichier |
 |-------------|---------|
 | Liste des jeux | `src/games/registry.ts` |
-| Icônes | `src/constants/icons.ts` |
+| Icônes disponibles | `src/constants/icons.ts` |
+| Composants UI | `src/components/common/` |
 | Mascottes | `src/games/*/components/*Mascot.tsx` |
+| Slices store | `src/store/slices/` |
 
 ---
 
-## ⛔ Règles critiques (Résumé)
+## Règles critiques (Résumé)
 
 > **Détails complets** → `docs/Méthodologies/RÈGLES/CLAUDE_CODE_RULES.md`
 
 ### Imports obligatoires
+
 ```typescript
-// ✅ TOUJOURS
+// TOUJOURS
 import { theme } from '@/theme';
 import { Icons } from '@/constants/icons';
 import { Button, ScreenHeader, PageContainer } from '@/components/common';
 
-// ❌ JAMAIS
+// JAMAIS
 import { Colors } from '@/constants/colors'; // DEPRECATED
 ```
 
@@ -90,18 +100,20 @@ import { Colors } from '@/constants/colors'; // DEPRECATED
 
 > **Détails complets** → `docs/Méthodologies/RÈGLES/DESIGN_SYSTEM.md`
 
-| Règle | Valeur |
-|-------|--------|
-| Touch targets | ≥ **64dp** |
-| Texte courant | ≥ **18pt** |
-| Profondeur navigation | ≤ **3 niveaux** |
-| Feedback erreur | **JAMAIS punitif** |
+| Règle                  | Valeur             |
+|------------------------|--------------------|
+| Touch targets          | min 64dp           |
+| Texte courant          | min 18pt           |
+| Profondeur navigation  | max 3 niveaux      |
+| Feedback erreur        | JAMAIS punitif     |
+| Polices                | Fredoka + Nunito   |
+| Animations             | Reanimated 3       |
 
-### Composants à NE PAS recréer
+### Composants existants (NE PAS recréer)
 
 > **Liste complète** → `docs/Méthodologies/RÈGLES/UI_COMPONENTS_CATALOG.md`
 
-```
+```text
 BackButton, ScreenHeader, PageContainer, GameModal,
 VictoryCard, Button, IconButton, MascotBubble, HintButton,
 GameIntroTemplate, Confetti, ProgressIndicator
@@ -109,35 +121,9 @@ GameIntroTemplate, Confetti, ProgressIndicator
 
 ---
 
-## 🎮 Jeux disponibles (15)
+## Assistant IA — Principes
 
-> **Source de vérité** → `src/games/registry.ts`
-> **Mascottes guidelines** → `docs/Méthodologies/CONTEXTE/MASCOTTES_GUIDELINES.md`
-> **Mascottes implémentées** → `src/games/*/components/*Mascot.tsx`
-
-| # | Jeu | Status | Mascotte |
-|---|-----|--------|----------|
-| 01 | Tour de Hanoï | ✅ | Piou 🦉 |
-| 02 | Suites Logiques | ✅ | Pixel 🤖 |
-| 03 | Labyrinthe | ✅ | Scout 🐿️ |
-| 04 | Balance Logique | ✅ | Dr. Hibou 🦉 |
-| 05 | Sudoku Montessori | ✅ | Prof. Hoo 🦉 |
-| 06 | Conteur Curieux | ✅ | Plume 🪶 |
-| 07 | Memory | ✅ | Memo 🐘 |
-| 08 | Tangram | ✅ | Géo 🦊 |
-| 09 | Logix Grid | ✅ | Ada 🐜 |
-| 10 | Mots Croisés | ✅ | Lexie 🦜 |
-| 11 | MathBlocks | ✅ | Calc 🦫 |
-| 12 | Matrices Magiques | ✅ | Pixel 🦊 |
-| 13 | Embouteillage | 🔜 | — |
-| 14 | Fabrique Réactions | 🔜 | — |
-| 15 | Chasseur Papillons | 🔜 | — |
-
----
-
-## 🤖 Assistant IA — Principes
-
-> **Dialogues détaillés** → `/Fiches Educatives/{XX-nom}/DIALOGUES_IA.md`
+> **Dialogues détaillés** → `Fiches Educatives/{XX-nom}/DIALOGUES_IA.md`
 
 1. **JAMAIS la réponse** — Guider par questions
 2. **Pas d'intervention non sollicitée** — Attendre l'action enfant
@@ -146,5 +132,14 @@ GameIntroTemplate, Confetti, ProgressIndicator
 
 ---
 
-*Ce fichier est un résumé. Pour les détails, consulter les documents référencés.*
-*v4.0 — Décembre 2024*
+## Jeu de référence
+
+> **Implémentation complète** : `src/games/02-suites-logiques/`
+
+Ce jeu sert de référence pour le pattern Hook+Template et la structure des fichiers.
+
+---
+
+*Ce fichier est un résumé. Pour les détails, consulter `docs/00-INDEX.md`.*
+
+*v5.0 — Janvier 2026*

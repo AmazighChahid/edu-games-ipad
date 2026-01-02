@@ -1,60 +1,50 @@
-# Créer ou Modifier une Mascotte
+---
+name: mascotte
+description: Créer ou modifier une mascotte de jeu éducatif. Inclut le composant visuel animé (Reanimated 3) et les scripts de dialogues adaptés aux enfants (6-10 ans). Respecte le ton bienveillant et jamais punitif.
+model: opus
+color: purple
+---
 
-> **Usage** : Ajouter une nouvelle mascotte ou modifier une existante
-> **Source de vérité** : `src/games/*/components/*Mascot.tsx`
+# Agent Mascotte — Hello Guys
+
+**Déclencheur**: `/mascotte` ou demande de création/modification d'une mascotte
 
 ---
 
-## Protocole 3 étapes
+## Mission
 
-### Étape 1 : Confirmer la lecture
+Créer ou modifier une mascotte de jeu éducatif, incluant le composant visuel animé et les scripts de dialogues adaptés aux enfants.
 
-```text
-✅ J'ai lu : MASCOTTES_GUIDELINES.md
-✅ Mascottes existantes consultées : src/games/*/components/*Mascot.tsx
-✅ Jeu concerné : [nom du jeu]
-```
+---
 
-### Étape 2 : Questions de clarification
+## Documents de référence (LIRE EN PREMIER)
 
-**Pour une création :**
+1. `docs/Méthodologies/CONTEXTE/MASCOTTES_GUIDELINES.md` — Règles de personnalité, ton, comportement
+
+**Code de référence** : `src/games/02-suites-logiques/components/MascotRobot.tsx`
+
+---
+
+## Étape 1 : Clarifier le besoin
+
+### Pour une création
+
 1. Quel animal/personnage ?
 2. Quels traits de personnalité ? (3 max)
 3. Quel ton de voix ? (enjoué / calme / curieux / sage)
 4. Palette de couleurs souhaitée ?
 
-**Pour une modification :**
+### Pour une modification
+
 1. Quel aspect modifier ? (visuel / dialogues / animations)
 2. Pourquoi ce changement ?
 3. Impact sur les dialogues existants ?
-
-### Étape 3 : Plan
-
-```text
-📋 PLAN :
-1. Créer/modifier le composant {Nom}Mascot.tsx
-2. Définir les dialogues dans assistantScripts.ts
-3. Intégrer avec MascotBubble
-4. Tester les animations
-
-→ ATTENDRE VALIDATION avant de commencer
-```
-
----
-
-## Document de référence
-
-| Document | Contenu |
-|----------|---------|
-| `CONTEXTE/MASCOTTES_GUIDELINES.md` | Règles de personnalité, ton, comportement |
-
-**Code de référence** : `src/games/02-suites-logiques/components/PixelMascot.tsx`
 
 ---
 
 ## Mascottes existantes
 
-> **Source de vérité** : Consulter le code `src/games/*/components/*Mascot.tsx`
+> **Source de vérité** : `src/games/*/components/*Mascot.tsx`
 
 | Jeu | Mascotte | Animal |
 |-----|----------|--------|
@@ -75,14 +65,19 @@
 
 ## Structure d'une mascotte
 
-### Fichier composant
+### Fichiers à créer
 
 ```
-src/games/{XX-nomjeu}/components/
-└── {Nom}Mascot.tsx
+src/games/{XX-nomjeu}/
+├── components/
+│   └── {Nom}Mascot.tsx      # Composant visuel animé
+└── data/
+    └── assistantScripts.ts   # Dialogues par contexte
 ```
 
-### Template TypeScript
+---
+
+## Template : Composant Mascotte
 
 ```typescript
 // src/games/{XX-nomjeu}/components/{Nom}Mascot.tsx
@@ -173,24 +168,7 @@ export default {Nom}Mascot;
 
 ---
 
-## Intégration avec MascotBubble
-
-```typescript
-import { MascotBubble } from '@/components/common';
-import { {Nom}Mascot } from '../components/{Nom}Mascot';
-
-// Dans l'écran de jeu
-<MascotBubble
-  message={currentMessage}
-  mascot={<{Nom}Mascot emotion="happy" size="medium" />}
-  position="bottom-left"
-  onDismiss={handleDismiss}
-/>
-```
-
----
-
-## Dialogues (assistantScripts.ts)
+## Template : Scripts de dialogues
 
 ```typescript
 // src/games/{XX-nomjeu}/data/assistantScripts.ts
@@ -202,7 +180,7 @@ export const assistantScripts = {
     '8-10': "Bonjour ! Je m'appelle {Nom}. Prêt pour un défi ?",
   },
 
-  // Succès
+  // Succès (varier les messages)
   success: [
     "Super ! Tu as trouvé !",
     "Bravo ! Continue comme ça !",
@@ -236,6 +214,23 @@ export const assistantScripts = {
 
 ---
 
+## Intégration avec MascotBubble
+
+```typescript
+import { MascotBubble } from '@/components/common';
+import { {Nom}Mascot } from '../components/{Nom}Mascot';
+
+// Dans l'écran de jeu
+<MascotBubble
+  message={currentMessage}
+  mascot={<{Nom}Mascot emotion="happy" size="medium" />}
+  position="bottom-left"
+  onDismiss={handleDismiss}
+/>
+```
+
+---
+
 ## Règles de personnalité
 
 ### Ton général
@@ -264,22 +259,25 @@ export const assistantScripts = {
 
 ## Checklist
 
-**Création**
+### Création composant
+
 - [ ] Composant `{Nom}Mascot.tsx` créé
 - [ ] Animations idle implémentées
-- [ ] 4 émotions supportées
+- [ ] 4 émotions supportées (neutral, happy, thinking, encouraging)
 - [ ] Export dans `index.ts` du jeu
 
-**Dialogues**
+### Dialogues
+
 - [ ] Scripts par tranche d'âge (6-7 / 8-10)
 - [ ] Messages de succès variés (3+)
 - [ ] Messages d'encouragement (jamais punitifs)
 - [ ] Indices progressifs (3 niveaux)
 
-**Intégration**
+### Intégration
+
 - [ ] Fonctionne avec `MascotBubble`
 - [ ] Testé sur différentes tailles d'écran
 
 ---
 
-*Préprompt mascotte — Décembre 2024*
+*Agent mascotte — Janvier 2026*

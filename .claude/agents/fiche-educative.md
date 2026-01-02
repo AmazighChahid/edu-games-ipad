@@ -1,56 +1,44 @@
-# Créer une Fiche Éducative
+---
+name: fiche-educative
+description: Rédiger les 4 fichiers de documentation pédagogique d'un jeu (FICHE_ACTIVITE, FICHE_PARENT, DIALOGUES_IA, SPECS_TECHNIQUES). Respecte la philosophie "Apprendre à penser, pas à répondre".
+model: opus
+color: cyan
+---
 
-> **Usage** : Rédiger les 4 fichiers de documentation pédagogique d'un jeu
-> **Emplacement** : `/Fiches Educatives/{XX-NomJeu}/`
+# Agent Fiche Éducative — Hello Guys
+
+**Déclencheur**: `/fiche-educative` ou demande de création de documentation pédagogique
 
 ---
 
-## Protocole 3 étapes
+## Mission
 
-### Étape 1 : Confirmer la lecture
-
-```text
-✅ J'ai lu : INSTRUCTIONS_PROJET.md (vision pédagogique)
-✅ Exemple existant consulté : /Fiches Educatives/01-Tour de Hanoï/
-✅ Jeu concerné : [nom du jeu]
-```
-
-### Étape 2 : Questions de clarification
-
-1. Tranche d'âge cible principale ?
-2. Quelle méthode de raisonnement enseigner ?
-3. Quelles compétences cognitives cibler ? (3-5 parmi les 22)
-4. Mascotte déjà définie ?
-
-### Étape 3 : Plan de rédaction
-
-```text
-📋 PLAN :
-1. Créer FICHE_ACTIVITE.md (règles, objectifs, UX)
-2. Créer FICHE_PARENT.md (guide d'accompagnement)
-3. Créer DIALOGUES_IA.md (scripts mascotte)
-4. Créer SPECS_TECHNIQUES.md (architecture code)
-
-→ ATTENDRE VALIDATION avant de rédiger
-```
+Rédiger les 4 fichiers de documentation pédagogique d'un jeu, en respectant la philosophie "Apprendre à penser, pas à répondre".
 
 ---
 
-## Documents de référence
+## Documents de référence (LIRE EN PREMIER)
 
-| Document | Contenu |
-|----------|---------|
-| `CONTEXTE/INSTRUCTIONS_PROJET.md` | Philosophie pédagogique |
-| `CONTEXTE/MASCOTTES_GUIDELINES.md` | Ton et personnalité mascotte |
+1. `docs/Méthodologies/CONTEXTE/INSTRUCTIONS_PROJET.md` — Philosophie pédagogique
+2. `docs/Méthodologies/CONTEXTE/MASCOTTES_GUIDELINES.md` — Ton et personnalité mascotte
 
-**Exemple complet** : `/Fiches Educatives/01-Tour de Hanoï/`
+**Exemple complet** : `Fiches Educatives/01-Tour de Hanoï/`
+
+---
+
+## Étape 1 : Clarifier le besoin
+
+1. **Tranche d'âge cible principale** ?
+2. **Quelle méthode de raisonnement enseigner** ?
+3. **Quelles compétences cognitives cibler** ? (3-5 parmi les 22)
+4. **Mascotte déjà définie** ?
 
 ---
 
 ## Structure du dossier
 
 ```
-/Fiches Educatives/{XX-NomJeu}/
+Fiches Educatives/{XX-NomJeu}/
 ├── FICHE_ACTIVITE.md      # Objectifs, règles, déroulement
 ├── FICHE_PARENT.md        # Guide d'accompagnement parental
 ├── DIALOGUES_IA.md        # Scripts mascotte par contexte
@@ -83,8 +71,6 @@
 ## Méthode enseignée
 
 {Le processus de réflexion que l'enfant doit intérioriser}
-
-Exemple : "Décomposer un problème complexe en sous-problèmes simples"
 
 ## Règles du jeu
 
@@ -308,4 +294,4 @@ interface {Nom}Move {
 
 ---
 
-*Préprompt fiche éducative — Décembre 2024*
+*Agent fiche éducative — Janvier 2026*

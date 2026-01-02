@@ -264,5 +264,5 @@ La page d'accueil V10 adopte une approche immersive :
 
 ---
 
-*Guide UX/UI — Décembre 2024*
+*Guide UX/UI — Janvier 2026*
 *Basé sur les guidelines UX enfant et principes Montessori*
