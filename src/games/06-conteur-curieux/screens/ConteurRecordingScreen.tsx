@@ -224,7 +224,7 @@ export function ConteurRecordingScreen({
             date: new Date().toISOString(),
             duration: finalDuration,
           });
-          console.log('Enregistrement sauvegardé:', uri);
+          if (__DEV__) console.log('Enregistrement sauvegardé:', uri);
         } catch (saveError) {
           console.error('Erreur sauvegarde enregistrement:', saveError);
         }

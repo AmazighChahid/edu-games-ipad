@@ -444,9 +444,9 @@ const styles = StyleSheet.create({
   },
   hintMarker: {
     position: 'absolute',
-    width: 30,
-    height: 30,
-    borderRadius: 15,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     backgroundColor: 'rgba(255, 215, 0, 0.5)',
     borderWidth: 3,
     borderColor: '#FFD700',

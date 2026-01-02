@@ -150,14 +150,8 @@ export const SuitesLogiquesGame: React.FC<Props> = ({
 
       setMascotEmotion('thinking'); // Réfléchit pour donner un indice
 
-      // DEBUG: Voir ce qui arrive
-      console.log('[HINT DEBUG] lastHint:', lastHint);
-      console.log('[HINT DEBUG] currentPuzzle?.pattern:', currentPuzzle?.pattern);
-      console.log('[HINT DEBUG] hintLevel:', gameState.currentHintLevel);
-
       // Utiliser le hint Montessori adapté du moteur si disponible
       if (lastHint?.message) {
-        console.log('[HINT DEBUG] Using lastHint.message:', lastHint.message);
         setMascotMessage(lastHint.message);
       } else if (currentPuzzle?.pattern && gameState.currentHintLevel >= 1 && gameState.currentHintLevel <= 3) {
         // Utiliser les messages contextuels basés sur le pattern

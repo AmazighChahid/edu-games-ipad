@@ -9,7 +9,7 @@
  */
 
 import React, { useCallback } from 'react';
-import { View, Text, StyleSheet, Pressable } from 'react-native';
+import { View, Text, StyleSheet, Pressable, GestureResponderEvent } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -84,11 +84,11 @@ export function AudioPlayer({
 
   // Gestion du tap sur la barre de progression
   const handleProgressPress = useCallback(
-    (event: any) => {
+    (event: GestureResponderEvent) => {
       if (!onSeek || disabled || duration <= 0) return;
 
       const { locationX } = event.nativeEvent;
-      const progressBarWidth = event.target.offsetWidth || 200;
+      const progressBarWidth = (event.target as unknown as { offsetWidth?: number }).offsetWidth || 200;
       const percentage = Math.max(0, Math.min(1, locationX / progressBarWidth));
       const newTime = percentage * duration;
 
@@ -264,9 +264,9 @@ const styles = StyleSheet.create({
     paddingVertical: spacing[1],
   },
   playButtonCompact: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     backgroundColor: '#9B59B6',
     alignItems: 'center',
     justifyContent: 'center',

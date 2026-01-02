@@ -11,6 +11,7 @@
 
 // Types
 export * from './types';
+import type { TangramPuzzle } from './types';
 
 // Logic
 export * from './logic';
@@ -41,5 +42,5 @@ export function getFirstTangramLevel() {
 // Utility: Get all levels (returns TangramLevel[])
 export function getAllTangramLevels() {
   const { TANGRAM_PUZZLES, createLevelFromPuzzle } = require('./data/puzzles');
-  return TANGRAM_PUZZLES.map((puzzle: any) => createLevelFromPuzzle(puzzle));
+  return TANGRAM_PUZZLES.map((puzzle: TangramPuzzle) => createLevelFromPuzzle(puzzle));
 }

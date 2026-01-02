@@ -75,7 +75,7 @@ class SQLiteAdapter implements StorageAdapter {
       `);
 
       this.initialized = true;
-      console.log('[StorageService] SQLite initialized successfully');
+      if (__DEV__) console.log('[StorageService] SQLite initialized successfully');
     } catch (error) {
       console.error('[StorageService] SQLite init error:', error);
       throw error;
@@ -253,10 +253,10 @@ class StorageService {
   private constructor() {
     // Utiliser SQLite sur mobile natif, AsyncStorage sur web
     if (Platform.OS === 'web') {
-      console.log('[StorageService] Using AsyncStorage adapter (web)');
+      if (__DEV__) console.log('[StorageService] Using AsyncStorage adapter (web)');
       this.adapter = new AsyncStorageAdapter();
     } else {
-      console.log('[StorageService] Using SQLite adapter (native)');
+      if (__DEV__) console.log('[StorageService] Using SQLite adapter (native)');
       this.adapter = new SQLiteAdapter();
     }
   }

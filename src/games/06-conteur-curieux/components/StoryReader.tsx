@@ -163,8 +163,8 @@ const styles = StyleSheet.create({
     paddingVertical: spacing[3],
   },
   pauseButton: {
-    width: 40,
-    height: 40,
+    width: 48,
+    height: 48,
     borderRadius: borderRadius.round,
     backgroundColor: colors.background.card,
     justifyContent: 'center',

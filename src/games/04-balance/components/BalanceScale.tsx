@@ -82,8 +82,7 @@ interface PlateProps {
   totalWeight: number;
   showWeight: boolean;
   children?: React.ReactNode;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  animatedStyle?: any;
+  animatedStyle?: ReturnType<typeof useAnimatedStyle>;
 }
 
 function Plate({
@@ -100,7 +99,7 @@ function Plate({
         styles.plateWrapper,
         side === 'left' ? styles.plateLeft : styles.plateRight,
         animatedStyle,
-      ] as any}
+      ] as unknown as StyleProp<ViewStyle>}
     >
       {/* Rope/Chain */}
       <View style={styles.ropeContainer}>
@@ -226,7 +225,7 @@ export function BalanceScale({
       </View>
 
       {/* Beam (rotates around fulcrum) */}
-      <Animated.View style={[styles.beam, beamAnimatedStyle] as any}>
+      <Animated.View style={[styles.beam, beamAnimatedStyle] as unknown as StyleProp<ViewStyle>}>
         {/* Beam gradient for wood effect */}
         <View style={styles.beamInner}>
           <View style={styles.beamHighlight} />

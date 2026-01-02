@@ -171,7 +171,7 @@ export const gameRegistry: GameMetadata[] = [
     maxAge: 10,
     category: 'logic',
     skills: ['pattern_recognition', 'visual_reasoning', 'logical_thinking', 'concentration'],
-    status: 'coming_soon',
+    status: 'available',
     route: '/(games)/12-matrices-magiques',
   },
   {

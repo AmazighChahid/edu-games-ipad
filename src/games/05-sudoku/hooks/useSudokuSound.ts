@@ -61,7 +61,7 @@ export function useSudokuSound() {
         // await sound.playAsync();
 
         // Pour l'instant, log le son demandé
-        console.log(`[Sound] Playing: ${soundType}`);
+        if (__DEV__) console.log(`[Sound] Playing: ${soundType}`);
       } catch (error) {
         console.warn(`[Sound] Error playing ${soundType}:`, error);
       }

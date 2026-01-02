@@ -8,8 +8,22 @@ import {
   Direction,
   InventoryItem,
   MazeGrid,
+  InteractiveElement,
 } from '../types';
 import { positionToKey, positionsEqual } from '../utils/helpers';
+
+/** Stats de session de jeu */
+interface MazeStats {
+  levelId: string;
+  completed: boolean;
+  time: number;
+  pathLength: number;
+  explorationPercent: number;
+  backtracks: number;
+  hintsUsed: number;
+  gemsCollected: number;
+  stars: 0 | 1 | 2 | 3;
+}
 
 export function useMazeGame(level: LevelConfig) {
   const { generateMaze } = useMazeGenerator();
@@ -64,7 +78,7 @@ export function useMazeGame(level: LevelConfig) {
       }
 
       // Variables pour capturer les informations
-      let capturedCollectedItem: any = null;
+      let capturedCollectedItem: InteractiveElement | null = null;
 
       // Mettre à jour l'état
       setMazeState((prev) => {
@@ -224,7 +238,7 @@ export function useMazeGame(level: LevelConfig) {
   );
 
   return {
-    mazeState: { ...mazeState, stats } as MazeState & { stats: any },
+    mazeState: { ...mazeState, stats } as MazeState & { stats: MazeStats },
     gameStatus,
     moveAvatar,
     requestHint,

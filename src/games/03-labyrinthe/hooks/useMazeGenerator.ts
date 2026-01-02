@@ -43,7 +43,7 @@ export function useMazeGenerator() {
     // 5. Valider que le labyrinthe est solvable
     if (!validateMaze(cells, start, end)) {
       // Regénérer si non solvable
-      console.warn('Maze not solvable, regenerating...');
+      if (__DEV__) console.warn('Maze not solvable, regenerating...');
       return generateMaze(config);
     }
 

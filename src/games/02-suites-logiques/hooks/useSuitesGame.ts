@@ -203,9 +203,7 @@ export function useSuitesGame({
   // levelOverride permet de forcer un niveau (utile au premier appel)
   const nextSequence = useCallback((levelOverride?: number) => {
     const levelToUse = levelOverride ?? sessionState.currentLevel;
-    console.log('[nextSequence] levelOverride:', levelOverride, 'sessionState.currentLevel:', sessionState.currentLevel, '→ levelToUse:', levelToUse);
     const newSequence = generateSequence(levelToUse);
-    console.log('[nextSequence] Generated sequence with difficulty:', newSequence.difficulty, 'pattern:', newSequence.patternDef?.type);
 
     setGameState({
       currentSequence: newSequence,

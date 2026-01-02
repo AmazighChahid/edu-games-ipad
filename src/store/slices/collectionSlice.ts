@@ -178,7 +178,7 @@ export const createCollectionSlice: StateCreator<
       pendingUnlockCard: cardId,
     });
 
-    console.log(`[Collection] Card unlocked: ${card.name} (${card.rarity})`);
+    if (__DEV__) console.log(`[Collection] Card unlocked: ${card.name} (${card.rarity})`);
     return true;
   },
 

@@ -11,6 +11,8 @@ import {
   StyleSheet,
   Pressable,
   TextInputProps,
+  NativeSyntheticEvent,
+  TextInputFocusEventData,
 } from 'react-native';
 import Animated, {
   useAnimatedStyle,
@@ -49,13 +51,13 @@ export function AuthInput({
         : colors.ui.border,
   }));
 
-  const handleFocus = (e: any) => {
+  const handleFocus = (e: NativeSyntheticEvent<TextInputFocusEventData>) => {
     setIsFocused(true);
     scale.value = withSpring(1.02, { damping: 15 });
     onFocus?.(e);
   };
 
-  const handleBlur = (e: any) => {
+  const handleBlur = (e: NativeSyntheticEvent<TextInputFocusEventData>) => {
     setIsFocused(false);
     scale.value = withSpring(1, { damping: 15 });
     onBlur?.(e);

@@ -80,7 +80,7 @@ export const checkSupabaseConnection = async (): Promise<boolean> => {
       console.error('[Supabase] Connection check failed:', error.message);
       return false;
     }
-    console.log('[Supabase] Connection OK');
+    if (__DEV__) console.log('[Supabase] Connection OK');
     return true;
   } catch (error) {
     console.error('[Supabase] Connection error:', error);

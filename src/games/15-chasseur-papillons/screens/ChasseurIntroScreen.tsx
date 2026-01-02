@@ -288,7 +288,7 @@ const styles = StyleSheet.create({
     minWidth: 60,
   },
   progressStatLabel: {
-    fontSize: 10,
+    fontSize: 12,
     fontWeight: '600',
     color: colors.text.muted,
     letterSpacing: 0.5,

@@ -119,7 +119,7 @@ const styles = StyleSheet.create({
   },
   rarityText: {
     fontFamily: 'Nunito-ExtraBold',
-    fontSize: 10,
+    fontSize: 12,
     fontWeight: '800',
     color: '#fff',
     textTransform: 'uppercase',

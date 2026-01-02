@@ -14,7 +14,7 @@
  */
 
 import React from 'react';
-import { View, ScrollView, StyleSheet } from 'react-native';
+import { View, ScrollView, StyleSheet, StyleProp, ViewStyle } from 'react-native';
 import { SafeAreaView, Edge } from 'react-native-safe-area-context';
 import { ScreenBackground, ScreenBackgroundVariant } from './ScreenBackground';
 import { theme } from '../../theme';
@@ -25,7 +25,7 @@ export interface PageContainerProps {
   scrollable?: boolean;
   safeAreaEdges?: Edge[];
   showDecorations?: boolean; // Pour variant playful
-  contentContainerStyle?: any;
+  contentContainerStyle?: StyleProp<ViewStyle>;
 }
 
 export const PageContainer: React.FC<PageContainerProps> = ({

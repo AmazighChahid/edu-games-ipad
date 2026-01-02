@@ -48,7 +48,7 @@ export function DraggableGameBoard({
   const towerHeight = diskHeight * (maxDisks + 2) + 50;
 
   // Function to recalculate tower centers (called on layout and before drop on web)
-  const recalculateTowerCenters = useCallback((element: any): number[] => {
+  const recalculateTowerCenters = useCallback((element: unknown): number[] => {
     if (Platform.OS === 'web' && element) {
       const htmlElement = element as unknown as HTMLElement;
       if (htmlElement.getBoundingClientRect) {
@@ -65,7 +65,6 @@ export function DraggableGameBoard({
           boardX + towerSpacing * 1.5,
           boardX + towerSpacing * 2.5,
         ];
-        console.log('Recalculated centers:', centers, 'scrollX:', scrollX, 'rect.x:', rect.x);
         return centers;
       }
     }
@@ -76,11 +75,11 @@ export function DraggableGameBoard({
     if (Platform.OS === 'web') {
       // On web, use getBoundingClientRect for accurate viewport coordinates
       const centers = recalculateTowerCenters(event.target);
-      console.log('Tower centers set (web):', centers);
       setTowerCenters(centers);
     } else {
-      // On native, use measureInWindow
-      (event.target as any).measureInWindow((mx: number, my: number, mw: number, mh: number) => {
+      // On native, use measureInWindow (type assertion needed as RN event.target is typed as number)
+      const target = event.target as unknown as { measureInWindow: (cb: (x: number, y: number, w: number, h: number) => void) => void };
+      target.measureInWindow((mx: number, _my: number, mw: number, _mh: number) => {
         boardXRef.current = mx;
         const towerSpacing = mw / 3;
         const centers = [

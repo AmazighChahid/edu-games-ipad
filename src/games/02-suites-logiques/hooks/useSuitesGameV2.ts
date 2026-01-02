@@ -347,7 +347,6 @@ export function useSuitesGameV2({
         const selection = controller.selectNextPuzzle(playerModel);
         targetDifficulty = selection.targetDifficulty;
         family = selection.family;
-        console.log('[nextSequence] Adaptive selection:', selection);
       }
 
       // Generer le puzzle
@@ -355,13 +354,6 @@ export function useSuitesGameV2({
         targetDifficulty,
         family,
         theme,
-      });
-
-      console.log('[nextSequence] Generated puzzle:', {
-        pattern: puzzle.pattern.type,
-        family: puzzle.family,
-        difficulty: puzzle.difficulty,
-        qualityScore: puzzle.qualityScore,
       });
 
       setCurrentPuzzle(puzzle);

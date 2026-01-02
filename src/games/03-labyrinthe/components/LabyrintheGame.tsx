@@ -43,7 +43,7 @@ import { useCardUnlock } from '../../../hooks/useCardUnlock';
 import { useCollection } from '../../../store';
 
 // Types & Constants
-import { LevelConfig, Direction, SessionStats } from '../types';
+import { LevelConfig, Direction, SessionStats, InteractiveElement } from '../types';
 import { theme } from '../../../theme';
 import { Icons } from '../../../constants/icons';
 
@@ -176,7 +176,7 @@ export const LabyrintheGame: React.FC<Props> = ({ level, onComplete, onExit }) =
   );
 
   // -- Item Collection Handler --
-  const handleItemCollection = useCallback((item: any) => {
+  const handleItemCollection = useCallback((item: InteractiveElement) => {
     switch (item.type) {
       case 'key':
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);

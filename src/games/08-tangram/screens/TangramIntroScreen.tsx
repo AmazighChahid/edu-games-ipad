@@ -47,7 +47,8 @@ const DIFFICULTY_COLORS = {
 
 const TangramLevelCard: React.FC<LevelCardProps> = ({ level, isSelected }) => {
   // Récupérer l'emoji du puzzle si disponible
-  const puzzleEmoji = (level.data as any)?.thumbnailEmoji || Icons.puzzle;
+  const levelData = level.data as { thumbnailEmoji?: string } | undefined;
+  const puzzleEmoji = levelData?.thumbnailEmoji || Icons.puzzle;
   const difficultyColor = DIFFICULTY_COLORS[level.difficulty];
 
   // Rendu des étoiles

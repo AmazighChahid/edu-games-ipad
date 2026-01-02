@@ -6,7 +6,7 @@
 import { useCallback, useState } from 'react';
 import { useStore } from '../store';
 import { useShallow } from 'zustand/shallow';
-import { Card, getCardById } from '../data/cards';
+import { Card, CardCategory, getCardById } from '../data/cards';
 
 interface UseCardUnlockOptions {
   gameId: string;
@@ -57,7 +57,7 @@ export function useCardUnlock(options: UseCardUnlockOptions): UseCardUnlockResul
       gameId,
       levelNumber,
       isOptimal,
-      categoryCompletion: categoryCompletion as any,
+      categoryCompletion: categoryCompletion as Record<CardCategory, number>,
     });
 
     if (legendaryUnlocks.length > 0) {

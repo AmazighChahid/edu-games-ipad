@@ -455,7 +455,7 @@ export function useBalanceIntro(): UseBalanceIntroReturn {
     }
   }, [currentPuzzle, allPuzzles, levels, resetGame, transitionToSelectionMode]);
 
-  const handlePuzzleComplete = useCallback((stats: {
+  const handlePuzzleComplete = useCallback((_stats: {
     puzzleId: string;
     completed: boolean;
     attempts: number;
@@ -464,7 +464,6 @@ export function useBalanceIntro(): UseBalanceIntroReturn {
     equivalenciesDiscovered: string[];
   }) => {
     // Le store sera mis à jour ici quand implémenté
-    console.log('Puzzle completed:', stats);
   }, []);
 
   const handleGoToSandbox = useCallback(() => {

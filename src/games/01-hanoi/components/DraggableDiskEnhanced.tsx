@@ -148,13 +148,9 @@ export function DraggableDiskEnhanced({
   };
 
   const handleDragEnd = (absoluteX: number) => {
-    // Debug log to help identify the issue
-    console.log('handleDragEnd called:', { absoluteX, towerCenters, towerWidth });
-
     // Check if tower centers are properly initialized
     const centersValid = towerCenters.some(c => c > 0);
     if (!centersValid) {
-      console.log('Tower centers not initialized, cancelling drop');
       triggerHaptic('error');
       shakeAnimation();
       onDragEnd(null);
@@ -166,13 +162,11 @@ export function DraggableDiskEnhanced({
     for (let i = 0; i < towerCenters.length; i++) {
       const center = towerCenters[i];
       if (absoluteX >= center - hitZone && absoluteX <= center + hitZone) {
-        console.log('Found target tower:', i);
         triggerHaptic('end');
         onDragEnd(i as TowerId);
         return;
       }
     }
-    console.log('No target tower found');
     triggerHaptic('error');
     shakeAnimation();
     onDragEnd(null);

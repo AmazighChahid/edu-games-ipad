@@ -70,11 +70,8 @@ export function DraggableDisk({
 
   const handleDragEnd = (absoluteX: number) => {
     // Find the closest tower to where the disk was dropped
-    console.log('Drop debug:', { absoluteX, towerCenters });
-
     if (towerCenters[0] === 0 && towerCenters[1] === 0 && towerCenters[2] === 0) {
       // Tower centers not initialized yet
-      console.log('Tower centers not initialized');
       onDragEnd(null);
       return;
     }
@@ -90,7 +87,6 @@ export function DraggableDisk({
       }
     }
 
-    console.log('Closest tower:', closestTower, 'distance:', closestDistance);
     onDragEnd(closestTower);
   };
 
