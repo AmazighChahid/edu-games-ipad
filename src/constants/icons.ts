@@ -18,6 +18,8 @@ export const Icons = {
   // ============================================
   family: '👨‍👩‍👧',
   profile: '👤',
+  child: '👶',
+  person: '🧑',
 
   // ============================================
   // RÉCOMPENSES & SUCCÈS
@@ -197,12 +199,15 @@ export const Icons = {
   arrowRight: '→',
   arrowUp: '↑',
   arrowDown: '↓',
+  chevronDown: '▼',
+  chevronUp: '▲',
 
   // ============================================
   // MODES DE JEU
   // ============================================
   lab: '🔬',
   sandbox: '🎨',
+  palette: '🎨',
   journal: '📖',
   experiment: '🧪',
   numbers: '🔢',

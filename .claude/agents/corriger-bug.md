@@ -17,13 +17,46 @@ Diagnostiquer et corriger un bug de manière ciblée et minimale, sans introduir
 
 ---
 
-## Documents de référence (LIRE SI NÉCESSAIRE)
+## Documents de référence (LIRE EN PREMIER)
 
 | Document | Quand le consulter |
-|----------|-------------------|
+| --- | --- |
 | `docs/Méthodologies/RÈGLES/CLAUDE_CODE_RULES.md` | Toujours — vérifier que le fix respecte les règles |
 | `docs/Méthodologies/RÈGLES/DESIGN_SYSTEM.md` | Si bug UI (couleurs, spacing, touch targets) |
 | `docs/Méthodologies/ARCHITECTURE/GAME_ARCHITECTURE.md` | Si bug dans un jeu (hooks, engine) |
+
+---
+
+## Protocole 3 étapes (OBLIGATOIRE)
+
+> Référence : `docs/00-INDEX.md#protocole-claude-code-3-étapes`
+
+### Étape A : Confirmer la compréhension
+
+```text
+✅ J'ai compris le contexte du bug.
+✅ Règles à respecter : imports @/theme, touch targets 64dp, pas de régression
+✅ Fichiers potentiellement concernés : [liste]
+```
+
+### Étape B : Poser 2-3 questions de clarification
+
+- Le bug est-il reproductible ? (toujours / parfois / conditions spécifiques)
+- Depuis quand existe-t-il ? (commit récent / toujours présent)
+- Quel est l'impact utilisateur ? (bloquant / gênant / mineur)
+- Y a-t-il des logs d'erreur ?
+
+### Étape C : Présenter le plan de correction
+
+```text
+📋 PLAN DE FIX :
+1. Reproduire le bug localement
+2. Isoler la cause (fichier + ligne)
+3. Appliquer le fix minimal
+4. Vérifier qu'aucune régression n'est introduite
+
+→ ATTENDRE VALIDATION avant d'implémenter le fix.
+```
 
 ---
 

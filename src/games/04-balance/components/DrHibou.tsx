@@ -421,41 +421,20 @@ export function DrHibou({
 
   if (!isVisible) return null;
 
-  // Tail position pour MascotBubble
+  // Layout horizontal pour position left/right, vertical pour center
+  const isHorizontalLayout = position === 'left' || position === 'right';
+
+  // Tail position pour MascotBubble - pointe vers la mascotte
   const tailPosition = position === 'right' ? 'right' : position === 'center' ? 'bottom' : 'left';
 
-  return (
-    <Animated.View
-      style={[
-        styles.container,
-        position === 'left' && styles.containerLeft,
-        position === 'right' && styles.containerRight,
-        position === 'center' && styles.containerCenter,
-        containerStyle,
-      ]}
-    >
-      {/* Speech bubble - utilise MascotBubble */}
-      {showBubble && currentMessage && (
-        <MascotBubble
-          message={currentMessage}
-          tailPosition={tailPosition}
-          showDecorations={false}
-          buttonText="Continuer"
-          onPress={handleDismiss}
-          buttonVariant="orange"
-          typing={true}
-          typingSpeed={25}
-          maxWidth={280}
-        />
-      )}
-
-      {/* Owl character */}
+  // Composant hibou réutilisable
+  const owlComponent = (
+    <View style={styles.owlWrapper}>
       <TouchableOpacity
         activeOpacity={0.9}
         style={styles.owlTouchable}
         onPress={() => {
           if (!currentMessage) {
-            // Show idle message when tapped without active message
             const idleMessages = DIALOGUES.idle;
             setCurrentMessage(getRandomMessage(idleMessages));
           }
@@ -465,22 +444,70 @@ export function DrHibou({
           width: owlSize + 20,
           height: owlSize + 20,
         }]}>
-          {/* Lab coat hint */}
           <View style={[styles.labCoat, {
             width: owlSize * 0.6,
             height: owlSize * 0.3,
             bottom: 0,
             borderRadius: owlSize * 0.1,
           }]} />
-
           <OwlFace mood={mood} size={owlSize} />
         </View>
       </TouchableOpacity>
-
-      {/* Name tag */}
       <View style={styles.nameTag}>
         <Text style={styles.nameText}>Dr. Hibou</Text>
       </View>
+    </View>
+  );
+
+  // Composant bulle
+  const bubbleComponent = showBubble && currentMessage && (
+    <MascotBubble
+      message={currentMessage}
+      tailPosition={tailPosition}
+      showDecorations={false}
+      buttonText="Continuer"
+      onPress={handleDismiss}
+      buttonVariant="orange"
+      typing={true}
+      typingSpeed={25}
+      maxWidth={280}
+    />
+  );
+
+  return (
+    <Animated.View
+      style={[
+        styles.container,
+        isHorizontalLayout && styles.containerHorizontal,
+        position === 'left' && styles.containerLeft,
+        position === 'right' && styles.containerRight,
+        position === 'center' && styles.containerCenter,
+        containerStyle,
+      ]}
+    >
+      {/* Position left : hibou à gauche, bulle à droite */}
+      {position === 'left' && (
+        <>
+          {owlComponent}
+          {bubbleComponent}
+        </>
+      )}
+
+      {/* Position right : bulle à gauche, hibou à droite */}
+      {position === 'right' && (
+        <>
+          {bubbleComponent}
+          {owlComponent}
+        </>
+      )}
+
+      {/* Position center : bulle au-dessus, hibou en dessous */}
+      {position === 'center' && (
+        <>
+          {bubbleComponent}
+          {owlComponent}
+        </>
+      )}
     </Animated.View>
   );
 }
@@ -494,14 +521,23 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: spacing[2],
   },
+  containerHorizontal: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing[3],
+  },
   containerLeft: {
-    alignItems: 'flex-start',
+    justifyContent: 'flex-start',
   },
   containerRight: {
-    alignItems: 'flex-end',
+    justifyContent: 'flex-end',
   },
   containerCenter: {
     alignItems: 'center',
+  },
+  owlWrapper: {
+    alignItems: 'center',
+    gap: spacing[1],
   },
 
   // Owl touchable - touch target 64dp minimum

@@ -3,13 +3,15 @@
  *
  * Grille interactive pour le jeu de logique
  * Refactorisé avec theme et tailles minimales pour touch targets
+ * Utilise onLayout pour s'adapter dynamiquement à l'espace disponible
  */
 
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Dimensions } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, LayoutChangeEvent, ScrollView } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 
 import { theme } from '../../../theme';
+import { Icons } from '../../../constants/icons';
 import { useAccessibilityAnimations } from '../../../hooks';
 import type { LogixGameState, Category, CellState } from '../types';
 import { GridCell } from './GridCell';
@@ -19,26 +21,28 @@ import { GridCell } from './GridCell';
 // ============================================================================
 
 interface LogixGridProps {
-  /** État du jeu */
+  /** Etat du jeu */
   gameState: LogixGameState;
   /** Erreurs dans la grille */
   errors: Array<{ rowItemId: string; colItemId: string }>;
   /** Callback toggle cellule */
   onCellToggle: (rowItemId: string, colItemId: string) => void;
-  /** Callback sélection cellule */
+  /** Callback selection cellule */
   onCellSelect: (rowItemId: string | null, colItemId: string | null) => void;
-  /** Obtient l'état d'une cellule */
+  /** Obtient l'etat d'une cellule */
   getCellState: (rowItemId: string, colItemId: string) => CellState;
+  /** Afficher la legende en bas de la grille */
+  showLegend?: boolean;
 }
 
 // ============================================================================
 // CONSTANTS
 // ============================================================================
 
-const SCREEN_WIDTH = Dimensions.get('window').width;
-const GRID_PADDING = 16;
-const MIN_CELL_SIZE = 48; // Taille minimum pour touch targets (avec margin = ~52-54dp)
-const LABEL_WIDTH = 60; // Largeur des labels emoji
+const GRID_PADDING = 12;
+const MIN_CELL_SIZE = 48; // Taille minimum pour touch targets enfants (48dp)
+const HEADER_SIZE = 50; // Taille FIXE pour l'en-tête (ligne emoji du haut) et la colonne emoji
+const GRID_WIDTH_RATIO = 0.95; // La grille utilise 95% de l'espace disponible
 
 // ============================================================================
 // COMPONENT
@@ -50,15 +54,54 @@ export function LogixGrid({
   onCellToggle,
   onCellSelect,
   getCellState,
+  showLegend = false,
 }: LogixGridProps) {
   const { shouldAnimate } = useAccessibilityAnimations();
   const { puzzle, selectedCell, activeHint } = gameState;
 
-  // Calculer la taille des cellules
+  // État pour les dimensions du conteneur (mesurées dynamiquement)
+  const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
+
+  // Callback pour mesurer les dimensions du conteneur
+  const handleLayout = (event: LayoutChangeEvent) => {
+    const { width, height } = event.nativeEvent.layout;
+    if (width !== containerSize.width || height !== containerSize.height) {
+      setContainerSize({ width, height });
+    }
+  };
+
+  // Calculer la taille des cellules basée sur l'espace disponible
   const categories = puzzle.categories;
   const itemCount = categories[0]?.items.length ?? 3;
-  const availableWidth = SCREEN_WIDTH - GRID_PADDING * 2 - LABEL_WIDTH;
-  const cellSize = Math.max(MIN_CELL_SIZE, Math.floor(availableWidth / itemCount));
+  const categoryCount = categories.length;
+
+  // Nombre de sections de grille selon le nombre de catégories
+  // 2 catégories = 1 grille, 3 catégories = 3 grilles
+  const gridSectionCount = categoryCount >= 3 ? 3 : 1;
+
+  // Utiliser les dimensions du conteneur
+  const availableWidth = containerSize.width > 0
+    ? (containerSize.width - GRID_PADDING * 2) * GRID_WIDTH_RATIO
+    : 400;
+  const availableHeight = containerSize.height > 0
+    ? (containerSize.height - GRID_PADDING * 2) * 0.9
+    : 400;
+
+  // Calculer la taille des cellules pour remplir l'espace
+  // En soustrayant l'espace pour les headers fixes
+  const cellsWidth = availableWidth - HEADER_SIZE; // Soustraire la colonne d'emojis
+
+  // Pour la hauteur, on doit tenir compte de TOUTES les grilles + leurs headers + séparateurs
+  const totalRows = itemCount * gridSectionCount; // Nombre total de lignes de cellules
+  const totalHeaders = gridSectionCount; // Un header par section
+  const separatorHeight = gridSectionCount > 1 ? (gridSectionCount - 1) * 16 : 0; // Espace pour séparateurs (réduit)
+  const cellsHeight = availableHeight - (HEADER_SIZE * totalHeaders) - separatorHeight;
+
+  const cellSizeFromWidth = Math.floor(cellsWidth / itemCount);
+  const cellSizeFromHeight = Math.floor(cellsHeight / totalRows);
+
+  // Prendre la plus petite des deux pour que ça rentre, mais respecter le minimum
+  const cellSize = Math.max(MIN_CELL_SIZE, Math.min(cellSizeFromWidth, cellSizeFromHeight));
 
   // Vérifier si une cellule est en erreur
   const isCellError = (rowId: string, colId: string) => {
@@ -89,25 +132,26 @@ export function LogixGrid({
   };
 
   return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={styles.scrollContent}
-      showsVerticalScrollIndicator={false}
-    >
-      <Animated.View
-        style={styles.gridContainer}
-        entering={shouldAnimate ? FadeIn.duration(300) : undefined}
+    <View style={styles.container} onLayout={handleLayout}>
+      <ScrollView
+        style={styles.scrollContainer}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
       >
-        {/* Pour simplifier, affichons une grille 2D entre les 2 premières catégories */}
-        {categories.length >= 2 && (
+        <Animated.View
+          style={styles.gridContainer}
+          entering={shouldAnimate ? FadeIn.duration(300) : undefined}
+        >
+          {/* Pour simplifier, affichons une grille 2D entre les 2 premières catégories */}
+          {categories.length >= 2 && (
           <View style={styles.gridSection}>
             {/* Header avec les items de la deuxième catégorie */}
             <View style={styles.headerRow}>
-              <View style={[styles.cornerCell, { width: LABEL_WIDTH, height: cellSize, minHeight: MIN_CELL_SIZE }]} />
+              <View style={[styles.cornerCell, { width: HEADER_SIZE, height: HEADER_SIZE }]} />
               {categories[1].items.map((item) => (
                 <View
                   key={item.id}
-                  style={[styles.headerCell, { width: cellSize, minWidth: MIN_CELL_SIZE, minHeight: MIN_CELL_SIZE }]}
+                  style={[styles.headerCell, { width: cellSize, height: HEADER_SIZE }]}
                   accessible={true}
                   accessibilityLabel={`Colonne ${item.name}`}
                 >
@@ -121,7 +165,7 @@ export function LogixGrid({
               <View key={rowItem.id} style={styles.gridRow}>
                 {/* Label de la ligne */}
                 <View
-                  style={[styles.rowLabelCell, { width: LABEL_WIDTH, height: cellSize, minHeight: MIN_CELL_SIZE }]}
+                  style={[styles.rowLabelCell, { width: HEADER_SIZE, height: cellSize }]}
                   accessible={true}
                   accessibilityLabel={`Ligne ${rowItem.name}`}
                 >
@@ -152,11 +196,11 @@ export function LogixGrid({
 
                 {/* Header pour la 3ème catégorie */}
                 <View style={styles.headerRow}>
-                  <View style={[styles.cornerCell, { width: LABEL_WIDTH, height: cellSize, minHeight: MIN_CELL_SIZE }]} />
+                  <View style={[styles.cornerCell, { width: HEADER_SIZE, height: HEADER_SIZE }]} />
                   {categories[2].items.map((item) => (
                     <View
                       key={item.id}
-                      style={[styles.headerCell, { width: cellSize, minWidth: MIN_CELL_SIZE, minHeight: MIN_CELL_SIZE }]}
+                      style={[styles.headerCell, { width: cellSize, height: HEADER_SIZE }]}
                       accessible={true}
                       accessibilityLabel={`Colonne ${item.name}`}
                     >
@@ -169,7 +213,7 @@ export function LogixGrid({
                 {categories[0].items.map((rowItem) => (
                   <View key={`${rowItem.id}-cat3`} style={styles.gridRow}>
                     <View
-                      style={[styles.rowLabelCell, { width: LABEL_WIDTH, height: cellSize, minHeight: MIN_CELL_SIZE }]}
+                      style={[styles.rowLabelCell, { width: HEADER_SIZE, height: cellSize }]}
                       accessible={true}
                       accessibilityLabel={`Ligne ${rowItem.name}`}
                     >
@@ -193,11 +237,11 @@ export function LogixGrid({
                 {/* Grille catégorie 2 vs catégorie 3 */}
                 <View style={styles.sectionSeparator} />
                 <View style={styles.headerRow}>
-                  <View style={[styles.cornerCell, { width: LABEL_WIDTH, height: cellSize, minHeight: MIN_CELL_SIZE }]} />
+                  <View style={[styles.cornerCell, { width: HEADER_SIZE, height: HEADER_SIZE }]} />
                   {categories[2].items.map((item) => (
                     <View
                       key={item.id}
-                      style={[styles.headerCell, { width: cellSize, minWidth: MIN_CELL_SIZE, minHeight: MIN_CELL_SIZE }]}
+                      style={[styles.headerCell, { width: cellSize, height: HEADER_SIZE }]}
                       accessible={true}
                       accessibilityLabel={`Colonne ${item.name}`}
                     >
@@ -208,7 +252,7 @@ export function LogixGrid({
                 {categories[1].items.map((rowItem) => (
                   <View key={`cat2-${rowItem.id}-cat3`} style={styles.gridRow}>
                     <View
-                      style={[styles.rowLabelCell, { width: LABEL_WIDTH, height: cellSize, minHeight: MIN_CELL_SIZE }]}
+                      style={[styles.rowLabelCell, { width: HEADER_SIZE, height: cellSize }]}
                       accessible={true}
                       accessibilityLabel={`Ligne ${rowItem.name}`}
                     >
@@ -232,8 +276,27 @@ export function LogixGrid({
             )}
           </View>
         )}
-      </Animated.View>
-    </ScrollView>
+
+          {/* Legende */}
+          {showLegend && (
+            <View style={styles.legendContainer}>
+              <View style={styles.legendItem}>
+                <View style={[styles.legendIcon, styles.legendIconYes]}>
+                  <Text style={styles.legendIconText}>{Icons.checkmark}</Text>
+                </View>
+                <Text style={styles.legendText}>= Oui</Text>
+              </View>
+              <View style={styles.legendItem}>
+                <View style={[styles.legendIcon, styles.legendIconNo]}>
+                  <Text style={styles.legendIconText}>{Icons.crossMark}</Text>
+                </View>
+                <Text style={styles.legendText}>= Non</Text>
+              </View>
+            </View>
+          )}
+        </Animated.View>
+      </ScrollView>
+    </View>
   );
 }
 
@@ -268,24 +331,43 @@ function generateGridSections(
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    width: '100%',
+    height: '100%',
+    padding: GRID_PADDING,
+  },
+  scrollContainer: {
+    flex: 1,
   },
   scrollContent: {
-    padding: GRID_PADDING,
+    flexGrow: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   gridContainer: {
     alignItems: 'center',
+    justifyContent: 'center',
   },
   gridSection: {
-    backgroundColor: theme.colors.background.card,
-    borderRadius: theme.borderRadius.lg,
-    padding: theme.spacing[2],
-    marginBottom: theme.spacing[4],
+    // Glass effect - iOS Liquid Glass Style
+    backgroundColor: 'rgba(255, 255, 255, 0.65)',
+    borderRadius: 28,
+    padding: theme.spacing[3],
+    marginBottom: theme.spacing[2],
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.5)',
+    // Shadow for glass effect
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.1,
+    shadowRadius: 32,
+    elevation: 8,
   },
   sectionSeparator: {
-    height: theme.spacing[4],
-    borderBottomWidth: 2,
-    borderBottomColor: 'rgba(0,0,0,0.1)',
-    marginBottom: theme.spacing[2],
+    height: theme.spacing[2],
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0,0,0,0.08)',
+    marginBottom: theme.spacing[1],
+    marginTop: theme.spacing[1],
   },
   headerRow: {
     flexDirection: 'row',
@@ -311,7 +393,50 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   rowEmoji: {
-    fontSize: 24, // Taille augmentée pour lisibilité
+    fontSize: 24, // Taille augmentee pour lisibilite
+  },
+
+  // Legende
+  legendContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: theme.spacing[8],
+    marginTop: theme.spacing[4],
+    paddingVertical: theme.spacing[3],
+    paddingHorizontal: theme.spacing[5],
+    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+    borderRadius: theme.borderRadius.lg,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255, 255, 255, 0.4)',
+  },
+  legendItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing[2],
+  },
+  legendIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: theme.borderRadius.sm,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  legendIconYes: {
+    backgroundColor: '#E8F5E9',
+  },
+  legendIconNo: {
+    backgroundColor: '#FFEBEE',
+  },
+  legendIconText: {
+    fontSize: theme.fontSize.lg,
+    fontFamily: theme.fontFamily.bold,
+  },
+  legendText: {
+    fontSize: theme.fontSize.lg,
+    fontFamily: theme.fontFamily.medium,
+    fontWeight: '500',
+    color: theme.colors.text.secondary,
   },
 });
 

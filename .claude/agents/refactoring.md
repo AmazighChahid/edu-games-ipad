@@ -28,6 +28,44 @@ Homogénéiser un écran ou composant existant avec les standards du projet, en 
 
 ---
 
+## Protocole 3 étapes (OBLIGATOIRE)
+
+> Référence : `docs/00-INDEX.md#protocole-claude-code-3-étapes`
+
+### Étape A : Confirmer la lecture
+
+```text
+✅ J'ai lu les documents de référence.
+✅ Règles à appliquer :
+   - Imports : @/theme, @/constants/icons, @/components/common
+   - Touch targets >= 64dp, texte >= 18pt
+   - Composants standards : PageContainer, ScreenHeader, Button, etc.
+✅ Fichier(s) concerné(s) : [liste]
+✅ État actuel : [résumé des non-conformités détectées]
+```
+
+### Étape B : Poser 2-3 questions de clarification
+
+- Quel est l'objectif principal ? (UI / Performance / Structure / Tout)
+- Quelles fonctionnalités doivent être préservées absolument ?
+- Y a-t-il des tests existants qui pourraient casser ?
+- Priorité : conformité stricte ou amélioration progressive ?
+
+### Étape C : Présenter le plan d'action
+
+```text
+📋 PLAN DE REFACTORING :
+1. Corriger les imports (theme, Icons, composants)
+2. Remplacer les composants custom par les standards
+3. Appliquer les tokens du theme (couleurs, spacing, fonts)
+4. Vérifier les touch targets et tailles de texte
+5. Tester qu'aucune régression n'est introduite
+
+→ ATTENDRE VALIDATION avant d'implémenter.
+```
+
+---
+
 ## Étape 1 : Clarifier l'objectif
 
 1. **Objectif principal** : UI / Performance / Structure / Tout

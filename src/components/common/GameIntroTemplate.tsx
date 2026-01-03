@@ -92,6 +92,8 @@ export type {
   LevelConfig,
   TrainingConfig,
   TrainingParam,
+  PlayingLayoutVariant,
+  ColumnLayoutConfig,
 } from './GameIntroTemplate.types';
 export {
   calculateLevelsForAge,
@@ -148,6 +150,8 @@ const AnimatedLevelCardWrapper: React.FC<AnimatedLevelCardWrapperProps> = ({
   groupSlideDistance,
   finalSlideDistance,
 }) => {
+  const isSelected = index === selectedLevelIndex;
+
   const animatedStyle = useAnimatedStyle(() => {
     const slide = slideProgress.value;
 
@@ -160,12 +164,17 @@ const AnimatedLevelCardWrapper: React.FC<AnimatedLevelCardWrapperProps> = ({
     const groupOffset = groupSlideDistance * groupProgress;
     const finalOffset = finalSlideDistance * finalProgress;
 
+    // Les cartes non-selectionnees disparaissent progressivement pendant le regroupement
+    // La carte selectionnee reste toujours visible (opacite = 1)
+    const opacity = isSelected ? 1 : interpolate(slide, [0, 0.4], [1, 0], 'clamp');
+
     return {
       transform: [{ translateX: groupOffset + finalOffset }],
+      opacity,
       // La carte selectionnee reste au-dessus pendant l'animation
-      zIndex: index === selectedLevelIndex ? 100 : 1,
+      zIndex: isSelected ? 100 : 1,
     };
-  }, [index, selectedLevelIndex, groupSlideDistance, finalSlideDistance]);
+  }, [index, selectedLevelIndex, groupSlideDistance, finalSlideDistance, isSelected]);
 
   return (
     <Animated.View style={animatedStyle}>
@@ -554,6 +563,7 @@ export const GameIntroTemplate: React.FC<GameIntroTemplateProps> = ({
   onHelpPress,
   showParentButton = true,
   showHelpButton = true,
+  headerRightContent,
 
   // --- VUE 1: SELECTION DE NIVEAU ---
   levels,
@@ -596,6 +606,12 @@ export const GameIntroTemplate: React.FC<GameIntroTemplateProps> = ({
   showPlayButton = true,
   playButtonText = "C'est parti !",
   playButtonEmoji = '🚀',
+
+  // --- LAYOUT (January 2026 - Standardization) ---
+  playingLayout = 'fullwidth',
+  columnConfig = { leftRatio: 4, rightRatio: 6, gap: 16 },
+  leftColumnContent,
+  rightColumnContent,
 }) => {
   // ============================================
   // VALEURS ANIMEES (Reanimated)
@@ -752,6 +768,7 @@ export const GameIntroTemplate: React.FC<GameIntroTemplateProps> = ({
         onParentPress={onParentPress}
         showHelpButton={showHelpButton && !!onHelpPress}
         onHelpPress={onHelpPress}
+        rightContent={headerRightContent}
       />
 
       <View style={styles.mainContainer}>
@@ -811,9 +828,42 @@ export const GameIntroTemplate: React.FC<GameIntroTemplateProps> = ({
             ZONE DE JEU (commun aux 2 vues)
             - Vue 1 : apercu inactif
             - Vue 2 : jeu actif
+
+            Layouts disponibles :
+            - 'fullwidth' : le jeu prend toute la largeur (défaut)
+            - '2-columns' : 2 colonnes avec ratio configurable
             ======================================== */}
         <View style={styles.gameContainer}>
-          {renderGame()}
+          {/* Layout 2 colonnes (quand playingLayout === '2-columns' et isPlaying) */}
+          {playingLayout === '2-columns' && isPlaying && leftColumnContent && rightColumnContent ? (
+            <View style={[styles.twoColumnLayout, { gap: columnConfig.gap || 16 }]}>
+              <View
+                style={[
+                  styles.leftColumn,
+                  {
+                    flex: columnConfig.leftRatio,
+                    minWidth: columnConfig.leftMinWidth,
+                  },
+                ]}
+              >
+                {leftColumnContent}
+              </View>
+              <View
+                style={[
+                  styles.rightColumn,
+                  {
+                    flex: columnConfig.rightRatio,
+                    minWidth: columnConfig.rightMinWidth,
+                  },
+                ]}
+              >
+                {rightColumnContent}
+              </View>
+            </View>
+          ) : (
+            /* Layout fullwidth (défaut) ou mode aperçu */
+            renderGame()
+          )}
 
           {/* Bouton "C'est parti !" (Vue 1 uniquement) */}
           <PlayButton
@@ -1051,8 +1101,6 @@ const styles = StyleSheet.create({
   gameContainer: {
     flex: 1,
     width: '100%',
-    maxWidth: 600,
-    alignItems: 'center',
     justifyContent: 'flex-start',
     paddingHorizontal: spacing[4],
   },
@@ -1110,6 +1158,21 @@ const styles = StyleSheet.create({
   },
   floatingButtonEmoji: {
     fontSize: 28,
+  },
+
+  // =====================
+  // 7. LAYOUT 2 COLONNES (January 2026)
+  // =====================
+  twoColumnLayout: {
+    flex: 1,
+    flexDirection: 'row',
+    width: '100%',
+  },
+  leftColumn: {
+    justifyContent: 'flex-start',
+  },
+  rightColumn: {
+    justifyContent: 'flex-start',
   },
 });
 

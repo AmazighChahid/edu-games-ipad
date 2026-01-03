@@ -33,6 +33,8 @@ interface BaseHeaderProps {
   onParentPress?: () => void;
   showHelpButton?: boolean;
   onHelpPress?: () => void;
+  /** Custom content to render before the standard right buttons */
+  rightContent?: React.ReactNode;
 }
 
 interface HomeHeaderProps extends BaseHeaderProps {
@@ -66,6 +68,7 @@ export const ScreenHeader: React.FC<ScreenHeaderProps> = (props) => {
     onParentPress,
     showHelpButton = false,
     onHelpPress,
+    rightContent,
   } = props;
 
   // Animation values
@@ -192,7 +195,7 @@ export const ScreenHeader: React.FC<ScreenHeaderProps> = (props) => {
   if (variant === 'game') {
     const gameProps = props as GameHeaderProps;
     return (
-      <View style={styles.container}>
+      <View style={[styles.container, styles.containerGame]}>
         {/* Back button - utilise le composant BackButton standardisé */}
         {onBack && <BackButton onPress={onBack} />}
 
@@ -207,6 +210,9 @@ export const ScreenHeader: React.FC<ScreenHeaderProps> = (props) => {
 
         {/* Right buttons */}
         <View style={styles.headerRightButtons}>
+          {/* Custom right content (e.g., age selector, journal button) */}
+          {rightContent}
+
           {showParentButton && onParentPress && (
             <Pressable
               onPress={onParentPress}
@@ -295,6 +301,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: theme.spacing[8],
     paddingTop: theme.spacing[4],
     zIndex: 20,
+  },
+  containerGame: {
+    width: '100%',
   },
   containerParent: {
     flexDirection: 'row',

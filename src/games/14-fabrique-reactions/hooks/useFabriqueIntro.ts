@@ -1,36 +1,19 @@
 /**
  * useFabriqueIntro - Hook orchestrateur pour La Fabrique de Réactions
- * ====================================================================
- * Encapsule toute la logique métier de l'écran d'introduction :
- * - Progression store (lecture/écriture)
- * - Paramètres URL
- * - Génération des niveaux
- * - Messages mascotte
- * - Sons
- * - Animations de transition
- * - Navigation
+ *
+ * VERSION MIGRÉE (Janvier 2026)
+ * Utilise useGameIntroOrchestrator pour la logique commune.
+ * Ce fichier ne contient plus que la logique spécifique au jeu.
  *
  * @see docs/GAME_ARCHITECTURE.md pour le pattern complet
  */
 
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
-import { useRouter, useLocalSearchParams } from 'expo-router';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-  withDelay,
-  withSpring,
-  Easing,
-} from 'react-native-reanimated';
 
-import {
-  generateDefaultLevels,
-  type LevelConfig as UILevelConfig,
-} from '../../../components/common';
+import { useGameIntroOrchestrator } from '../../../hooks';
+import type { LevelConfig as UILevelConfig } from '../../../components/common';
 import { useFabriqueGame } from './useFabriqueGame';
 import { useFabriqueSound } from './useFabriqueSound';
-import { useActiveProfile, useGameProgress, useStore } from '../../../store/useStore';
 import { GEDEON_MESSAGES, getRandomMessage } from '../data/assistantScripts';
 import { LEVELS, getLevelByNumber } from '../data/levels';
 import type { GedeonExpression, LevelConfig as GameLevelConfig, GridPosition } from '../types';
@@ -54,8 +37,8 @@ export interface UseFabriqueIntroReturn {
   setShowParentDrawer: (show: boolean) => void;
 
   // Animations
-  selectorStyle: ReturnType<typeof useAnimatedStyle>;
-  progressPanelStyle: ReturnType<typeof useAnimatedStyle>;
+  selectorStyle: ReturnType<typeof useGameIntroOrchestrator>['selectorStyle'];
+  progressPanelStyle: ReturnType<typeof useGameIntroOrchestrator>['progressPanelStyle'];
 
   // Mascot
   mascotMessage: string;
@@ -103,15 +86,6 @@ export interface UseFabriqueIntroReturn {
 // CONSTANTS
 // ============================================
 
-const ANIMATION_CONFIG = {
-  selectorSlideDuration: 400,
-  selectorFadeDuration: 300,
-  progressDelayDuration: 200,
-  selectorSlideDistance: -150,
-  springDamping: 15,
-  springStiffness: 150,
-};
-
 const TOTAL_LEVELS = 10;
 
 // ============================================
@@ -119,61 +93,42 @@ const TOTAL_LEVELS = 10;
 // ============================================
 
 export function useFabriqueIntro(): UseFabriqueIntroReturn {
-  const router = useRouter();
-  const params = useLocalSearchParams<{ level?: string }>();
-  const profile = useActiveProfile();
+  // ============================================
+  // ORCHESTRATOR (logique commune factorisée)
+  // ============================================
+  const orchestrator = useGameIntroOrchestrator({
+    gameId: 'fabrique-reactions',
+    mascotMessages: {
+      welcome: getRandomMessage(GEDEON_MESSAGES.welcome),
+      startPlaying: getRandomMessage(GEDEON_MESSAGES.levelStart),
+      backToSelection: 'On recommence ? Choisis un niveau !',
+      help: getRandomMessage(GEDEON_MESSAGES.hint),
+    },
+  });
 
-  // Store - progression
-  const gameProgress = useGameProgress('fabrique-reactions');
-  const initGameProgress = useStore((state) => state.initGameProgress);
-
-  // Initialiser le progress si nécessaire
-  useEffect(() => {
-    initGameProgress('fabrique-reactions');
-  }, [initGameProgress]);
-
-  // État local
-  const [selectedLevel, setSelectedLevel] = useState<UILevelConfig | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isVictory, setIsVictory] = useState(false);
-  const [mascotMessage, setMascotMessage] = useState(
-    getRandomMessage(GEDEON_MESSAGES.welcome)
-  );
+  // ============================================
+  // LOCAL STATE (spécifique à Fabrique)
+  // ============================================
   const [mascotEmotion, setMascotEmotion] = useState<GedeonExpression>('neutral');
-  const [showParentDrawer, setShowParentDrawer] = useState(false);
   const [currentGameLevel, setCurrentGameLevel] = useState<GameLevelConfig | null>(null);
 
   // Ref pour tracker l'initialisation
-  const hasInitializedRef = useRef(false);
   const lastLevelParamRef = useRef<string | undefined>(undefined);
-
-  // Extraire les IDs des niveaux complétés
-  const completedLevelIds = useMemo(() => {
-    if (!gameProgress?.completedLevels) return [];
-    return Object.keys(gameProgress.completedLevels).map(
-      (levelId) => `fabrique-reactions_${levelId}`
-    );
-  }, [gameProgress?.completedLevels]);
-
-  // Générer les niveaux UI basés sur l'âge
-  const levels = useMemo(() => {
-    return generateDefaultLevels('fabrique-reactions', profile?.birthDate, completedLevelIds);
-  }, [profile?.birthDate, completedLevelIds]);
 
   // Hook du jeu (seulement quand un niveau est chargé)
   const gameHook = useFabriqueGame({
     level: currentGameLevel || LEVELS[0],
     onLevelComplete: (result) => {
       if (result.success) {
-        setIsVictory(true);
-        setMascotMessage(getRandomMessage(GEDEON_MESSAGES.success));
+        orchestrator.setIsVictory(true);
+        orchestrator.setMascotMessage(getRandomMessage(GEDEON_MESSAGES.success));
         setMascotEmotion('excited');
 
         // Navigation vers victory
-        router.push({
+        orchestrator.router.push({
           pathname: '/(games)/14-fabrique-reactions/victory',
           params: {
-            level: (selectedLevel?.number || 1).toString(),
+            level: (orchestrator.selectedLevel?.number || 1).toString(),
             stars: result.stars.toString(),
             moves: result.moves.toString(),
             hintsUsed: result.hintsUsed.toString(),
@@ -188,212 +143,142 @@ export function useFabriqueIntro(): UseFabriqueIntroReturn {
   const { playSelect, playPlace, playCorrect, playError } = useFabriqueSound();
 
   // ============================================
-  // ANIMATIONS
-  // ============================================
-
-  const selectorY = useSharedValue(0);
-  const selectorOpacity = useSharedValue(1);
-  const progressPanelOpacity = useSharedValue(0);
-
-  const selectorStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: selectorY.value }],
-    opacity: selectorOpacity.value,
-  }));
-
-  const progressPanelStyle = useAnimatedStyle(() => ({
-    opacity: progressPanelOpacity.value,
-  }));
-
-  // ============================================
-  // TRANSITIONS
-  // ============================================
-
-  const transitionToPlayMode = useCallback(() => {
-    if (isPlaying) return;
-
-    selectorY.value = withTiming(ANIMATION_CONFIG.selectorSlideDistance, {
-      duration: ANIMATION_CONFIG.selectorSlideDuration,
-      easing: Easing.out(Easing.quad),
-    });
-    selectorOpacity.value = withTiming(0, {
-      duration: ANIMATION_CONFIG.selectorFadeDuration,
-    });
-
-    progressPanelOpacity.value = withDelay(
-      ANIMATION_CONFIG.progressDelayDuration,
-      withTiming(1, { duration: ANIMATION_CONFIG.selectorFadeDuration })
-    );
-
-    setTimeout(() => {
-      setIsPlaying(true);
-    }, 300);
-  }, [isPlaying, selectorY, selectorOpacity, progressPanelOpacity]);
-
-  const transitionToSelectionMode = useCallback(() => {
-    selectorY.value = withSpring(0, {
-      damping: ANIMATION_CONFIG.springDamping,
-      stiffness: ANIMATION_CONFIG.springStiffness,
-    });
-    selectorOpacity.value = withTiming(1, {
-      duration: ANIMATION_CONFIG.selectorFadeDuration,
-    });
-
-    progressPanelOpacity.value = withTiming(0, { duration: 200 });
-
-    setIsPlaying(false);
-  }, [selectorY, selectorOpacity, progressPanelOpacity]);
-
-  // ============================================
   // EFFECTS - Sélection automatique niveau
   // ============================================
-
   useEffect(() => {
-    const levelParamChanged = params.level !== lastLevelParamRef.current;
+    const levelParamChanged = orchestrator.params.level !== lastLevelParamRef.current;
     if (levelParamChanged) {
-      lastLevelParamRef.current = params.level;
+      lastLevelParamRef.current = orchestrator.params.level;
     }
 
-    if (levels.length > 0 && (!selectedLevel || levelParamChanged)) {
-      try {
-        let defaultLevel: UILevelConfig | undefined;
+    if (orchestrator.levels.length > 0 && (!orchestrator.selectedLevel || levelParamChanged)) {
+      let defaultLevel: UILevelConfig | undefined;
 
-        if (params.level) {
-          const levelNumber = parseInt(params.level, 10);
-          defaultLevel = levels.find((l) => l.number === levelNumber && l.isUnlocked);
-        }
+      if (orchestrator.params.level) {
+        const levelNumber = parseInt(orchestrator.params.level, 10);
+        defaultLevel = orchestrator.levels.find((l) => l.number === levelNumber && l.isUnlocked);
+      }
 
-        if (!defaultLevel) {
-          const firstIncompleteLevel = levels.find(
-            (level) => level.isUnlocked && !level.isCompleted
-          );
-          defaultLevel =
-            firstIncompleteLevel || levels.filter((l) => l.isUnlocked).pop() || levels[0];
-        }
+      if (!defaultLevel) {
+        const firstIncompleteLevel = orchestrator.levels.find(
+          (level) => level.isUnlocked && !level.isCompleted
+        );
+        defaultLevel =
+          firstIncompleteLevel ||
+          orchestrator.levels.filter((l) => l.isUnlocked).pop() ||
+          orchestrator.levels[0];
+      }
 
-        if (defaultLevel) {
-          setSelectedLevel(defaultLevel);
-          const gameLevel = getLevelByNumber(defaultLevel.number);
-          setCurrentGameLevel(gameLevel || null);
+      if (defaultLevel) {
+        orchestrator.handleSelectLevel(defaultLevel);
+        const gameLevel = getLevelByNumber(defaultLevel.number);
+        setCurrentGameLevel(gameLevel || null);
 
-          setMascotMessage(
-            `Niveau ${defaultLevel.number} ! ${
-              defaultLevel.difficulty === 'easy'
-                ? 'Parfait pour commencer !'
-                : defaultLevel.difficulty === 'hard'
+        orchestrator.setMascotMessage(
+          `Niveau ${defaultLevel.number} ! ${
+            defaultLevel.difficulty === 'easy'
+              ? 'Parfait pour commencer !'
+              : defaultLevel.difficulty === 'hard'
                 ? 'Un vrai défi !'
                 : 'Bonne difficulté !'
-            }`
-          );
-          setMascotEmotion('happy');
-        }
-      } catch (error) {
-        console.warn('Erreur sélection niveau:', error);
-        const level1 = levels[0];
-        if (level1) {
-          setSelectedLevel(level1);
-          setCurrentGameLevel(getLevelByNumber(1) || null);
-          setMascotMessage("Niveau 1 ! Parfait pour commencer !");
-          setMascotEmotion('happy');
-        }
+          }`
+        );
+        setMascotEmotion('happy');
       }
     }
-  }, [levels, selectedLevel, params.level]);
+  }, [orchestrator.levels, orchestrator.selectedLevel, orchestrator.params.level, orchestrator]);
 
   // ============================================
   // EFFECTS - Feedback jeu
   // ============================================
-
   useEffect(() => {
     if (gameHook.status === 'success') {
       playCorrect();
-      setMascotMessage(getRandomMessage(GEDEON_MESSAGES.success));
+      orchestrator.setMascotMessage(getRandomMessage(GEDEON_MESSAGES.success));
       setMascotEmotion('excited');
     } else if (gameHook.status === 'error') {
       playError();
-      setMascotMessage(getRandomMessage(GEDEON_MESSAGES.error));
+      orchestrator.setMascotMessage(getRandomMessage(GEDEON_MESSAGES.error));
       setMascotEmotion('encouraging');
     }
-  }, [gameHook.status, playCorrect, playError]);
+  }, [gameHook.status, playCorrect, playError, orchestrator]);
 
   // ============================================
-  // HANDLERS
+  // HANDLERS SPÉCIFIQUES
   // ============================================
 
   const handleSelectLevel = useCallback(
     (level: UILevelConfig) => {
-      setSelectedLevel(level);
+      orchestrator.handleSelectLevel(level);
       const gameLevel = getLevelByNumber(level.number);
       setCurrentGameLevel(gameLevel || null);
       gameHook.resetMachine();
 
-      setMascotMessage(
+      orchestrator.setMascotMessage(
         `Niveau ${level.number} ! ${
           level.difficulty === 'easy'
             ? 'Parfait pour commencer !'
             : level.difficulty === 'hard'
-            ? 'Un vrai défi !'
-            : 'Bonne difficulté !'
+              ? 'Un vrai défi !'
+              : 'Bonne difficulté !'
         }`
       );
       setMascotEmotion('happy');
     },
-    [gameHook]
+    [orchestrator, gameHook]
   );
 
   const handleStartPlaying = useCallback(() => {
-    if (!selectedLevel) return;
-    transitionToPlayMode();
-    setMascotMessage(getRandomMessage(GEDEON_MESSAGES.levelStart));
+    if (!orchestrator.selectedLevel) return;
+    orchestrator.handleStartPlaying();
+    orchestrator.setMascotMessage(getRandomMessage(GEDEON_MESSAGES.levelStart));
     setMascotEmotion('excited');
-  }, [selectedLevel, transitionToPlayMode]);
+  }, [orchestrator]);
 
   const handleBack = useCallback(() => {
-    if (isPlaying) {
-      transitionToSelectionMode();
-      setMascotMessage("On recommence ? Choisis un niveau !");
+    if (orchestrator.isPlaying) {
+      orchestrator.transitionToSelectionMode();
+      orchestrator.setMascotMessage('On recommence ? Choisis un niveau !');
       setMascotEmotion('encouraging');
+      orchestrator.setIsVictory(false);
     } else {
-      router.replace('/');
+      orchestrator.router.replace('/');
     }
-  }, [isPlaying, router, transitionToSelectionMode]);
-
-  const handleParentPress = useCallback(() => {
-    setShowParentDrawer(true);
-  }, []);
+  }, [orchestrator]);
 
   const handleHelpPress = useCallback(() => {
-    setMascotMessage(getRandomMessage(GEDEON_MESSAGES.hint));
+    orchestrator.setMascotMessage(getRandomMessage(GEDEON_MESSAGES.hint));
     setMascotEmotion('thinking');
-  }, []);
+  }, [orchestrator]);
 
   const handleReset = useCallback(() => {
     gameHook.resetMachine();
-    setMascotMessage("On recommence ! Observe bien la machine...");
+    orchestrator.setMascotMessage('On recommence ! Observe bien la machine...');
     setMascotEmotion('neutral');
-  }, [gameHook]);
+  }, [gameHook, orchestrator]);
 
   const handleHint = useCallback(() => {
     gameHook.requestHint();
     const hintDialogues = currentGameLevel?.hintDialogues || GEDEON_MESSAGES.hint;
     const hintIndex = Math.min(gameHook.currentHintLevel, hintDialogues.length - 1);
-    setMascotMessage(hintDialogues[hintIndex]);
+    orchestrator.setMascotMessage(hintDialogues[hintIndex]);
     setMascotEmotion('thinking');
-  }, [gameHook, currentGameLevel]);
+  }, [gameHook, currentGameLevel, orchestrator]);
 
   const handlePlaceElement = useCallback(
     (elementId: string, position: GridPosition) => {
-      if (!isPlaying) {
-        transitionToPlayMode();
+      if (!orchestrator.isPlaying) {
+        orchestrator.transitionToPlayMode();
       }
 
       const success = gameHook.placeElement(elementId, position);
       if (success) {
         playPlace();
-        setMascotMessage(getRandomMessage(GEDEON_MESSAGES.placementOk));
+        orchestrator.setMascotMessage(getRandomMessage(GEDEON_MESSAGES.placementOk));
         setMascotEmotion('happy');
       }
     },
-    [isPlaying, transitionToPlayMode, gameHook, playPlace]
+    [orchestrator, gameHook, playPlace]
   );
 
   const handleRemoveElement = useCallback(
@@ -412,49 +297,49 @@ export function useFabriqueIntro(): UseFabriqueIntroReturn {
   );
 
   const handleRunSimulation = useCallback(() => {
-    setMascotMessage(getRandomMessage(GEDEON_MESSAGES.simulating));
+    orchestrator.setMascotMessage(getRandomMessage(GEDEON_MESSAGES.simulating));
     setMascotEmotion('excited');
     gameHook.runSimulation();
-  }, [gameHook]);
+  }, [gameHook, orchestrator]);
 
   const handleForceComplete = useCallback(() => {
-    setIsVictory(true);
-    router.push({
+    orchestrator.setIsVictory(true);
+    orchestrator.router.push({
       pathname: '/(games)/14-fabrique-reactions/victory',
       params: {
-        level: (selectedLevel?.number || 1).toString(),
+        level: (orchestrator.selectedLevel?.number || 1).toString(),
         stars: '3',
         moves: '0',
         hintsUsed: '0',
         time: '0',
       },
     });
-  }, [selectedLevel, router]);
+  }, [orchestrator]);
 
   // ============================================
   // RETURN
   // ============================================
 
   return {
-    // Niveaux UI
-    levels,
-    selectedLevel,
+    // Depuis orchestrator
+    levels: orchestrator.levels,
+    selectedLevel: orchestrator.selectedLevel,
     handleSelectLevel,
 
     // État jeu
-    isPlaying,
-    isVictory,
+    isPlaying: orchestrator.isPlaying,
+    isVictory: orchestrator.isVictory,
 
     // Parent drawer
-    showParentDrawer,
-    setShowParentDrawer,
+    showParentDrawer: orchestrator.showParentDrawer,
+    setShowParentDrawer: orchestrator.setShowParentDrawer,
 
     // Animations
-    selectorStyle,
-    progressPanelStyle,
+    selectorStyle: orchestrator.selectorStyle,
+    progressPanelStyle: orchestrator.progressPanelStyle,
 
     // Mascot
-    mascotMessage,
+    mascotMessage: orchestrator.mascotMessage,
     mascotEmotion,
 
     // Game state
@@ -467,7 +352,7 @@ export function useFabriqueIntro(): UseFabriqueIntroReturn {
 
     // Progress data
     progressData: {
-      current: selectedLevel?.number || 1,
+      current: orchestrator.selectedLevel?.number || 1,
       total: TOTAL_LEVELS,
       attempts: gameHook.attempts,
       hintsUsed: gameHook.hintsUsed,
@@ -483,13 +368,13 @@ export function useFabriqueIntro(): UseFabriqueIntroReturn {
     handleHint,
     handleBack,
     handleStartPlaying,
-    handleParentPress,
+    handleParentPress: orchestrator.handleParentPress,
     handleHelpPress,
     handleForceComplete,
 
     // Hints
     hintsRemaining: 3 - gameHook.currentHintLevel,
-    canPlayAudio: isPlaying,
+    canPlayAudio: orchestrator.isPlaying,
 
     // Simulation
     isSimulating: gameHook.isSimulating,

@@ -1,59 +1,52 @@
 /**
  * useHanoiIntro - Hook orchestrateur pour Tour de Hanoï
  *
- * Encapsule toute la logique métier de l'écran d'introduction :
- * - Progression store (lecture/écriture)
- * - Gestion des niveaux
- * - Messages mascotte
- * - Sons (via useHanoiSound)
- * - Animations de transition (Reanimated)
- * - Navigation
- * - Mode de jeu (discovery, challenge, expert)
+ * VERSION MIGRÉE (Janvier 2026)
+ * Utilise useGameIntroOrchestrator pour la logique commune.
+ * Ce fichier ne contient plus que la logique spécifique au jeu.
  *
  * @see docs/GAME_ARCHITECTURE.md pour le pattern complet
  */
 
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
-import { useRouter } from 'expo-router';
-import Animated, {
+import {
   useSharedValue,
-  useAnimatedStyle,
   withTiming,
-  withDelay,
-  withSpring,
   withSequence,
-  Easing,
 } from 'react-native-reanimated';
 
+import { useGameIntroOrchestrator, type EmotionType } from '../../../hooks';
+import type { LevelConfig } from '../../../components/common';
 import { useHanoiGame } from './useHanoiGame';
 import { useHanoiSound } from './useHanoiSound';
 import { hanoiLevels } from '../data/levels';
-import { useStore, useActiveProfile, useGameProgress } from '../../../store/useStore';
-import type { LevelConfig } from '../../../components/common/GameIntroTemplate.types';
+import { useStore } from '../../../store/useStore';
 import type { HanoiLevelConfig, TowerId, HanoiGameState } from '../types';
+
+// Re-export EmotionType for backward compatibility
+export type { EmotionType } from '../../../hooks';
 
 // ============================================
 // TYPES
 // ============================================
 
-export type EmotionType = 'neutral' | 'happy' | 'thinking' | 'excited' | 'encouraging';
 export type GameMode = 'discovery' | 'challenge' | 'expert';
 
 export interface UseHanoiIntroReturn {
-  // Niveaux
+  // Niveaux (depuis orchestrator)
   levels: LevelConfig[];
   selectedLevel: LevelConfig | null;
   handleSelectLevel: (level: LevelConfig) => void;
 
-  // État jeu
+  // État jeu (depuis orchestrator)
   isPlaying: boolean;
   isVictory: boolean;
 
-  // Animations (styles animés)
-  selectorStyle: ReturnType<typeof useAnimatedStyle>;
-  progressPanelStyle: ReturnType<typeof useAnimatedStyle>;
+  // Animations (depuis orchestrator)
+  selectorStyle: ReturnType<typeof useGameIntroOrchestrator>['selectorStyle'];
+  progressPanelStyle: ReturnType<typeof useGameIntroOrchestrator>['progressPanelStyle'];
 
-  // Mascot
+  // Mascot (depuis orchestrator)
   mascotMessage: string;
   mascotEmotion: EmotionType;
 
@@ -86,7 +79,7 @@ export interface UseHanoiIntroReturn {
   gameMode: GameMode;
   handleModeChange: (mode: GameMode) => void;
 
-  // Parent drawer
+  // Parent drawer (depuis orchestrator)
   showParentDrawer: boolean;
   setShowParentDrawer: (show: boolean) => void;
 
@@ -108,15 +101,6 @@ export interface UseHanoiIntroReturn {
 // ============================================
 // CONSTANTS
 // ============================================
-
-const ANIMATION_CONFIG = {
-  selectorSlideDuration: 400,
-  selectorFadeDuration: 300,
-  progressDelayDuration: 200,
-  selectorSlideDistance: -150,
-  springDamping: 15,
-  springStiffness: 150,
-};
 
 const MESSAGES = {
   welcome: 'Déplace un seul anneau à la fois ! Le plus gros reste en dessous',
@@ -140,33 +124,43 @@ const MESSAGES = {
 // ============================================
 
 export function useHanoiIntro(): UseHanoiIntroReturn {
-  const router = useRouter();
-  const profile = useActiveProfile();
+  // ============================================
+  // ORCHESTRATOR (logique commune factorisée)
+  // ============================================
+  const orchestrator = useGameIntroOrchestrator({
+    gameId: 'hanoi',
+    mascotMessages: {
+      welcome: MESSAGES.welcome,
+      startPlaying: MESSAGES.playing,
+      backToSelection: MESSAGES.backToSelection,
+      help: MESSAGES.help,
+    },
+  });
 
-  // Store - progression et tutorial
-  const gameProgress = useGameProgress('hanoi');
+  // Store - tutorial et dev mode
   const recordCompletion = useStore((state) => state.recordCompletion);
   const hasSeenHanoiTutorial = useStore((state) => state.hasSeenHanoiTutorial);
   const setHasSeenHanoiTutorial = useStore((state) => state.setHasSeenHanoiTutorial);
   const devMode = useStore((state) => state.devMode);
 
-  // État local
-  const [selectedLevel, setSelectedLevel] = useState<LevelConfig | null>(null);
-  const [currentLevelId, setCurrentLevelId] = useState<string>(hanoiLevels[1].id); // Default 3 disks
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [mascotMessage, setMascotMessage] = useState(MESSAGES.welcome);
-  const [mascotEmotion, setMascotEmotion] = useState<EmotionType>('neutral');
-  const [showParentDrawer, setShowParentDrawer] = useState(false);
+  // ============================================
+  // LOCAL STATE (spécifique à Hanoi)
+  // ============================================
+  const [currentLevelId, setCurrentLevelId] = useState<string>(hanoiLevels[1].id);
   const [showDemo, setShowDemo] = useState(false);
   const [gameMode, setGameMode] = useState<GameMode>('discovery');
   const [hintsUsed, setHintsUsed] = useState(0);
   const [highlightedTowers, setHighlightedTowers] = useState<{ source: TowerId; target: TowerId } | null>(null);
   const [hintMessage, setHintMessage] = useState<string | null>(null);
 
-  // Sounds
-  const { playDiskPlace, playDiskError, playVictory, playHint } = useHanoiSound();
+  // ============================================
+  // SOUNDS
+  // ============================================
+  const { playVictory, playHint } = useHanoiSound();
 
-  // Game hook
+  // ============================================
+  // GAME HOOK
+  // ============================================
   const game = useHanoiGame({
     levelId: currentLevelId,
   });
@@ -176,7 +170,7 @@ export function useHanoiIntro(): UseHanoiIntroReturn {
     level,
     moveCount,
     consecutiveInvalid,
-    isVictory,
+    isVictory: gameIsVictory,
     hasMovedOnce,
     timeElapsed,
     performMove,
@@ -188,6 +182,7 @@ export function useHanoiIntro(): UseHanoiIntroReturn {
 
   // Refs
   const previousLevelIdRef = useRef(currentLevelId);
+  const hintPulse = useSharedValue(1);
 
   // ============================================
   // COMPUTED VALUES
@@ -204,14 +199,16 @@ export function useHanoiIntro(): UseHanoiIntroReturn {
 
   // Best moves for current level (from saved progress)
   const bestMoves = useMemo(() => {
-    const completion = gameProgress?.completedLevels?.[currentLevelId];
+    const completion = orchestrator.gameProgress?.completedLevels?.[currentLevelId];
     return completion?.bestMoveCount;
-  }, [gameProgress, currentLevelId]);
+  }, [orchestrator.gameProgress, currentLevelId]);
 
-  // Generate levels for GameIntroTemplate format (only first 5 levels: 2-6 disks)
+  // ============================================
+  // LEVELS (spécifique - généré depuis hanoiLevels)
+  // ============================================
   const levels = useMemo<LevelConfig[]>(() => {
     return hanoiLevels.slice(0, 5).map((lvl, index) => {
-      const completion = gameProgress?.completedLevels?.[lvl.id];
+      const completion = orchestrator.gameProgress?.completedLevels?.[lvl.id];
       const isCompleted = completion !== undefined;
 
       // Calculate stars based on performance (0-3)
@@ -219,85 +216,26 @@ export function useHanoiIntro(): UseHanoiIntroReturn {
       if (isCompleted && completion) {
         const optimalMoves = lvl.optimalMoves ?? (Math.pow(2, lvl.diskCount) - 1);
         const efficiency = optimalMoves / completion.bestMoveCount;
-        if (efficiency >= 1) stars = 3;        // Perfect
+        if (efficiency >= 1) stars = 3; // Perfect
         else if (efficiency >= 0.7) stars = 2; // Good
-        else stars = 1;                         // Completed
+        else stars = 1; // Completed
       }
 
       return {
         id: lvl.id,
         number: index + 1,
         difficulty: lvl.difficulty as LevelConfig['difficulty'],
-        isUnlocked: true, // All levels unlocked
+        isUnlocked: true,
         isCompleted,
         stars,
         config: { diskCount: lvl.diskCount },
       };
     });
-  }, [gameProgress]);
+  }, [orchestrator.gameProgress]);
 
   // ============================================
-  // ANIMATIONS
+  // EFFECTS - Tutorial auto-show
   // ============================================
-
-  const selectorY = useSharedValue(0);
-  const selectorOpacity = useSharedValue(1);
-  const progressPanelOpacity = useSharedValue(0);
-  const hintPulse = useSharedValue(1);
-
-  const selectorStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: selectorY.value }],
-    opacity: selectorOpacity.value,
-  }));
-
-  const progressPanelStyle = useAnimatedStyle(() => ({
-    opacity: progressPanelOpacity.value,
-  }));
-
-  // ============================================
-  // TRANSITIONS
-  // ============================================
-
-  const transitionToPlayMode = useCallback(() => {
-    if (isPlaying) return;
-
-    selectorY.value = withTiming(ANIMATION_CONFIG.selectorSlideDistance, {
-      duration: ANIMATION_CONFIG.selectorSlideDuration,
-      easing: Easing.out(Easing.quad),
-    });
-    selectorOpacity.value = withTiming(0, {
-      duration: ANIMATION_CONFIG.selectorFadeDuration,
-    });
-
-    progressPanelOpacity.value = withDelay(
-      ANIMATION_CONFIG.progressDelayDuration,
-      withTiming(1, { duration: ANIMATION_CONFIG.selectorFadeDuration })
-    );
-
-    setTimeout(() => {
-      setIsPlaying(true);
-    }, 300);
-  }, [isPlaying, selectorY, selectorOpacity, progressPanelOpacity]);
-
-  const transitionToSelectionMode = useCallback(() => {
-    selectorY.value = withSpring(0, {
-      damping: ANIMATION_CONFIG.springDamping,
-      stiffness: ANIMATION_CONFIG.springStiffness,
-    });
-    selectorOpacity.value = withTiming(1, {
-      duration: ANIMATION_CONFIG.selectorFadeDuration,
-    });
-
-    progressPanelOpacity.value = withTiming(0, { duration: 200 });
-
-    setIsPlaying(false);
-  }, [selectorY, selectorOpacity, progressPanelOpacity]);
-
-  // ============================================
-  // EFFECTS
-  // ============================================
-
-  // Auto-show demo on first launch
   useEffect(() => {
     if (!hasSeenHanoiTutorial) {
       const timer = setTimeout(() => {
@@ -310,13 +248,13 @@ export function useHanoiIntro(): UseHanoiIntroReturn {
 
   // Update game when level selection changes
   useEffect(() => {
-    if (!isPlaying && selectedLevel) {
-      const hanoiLevel = hanoiLevels.find((l) => l.id === selectedLevel.id);
+    if (!orchestrator.isPlaying && orchestrator.selectedLevel) {
+      const hanoiLevel = hanoiLevels.find((l) => l.id === orchestrator.selectedLevel?.id);
       if (hanoiLevel && hanoiLevel.id !== currentLevelId) {
         setCurrentLevelId(hanoiLevel.id);
       }
     }
-  }, [selectedLevel, isPlaying, currentLevelId]);
+  }, [orchestrator.selectedLevel, orchestrator.isPlaying, currentLevelId]);
 
   // Reset game when currentLevelId changes
   useEffect(() => {
@@ -327,11 +265,14 @@ export function useHanoiIntro(): UseHanoiIntroReturn {
     }
   }, [currentLevelId, reset]);
 
-  // Update mascot message based on game state + save progress on victory
+  // ============================================
+  // EFFECTS - Game state feedback & victory
+  // ============================================
   useEffect(() => {
-    if (isVictory) {
-      setMascotMessage(MESSAGES.victory);
-      setMascotEmotion('excited');
+    if (gameIsVictory && !orchestrator.isVictory) {
+      orchestrator.setIsVictory(true);
+      orchestrator.setMascotMessage(MESSAGES.victory);
+      orchestrator.setMascotEmotion('excited');
       playVictory();
 
       // Save progress to store
@@ -344,74 +285,93 @@ export function useHanoiIntro(): UseHanoiIntroReturn {
         hintsUsed,
       });
     } else if (consecutiveInvalid >= 2) {
-      setMascotMessage(MESSAGES.error);
-      setMascotEmotion('encouraging');
-    } else if (progress > 0.7 && isPlaying) {
-      setMascotMessage(MESSAGES.almostThere);
-      setMascotEmotion('happy');
-    } else if (isPlaying && hasMovedOnce) {
-      setMascotMessage(MESSAGES.playing);
-      setMascotEmotion('neutral');
+      orchestrator.setMascotMessage(MESSAGES.error);
+      orchestrator.setMascotEmotion('encouraging');
+    } else if (progress > 0.7 && orchestrator.isPlaying) {
+      orchestrator.setMascotMessage(MESSAGES.almostThere);
+      orchestrator.setMascotEmotion('happy');
+    } else if (orchestrator.isPlaying && hasMovedOnce) {
+      orchestrator.setMascotMessage(MESSAGES.playing);
+      orchestrator.setMascotEmotion('neutral');
     }
-  }, [isVictory, consecutiveInvalid, progress, isPlaying, hasMovedOnce, playVictory, recordCompletion, currentLevelId, profile, moveCount, timeElapsed, hintsUsed]);
+  }, [
+    gameIsVictory,
+    orchestrator,
+    consecutiveInvalid,
+    progress,
+    hasMovedOnce,
+    playVictory,
+    recordCompletion,
+    currentLevelId,
+    moveCount,
+    timeElapsed,
+    hintsUsed,
+  ]);
 
   // Select default level on mount
   useEffect(() => {
-    if (levels.length > 0 && !selectedLevel) {
-      // Find first incomplete level or default to level 2 (3 disks)
+    if (levels.length > 0 && !orchestrator.selectedLevel) {
       const firstIncomplete = levels.find((l) => l.isUnlocked && !l.isCompleted);
       const defaultLevel = firstIncomplete || levels[1] || levels[0];
-      setSelectedLevel(defaultLevel);
 
-      const hanoiLevel = hanoiLevels.find((l) => l.id === defaultLevel.id);
-      if (hanoiLevel) {
-        setMascotMessage(MESSAGES.levelSelect(hanoiLevel.diskCount));
-        setMascotEmotion('happy');
+      if (defaultLevel) {
+        orchestrator.handleSelectLevel(defaultLevel);
+
+        const hanoiLevel = hanoiLevels.find((l) => l.id === defaultLevel.id);
+        if (hanoiLevel) {
+          orchestrator.setMascotMessage(MESSAGES.levelSelect(hanoiLevel.diskCount));
+          orchestrator.setMascotEmotion('happy');
+        }
       }
     }
-  }, [levels, selectedLevel]);
+  }, [levels, orchestrator]);
 
   // ============================================
-  // HANDLERS
+  // HANDLERS SPÉCIFIQUES
   // ============================================
 
-  const handleSelectLevel = useCallback((level: LevelConfig) => {
-    setSelectedLevel(level);
-    const hanoiLevel = hanoiLevels.find((l) => l.id === level.id);
-    if (hanoiLevel) {
-      setMascotMessage(MESSAGES.levelSelect(hanoiLevel.diskCount));
-      setMascotEmotion('happy');
-    }
-  }, []);
+  const handleSelectLevel = useCallback(
+    (level: LevelConfig) => {
+      orchestrator.handleSelectLevel(level);
+      const hanoiLevel = hanoiLevels.find((l) => l.id === level.id);
+      if (hanoiLevel) {
+        orchestrator.setMascotMessage(MESSAGES.levelSelect(hanoiLevel.diskCount));
+        orchestrator.setMascotEmotion('happy');
+      }
+    },
+    [orchestrator]
+  );
 
   const handleStartPlaying = useCallback(() => {
-    if (!selectedLevel) return;
-    transitionToPlayMode();
-    setMascotMessage(MESSAGES.playing);
-    setMascotEmotion('neutral');
-  }, [selectedLevel, transitionToPlayMode]);
+    if (!orchestrator.selectedLevel) return;
+    orchestrator.handleStartPlaying();
+    orchestrator.setMascotMessage(MESSAGES.playing);
+    orchestrator.setMascotEmotion('neutral');
+  }, [orchestrator]);
 
   const handleBack = useCallback(() => {
-    if (isPlaying) {
-      transitionToSelectionMode();
+    if (orchestrator.isPlaying) {
+      orchestrator.transitionToSelectionMode();
       reset();
       setHintsUsed(0);
-      setMascotMessage(MESSAGES.backToSelection);
-      setMascotEmotion('encouraging');
+      orchestrator.setMascotMessage(MESSAGES.backToSelection);
+      orchestrator.setMascotEmotion('encouraging');
+      orchestrator.setIsVictory(false);
     } else {
-      router.back();
+      orchestrator.router.back();
     }
-  }, [isPlaying, router, transitionToSelectionMode, reset]);
+  }, [orchestrator, reset]);
 
   const handleReset = useCallback(() => {
     reset();
     setHintsUsed(0);
-    setMascotMessage(MESSAGES.playing);
-    setMascotEmotion('neutral');
-  }, [reset]);
+    orchestrator.setIsVictory(false);
+    orchestrator.setMascotMessage(MESSAGES.playing);
+    orchestrator.setMascotEmotion('neutral');
+  }, [reset, orchestrator]);
 
   const handleHint = useCallback(() => {
-    if (hintsRemaining > 0 && !isVictory) {
+    if (hintsRemaining > 0 && !orchestrator.isVictory) {
       setHintsUsed((prev) => prev + 1);
 
       hintPulse.value = withSequence(
@@ -424,8 +384,8 @@ export function useHanoiIntro(): UseHanoiIntroReturn {
         const towerNames = ['A', 'B', 'C'];
         setHintMessage(`Déplace vers ${towerNames[hint.to]}`);
         setHighlightedTowers({ source: hint.from, target: hint.to });
-        setMascotMessage(MESSAGES.hint);
-        setMascotEmotion('thinking');
+        orchestrator.setMascotMessage(MESSAGES.hint);
+        orchestrator.setMascotEmotion('thinking');
         playHint();
 
         setTimeout(() => {
@@ -435,60 +395,63 @@ export function useHanoiIntro(): UseHanoiIntroReturn {
         }, 1500);
       }
     }
-  }, [hintsRemaining, isVictory, getHint, executeHint, playHint, hintPulse]);
+  }, [hintsRemaining, orchestrator, getHint, executeHint, playHint, hintPulse]);
 
-  const handleMove = useCallback((from: TowerId, to: TowerId) => {
-    if (isVictory) return;
+  const handleMove = useCallback(
+    (from: TowerId, to: TowerId) => {
+      if (orchestrator.isVictory) return;
 
-    // Transition to play mode on first move
-    if (!isPlaying) {
-      transitionToPlayMode();
-    }
+      // Transition to play mode on first move
+      if (!orchestrator.isPlaying) {
+        orchestrator.transitionToPlayMode();
+      }
 
-    performMove(from, to);
-  }, [isVictory, isPlaying, transitionToPlayMode, performMove]);
-
-  const handleParentPress = useCallback(() => {
-    setShowParentDrawer(true);
-  }, []);
+      performMove(from, to);
+    },
+    [orchestrator, performMove]
+  );
 
   const handleHelpPress = useCallback(() => {
     setShowDemo(true);
-    setMascotMessage(MESSAGES.help);
-    setMascotEmotion('thinking');
-  }, []);
+    orchestrator.setMascotMessage(MESSAGES.help);
+    orchestrator.setMascotEmotion('thinking');
+  }, [orchestrator]);
 
-  const handleModeChange = useCallback((mode: GameMode) => {
-    setGameMode(mode);
-    setHintsUsed(0);
-    reset();
-  }, [reset]);
+  const handleModeChange = useCallback(
+    (mode: GameMode) => {
+      setGameMode(mode);
+      setHintsUsed(0);
+      reset();
+    },
+    [reset]
+  );
 
   const handleNextLevel = useCallback(() => {
-    if (!selectedLevel) return;
+    if (!orchestrator.selectedLevel) return;
 
-    const currentIndex = levels.findIndex((l) => l.id === selectedLevel.id);
+    const currentIndex = levels.findIndex((l) => l.id === orchestrator.selectedLevel?.id);
     if (currentIndex < levels.length - 1) {
       const nextLevel = levels[currentIndex + 1];
-      setSelectedLevel(nextLevel);
+      orchestrator.handleSelectLevel(nextLevel);
       setCurrentLevelId(nextLevel.id);
       reset();
       setHintsUsed(0);
-      transitionToSelectionMode();
+      orchestrator.transitionToSelectionMode();
+      orchestrator.setIsVictory(false);
     }
-  }, [selectedLevel, levels, reset, transitionToSelectionMode]);
+  }, [orchestrator, levels, reset]);
 
   const handleReplay = useCallback(() => {
     reset();
     setHintsUsed(0);
-    transitionToSelectionMode();
-  }, [reset, transitionToSelectionMode]);
+    orchestrator.transitionToSelectionMode();
+    orchestrator.setIsVictory(false);
+  }, [reset, orchestrator]);
 
   // Force complete level (DEV MODE only)
   const handleForceComplete = useCallback(() => {
-    if (!devMode || isVictory) return;
+    if (!devMode || orchestrator.isVictory) return;
 
-    // Record completion with current stats
     recordCompletion({
       gameId: 'hanoi',
       levelId: currentLevelId,
@@ -498,35 +461,32 @@ export function useHanoiIntro(): UseHanoiIntroReturn {
       hintsUsed,
     });
 
-    // Trigger victory state
-    setMascotMessage(MESSAGES.victory);
-    setMascotEmotion('excited');
-
-    // Force game to victory state
+    orchestrator.setMascotMessage(MESSAGES.victory);
+    orchestrator.setMascotEmotion('excited');
     forceVictory();
-  }, [devMode, isVictory, recordCompletion, currentLevelId, moveCount, timeElapsed, hintsUsed, forceVictory]);
+  }, [devMode, orchestrator, recordCompletion, currentLevelId, moveCount, timeElapsed, hintsUsed, forceVictory]);
 
   // ============================================
   // RETURN
   // ============================================
 
   return {
-    // Niveaux
+    // Depuis orchestrator
     levels,
-    selectedLevel,
+    selectedLevel: orchestrator.selectedLevel,
     handleSelectLevel,
 
     // État jeu
-    isPlaying,
-    isVictory,
+    isPlaying: orchestrator.isPlaying,
+    isVictory: orchestrator.isVictory,
 
     // Animations
-    selectorStyle,
-    progressPanelStyle,
+    selectorStyle: orchestrator.selectorStyle,
+    progressPanelStyle: orchestrator.progressPanelStyle,
 
     // Mascot
-    mascotMessage,
-    mascotEmotion,
+    mascotMessage: orchestrator.mascotMessage,
+    mascotEmotion: orchestrator.mascotEmotion,
 
     // Game state
     gameState,
@@ -543,7 +503,7 @@ export function useHanoiIntro(): UseHanoiIntroReturn {
     handleReset,
     handleHint,
     handleStartPlaying,
-    handleParentPress,
+    handleParentPress: orchestrator.handleParentPress,
     handleHelpPress,
     handleNextLevel,
     handleReplay,
@@ -558,8 +518,8 @@ export function useHanoiIntro(): UseHanoiIntroReturn {
     handleModeChange,
 
     // Parent drawer
-    showParentDrawer,
-    setShowParentDrawer,
+    showParentDrawer: orchestrator.showParentDrawer,
+    setShowParentDrawer: orchestrator.setShowParentDrawer,
 
     // Demo
     showDemo,

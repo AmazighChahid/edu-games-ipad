@@ -1,36 +1,19 @@
 /**
  * useChasseurIntro - Hook orchestrateur pour Chasseur de Papillons
  *
- * Encapsule toute la logique métier de l'écran d'introduction :
- * - Progression store (lecture/écriture)
- * - Paramètres URL
- * - Génération des niveaux
- * - Messages mascotte
- * - Sons
- * - Animations de transition
- * - Navigation
+ * VERSION MIGRÉE (Janvier 2026)
+ * Utilise useGameIntroOrchestrator pour la logique commune.
+ * Ce fichier ne contient plus que la logique spécifique au jeu.
  *
  * @see docs/GAME_ARCHITECTURE.md pour le pattern complet
  */
 
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
-import { useRouter, useLocalSearchParams } from 'expo-router';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-  withDelay,
-  withSpring,
-  Easing,
-} from 'react-native-reanimated';
 
-import {
-  generateDefaultLevels,
-  type LevelConfig,
-} from '../../../components/common';
+import { useGameIntroOrchestrator } from '../../../hooks';
+import type { LevelConfig } from '../../../components/common';
 import { useChasseurGame } from './useChasseurGame';
 import { useChasseurSound } from './useChasseurSound';
-import { useActiveProfile, useGameProgress, useStore } from '../../../store/useStore';
 import type { FluttyEmotion, Butterfly, GameRule } from '../types';
 
 // ============================================
@@ -52,8 +35,8 @@ export interface UseChasseurIntroReturn {
   setShowParentDrawer: (show: boolean) => void;
 
   // Animations (styles animés)
-  selectorStyle: ReturnType<typeof useAnimatedStyle>;
-  progressPanelStyle: ReturnType<typeof useAnimatedStyle>;
+  selectorStyle: ReturnType<typeof useGameIntroOrchestrator>['selectorStyle'];
+  progressPanelStyle: ReturnType<typeof useGameIntroOrchestrator>['progressPanelStyle'];
 
   // Mascot
   mascotMessage: string;
@@ -100,92 +83,64 @@ export interface UseChasseurIntroReturn {
 
 const FLUTTY_MESSAGES = {
   welcome: [
-    "Coucou ! Prêt à chasser des papillons ? 🦋",
-    "Les papillons volent ! Attrape les bons !",
+    'Coucou ! Prêt à chasser des papillons ? 🦋',
+    'Les papillons volent ! Attrape les bons !',
     "Observe bien les couleurs avant d'attraper !",
   ],
   start: [
     "C'est parti ! Attrape les bons papillons !",
-    "Regarde bien la consigne et chasse !",
-    "Les papillons arrivent ! Concentre-toi !",
+    'Regarde bien la consigne et chasse !',
+    'Les papillons arrivent ! Concentre-toi !',
   ],
   success: [
-    "Bravo ! Tu as attrapé le bon ! 🎉",
-    "Super ! Continue comme ça ! ⭐",
-    "Bien joué ! Tes yeux sont rapides ! 👁️",
+    'Bravo ! Tu as attrapé le bon ! 🎉',
+    'Super ! Continue comme ça ! ⭐',
+    'Bien joué ! Tes yeux sont rapides ! 👁️',
   ],
   error: [
     "Oups ! Ce n'était pas le bon. Relis la consigne !",
-    "Pas grave ! Observe mieux les couleurs.",
+    'Pas grave ! Observe mieux les couleurs.',
     "Ce n'était pas celui-là. Prends ton temps !",
   ],
-  streak: [
-    "Waouh ! Quelle série ! 🔥",
-    "Tu es en feu ! Continue ! ⚡",
-    "Incroyable concentration ! 🌟",
-  ],
+  streak: ['Waouh ! Quelle série ! 🔥', 'Tu es en feu ! Continue ! ⚡', 'Incroyable concentration ! 🌟'],
   waveComplete: [
-    "Vague terminée ! Prêt pour la suite ?",
-    "Bien joué ! Nouvelle règle dans 3... 2... 1...",
-    "Super ! Une autre vague arrive !",
+    'Vague terminée ! Prêt pour la suite ?',
+    'Bien joué ! Nouvelle règle dans 3... 2... 1...',
+    'Super ! Une autre vague arrive !',
   ],
-  hint: "Je te montre lesquels attraper ! ✨",
+  hint: 'Je te montre lesquels attraper ! ✨',
 };
 
-// ============================================
-// CONSTANTS
-// ============================================
-
-const ANIMATION_CONFIG = {
-  selectorSlideDuration: 400,
-  selectorFadeDuration: 300,
-  progressDelayDuration: 200,
-  selectorSlideDistance: -150,
-  springDamping: 15,
-  springStiffness: 150,
-};
+// Helper pour message aléatoire
+function randomMessage(messages: string[]): string {
+  return messages[Math.floor(Math.random() * messages.length)];
+}
 
 // ============================================
 // HOOK
 // ============================================
 
 export function useChasseurIntro(): UseChasseurIntroReturn {
-  const router = useRouter();
-  const params = useLocalSearchParams<{ level?: string }>();
-  const profile = useActiveProfile();
+  // ============================================
+  // ORCHESTRATOR (logique commune factorisée)
+  // ============================================
+  const orchestrator = useGameIntroOrchestrator({
+    gameId: 'chasseur-papillons',
+    mascotMessages: {
+      welcome: FLUTTY_MESSAGES.welcome[0],
+      startPlaying: randomMessage(FLUTTY_MESSAGES.start),
+      backToSelection: 'On recommence ? Choisis un niveau !',
+      help: "Lis bien la consigne en haut de l'écran !",
+    },
+  });
 
-  // Store - progression
-  const gameProgress = useGameProgress('chasseur-papillons');
-  const initGameProgress = useStore((state) => state.initGameProgress);
-
-  // Initialiser le progress si nécessaire
-  useEffect(() => {
-    initGameProgress('chasseur-papillons');
-  }, [initGameProgress]);
-
-  // État local
-  const [selectedLevel, setSelectedLevel] = useState<LevelConfig | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isVictory, setIsVictory] = useState(false);
-  const [mascotMessage, setMascotMessage] = useState(FLUTTY_MESSAGES.welcome[0]);
+  // ============================================
+  // LOCAL STATE (spécifique à Chasseur)
+  // ============================================
   const [mascotEmotion, setMascotEmotion] = useState<FluttyEmotion>('neutral');
-  const [showParentDrawer, setShowParentDrawer] = useState(false);
-
-  // Extraire les IDs des niveaux complétés depuis le store
-  const completedLevelIds = useMemo(() => {
-    if (!gameProgress?.completedLevels) return [];
-    return Object.keys(gameProgress.completedLevels).map(
-      (levelId) => `chasseur-papillons_${levelId}`
-    );
-  }, [gameProgress?.completedLevels]);
-
-  // Générer les niveaux basés sur l'âge de l'enfant et les niveaux complétés
-  const levels = useMemo(() => {
-    return generateDefaultLevels('chasseur-papillons', profile?.birthDate, completedLevelIds);
-  }, [profile?.birthDate, completedLevelIds]);
 
   // Hook du jeu
-  const currentLevel = selectedLevel?.number || 1;
+  const currentLevel = orchestrator.selectedLevel?.number || 1;
   const gameHook = useChasseurGame({
     initialLevel: currentLevel,
   });
@@ -206,138 +161,63 @@ export function useChasseurIntro(): UseChasseurIntroReturn {
   } = gameHook;
 
   // Sons
-  const {
-    playCatch,
-    playWrong,
-    playMiss,
-    playStreak,
-    playWaveComplete,
-    playVictory,
-    startAmbient,
-    stopAmbient,
-  } = useChasseurSound();
+  const { playCatch, playWrong, playMiss, playStreak, playWaveComplete, playVictory, startAmbient, stopAmbient } =
+    useChasseurSound();
 
   // Ref pour tracker l'initialisation
   const hasInitializedRef = useRef(false);
   const lastLevelParamRef = useRef<string | undefined>(undefined);
 
   // ============================================
-  // ANIMATIONS
-  // ============================================
-
-  const selectorY = useSharedValue(0);
-  const selectorOpacity = useSharedValue(1);
-  const progressPanelOpacity = useSharedValue(0);
-
-  const selectorStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: selectorY.value }],
-    opacity: selectorOpacity.value,
-  }));
-
-  const progressPanelStyle = useAnimatedStyle(() => ({
-    opacity: progressPanelOpacity.value,
-  }));
-
-  // ============================================
-  // TRANSITIONS
-  // ============================================
-
-  const transitionToPlayMode = useCallback(() => {
-    if (isPlaying) return;
-
-    selectorY.value = withTiming(ANIMATION_CONFIG.selectorSlideDistance, {
-      duration: ANIMATION_CONFIG.selectorSlideDuration,
-      easing: Easing.out(Easing.quad),
-    });
-    selectorOpacity.value = withTiming(0, {
-      duration: ANIMATION_CONFIG.selectorFadeDuration,
-    });
-
-    progressPanelOpacity.value = withDelay(
-      ANIMATION_CONFIG.progressDelayDuration,
-      withTiming(1, { duration: ANIMATION_CONFIG.selectorFadeDuration })
-    );
-
-    setTimeout(() => {
-      setIsPlaying(true);
-    }, 300);
-  }, [isPlaying, selectorY, selectorOpacity, progressPanelOpacity]);
-
-  const transitionToSelectionMode = useCallback(() => {
-    selectorY.value = withSpring(0, {
-      damping: ANIMATION_CONFIG.springDamping,
-      stiffness: ANIMATION_CONFIG.springStiffness,
-    });
-    selectorOpacity.value = withTiming(1, {
-      duration: ANIMATION_CONFIG.selectorFadeDuration,
-    });
-
-    progressPanelOpacity.value = withTiming(0, { duration: 200 });
-
-    setIsPlaying(false);
-    stopAmbient();
-  }, [selectorY, selectorOpacity, progressPanelOpacity, stopAmbient]);
-
-  // ============================================
   // EFFECTS - Sélection automatique niveau
   // ============================================
-
   useEffect(() => {
-    const levelParamChanged = params.level !== lastLevelParamRef.current;
+    const levelParamChanged = orchestrator.params.level !== lastLevelParamRef.current;
     if (levelParamChanged) {
-      lastLevelParamRef.current = params.level;
+      lastLevelParamRef.current = orchestrator.params.level;
     }
 
-    if (levels.length > 0 && (!selectedLevel || levelParamChanged)) {
-      try {
-        let defaultLevel: LevelConfig | undefined;
+    if (orchestrator.levels.length > 0 && (!orchestrator.selectedLevel || levelParamChanged)) {
+      let defaultLevel: LevelConfig | undefined;
 
-        if (params.level) {
-          const levelNumber = parseInt(params.level, 10);
-          defaultLevel = levels.find((l) => l.number === levelNumber && l.isUnlocked);
-        }
+      if (orchestrator.params.level) {
+        const levelNumber = parseInt(orchestrator.params.level, 10);
+        defaultLevel = orchestrator.levels.find((l) => l.number === levelNumber && l.isUnlocked);
+      }
 
-        if (!defaultLevel) {
-          const firstIncompleteLevel = levels.find(
-            (level) => level.isUnlocked && !level.isCompleted
-          );
+      if (!defaultLevel) {
+        const firstIncompleteLevel = orchestrator.levels.find(
+          (level) => level.isUnlocked && !level.isCompleted
+        );
+        defaultLevel =
+          firstIncompleteLevel ||
+          orchestrator.levels.filter((l) => l.isUnlocked).pop() ||
+          orchestrator.levels[0];
+      }
 
-          defaultLevel = firstIncompleteLevel ||
-            levels.filter(l => l.isUnlocked).pop() ||
-            levels[0];
-        }
-
-        if (defaultLevel) {
-          setSelectedLevel(defaultLevel);
-          setMascotMessage(
-            `Niveau ${defaultLevel.number} ! ${
-              defaultLevel.difficulty === 'easy'
-                ? 'Parfait pour s\'entraîner !'
-                : defaultLevel.difficulty === 'hard'
+      if (defaultLevel) {
+        orchestrator.handleSelectLevel(defaultLevel);
+        orchestrator.setMascotMessage(
+          `Niveau ${defaultLevel.number} ! ${
+            defaultLevel.difficulty === 'easy'
+              ? "Parfait pour s'entraîner !"
+              : defaultLevel.difficulty === 'hard'
                 ? 'Un vrai défi de concentration !'
                 : 'Bonne difficulté !'
-            }`
-          );
-          setMascotEmotion('happy');
-        }
-      } catch {
-        const level1 = levels[0];
-        if (level1) {
-          setSelectedLevel(level1);
-          setMascotMessage(FLUTTY_MESSAGES.welcome[0]);
-          setMascotEmotion('neutral');
-        }
+          }`
+        );
+        setMascotEmotion('happy');
       }
     }
-  }, [levels, selectedLevel, params.level]);
+  }, [orchestrator.levels, orchestrator.selectedLevel, orchestrator.params.level, orchestrator]);
 
   // Initialiser le niveau au chargement
   useEffect(() => {
-    if (selectedLevel && !hasInitializedRef.current) {
+    if (orchestrator.selectedLevel && !hasInitializedRef.current) {
       hasInitializedRef.current = true;
-      initLevel(selectedLevel.number);
+      initLevel(orchestrator.selectedLevel.number);
     }
-  }, [selectedLevel, initLevel]);
+  }, [orchestrator.selectedLevel, initLevel]);
 
   // ============================================
   // EFFECTS - Feedback jeu
@@ -352,15 +232,13 @@ export function useChasseurIntro(): UseChasseurIntroReturn {
     // Bonne capture
     if (gameState.targetsCaught > lastTargetsCaughtRef.current) {
       playCatch();
-      const messages = FLUTTY_MESSAGES.success;
-      setMascotMessage(messages[Math.floor(Math.random() * messages.length)]);
+      orchestrator.setMascotMessage(randomMessage(FLUTTY_MESSAGES.success));
       setMascotEmotion('happy');
 
       // Streak bonus
       if (gameState.streak > 0 && gameState.streak % 3 === 0) {
         playStreak();
-        const streakMessages = FLUTTY_MESSAGES.streak;
-        setMascotMessage(streakMessages[Math.floor(Math.random() * streakMessages.length)]);
+        orchestrator.setMascotMessage(randomMessage(FLUTTY_MESSAGES.streak));
         setMascotEmotion('excited');
       }
     }
@@ -369,34 +247,32 @@ export function useChasseurIntro(): UseChasseurIntroReturn {
     // Mauvaise capture
     if (gameState.wrongCatches > lastWrongCatchesRef.current) {
       playWrong();
-      const messages = FLUTTY_MESSAGES.error;
-      setMascotMessage(messages[Math.floor(Math.random() * messages.length)]);
+      orchestrator.setMascotMessage(randomMessage(FLUTTY_MESSAGES.error));
       setMascotEmotion('encouraging');
     }
     lastWrongCatchesRef.current = gameState.wrongCatches;
 
     lastStreakRef.current = gameState.streak;
-  }, [gameState.targetsCaught, gameState.wrongCatches, gameState.streak, playCatch, playWrong, playStreak]);
+  }, [gameState.targetsCaught, gameState.wrongCatches, gameState.streak, playCatch, playWrong, playStreak, orchestrator]);
 
   // Fin de vague
   useEffect(() => {
     if (gameState.status === 'wave_complete') {
       playWaveComplete();
-      const messages = FLUTTY_MESSAGES.waveComplete;
-      setMascotMessage(messages[Math.floor(Math.random() * messages.length)]);
+      orchestrator.setMascotMessage(randomMessage(FLUTTY_MESSAGES.waveComplete));
       setMascotEmotion('happy');
     }
-  }, [gameState.status, playWaveComplete]);
+  }, [gameState.status, playWaveComplete, orchestrator]);
 
   // Victoire
   useEffect(() => {
     if (gameState.status === 'victory') {
       playVictory();
-      setIsVictory(true);
+      orchestrator.setIsVictory(true);
       stopAmbient();
 
       const totalTimeMs = Date.now() - sessionState.startTime.getTime();
-      router.push({
+      orchestrator.router.push({
         pathname: '/(games)/15-chasseur-papillons/victory',
         params: {
           score: gameState.score.toString(),
@@ -410,90 +286,93 @@ export function useChasseurIntro(): UseChasseurIntroReturn {
         },
       });
     }
-  }, [gameState.status, playVictory, stopAmbient, router, gameState, sessionState, accuracy, currentLevel]);
+  }, [gameState.status, playVictory, stopAmbient, orchestrator, gameState, sessionState, accuracy, currentLevel]);
 
   // ============================================
-  // HANDLERS
+  // HANDLERS SPÉCIFIQUES
   // ============================================
 
-  const handleSelectLevel = useCallback((level: LevelConfig) => {
-    setSelectedLevel(level);
-    setMascotMessage(
-      `Niveau ${level.number} ! ${
-        level.difficulty === 'easy'
-          ? 'Parfait pour s\'entraîner !'
-          : level.difficulty === 'hard'
-          ? 'Un vrai défi de concentration !'
-          : 'Bonne difficulté !'
-      }`
-    );
-    setMascotEmotion('happy');
-    initLevel(level.number);
-  }, [initLevel]);
+  const handleSelectLevel = useCallback(
+    (level: LevelConfig) => {
+      orchestrator.handleSelectLevel(level);
+      orchestrator.setMascotMessage(
+        `Niveau ${level.number} ! ${
+          level.difficulty === 'easy'
+            ? "Parfait pour s'entraîner !"
+            : level.difficulty === 'hard'
+              ? 'Un vrai défi de concentration !'
+              : 'Bonne difficulté !'
+        }`
+      );
+      setMascotEmotion('happy');
+      initLevel(level.number);
+    },
+    [orchestrator, initLevel]
+  );
 
   const handleStartPlaying = useCallback(() => {
-    if (!selectedLevel) return;
-    transitionToPlayMode();
+    if (!orchestrator.selectedLevel) return;
+    orchestrator.handleStartPlaying();
     startAmbient();
     startWave();
-    const messages = FLUTTY_MESSAGES.start;
-    setMascotMessage(messages[Math.floor(Math.random() * messages.length)]);
+    orchestrator.setMascotMessage(randomMessage(FLUTTY_MESSAGES.start));
     setMascotEmotion('excited');
-  }, [selectedLevel, transitionToPlayMode, startAmbient, startWave]);
+  }, [orchestrator, startAmbient, startWave]);
 
-  const handleCatchButterfly = useCallback((butterflyId: string) => {
-    // Transition vers mode jeu si pas encore en train de jouer
-    if (!isPlaying) {
-      transitionToPlayMode();
-      startAmbient();
-      startWave();
-    }
-    catchButterfly(butterflyId);
-  }, [isPlaying, transitionToPlayMode, startAmbient, startWave, catchButterfly]);
+  const handleCatchButterfly = useCallback(
+    (butterflyId: string) => {
+      // Transition vers mode jeu si pas encore en train de jouer
+      if (!orchestrator.isPlaying) {
+        orchestrator.transitionToPlayMode();
+        startAmbient();
+        startWave();
+      }
+      catchButterfly(butterflyId);
+    },
+    [orchestrator, startAmbient, startWave, catchButterfly]
+  );
 
   const handleNextWave = useCallback(() => {
     nextWave();
     startWave();
-    setMascotMessage("Nouvelle vague ! Concentre-toi sur la nouvelle règle !");
+    orchestrator.setMascotMessage('Nouvelle vague ! Concentre-toi sur la nouvelle règle !');
     setMascotEmotion('neutral');
-  }, [nextWave, startWave]);
+  }, [nextWave, startWave, orchestrator]);
 
   const handleBack = useCallback(() => {
-    if (isPlaying) {
-      transitionToSelectionMode();
-      setMascotMessage("On recommence ? Choisis un niveau !");
+    if (orchestrator.isPlaying) {
+      orchestrator.transitionToSelectionMode();
+      stopAmbient();
+      orchestrator.setMascotMessage('On recommence ? Choisis un niveau !');
       setMascotEmotion('encouraging');
+      orchestrator.setIsVictory(false);
     } else {
-      router.replace('/');
+      orchestrator.router.replace('/');
     }
-  }, [isPlaying, router, transitionToSelectionMode]);
-
-  const handleParentPress = useCallback(() => {
-    setShowParentDrawer(true);
-  }, []);
+  }, [orchestrator, stopAmbient]);
 
   const handleHelpPress = useCallback(() => {
-    setMascotMessage("Lis bien la consigne en haut de l'écran !");
+    orchestrator.setMascotMessage("Lis bien la consigne en haut de l'écran !");
     setMascotEmotion('thinking');
-  }, []);
+  }, [orchestrator]);
 
   const handleReset = useCallback(() => {
     resetGame();
-    setMascotMessage("On recommence ! Prêt ?");
+    orchestrator.setMascotMessage('On recommence ! Prêt ?');
     setMascotEmotion('neutral');
-  }, [resetGame]);
+  }, [resetGame, orchestrator]);
 
   const handleHint = useCallback(() => {
     requestHint();
-    setMascotMessage(FLUTTY_MESSAGES.hint);
+    orchestrator.setMascotMessage(FLUTTY_MESSAGES.hint);
     setMascotEmotion('thinking');
-  }, [requestHint]);
+  }, [requestHint, orchestrator]);
 
   const handleForceComplete = useCallback(() => {
-    setIsVictory(true);
+    orchestrator.setIsVictory(true);
     stopAmbient();
     const totalTimeMs = Date.now() - sessionState.startTime.getTime();
-    router.push({
+    orchestrator.router.push({
       pathname: '/(games)/15-chasseur-papillons/victory',
       params: {
         score: '1000',
@@ -506,32 +385,32 @@ export function useChasseurIntro(): UseChasseurIntroReturn {
         hintsUsed: '0',
       },
     });
-  }, [stopAmbient, sessionState.startTime, currentLevel, router]);
+  }, [orchestrator, stopAmbient, sessionState.startTime, currentLevel]);
 
   // ============================================
   // RETURN
   // ============================================
 
   return {
-    // Niveaux
-    levels,
-    selectedLevel,
+    // Depuis orchestrator
+    levels: orchestrator.levels,
+    selectedLevel: orchestrator.selectedLevel,
     handleSelectLevel,
 
     // État jeu
-    isPlaying,
-    isVictory,
+    isPlaying: orchestrator.isPlaying,
+    isVictory: orchestrator.isVictory,
 
     // Parent drawer
-    showParentDrawer,
-    setShowParentDrawer,
+    showParentDrawer: orchestrator.showParentDrawer,
+    setShowParentDrawer: orchestrator.setShowParentDrawer,
 
     // Animations
-    selectorStyle,
-    progressPanelStyle,
+    selectorStyle: orchestrator.selectorStyle,
+    progressPanelStyle: orchestrator.progressPanelStyle,
 
     // Mascot
-    mascotMessage,
+    mascotMessage: orchestrator.mascotMessage,
     mascotEmotion,
 
     // Game state
@@ -560,13 +439,13 @@ export function useChasseurIntro(): UseChasseurIntroReturn {
     handleBack,
     handleStartPlaying,
     handleNextWave,
-    handleParentPress,
+    handleParentPress: orchestrator.handleParentPress,
     handleHelpPress,
     handleForceComplete,
 
     // Hints
     hintsRemaining,
-    canPlayAudio: isPlaying,
+    canPlayAudio: orchestrator.isPlaying,
   };
 }
 

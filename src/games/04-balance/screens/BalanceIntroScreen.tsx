@@ -10,14 +10,27 @@
  * @see docs/GAME_ARCHITECTURE.md pour le pattern complet
  */
 
-import React, { useCallback } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import React, { useCallback, useMemo } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Pressable } from 'react-native';
 import Animated, { FadeIn, ZoomIn } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
+import type { Phase } from '../types';
 
-import { GameIntroTemplate, type LevelConfig, PetalsIndicator } from '../../../components/common';
+import {
+  GameIntroTemplate,
+  type LevelConfig,
+  PetalsIndicator,
+  VictoryCard,
+  type VictoryBadge,
+  AgeGroupSelector,
+  EmptyState,
+  ProgressStatsPanel,
+  createProgressStatConfig,
+  createAttemptsStatConfig,
+  createHintsStatConfig,
+  type StatConfig,
+} from '../../../components/common';
 import { ParentDrawer } from '../../../components/parent/ParentDrawer';
-import { VictoryCard, type VictoryBadge } from '../../../components/common';
 import { BalanceScale } from '../components/BalanceScale';
 import { WeightObject } from '../components/WeightObject';
 import { DrHibou } from '../components/DrHibou';
@@ -61,6 +74,58 @@ const calculateStars = (attempts: number, hints: number): 1 | 2 | 3 => {
 };
 
 // ============================================
+// AGE GROUP OPTIONS (pour AgeGroupSelector)
+// ============================================
+
+const AGE_OPTIONS = [
+  { id: '6-7' as const, label: '6-7 ans', phase: 1 as Phase },
+  { id: '7-8' as const, label: '7-8 ans', phase: 2 as Phase },
+  { id: '8-9' as const, label: '8-9 ans', phase: 3 as Phase },
+  { id: '9-10' as const, label: '9-10 ans', phase: 4 as Phase },
+];
+
+// Helper pour convertir Phase en AgeGroup
+const phaseToAgeGroup = (phase: Phase): '6-7' | '7-8' | '8-9' | '9-10' => {
+  const mapping: Record<Phase, '6-7' | '7-8' | '8-9' | '9-10'> = {
+    1: '6-7',
+    2: '7-8',
+    3: '8-9',
+    4: '9-10',
+  };
+  return mapping[phase];
+};
+
+// Helper pour convertir AgeGroup en Phase
+const ageGroupToPhase = (ageGroup: '6-7' | '7-8' | '8-9' | '9-10'): Phase => {
+  const mapping: Record<string, Phase> = {
+    '6-7': 1,
+    '7-8': 2,
+    '8-9': 3,
+    '9-10': 4,
+  };
+  return mapping[ageGroup];
+};
+
+// ============================================
+// JOURNAL BUTTON
+// ============================================
+
+interface JournalButtonProps {
+  onPress: () => void;
+}
+
+const JournalButton: React.FC<JournalButtonProps> = ({ onPress }) => (
+  <Pressable
+    onPress={onPress}
+    style={styles.journalButton}
+    accessibilityLabel="Ouvrir le journal"
+    accessibilityRole="button"
+  >
+    <Text style={styles.journalButtonIcon}>{Icons.journal}</Text>
+  </Pressable>
+);
+
+// ============================================
 // CUSTOM LEVEL CARD (spécifique à Balance)
 // Avec indicateur de phase coloré
 // ============================================
@@ -71,8 +136,43 @@ interface LevelCardProps {
 }
 
 const BalanceLevelCard: React.FC<LevelCardProps> = ({ level, isSelected }) => {
-  // Extraire la phase depuis le metadata ou utiliser une valeur par défaut
-  const phase = (level.metadata?.phase as 1 | 2 | 3 | 4) || 1;
+  // Cas spécial : Niveau 0 = Mode Libre
+  const isFreeMode = level.number === 0 || level.config?.isFreeMode;
+
+  if (isFreeMode) {
+    const containerStyle = [
+      styles.levelCard,
+      styles.freeModeCard,
+      isSelected && styles.freeModeCardSelected,
+    ];
+
+    const content = (
+      <>
+        <Text style={styles.freeModeIcon}>{Icons.palette}</Text>
+        <Text style={[styles.freeModeLabel, isSelected && styles.freeModeLabelSelected]}>
+          Libre
+        </Text>
+      </>
+    );
+
+    if (isSelected) {
+      return (
+        <LinearGradient
+          colors={[colors.secondary.main, colors.secondary.dark || '#E67E22']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={[containerStyle, styles.freeModeCardSelected]}
+        >
+          {content}
+        </LinearGradient>
+      );
+    }
+
+    return <View style={containerStyle}>{content}</View>;
+  }
+
+  // Extraire la phase depuis le config ou utiliser une valeur par défaut
+  const phase = (level.config?.phase as 1 | 2 | 3 | 4) || 1;
   const phaseInfo = PHASE_INFO[phase];
 
   // Rendu des pétales (score)
@@ -159,11 +259,11 @@ export default function BalanceIntroScreen() {
   const renderGame = useCallback(() => {
     if (!intro.currentPuzzle) {
       return (
-        <View style={styles.gamePreviewEmpty}>
-          <Text style={styles.gamePreviewEmptyText}>
-            Sélectionne un niveau pour voir l'expérience
-          </Text>
-        </View>
+        <EmptyState
+          message="Sélectionne un niveau pour voir l'expérience"
+          emoji={Icons.balance}
+          size="medium"
+        />
       );
     }
 
@@ -191,97 +291,91 @@ export default function BalanceIntroScreen() {
       );
     };
 
+    // Mode aperçu (pas en train de jouer)
+    if (!intro.isPlaying) {
+      return (
+        <View style={styles.gameArea}>
+          <View style={styles.balanceContainerPreview}>
+            <BalanceScale
+              balanceState={intro.previewBalanceState || intro.balanceState}
+              leftPlateContent={renderPlateContent('left')}
+              rightPlateContent={renderPlateContent('right')}
+              showWeightIndicators={intro.currentPuzzle.phase >= 3}
+            />
+          </View>
+        </View>
+      );
+    }
+
+    // Mode jeu actif : layout 2 colonnes (balance à gauche, objets à droite)
     return (
-      <View style={styles.gameArea}>
-        {/* Balance */}
-        <View style={styles.balanceContainer}>
+      <View style={styles.gameAreaPlaying}>
+        {/* Colonne gauche : Balance */}
+        <View style={styles.balanceColumn}>
           <BalanceScale
-            balanceState={intro.isPlaying ? intro.balanceState : (intro.previewBalanceState || intro.balanceState)}
+            balanceState={intro.balanceState}
             leftPlateContent={renderPlateContent('left')}
             rightPlateContent={renderPlateContent('right')}
             showWeightIndicators={intro.currentPuzzle.phase >= 3}
           />
         </View>
 
-        {/* Objets disponibles (visible en mode jeu) */}
-        {intro.isPlaying && (
-          <Animated.View entering={FadeIn.delay(300)} style={styles.stockContainer}>
-            <Text style={styles.stockTitle}>Objets disponibles</Text>
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.stockScroll}
-            >
-              {intro.availableObjects.map((obj) => (
-                <WeightObject
-                  key={obj.id}
-                  object={obj}
-                  onDragEnd={(x, y) => {
-                    // Déterminer le côté en fonction de la position X
-                    const side = x < 200 ? 'left' : 'right';
-                    intro.handlePlaceObject(obj, side);
-                  }}
-                />
-              ))}
-            </ScrollView>
-          </Animated.View>
-        )}
+        {/* Colonne droite : Objets disponibles */}
+        <Animated.View entering={FadeIn.delay(300)} style={styles.stockColumn}>
+          <Text style={styles.stockTitle}>Objets disponibles</Text>
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.stockScrollVertical}
+          >
+            {intro.availableObjects.map((obj) => (
+              <WeightObject
+                key={obj.id}
+                object={obj}
+                onDragEnd={(x, y) => {
+                  // Déterminer le côté en fonction de la position X
+                  const side = x < 200 ? 'left' : 'right';
+                  intro.handlePlaceObject(obj, side);
+                }}
+              />
+            ))}
+          </ScrollView>
+        </Animated.View>
       </View>
     );
   }, [intro]);
 
-  // Render progress panel
-  const renderProgress = useCallback(() => {
+  // Build progress stats using memoized helper
+  const progressStats = useMemo(() => {
     const { current, total, attempts, hintsUsed, discoveredEquivalences } = intro.progressData;
 
-    return (
-      <View style={styles.progressPanel}>
-        <View style={styles.progressStatsRow}>
-          {/* Niveau actuel */}
-          <View style={styles.progressStatItem}>
-            <Text style={styles.progressStatLabel}>NIVEAU</Text>
-            <Text style={[styles.progressStatValue, { color: colors.primary.main }]}>
-              {current}/{total}
-            </Text>
-          </View>
+    const stats: StatConfig[] = [
+      createProgressStatConfig(current, total),
+      createAttemptsStatConfig(attempts),
+      createHintsStatConfig(hintsUsed, 3), // Max 3 hints
+    ];
 
-          <View style={styles.progressDivider} />
+    // Add discoveries if any
+    if (discoveredEquivalences > 0) {
+      stats.push({
+        id: 'discoveries',
+        label: 'DÉCOUVERTES',
+        value: `${Icons.lab} ${discoveredEquivalences}`,
+        color: colors.feedback.success,
+      });
+    }
 
-          {/* Coups */}
-          <View style={styles.progressStatItem}>
-            <Text style={styles.progressStatLabel}>COUPS</Text>
-            <Text style={[styles.progressStatValue, { color: colors.text.primary }]}>
-              {attempts}
-            </Text>
-          </View>
-
-          <View style={styles.progressDivider} />
-
-          {/* Indices */}
-          <View style={styles.progressStatItem}>
-            <Text style={styles.progressStatLabel}>INDICES</Text>
-            <Text style={[styles.progressStatValue, { color: colors.secondary.main }]}>
-              {hintsUsed}
-            </Text>
-          </View>
-
-          {discoveredEquivalences > 0 && (
-            <>
-              <View style={styles.progressDivider} />
-
-              {/* Découvertes */}
-              <View style={styles.progressStatItem}>
-                <Text style={styles.progressStatLabel}>DÉCOUVERTES</Text>
-                <Text style={[styles.progressStatValue, { color: colors.feedback.success }]}>
-                  {Icons.lab} {discoveredEquivalences}
-                </Text>
-              </View>
-            </>
-          )}
-        </View>
-      </View>
-    );
+    return stats;
   }, [intro.progressData]);
+
+  // Render progress panel using ProgressStatsPanel
+  const renderProgress = useCallback(() => {
+    return (
+      <ProgressStatsPanel
+        stats={progressStats}
+        useGlassEffect
+      />
+    );
+  }, [progressStats]);
 
   // Calcul des étoiles pour la victoire
   const earnedStars = intro.isVictory
@@ -299,6 +393,15 @@ export default function BalanceIntroScreen() {
         onHelpPress={intro.handleHelpPress}
         showParentButton
         showHelpButton
+        headerRightContent={
+          <View style={styles.headerButtons}>
+            <AgeGroupSelector
+              selectedAge={phaseToAgeGroup(intro.selectedPhase)}
+              onAgeChange={(ageGroup) => intro.handlePhaseChange(ageGroupToPhase(ageGroup))}
+            />
+            <JournalButton onPress={intro.handleGoToJournal} />
+          </View>
+        }
 
         // Niveaux
         levels={intro.levels}
@@ -322,7 +425,7 @@ export default function BalanceIntroScreen() {
                   intro.mascotEmotion === 'thinking' ? 'curious' : 'neutral'}
             message={intro.mascotMessage}
             size="medium"
-            position="center"
+            position="left"
             showBubble={!intro.isVictory}
           />
         }
@@ -434,6 +537,35 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
 
+  // Mode Libre (niveau 0)
+  freeModeCard: {
+    backgroundColor: colors.secondary.light || '#FFF3E0',
+    borderColor: colors.secondary.main,
+    borderStyle: 'dashed',
+  },
+  freeModeCardSelected: {
+    borderColor: 'transparent',
+    borderStyle: 'solid',
+    shadowColor: colors.secondary.main,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.4,
+    shadowRadius: 24,
+    elevation: 12,
+  },
+  freeModeIcon: {
+    fontSize: fontSize['2xl'],
+    marginBottom: spacing[1],
+  },
+  freeModeLabel: {
+    fontFamily: fontFamily.semiBold,
+    fontSize: fontSize.sm,
+    fontWeight: '600',
+    color: colors.secondary.dark || '#E67E22',
+  },
+  freeModeLabelSelected: {
+    color: '#FFFFFF',
+  },
+
   // Indicateur de phase
   phaseIndicator: {
     position: 'absolute',
@@ -487,27 +619,40 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
 
-  // Game Area
-  gamePreviewEmpty: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: spacing[8],
-  },
-  gamePreviewEmptyText: {
-    fontSize: fontSize.lg,
-    color: colors.text.muted,
-    textAlign: 'center',
-    fontFamily: fontFamily.regular,
-  },
+  // Mode aperçu (isPlaying = false)
   gameArea: {
     flex: 1,
     width: '100%',
     alignItems: 'center',
   },
-  balanceContainer: {
+  balanceContainerPreview: {
     alignItems: 'center',
     justifyContent: 'center',
-    minHeight: 300,
+    transform: [{ scale: 0.7 }],  // Réduit pour l'aperçu
+    opacity: 0.85,
+  },
+  // Mode jeu (isPlaying = true) - Layout 2 colonnes
+  gameAreaPlaying: {
+    flex: 1,
+    flexDirection: 'row',
+    width: '100%',
+    paddingHorizontal: spacing[2],
+    gap: spacing[4],
+  },
+  balanceColumn: {
+    flex: 3,
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    paddingTop: spacing[2],
+  },
+  stockColumn: {
+    flex: 1,
+    minWidth: 120,
+    maxWidth: 180,
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    borderRadius: borderRadius.xl,
+    padding: spacing[3],
+    ...shadows.md,
   },
 
   // Plate content
@@ -516,7 +661,8 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: spacing[1],
+    gap: spacing[2],
+    overflow: 'hidden',
   },
   plateObjectTouchable: {
     minWidth: touchTargets.minimum,
@@ -531,65 +677,41 @@ const styles = StyleSheet.create({
     fontSize: fontSize['2xl'],
   },
 
-  // Stock d'objets
-  stockContainer: {
-    width: '100%',
-    paddingHorizontal: spacing[4],
-    paddingVertical: spacing[3],
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-    borderTopLeftRadius: borderRadius.xl,
-    borderTopRightRadius: borderRadius.xl,
-    ...shadows.sm,
-  },
+  // Stock d'objets (styles pour le panneau vertical à droite)
   stockTitle: {
     fontSize: fontSize.base,
     fontFamily: fontFamily.semiBold,
     fontWeight: '600',
     color: colors.text.primary,
-    marginBottom: spacing[2],
+    marginBottom: spacing[3],
+    textAlign: 'center',
   },
-  stockScroll: {
+  stockScrollVertical: {
+    alignItems: 'center',
     gap: spacing[3],
-    paddingVertical: spacing[2],
+    paddingBottom: spacing[4],
   },
 
-  // Progress Panel (style similaire à Suites Logiques)
-  progressPanel: {
-    alignSelf: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.97)',
-    borderRadius: 20,
-    paddingVertical: spacing[4],
-    paddingHorizontal: spacing[6],
-    ...shadows.lg,
-    zIndex: 100,
-    marginVertical: spacing[2],
-  },
-  progressStatsRow: {
+  // Header buttons container
+  headerButtons: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing[4],
+    gap: spacing[2],
   },
-  progressStatItem: {
+
+  // Journal button
+  journalButton: {
+    width: touchTargets.minimum,
+    height: touchTargets.minimum,
+    borderRadius: touchTargets.minimum / 2,
+    backgroundColor: colors.background.card,
     alignItems: 'center',
-    minWidth: 60,
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: colors.secondary.light || '#FFE0B2',
+    ...shadows.sm,
   },
-  progressStatLabel: {
-    fontSize: fontSize.xs,
-    fontWeight: '600',
-    color: '#A0AEC0',
-    letterSpacing: 0.5,
-    marginBottom: spacing[1],
-  },
-  progressStatValue: {
-    fontFamily: fontFamily.bold,
+  journalButtonIcon: {
     fontSize: fontSize.xl,
-    fontWeight: '700',
-    lineHeight: 28,
-  },
-  progressDivider: {
-    width: 2,
-    height: 36,
-    backgroundColor: '#E2E8F0',
-    borderRadius: 1,
   },
 });

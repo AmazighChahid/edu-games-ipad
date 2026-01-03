@@ -79,6 +79,25 @@ export const DEFAULT_ANIMATION_CONFIG: IntroAnimationConfig = {
 };
 
 // ============================================
+// LAYOUT CONFIGURATION (January 2026)
+// ============================================
+
+export type PlayingLayoutVariant = 'fullwidth' | '2-columns';
+
+export interface ColumnLayoutConfig {
+  /** Ratio for left column (e.g., 4 for 40%) */
+  leftRatio: number;
+  /** Ratio for right column (e.g., 6 for 60%) */
+  rightRatio: number;
+  /** Minimum width for left column */
+  leftMinWidth?: number;
+  /** Minimum width for right column */
+  rightMinWidth?: number;
+  /** Gap between columns */
+  gap?: number;
+}
+
+// ============================================
 // MAIN TEMPLATE PROPS
 // ============================================
 
@@ -98,6 +117,8 @@ export interface GameIntroTemplateProps {
   showParentButton?: boolean;
   /** Show help button (default: true) */
   showHelpButton?: boolean;
+  /** Custom content to render in header right section (e.g., dropdowns, extra buttons) */
+  headerRightContent?: ReactNode;
 
   // === LEVEL SELECTION ===
   /** Array of 10 levels (calculated based on child age) */
@@ -182,6 +203,29 @@ export interface GameIntroTemplateProps {
   playButtonText?: string;
   /** Emoji for play button (default: "🚀") */
   playButtonEmoji?: string;
+
+  // === LAYOUT (January 2026 - Standardization) ===
+  /**
+   * Layout variant for playing mode.
+   * - 'fullwidth': Game takes full width (default, current behavior)
+   * - '2-columns': Split into left and right columns
+   */
+  playingLayout?: PlayingLayoutVariant;
+  /**
+   * Column configuration for '2-columns' layout.
+   * Default: { leftRatio: 4, rightRatio: 6 }
+   */
+  columnConfig?: ColumnLayoutConfig;
+  /**
+   * Content for left column (when using '2-columns' layout).
+   * Example: CluePanel, stock of objects
+   */
+  leftColumnContent?: ReactNode;
+  /**
+   * Content for right column (when using '2-columns' layout).
+   * Example: Game grid, balance
+   */
+  rightColumnContent?: ReactNode;
 }
 
 // ============================================

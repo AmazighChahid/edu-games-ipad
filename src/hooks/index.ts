@@ -34,3 +34,12 @@ export {
   useFontFamily,
   createDyslexicTextStyle,
 } from './useDyslexicFont';
+
+// Game intro orchestrator (January 2026 - Standardization)
+export {
+  useGameIntroOrchestrator,
+  type GameIntroOrchestratorConfig,
+  type GameIntroOrchestratorReturn,
+  type EmotionType,
+  type AnimationConfig,
+} from './useGameIntroOrchestrator';

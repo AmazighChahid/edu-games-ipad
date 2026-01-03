@@ -1,61 +1,38 @@
 /**
  * useLabyrintheIntro - Hook orchestrateur pour Labyrinthe Logique
  *
- * Encapsule toute la logique métier de l'écran d'introduction :
- * - Progression store (lecture/écriture)
- * - Paramètres URL
- * - Génération des niveaux
- * - Messages mascotte
- * - Animations de transition
- * - Navigation
- * - Configuration du labyrinthe
+ * VERSION MIGRÉE (Janvier 2026)
+ * Utilise useGameIntroOrchestrator pour la logique commune.
+ * Ce fichier ne contient plus que la logique spécifique au jeu.
  *
  * @see docs/GAME_ARCHITECTURE.md pour le pattern complet
  */
 
 import { useState, useCallback, useMemo, useEffect } from 'react';
-import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useWindowDimensions } from 'react-native';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-  withDelay,
-  withSpring,
-  Easing,
-} from 'react-native-reanimated';
 
-import {
-  generateDefaultLevels,
-  type LevelConfig,
-  type TrainingConfig,
-  type TrainingParam,
-} from '../../../components/common';
+import { useGameIntroOrchestrator, type EmotionType } from '../../../hooks';
+import type { LevelConfig, TrainingConfig, TrainingParam } from '../../../components/common';
 import { useMazeGenerator } from './useMazeGenerator';
-import { useActiveProfile, useGameProgress, useStore } from '../../../store/useStore';
 import { LEVELS } from '../data/levels';
 import { Icons } from '../../../constants/icons';
-import type {
-  LevelConfig as MazeLevelConfig,
-  MazeGrid,
-  ThemeType,
-  SessionStats,
-} from '../types';
+import type { LevelConfig as MazeLevelConfig, MazeGrid, ThemeType, SessionStats } from '../types';
+
+// Re-export EmotionType for backward compatibility
+export type { EmotionType } from '../../../hooks';
 
 // ============================================
 // TYPES
 // ============================================
 
-export type EmotionType = 'neutral' | 'happy' | 'thinking' | 'excited' | 'encouraging';
-
 export interface UseLabyrintheIntroReturn {
-  // Niveaux
+  // Niveaux (depuis orchestrator)
   levels: LevelConfig[];
   selectedLevel: LevelConfig | null;
   handleSelectLevel: (level: LevelConfig) => void;
   completedLevels: Set<number>;
 
-  // État jeu
+  // État jeu (depuis orchestrator)
   isPlaying: boolean;
   isTrainingMode: boolean;
 
@@ -69,15 +46,15 @@ export interface UseLabyrintheIntroReturn {
   trainingConfig: TrainingConfig;
   trainingValues: Record<string, string | number | boolean>;
 
-  // Parent drawer
+  // Parent drawer (depuis orchestrator)
   showParentDrawer: boolean;
   setShowParentDrawer: (show: boolean) => void;
 
-  // Animations (styles animés)
-  selectorStyle: ReturnType<typeof useAnimatedStyle>;
-  progressPanelStyle: ReturnType<typeof useAnimatedStyle>;
+  // Animations (depuis orchestrator)
+  selectorStyle: ReturnType<typeof useGameIntroOrchestrator>['selectorStyle'];
+  progressPanelStyle: ReturnType<typeof useGameIntroOrchestrator>['progressPanelStyle'];
 
-  // Mascot
+  // Mascot (depuis orchestrator)
   mascotMessage: string;
   mascotEmotion: EmotionType;
 
@@ -100,15 +77,6 @@ export interface UseLabyrintheIntroReturn {
 // ============================================
 // CONSTANTS
 // ============================================
-
-const ANIMATION_CONFIG = {
-  selectorSlideDuration: 400,
-  selectorFadeDuration: 300,
-  progressDelayDuration: 200,
-  selectorSlideDistance: -150,
-  springDamping: 15,
-  springStiffness: 150,
-};
 
 // Mapping niveau -> configuration labyrinthe
 const LEVEL_TO_MAZE_CONFIG: Record<number, Partial<MazeLevelConfig>> = {
@@ -137,7 +105,6 @@ const MASCOT_MESSAGES = {
   help: `Glisse ton doigt pour me déplacer ! Collecte les clés ${Icons.key} pour ouvrir les portes et trouve la sortie ${Icons.star} !`,
   nextLevel: `Bravo ! ${Icons.celebration} Prêt pour le niveau suivant ?`,
   allComplete: `Incroyable ! Tu as terminé tous les niveaux ! ${Icons.trophy}`,
-  exitGame: "On réessaie ? Choisis un niveau !",
 };
 
 // ============================================
@@ -145,34 +112,29 @@ const MASCOT_MESSAGES = {
 // ============================================
 
 export function useLabyrintheIntro(): UseLabyrintheIntroReturn {
-  const router = useRouter();
-  const params = useLocalSearchParams<{ level?: string }>();
-  const profile = useActiveProfile();
   const { width: screenWidth } = useWindowDimensions();
   const { generateMaze } = useMazeGenerator();
 
-  // Store - progression
-  const gameProgress = useGameProgress('labyrinthe');
-  const initGameProgress = useStore((state) => state.initGameProgress);
-
-  // Initialiser le progress si nécessaire
-  useEffect(() => {
-    initGameProgress('labyrinthe');
-  }, [initGameProgress]);
+  // ============================================
+  // ORCHESTRATOR (logique commune factorisée)
+  // ============================================
+  const orchestrator = useGameIntroOrchestrator({
+    gameId: 'labyrinthe',
+    mascotMessages: {
+      welcome: MASCOT_MESSAGES.welcome,
+      startPlaying: MASCOT_MESSAGES.startPlaying,
+      backToSelection: MASCOT_MESSAGES.backToSelection,
+      help: MASCOT_MESSAGES.help,
+    },
+  });
 
   // ============================================
-  // STATE
+  // LOCAL STATE (spécifique à Labyrinthe)
   // ============================================
-
-  const [selectedLevel, setSelectedLevel] = useState<LevelConfig | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
   const [isTrainingMode, setIsTrainingMode] = useState(false);
   const [selectedTheme, setSelectedTheme] = useState<ThemeType>('cozy');
-  const [mascotMessage, setMascotMessage] = useState(MASCOT_MESSAGES.welcome);
-  const [mascotEmotion, setMascotEmotion] = useState<EmotionType>('neutral');
   const [previewMaze, setPreviewMaze] = useState<MazeGrid | null>(null);
   const [completedLevels, setCompletedLevels] = useState<Set<number>>(new Set());
-  const [showParentDrawer, setShowParentDrawer] = useState(false);
   const [hintsRemaining, setHintsRemaining] = useState(3);
 
   // Training mode values
@@ -186,16 +148,11 @@ export function useLabyrintheIntro(): UseLabyrintheIntroReturn {
   // MEMOS
   // ============================================
 
-  // Générer les niveaux basés sur l'âge de l'enfant
-  const levels = useMemo(() => {
-    return generateDefaultLevels('labyrinthe', profile?.birthDate, []);
-  }, [profile?.birthDate]);
-
   // Configuration labyrinthe actuelle (basée sur le niveau sélectionné)
   const currentMazeConfig = useMemo((): MazeLevelConfig | null => {
-    if (!selectedLevel) return null;
+    if (!orchestrator.selectedLevel) return null;
 
-    const levelNum = selectedLevel.number;
+    const levelNum = orchestrator.selectedLevel.number;
     const mazeConfig = LEVEL_TO_MAZE_CONFIG[levelNum] || LEVEL_TO_MAZE_CONFIG[1];
 
     // Trouver le niveau existant le plus proche dans LEVELS
@@ -206,7 +163,7 @@ export function useLabyrintheIntro(): UseLabyrintheIntroReturn {
       ...mazeConfig,
       theme: selectedTheme,
     };
-  }, [selectedLevel, selectedTheme]);
+  }, [orchestrator.selectedLevel, selectedTheme]);
 
   // Taille des cellules pour le preview
   const cellSize = useMemo(() => {
@@ -266,180 +223,121 @@ export function useLabyrintheIntro(): UseLabyrintheIntroReturn {
   );
 
   // ============================================
-  // ANIMATIONS
+  // EFFECTS - Preview maze generation
   // ============================================
-
-  const selectorY = useSharedValue(0);
-  const selectorOpacity = useSharedValue(1);
-  const progressPanelOpacity = useSharedValue(0);
-
-  const selectorStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: selectorY.value }],
-    opacity: selectorOpacity.value,
-  }));
-
-  const progressPanelStyle = useAnimatedStyle(() => ({
-    opacity: progressPanelOpacity.value,
-  }));
-
-  // ============================================
-  // TRANSITIONS
-  // ============================================
-
-  const transitionToPlayMode = useCallback(() => {
-    if (isPlaying) return;
-
-    selectorY.value = withTiming(ANIMATION_CONFIG.selectorSlideDistance, {
-      duration: ANIMATION_CONFIG.selectorSlideDuration,
-      easing: Easing.out(Easing.quad),
-    });
-    selectorOpacity.value = withTiming(0, {
-      duration: ANIMATION_CONFIG.selectorFadeDuration,
-    });
-
-    progressPanelOpacity.value = withDelay(
-      ANIMATION_CONFIG.progressDelayDuration,
-      withTiming(1, { duration: ANIMATION_CONFIG.selectorFadeDuration })
-    );
-
-    setTimeout(() => {
-      setIsPlaying(true);
-    }, 300);
-  }, [isPlaying, selectorY, selectorOpacity, progressPanelOpacity]);
-
-  const transitionToSelectionMode = useCallback(() => {
-    selectorY.value = withSpring(0, {
-      damping: ANIMATION_CONFIG.springDamping,
-      stiffness: ANIMATION_CONFIG.springStiffness,
-    });
-    selectorOpacity.value = withTiming(1, {
-      duration: ANIMATION_CONFIG.selectorFadeDuration,
-    });
-
-    progressPanelOpacity.value = withTiming(0, { duration: 200 });
-
-    setIsPlaying(false);
-  }, [selectorY, selectorOpacity, progressPanelOpacity]);
-
-  // ============================================
-  // EFFECTS
-  // ============================================
-
-  // Générer un labyrinthe de preview quand le niveau change
   useEffect(() => {
-    if (currentMazeConfig && !isPlaying) {
+    if (currentMazeConfig && !orchestrator.isPlaying) {
       const maze = generateMaze(currentMazeConfig);
       setPreviewMaze(maze);
     }
-  }, [currentMazeConfig, generateMaze, isPlaying]);
+  }, [currentMazeConfig, generateMaze, orchestrator.isPlaying]);
 
-  // Sélection automatique du premier niveau débloqué
+  // ============================================
+  // EFFECTS - Level selection message
+  // ============================================
   useEffect(() => {
-    if (levels.length > 0 && !selectedLevel) {
-      const levelFromParams = params.level ? parseInt(params.level, 10) : null;
-      let defaultLevel: LevelConfig | undefined;
-
-      if (levelFromParams) {
-        defaultLevel = levels.find((l) => l.number === levelFromParams && l.isUnlocked);
-      }
-
-      if (!defaultLevel) {
-        const firstIncompleteLevel = levels.find(
-          (level) => level.isUnlocked && !level.isCompleted
-        );
-        defaultLevel =
-          firstIncompleteLevel || levels.filter((l) => l.isUnlocked).pop() || levels[0];
-      }
-
-      if (defaultLevel) {
-        setSelectedLevel(defaultLevel);
-        const config = LEVEL_TO_MAZE_CONFIG[defaultLevel.number] || LEVEL_TO_MAZE_CONFIG[1];
-        const sizeText = config.width === 5 ? 'petit' : config.width === 7 ? 'moyen' : 'grand';
-        setMascotMessage(
-          MASCOT_MESSAGES.selectLevel(defaultLevel.number, sizeText, config.hasKeys ?? false)
-        );
-        setMascotEmotion('happy');
-      }
+    if (orchestrator.selectedLevel) {
+      const config =
+        LEVEL_TO_MAZE_CONFIG[orchestrator.selectedLevel.number] || LEVEL_TO_MAZE_CONFIG[1];
+      const sizeText = config.width === 5 ? 'petit' : config.width === 7 ? 'moyen' : 'grand';
+      orchestrator.setMascotMessage(
+        MASCOT_MESSAGES.selectLevel(
+          orchestrator.selectedLevel.number,
+          sizeText,
+          config.hasKeys ?? false
+        )
+      );
+      orchestrator.setMascotEmotion('happy');
     }
-  }, [levels, selectedLevel, params.level]);
+  }, [orchestrator.selectedLevel, orchestrator]);
 
   // ============================================
-  // HANDLERS
+  // HANDLERS SPÉCIFIQUES
   // ============================================
 
-  const handleSelectLevel = useCallback((level: LevelConfig) => {
-    setSelectedLevel(level);
-    const config = LEVEL_TO_MAZE_CONFIG[level.number] || LEVEL_TO_MAZE_CONFIG[1];
-    const sizeText = config.width === 5 ? 'petit' : config.width === 7 ? 'moyen' : 'grand';
-    setMascotMessage(MASCOT_MESSAGES.selectLevel(level.number, sizeText, config.hasKeys ?? false));
-    setMascotEmotion('happy');
-  }, []);
+  const handleSelectLevel = useCallback(
+    (level: LevelConfig) => {
+      orchestrator.handleSelectLevel(level);
+      const config = LEVEL_TO_MAZE_CONFIG[level.number] || LEVEL_TO_MAZE_CONFIG[1];
+      const sizeText = config.width === 5 ? 'petit' : config.width === 7 ? 'moyen' : 'grand';
+      orchestrator.setMascotMessage(
+        MASCOT_MESSAGES.selectLevel(level.number, sizeText, config.hasKeys ?? false)
+      );
+      orchestrator.setMascotEmotion('happy');
+    },
+    [orchestrator]
+  );
 
   const handleStartPlaying = useCallback(() => {
-    if (!selectedLevel) return;
-    setIsPlaying(true);
-    setMascotMessage(MASCOT_MESSAGES.startPlaying);
-    setMascotEmotion('excited');
-  }, [selectedLevel]);
+    if (!orchestrator.selectedLevel) return;
+    orchestrator.handleStartPlaying();
+    orchestrator.setMascotMessage(MASCOT_MESSAGES.startPlaying);
+    orchestrator.setMascotEmotion('excited');
+  }, [orchestrator]);
 
   const handleBack = useCallback(() => {
-    if (isPlaying) {
-      transitionToSelectionMode();
-      setMascotMessage(MASCOT_MESSAGES.backToSelection);
-      setMascotEmotion('encouraging');
+    if (orchestrator.isPlaying) {
+      orchestrator.transitionToSelectionMode();
+      orchestrator.setMascotMessage(MASCOT_MESSAGES.backToSelection);
+      orchestrator.setMascotEmotion('encouraging');
     } else {
-      router.back();
+      orchestrator.router.back();
     }
-  }, [isPlaying, router, transitionToSelectionMode]);
-
-  const handleParentPress = useCallback(() => {
-    setShowParentDrawer(true);
-  }, []);
+  }, [orchestrator]);
 
   const handleHelpPress = useCallback(() => {
-    setMascotMessage(MASCOT_MESSAGES.help);
-    setMascotEmotion('thinking');
-  }, []);
+    orchestrator.setMascotMessage(MASCOT_MESSAGES.help);
+    orchestrator.setMascotEmotion('thinking');
+  }, [orchestrator]);
 
   const handleTrainingPress = useCallback(() => {
     setIsTrainingMode((prev) => !prev);
-    setMascotMessage(isTrainingMode ? MASCOT_MESSAGES.trainingOff : MASCOT_MESSAGES.trainingOn);
-    setMascotEmotion('thinking');
-  }, [isTrainingMode]);
+    orchestrator.setMascotMessage(
+      isTrainingMode ? MASCOT_MESSAGES.trainingOff : MASCOT_MESSAGES.trainingOn
+    );
+    orchestrator.setMascotEmotion('thinking');
+  }, [isTrainingMode, orchestrator]);
 
   const handleReset = useCallback(() => {
     if (currentMazeConfig) {
       const maze = generateMaze(currentMazeConfig);
       setPreviewMaze(maze);
-      setMascotMessage(MASCOT_MESSAGES.newMaze);
-      setMascotEmotion('neutral');
+      orchestrator.setMascotMessage(MASCOT_MESSAGES.newMaze);
+      orchestrator.setMascotEmotion('neutral');
     }
-  }, [currentMazeConfig, generateMaze]);
+  }, [currentMazeConfig, generateMaze, orchestrator]);
 
   const handleHint = useCallback(() => {
-    setMascotMessage(MASCOT_MESSAGES.hint);
-    setMascotEmotion('thinking');
+    orchestrator.setMascotMessage(MASCOT_MESSAGES.hint);
+    orchestrator.setMascotEmotion('thinking');
     setHintsRemaining((prev) => Math.max(0, prev - 1));
-  }, []);
+  }, [orchestrator]);
 
   const handleLevelComplete = useCallback(
     (stats: SessionStats) => {
       setCompletedLevels((prev) => new Set(prev).add(stats.levelId));
 
-      // Passer au niveau suivant ou retour à la sélection
-      const currentIndex = levels.findIndex((l) => l.number === selectedLevel?.number);
-      if (currentIndex < levels.length - 1) {
-        setSelectedLevel(levels[currentIndex + 1]);
-        setMascotMessage(MASCOT_MESSAGES.nextLevel);
-        setMascotEmotion('excited');
+      const currentIndex = orchestrator.levels.findIndex(
+        (l) => l.number === orchestrator.selectedLevel?.number
+      );
+      if (currentIndex < orchestrator.levels.length - 1) {
+        orchestrator.handleSelectLevel(orchestrator.levels[currentIndex + 1]);
+        orchestrator.setMascotMessage(MASCOT_MESSAGES.nextLevel);
+        orchestrator.setMascotEmotion('excited');
       } else {
-        setSelectedLevel(null);
-        setMascotMessage(MASCOT_MESSAGES.allComplete);
-        setMascotEmotion('excited');
+        orchestrator.setMascotMessage(MASCOT_MESSAGES.allComplete);
+        orchestrator.setMascotEmotion('excited');
       }
-      setIsPlaying(false);
+      orchestrator.setIsPlaying(false);
     },
-    [levels, selectedLevel]
+    [orchestrator]
+  );
+
+  const setMascotMessage = useCallback(
+    (message: string) => {
+      orchestrator.setMascotMessage(message);
+    },
+    [orchestrator]
   );
 
   // ============================================
@@ -447,14 +345,14 @@ export function useLabyrintheIntro(): UseLabyrintheIntroReturn {
   // ============================================
 
   return {
-    // Niveaux
-    levels,
-    selectedLevel,
+    // Depuis orchestrator
+    levels: orchestrator.levels,
+    selectedLevel: orchestrator.selectedLevel,
     handleSelectLevel,
     completedLevels,
 
     // État jeu
-    isPlaying,
+    isPlaying: orchestrator.isPlaying,
     isTrainingMode,
 
     // Configuration labyrinthe
@@ -468,27 +366,27 @@ export function useLabyrintheIntro(): UseLabyrintheIntroReturn {
     trainingValues,
 
     // Parent drawer
-    showParentDrawer,
-    setShowParentDrawer,
+    showParentDrawer: orchestrator.showParentDrawer,
+    setShowParentDrawer: orchestrator.setShowParentDrawer,
 
     // Animations
-    selectorStyle,
-    progressPanelStyle,
+    selectorStyle: orchestrator.selectorStyle,
+    progressPanelStyle: orchestrator.progressPanelStyle,
 
     // Mascot
-    mascotMessage,
-    mascotEmotion,
+    mascotMessage: orchestrator.mascotMessage,
+    mascotEmotion: orchestrator.mascotEmotion,
 
     // Handlers
     handleBack,
     handleStartPlaying,
-    handleParentPress,
+    handleParentPress: orchestrator.handleParentPress,
     handleHelpPress,
     handleTrainingPress,
     handleReset,
     handleHint,
     handleLevelComplete,
-    setIsPlaying,
+    setIsPlaying: orchestrator.setIsPlaying,
     setMascotMessage,
 
     // Hints

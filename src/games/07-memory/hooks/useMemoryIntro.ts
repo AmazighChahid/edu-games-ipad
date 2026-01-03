@@ -1,39 +1,21 @@
 /**
  * useMemoryIntro - Hook orchestrateur pour le jeu Memory
  *
- * Encapsule toute la logique métier de l'écran d'introduction :
- * - Progression store (lecture/écriture)
- * - Génération des niveaux
- * - Messages mascotte
- * - Sons
- * - Animations de transition
- * - Navigation
+ * VERSION MIGRÉE (Janvier 2026)
+ * Utilise useGameIntroOrchestrator pour la logique commune.
+ * Ce fichier ne contient plus que la logique spécifique au jeu.
  *
  * @see docs/GAME_ARCHITECTURE.md pour le pattern complet
  */
 
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
-import { useRouter } from 'expo-router';
 import { Alert } from 'react-native';
-import {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-  withDelay,
-  withSpring,
-  Easing,
-} from 'react-native-reanimated';
 
-import {
-  generateDefaultLevels,
-  type LevelConfig,
-  type TrainingConfig,
-  type TrainingParam,
-} from '../../../components/common';
+import { useGameIntroOrchestrator } from '../../../hooks';
+import type { LevelConfig, TrainingConfig, TrainingParam } from '../../../components/common';
 import { useMemoryGame } from './useMemoryGame';
 import { useMemorySound } from './useMemorySound';
-import { useActiveProfile, useGameProgress, useStore } from '../../../store/useStore';
-import { getAllLevels, getLevelByNumber, createTrainingLevel, getTrainingLevel } from '../data/levels';
+import { getAllLevels, getLevelByNumber, createTrainingLevel } from '../data/levels';
 import { Icons } from '../../../constants/icons';
 import type { MemoryLevel, CardTheme } from '../types';
 import type { MemoEmotionType } from '../components/mascot';
@@ -54,8 +36,8 @@ export interface UseMemoryIntroReturn {
   isTrainingMode: boolean;
 
   // Animations (styles animés)
-  selectorStyle: ReturnType<typeof useAnimatedStyle>;
-  progressPanelStyle: ReturnType<typeof useAnimatedStyle>;
+  selectorStyle: ReturnType<typeof useGameIntroOrchestrator>['selectorStyle'];
+  progressPanelStyle: ReturnType<typeof useGameIntroOrchestrator>['progressPanelStyle'];
 
   // Mascot
   mascotMessage: string;
@@ -102,15 +84,6 @@ export interface UseMemoryIntroReturn {
 // CONSTANTS
 // ============================================================================
 
-const ANIMATION_CONFIG = {
-  selectorSlideDuration: 400,
-  selectorFadeDuration: 300,
-  progressDelayDuration: 200,
-  selectorSlideDistance: -150,
-  springDamping: 15,
-  springStiffness: 150,
-};
-
 // Messages de la mascotte Mémo
 const MEMO_MESSAGES = {
   intro: `Salut ! Je suis Mémo l'Éléphant ! ${Icons.elephant} J'ai une mémoire d'éléphant... et toi ?`,
@@ -138,27 +111,26 @@ const THEME_OPTIONS: { id: CardTheme; name: string; icon: string }[] = [
 // ============================================================================
 
 export function useMemoryIntro(): UseMemoryIntroReturn {
-  const router = useRouter();
-  const profile = useActiveProfile();
+  // ============================================================================
+  // ORCHESTRATOR (logique commune factorisée)
+  // ============================================================================
+  const orchestrator = useGameIntroOrchestrator({
+    gameId: 'memory',
+    mascotMessages: {
+      welcome: MEMO_MESSAGES.intro,
+      startPlaying: MEMO_MESSAGES.start,
+      backToSelection: MEMO_MESSAGES.back,
+      help: MEMO_MESSAGES.hint,
+    },
+  });
 
-  // Store - progression
-  const gameProgress = useGameProgress('memory');
-  const initGameProgress = useStore((state) => state.initGameProgress);
-
-  // Initialiser le progress si nécessaire
-  useEffect(() => {
-    initGameProgress('memory');
-  }, [initGameProgress]);
-
-  // État local
-  const [selectedLevel, setSelectedLevel] = useState<LevelConfig | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
+  // ============================================================================
+  // LOCAL STATE (spécifique à Memory)
+  // ============================================================================
   const [isTrainingMode, setIsTrainingMode] = useState(false);
   const [selectedTheme, setSelectedTheme] = useState<CardTheme>('animals');
-  const [mascotMessage, setMascotMessage] = useState(MEMO_MESSAGES.intro);
   const [mascotEmotion, setMascotEmotion] = useState<MemoEmotionType>('neutral');
   const [hintsRemaining, setHintsRemaining] = useState(3);
-  const [showParentDrawer, setShowParentDrawer] = useState(false);
 
   // Training values
   const [trainingValues, setTrainingValues] = useState<Record<string, string | number | boolean>>({
@@ -166,24 +138,11 @@ export function useMemoryIntro(): UseMemoryIntroReturn {
     pairs: '4',
   });
 
-  // Extraire les IDs des niveaux complétés depuis le store
-  const completedLevelIds = useMemo(() => {
-    if (!gameProgress?.completedLevels) return [];
-    return Object.keys(gameProgress.completedLevels).map(
-      (levelId) => `memory_${levelId}`
-    );
-  }, [gameProgress?.completedLevels]);
-
-  // Générer les niveaux basés sur l'âge de l'enfant
-  const levels = useMemo(() => {
-    return generateDefaultLevels('memory', profile?.birthDate, completedLevelIds);
-  }, [profile?.birthDate, completedLevelIds]);
-
   // Niveau Memory actuel
   const currentMemoryLevel = useMemo((): MemoryLevel | null => {
-    if (!selectedLevel) return null;
-    return getLevelByNumber(selectedLevel.number) || null;
-  }, [selectedLevel]);
+    if (!orchestrator.selectedLevel) return null;
+    return getLevelByNumber(orchestrator.selectedLevel.number) || null;
+  }, [orchestrator.selectedLevel]);
 
   // Hook du jeu Memory
   const {
@@ -199,175 +158,135 @@ export function useMemoryIntro(): UseMemoryIntroReturn {
   } = useMemoryGame();
 
   // Sons
-  const { playFlip, playMatch, playMismatch, playVictory, playSelect, playStart } = useMemorySound();
+  const { playFlip, playMatch, playMismatch, playVictory, playSelect, playStart } =
+    useMemorySound();
 
-  // Ref pour tracker l'initialisation
-  const hasInitializedRef = useRef(false);
-
-  // ============================================================================
-  // ANIMATIONS
-  // ============================================================================
-
-  const selectorY = useSharedValue(0);
-  const selectorOpacity = useSharedValue(1);
-  const progressPanelOpacity = useSharedValue(0);
-
-  const selectorStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: selectorY.value }],
-    opacity: selectorOpacity.value,
-  }));
-
-  const progressPanelStyle = useAnimatedStyle(() => ({
-    opacity: progressPanelOpacity.value,
-  }));
-
-  // ============================================================================
-  // TRANSITIONS
-  // ============================================================================
-
-  const transitionToPlayMode = useCallback(() => {
-    if (isPlaying) return;
-
-    selectorY.value = withTiming(ANIMATION_CONFIG.selectorSlideDistance, {
-      duration: ANIMATION_CONFIG.selectorSlideDuration,
-      easing: Easing.out(Easing.quad),
-    });
-    selectorOpacity.value = withTiming(0, {
-      duration: ANIMATION_CONFIG.selectorFadeDuration,
-    });
-
-    progressPanelOpacity.value = withDelay(
-      ANIMATION_CONFIG.progressDelayDuration,
-      withTiming(1, { duration: ANIMATION_CONFIG.selectorFadeDuration })
-    );
-
-    setTimeout(() => {
-      setIsPlaying(true);
-    }, 300);
-  }, [isPlaying, selectorY, selectorOpacity, progressPanelOpacity]);
-
-  const transitionToSelectionMode = useCallback(() => {
-    selectorY.value = withSpring(0, {
-      damping: ANIMATION_CONFIG.springDamping,
-      stiffness: ANIMATION_CONFIG.springStiffness,
-    });
-    selectorOpacity.value = withTiming(1, {
-      duration: ANIMATION_CONFIG.selectorFadeDuration,
-    });
-
-    progressPanelOpacity.value = withTiming(0, { duration: 200 });
-
-    setIsPlaying(false);
-  }, [selectorY, selectorOpacity, progressPanelOpacity]);
+  // Ref pour tracker les paramètres URL
+  const lastLevelParamRef = useRef<string | undefined>(undefined);
 
   // ============================================================================
   // EFFECTS - Sélection automatique niveau
   // ============================================================================
-
   useEffect(() => {
-    if (levels.length > 0 && !selectedLevel && !hasInitializedRef.current) {
-      hasInitializedRef.current = true;
+    const levelParamChanged = orchestrator.params.level !== lastLevelParamRef.current;
+    if (levelParamChanged) {
+      lastLevelParamRef.current = orchestrator.params.level;
+    }
 
-      // Trouver le premier niveau débloqué non complété
-      const firstIncompleteLevel = levels.find(
-        (level) => level.isUnlocked && !level.isCompleted
-      );
+    if (orchestrator.levels.length > 0 && (!orchestrator.selectedLevel || levelParamChanged)) {
+      let defaultLevel: LevelConfig | undefined;
 
-      const defaultLevel = firstIncompleteLevel ||
-        levels.filter(l => l.isUnlocked).pop() ||
-        levels[0];
+      if (orchestrator.params.level) {
+        const levelNumber = parseInt(orchestrator.params.level, 10);
+        defaultLevel = orchestrator.levels.find((l) => l.number === levelNumber && l.isUnlocked);
+      }
+
+      if (!defaultLevel) {
+        const firstIncompleteLevel = orchestrator.levels.find(
+          (level) => level.isUnlocked && !level.isCompleted
+        );
+        defaultLevel =
+          firstIncompleteLevel ||
+          orchestrator.levels.filter((l) => l.isUnlocked).pop() ||
+          orchestrator.levels[0];
+      }
 
       if (defaultLevel) {
-        setSelectedLevel(defaultLevel);
+        orchestrator.handleSelectLevel(defaultLevel);
         const memoryLevel = getLevelByNumber(defaultLevel.number);
         if (memoryLevel) {
-          setMascotMessage(MEMO_MESSAGES.levelSelect(memoryLevel.pairCount));
+          orchestrator.setMascotMessage(MEMO_MESSAGES.levelSelect(memoryLevel.pairCount));
           setMascotEmotion('happy');
         }
       }
     }
-  }, [levels, selectedLevel]);
+  }, [orchestrator.levels, orchestrator.selectedLevel, orchestrator.params.level, orchestrator]);
 
   // ============================================================================
   // EFFECTS - Feedback jeu
   // ============================================================================
-
   useEffect(() => {
     if (gameState?.phase === 'victory' && result) {
       playVictory();
-      setMascotMessage(MEMO_MESSAGES.victory);
+      orchestrator.setMascotMessage(MEMO_MESSAGES.victory);
       setMascotEmotion('excited');
 
       // Navigation vers victoire après délai
-      // TODO: Créer la page victory pour Memory
       const timer = setTimeout(() => {
-        // Pour l'instant, retourner à la sélection de niveau
-        transitionToSelectionMode();
-        setMascotMessage(MEMO_MESSAGES.victory);
+        orchestrator.transitionToSelectionMode();
+        orchestrator.setMascotMessage(MEMO_MESSAGES.victory);
         setMascotEmotion('excited');
       }, 1500);
 
       return () => clearTimeout(timer);
     }
-  }, [gameState?.phase, result, playVictory, transitionToSelectionMode]);
+  }, [gameState?.phase, result, playVictory, orchestrator]);
 
   // ============================================================================
   // TRAINING CONFIG
   // ============================================================================
+  const trainingParams: TrainingParam[] = useMemo(
+    () => [
+      {
+        id: 'theme',
+        label: 'Thème',
+        type: 'select',
+        options: THEME_OPTIONS.map((t) => ({ value: t.id, label: `${t.icon} ${t.name}` })),
+        defaultValue: 'animals',
+      },
+      {
+        id: 'pairs',
+        label: 'Paires',
+        type: 'select',
+        options: [
+          { value: '4', label: '4 paires (Facile)' },
+          { value: '6', label: '6 paires (Moyen)' },
+          { value: '8', label: '8 paires (Difficile)' },
+        ],
+        defaultValue: '4',
+      },
+    ],
+    []
+  );
 
-  const trainingParams: TrainingParam[] = useMemo(() => [
-    {
-      id: 'theme',
-      label: 'Thème',
-      type: 'select',
-      options: THEME_OPTIONS.map(t => ({ value: t.id, label: `${t.icon} ${t.name}` })),
-      defaultValue: 'animals',
-    },
-    {
-      id: 'pairs',
-      label: 'Paires',
-      type: 'select',
-      options: [
-        { value: '4', label: '4 paires (Facile)' },
-        { value: '6', label: '6 paires (Moyen)' },
-        { value: '8', label: '8 paires (Difficile)' },
-      ],
-      defaultValue: '4',
-    },
-  ], []);
+  const trainingConfig: TrainingConfig = useMemo(
+    () => ({
+      availableParams: trainingParams,
+      currentValues: trainingValues,
+      onParamChange: (paramId: string, value: string | number | boolean) => {
+        setTrainingValues((prev) => ({ ...prev, [paramId]: value }));
+        if (paramId === 'theme') {
+          setSelectedTheme(value as CardTheme);
+        }
+      },
+    }),
+    [trainingParams, trainingValues]
+  );
 
-  const trainingConfig: TrainingConfig = useMemo(() => ({
-    availableParams: trainingParams,
-    currentValues: trainingValues,
-    onParamChange: (paramId: string, value: string | number | boolean) => {
-      setTrainingValues(prev => ({ ...prev, [paramId]: value }));
-      if (paramId === 'theme') {
-        setSelectedTheme(value as CardTheme);
+  // ============================================================================
+  // HANDLERS SPÉCIFIQUES
+  // ============================================================================
+
+  const handleSelectLevel = useCallback(
+    (level: LevelConfig) => {
+      playSelect();
+      orchestrator.handleSelectLevel(level);
+      const memoryLevel = getLevelByNumber(level.number);
+      if (memoryLevel) {
+        orchestrator.setMascotMessage(MEMO_MESSAGES.levelSelect(memoryLevel.pairCount));
+        setMascotEmotion('happy');
       }
     },
-  }), [trainingParams, trainingValues]);
-
-  // ============================================================================
-  // HANDLERS
-  // ============================================================================
-
-  const handleSelectLevel = useCallback((level: LevelConfig) => {
-    playSelect();
-    setSelectedLevel(level);
-    const memoryLevel = getLevelByNumber(level.number);
-    if (memoryLevel) {
-      setMascotMessage(MEMO_MESSAGES.levelSelect(memoryLevel.pairCount));
-      setMascotEmotion('happy');
-    }
-  }, [playSelect]);
+    [orchestrator, playSelect]
+  );
 
   const handleStartPlaying = useCallback(() => {
-    if (!selectedLevel) return;
+    if (!orchestrator.selectedLevel) return;
 
     // En mode entraînement (niveau 0), créer un niveau personnalisé
     let levelToPlay: MemoryLevel | null = null;
 
-    if (isTrainingMode || selectedLevel.number === 0) {
+    if (isTrainingMode || orchestrator.selectedLevel.number === 0) {
       const pairCount = parseInt(trainingValues.pairs as string, 10) || 4;
       levelToPlay = createTrainingLevel(selectedTheme, pairCount);
     } else {
@@ -378,75 +297,78 @@ export function useMemoryIntro(): UseMemoryIntroReturn {
 
     playStart();
     startGame(levelToPlay);
-    transitionToPlayMode();
-    setMascotMessage(MEMO_MESSAGES.start);
+    orchestrator.handleStartPlaying();
+    orchestrator.setMascotMessage(MEMO_MESSAGES.start);
     setMascotEmotion('excited');
     setHintsRemaining(3);
-  }, [selectedLevel, currentMemoryLevel, isTrainingMode, trainingValues, selectedTheme, startGame, transitionToPlayMode, playStart]);
+  }, [
+    orchestrator,
+    currentMemoryLevel,
+    isTrainingMode,
+    trainingValues,
+    selectedTheme,
+    startGame,
+    playStart,
+  ]);
 
   const handleBack = useCallback(() => {
-    if (isPlaying) {
+    if (orchestrator.isPlaying) {
       if (gameState?.phase === 'playing') {
-        Alert.alert(
-          'Quitter le jeu ?',
-          'Ta progression sera perdue.',
-          [
-            { text: 'Annuler', style: 'cancel' },
-            {
-              text: 'Quitter',
-              style: 'destructive',
-              onPress: () => {
-                transitionToSelectionMode();
-                setMascotMessage(MEMO_MESSAGES.back);
-                setMascotEmotion('encouraging');
-              },
+        Alert.alert('Quitter le jeu ?', 'Ta progression sera perdue.', [
+          { text: 'Annuler', style: 'cancel' },
+          {
+            text: 'Quitter',
+            style: 'destructive',
+            onPress: () => {
+              orchestrator.transitionToSelectionMode();
+              orchestrator.setMascotMessage(MEMO_MESSAGES.back);
+              setMascotEmotion('encouraging');
             },
-          ]
-        );
+          },
+        ]);
       } else {
-        transitionToSelectionMode();
-        setMascotMessage(MEMO_MESSAGES.back);
+        orchestrator.transitionToSelectionMode();
+        orchestrator.setMascotMessage(MEMO_MESSAGES.back);
         setMascotEmotion('encouraging');
       }
     } else {
-      router.back();
+      orchestrator.router.back();
     }
-  }, [isPlaying, gameState, router, transitionToSelectionMode]);
-
-  const handleParentPress = useCallback(() => {
-    setShowParentDrawer(true);
-  }, []);
+  }, [orchestrator, gameState]);
 
   const handleHelpPress = useCallback(() => {
-    setMascotMessage(MEMO_MESSAGES.hint);
+    orchestrator.setMascotMessage(MEMO_MESSAGES.hint);
     setMascotEmotion('thinking');
-  }, []);
+  }, [orchestrator]);
 
   const handleTrainingPress = useCallback(() => {
     setIsTrainingMode(!isTrainingMode);
-    setMascotMessage(isTrainingMode ? MEMO_MESSAGES.intro : MEMO_MESSAGES.training);
+    orchestrator.setMascotMessage(isTrainingMode ? MEMO_MESSAGES.intro : MEMO_MESSAGES.training);
     setMascotEmotion('thinking');
-  }, [isTrainingMode]);
+  }, [isTrainingMode, orchestrator]);
 
   const handleReset = useCallback(() => {
-    setSelectedLevel(null);
-    setMascotMessage(MEMO_MESSAGES.intro);
+    orchestrator.handleSelectLevel(null as unknown as LevelConfig);
+    orchestrator.setMascotMessage(MEMO_MESSAGES.intro);
     setMascotEmotion('neutral');
-  }, []);
+  }, [orchestrator]);
 
   const handleHint = useCallback(() => {
     if (hintsRemaining > 0) {
       requestHint();
-      setHintsRemaining(prev => prev - 1);
-      setMascotMessage(MEMO_MESSAGES.thinking);
+      setHintsRemaining((prev) => prev - 1);
+      orchestrator.setMascotMessage(MEMO_MESSAGES.thinking);
       setMascotEmotion('thinking');
     }
-  }, [hintsRemaining, requestHint]);
+  }, [hintsRemaining, requestHint, orchestrator]);
 
-  const handleCardFlip = useCallback((cardId: string) => {
-    playFlip();
-    flipCard(cardId);
-  }, [playFlip, flipCard]);
+  const handleCardFlip = useCallback(
+    (cardId: string) => {
+      playFlip();
+      flipCard(cardId);
+    },
+    [playFlip, flipCard]
+  );
 
   const handlePause = useCallback(() => {
     pauseGame();
@@ -459,38 +381,37 @@ export function useMemoryIntro(): UseMemoryIntroReturn {
   // ============================================================================
   // PROGRESS DATA
   // ============================================================================
-
   const progressData = useMemo(() => {
     const allLevels = getAllLevels();
     return {
       totalLevels: allLevels.length,
-      completedLevels: completedLevelIds.length,
-      currentLevel: selectedLevel?.number || 0,
+      completedLevels: orchestrator.completedLevelIds.length,
+      currentLevel: orchestrator.selectedLevel?.number || 0,
       totalStars: 0, // TODO: calculer depuis le store
     };
-  }, [completedLevelIds, selectedLevel]);
+  }, [orchestrator.completedLevelIds, orchestrator.selectedLevel]);
 
   // ============================================================================
   // RETURN
   // ============================================================================
 
   return {
-    // Niveaux
-    levels,
-    selectedLevel,
+    // Depuis orchestrator
+    levels: orchestrator.levels,
+    selectedLevel: orchestrator.selectedLevel,
     currentMemoryLevel,
     handleSelectLevel,
 
     // État jeu
-    isPlaying,
+    isPlaying: orchestrator.isPlaying,
     isTrainingMode,
 
     // Animations
-    selectorStyle,
-    progressPanelStyle,
+    selectorStyle: orchestrator.selectorStyle,
+    progressPanelStyle: orchestrator.progressPanelStyle,
 
     // Mascot
-    mascotMessage,
+    mascotMessage: orchestrator.mascotMessage,
     mascotEmotion,
 
     // Game state
@@ -511,7 +432,7 @@ export function useMemoryIntro(): UseMemoryIntroReturn {
     handleHint,
     handleBack,
     handleStartPlaying,
-    handleParentPress,
+    handleParentPress: orchestrator.handleParentPress,
     handleHelpPress,
     handleTrainingPress,
     handlePause,
@@ -521,8 +442,8 @@ export function useMemoryIntro(): UseMemoryIntroReturn {
     hintsRemaining,
 
     // Parent drawer
-    showParentDrawer,
-    setShowParentDrawer,
+    showParentDrawer: orchestrator.showParentDrawer,
+    setShowParentDrawer: orchestrator.setShowParentDrawer,
   };
 }
 

@@ -76,9 +76,9 @@ export interface ClueData {
 export type CellState = 'empty' | 'yes' | 'no';
 
 /**
- * Une cellule dans la grille
+ * Une cellule dans la grille (données)
  */
-export interface GridCell {
+export interface GridCellData {
   /** ID de l'élément de la ligne */
   rowItemId: string;
   /** ID de l'élément de la colonne */
@@ -88,6 +88,9 @@ export interface GridCell {
   /** Marqué par le joueur */
   isPlayerMarked: boolean;
 }
+
+// Alias pour compatibilité
+export type GridCellType = GridCellData;
 
 // ============================================================================
 // LEVEL TYPES
@@ -136,7 +139,7 @@ export interface LogixGameState {
   /** Puzzle actuel */
   puzzle: LogixPuzzle;
   /** État de la grille */
-  grid: GridCell[];
+  grid: GridCellData[];
   /** Indices marqués comme utilisés */
   usedClueIds: string[];
   /** Nombre d'indices demandés */

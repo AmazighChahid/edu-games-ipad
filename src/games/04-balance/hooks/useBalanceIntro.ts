@@ -1,69 +1,60 @@
 /**
  * useBalanceIntro - Hook orchestrateur pour Balance Logique
  *
- * Encapsule toute la logique métier de l'écran d'introduction :
- * - Progression store (lecture/écriture)
- * - Génération des niveaux
- * - Messages mascotte
- * - Sons
- * - Animations de transition
- * - Navigation
+ * VERSION MIGRÉE (Janvier 2026)
+ * Utilise useGameIntroOrchestrator pour la logique commune.
+ * Ce fichier ne contient plus que la logique spécifique au jeu.
  *
  * @see docs/GAME_ARCHITECTURE.md pour le pattern complet
  */
 
-import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { useRouter } from 'expo-router';
-import {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-  withDelay,
-  withSpring,
-  Easing,
-} from 'react-native-reanimated';
 
-import {
-  generateDefaultLevels,
-  type LevelConfig,
-} from '../../../components/common';
+import { useGameIntroOrchestrator, type EmotionType } from '../../../hooks';
+import type { LevelConfig } from '../../../components/common';
 import { useBalanceGame } from './useBalanceGame';
 import { useBalanceSound } from './useBalanceSound';
-import { useActiveProfile, useGameProgress, useStore } from '../../../store/useStore';
-import { getAllPuzzles, getPuzzleById } from '../data/puzzles';
+import { getAllPuzzles, getPuzzleById, getPuzzlesByPhase } from '../data/puzzles';
 import { balanceParentGuideData } from '../data/parentGuideData';
 import { createInitialState, addObjectToPlate } from '../logic/balanceEngine';
 import { createObject } from '../data/objects';
 import { Icons } from '../../../constants/icons';
-import type { Puzzle, Phase, MascotMood, BalanceState, WeightObject as WeightObjectType } from '../types';
+import type { Puzzle, Phase, BalanceState, WeightObject as WeightObjectType } from '../types';
 import { PHASE_INFO } from '../types';
+
+// Re-export EmotionType for backward compatibility
+export type { EmotionType } from '../../../hooks';
 
 // ============================================
 // TYPES
 // ============================================
 
-export type EmotionType = 'neutral' | 'happy' | 'thinking' | 'excited' | 'encouraging' | 'celebratory';
-
 export interface UseBalanceIntroReturn {
-  // Niveaux
+  // Phase / Tranche d'âge
+  selectedPhase: Phase;
+  handlePhaseChange: (phase: Phase) => void;
+
+  // Niveaux (depuis orchestrator)
   levels: LevelConfig[];
   selectedLevel: LevelConfig | null;
   handleSelectLevel: (level: LevelConfig) => void;
+  handleSelectFreeMode: () => void;
 
-  // État jeu
+  // État jeu (depuis orchestrator)
   isPlaying: boolean;
   isVictory: boolean;
   currentPuzzle: Puzzle | null;
 
-  // Parent drawer
+  // Parent drawer (depuis orchestrator)
   showParentDrawer: boolean;
   setShowParentDrawer: (show: boolean) => void;
 
-  // Animations (styles animés)
-  selectorStyle: ReturnType<typeof useAnimatedStyle>;
-  progressPanelStyle: ReturnType<typeof useAnimatedStyle>;
+  // Animations (depuis orchestrator)
+  selectorStyle: ReturnType<typeof useGameIntroOrchestrator>['selectorStyle'];
+  progressPanelStyle: ReturnType<typeof useGameIntroOrchestrator>['progressPanelStyle'];
 
-  // Mascot
+  // Mascot (depuis orchestrator)
   mascotMessage: string;
   mascotEmotion: EmotionType;
 
@@ -110,27 +101,18 @@ export interface UseBalanceIntroReturn {
 // CONSTANTS
 // ============================================
 
-const ANIMATION_CONFIG = {
-  selectorSlideDuration: 400,
-  selectorFadeDuration: 300,
-  progressDelayDuration: 200,
-  selectorSlideDistance: -150,
-  springDamping: 15,
-  springStiffness: 150,
-};
+const MAX_HINTS = 3;
 
 const MASCOT_MESSAGES = {
   welcome: `Bienvenue dans mon laboratoire ! ${Icons.lab} Je suis Dr. Hibou !`,
   selectLevel: "Choisis un niveau pour commencer l'expérience !",
   startPlaying: "C'est parti ! Équilibre la balance !",
-  hint: "Observe bien la balance... De quel côté penche-t-elle ?",
+  hint: 'Observe bien la balance... De quel côté penche-t-elle ?',
   success: `${Icons.sparkles} Eurêka ! Parfait équilibre !`,
-  error: "Hmm, pas tout à fait... Essaie autre chose !",
-  closeBalance: "Elle oscille ! Tu es tout près !",
-  backToSelection: "On recommence ? Choisis un niveau !",
+  error: 'Hmm, pas tout à fait... Essaie autre chose !',
+  closeBalance: 'Elle oscille ! Tu es tout près !',
+  backToSelection: 'On recommence ? Choisis un niveau !',
 };
-
-const MAX_HINTS = 3;
 
 // ============================================
 // HOOK
@@ -138,48 +120,100 @@ const MAX_HINTS = 3;
 
 export function useBalanceIntro(): UseBalanceIntroReturn {
   const router = useRouter();
-  const profile = useActiveProfile();
 
-  // Store - progression
-  const gameProgress = useGameProgress('balance');
-  const initGameProgress = useStore((state) => state.initGameProgress);
+  // ============================================
+  // ORCHESTRATOR (logique commune factorisée)
+  // ============================================
+  const orchestrator = useGameIntroOrchestrator({
+    gameId: 'balance',
+    mascotMessages: {
+      welcome: MASCOT_MESSAGES.welcome,
+      startPlaying: MASCOT_MESSAGES.startPlaying,
+      backToSelection: MASCOT_MESSAGES.backToSelection,
+      help: MASCOT_MESSAGES.hint,
+    },
+  });
 
-  // Initialiser le progress si nécessaire
-  useEffect(() => {
-    initGameProgress('balance');
-  }, [initGameProgress]);
+  // ============================================
+  // PHASE / AGE SELECTION (spécifique à Balance)
+  // ============================================
 
-  // État local
-  const [selectedLevel, setSelectedLevel] = useState<LevelConfig | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isVictory, setIsVictory] = useState(false);
+  // Calculer la phase initiale basée sur l'âge du profil
+  const initialPhase = useMemo((): Phase => {
+    if (!orchestrator.profile?.birthDate) return 1;
+    const ageInYears =
+      (Date.now() - orchestrator.profile.birthDate) / (1000 * 60 * 60 * 24 * 365);
+    if (ageInYears < 7) return 1; // 6-7 ans
+    if (ageInYears < 8) return 2; // 7-8 ans
+    if (ageInYears < 9) return 3; // 8-9 ans
+    return 4; // 9-10 ans
+  }, [orchestrator.profile?.birthDate]);
+
+  const [selectedPhase, setSelectedPhase] = useState<Phase>(initialPhase);
   const [currentPuzzle, setCurrentPuzzle] = useState<Puzzle | null>(null);
-  const [mascotMessage, setMascotMessage] = useState(MASCOT_MESSAGES.welcome);
-  const [mascotEmotion, setMascotEmotion] = useState<EmotionType>('happy');
-  const [showParentDrawer, setShowParentDrawer] = useState(false);
   const [hintsUsed, setHintsUsed] = useState(0);
 
-  // Tous les puzzles
+  // ============================================
+  // PUZZLES DATA
+  // ============================================
+
   const allPuzzles = useMemo(() => getAllPuzzles(), []);
 
-  // Extraire les IDs des niveaux complétés depuis le store
-  const completedLevelIds = useMemo(() => {
-    if (!gameProgress?.completedLevels) return [];
-    return Object.keys(gameProgress.completedLevels).map(
-      (levelId) => `balance_${levelId}`
+  const phasePuzzles = useMemo(() => {
+    return getPuzzlesByPhase(selectedPhase);
+  }, [selectedPhase]);
+
+  // ============================================
+  // LEVELS (spécifique - généré depuis puzzles)
+  // ============================================
+
+  const levels = useMemo((): LevelConfig[] => {
+    const difficultyMap: Record<number, LevelConfig['difficulty']> = {
+      1: 'easy',
+      2: 'medium',
+      3: 'hard',
+      4: 'expert',
+      5: 'expert',
+    };
+
+    // Niveau 0 : Mode Libre
+    const freeModeLevel: LevelConfig = {
+      id: 'balance_free',
+      number: 0,
+      label: 'Libre',
+      difficulty: 'easy',
+      isUnlocked: true,
+      isCompleted: false,
+      config: { isFreeMode: true },
+    };
+
+    // Niveaux de la phase (numérotés 1 à N)
+    const phaseLevels: LevelConfig[] = phasePuzzles.map(
+      (puzzle, index): LevelConfig => {
+        const isCompleted = orchestrator.completedLevelIds.includes(puzzle.id);
+        return {
+          id: puzzle.id,
+          number: index + 1,
+          difficulty: difficultyMap[puzzle.difficulty] || 'medium',
+          isUnlocked: true,
+          isCompleted,
+          stars: isCompleted ? 3 : undefined,
+          config: { phase: puzzle.phase, puzzleLevel: puzzle.level },
+        };
+      }
     );
-  }, [gameProgress?.completedLevels]);
 
-  // Générer les niveaux basés sur l'âge de l'enfant et les niveaux complétés
-  const levels = useMemo(() => {
-    return generateDefaultLevels('balance', profile?.birthDate, completedLevelIds);
-  }, [profile?.birthDate, completedLevelIds]);
+    return [freeModeLevel, ...phaseLevels];
+  }, [phasePuzzles, orchestrator.completedLevelIds]);
 
-  // Hook du jeu
+  // ============================================
+  // GAME HOOK (spécifique à Balance)
+  // ============================================
+
   const gameHook = useBalanceGame({
     puzzle: currentPuzzle || allPuzzles[0],
-    onComplete: (stats) => {
-      handlePuzzleComplete(stats);
+    onComplete: (_stats) => {
+      // Le store sera mis à jour ici quand implémenté
     },
   });
 
@@ -197,73 +231,10 @@ export function useBalanceIntro(): UseBalanceIntroReturn {
     reset: resetGame,
   } = gameHook;
 
-  // Sons
+  // ============================================
+  // SONS
+  // ============================================
   const { playPlace, playRemove, playBalance, playHint } = useBalanceSound();
-
-  // Ref pour tracker l'initialisation
-  const hasInitializedRef = useRef(false);
-
-  // ============================================
-  // ANIMATIONS
-  // ============================================
-
-  const selectorY = useSharedValue(0);
-  const selectorOpacity = useSharedValue(1);
-  const progressPanelOpacity = useSharedValue(0);
-
-  const selectorStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: selectorY.value }],
-    opacity: selectorOpacity.value,
-  }));
-
-  const progressPanelStyle = useAnimatedStyle(() => ({
-    opacity: progressPanelOpacity.value,
-  }));
-
-  // ============================================
-  // TRANSITIONS
-  // ============================================
-
-  const transitionToPlayMode = useCallback(() => {
-    if (isPlaying) return;
-
-    // Vue 1 → Vue 2: Slide selector up and fade out
-    selectorY.value = withTiming(ANIMATION_CONFIG.selectorSlideDistance, {
-      duration: ANIMATION_CONFIG.selectorSlideDuration,
-      easing: Easing.out(Easing.quad),
-    });
-    selectorOpacity.value = withTiming(0, {
-      duration: ANIMATION_CONFIG.selectorFadeDuration,
-    });
-
-    // Fade in progress panel
-    progressPanelOpacity.value = withDelay(
-      ANIMATION_CONFIG.progressDelayDuration,
-      withTiming(1, { duration: ANIMATION_CONFIG.selectorFadeDuration })
-    );
-
-    // Start playing after animation
-    setTimeout(() => {
-      setIsPlaying(true);
-    }, 300);
-  }, [isPlaying, selectorY, selectorOpacity, progressPanelOpacity]);
-
-  const transitionToSelectionMode = useCallback(() => {
-    // Vue 2 → Vue 1: Show selector with spring animation
-    selectorY.value = withSpring(0, {
-      damping: ANIMATION_CONFIG.springDamping,
-      stiffness: ANIMATION_CONFIG.springStiffness,
-    });
-    selectorOpacity.value = withTiming(1, {
-      duration: ANIMATION_CONFIG.selectorFadeDuration,
-    });
-
-    // Hide progress panel
-    progressPanelOpacity.value = withTiming(0, { duration: 200 });
-
-    setIsPlaying(false);
-    setIsVictory(false);
-  }, [selectorY, selectorOpacity, progressPanelOpacity]);
 
   // ============================================
   // PREVIEW BALANCE STATE
@@ -275,14 +246,14 @@ export function useBalanceIntro(): UseBalanceIntroReturn {
     let state = createInitialState();
 
     // Ajouter les objets initiaux
-    currentPuzzle.initialLeft.forEach(config => {
+    currentPuzzle.initialLeft.forEach((config) => {
       for (let i = 0; i < config.count; i++) {
         const obj = createObject(config.objectId, `preview_left_${config.objectId}_${i}`);
         state = addObjectToPlate(state, obj, 'left');
       }
     });
 
-    currentPuzzle.initialRight.forEach(config => {
+    currentPuzzle.initialRight.forEach((config) => {
       for (let i = 0; i < config.count; i++) {
         const obj = createObject(config.objectId, `preview_right_${config.objectId}_${i}`);
         state = addObjectToPlate(state, obj, 'right');
@@ -297,174 +268,163 @@ export function useBalanceIntro(): UseBalanceIntroReturn {
   // ============================================
 
   useEffect(() => {
-    if (levels.length > 0 && !selectedLevel) {
-      try {
-        // Trouver le premier niveau débloqué mais non complété
-        const firstIncompleteLevel = levels.find(
-          (level) => level.isUnlocked && !level.isCompleted
-        );
+    if (levels.length > 0 && !orchestrator.selectedLevel) {
+      const firstIncompleteLevel = levels.find(
+        (level) => level.isUnlocked && !level.isCompleted
+      );
 
-        const defaultLevel = firstIncompleteLevel ||
-          levels.filter(l => l.isUnlocked).pop() ||
-          levels[0];
+      const defaultLevel =
+        firstIncompleteLevel || levels.filter((l) => l.isUnlocked).pop() || levels[0];
 
-        if (defaultLevel) {
-          setSelectedLevel(defaultLevel);
-          // Trouver le puzzle correspondant
-          const puzzle = getPuzzleById(defaultLevel.id);
-          if (puzzle) {
-            setCurrentPuzzle(puzzle);
-          }
-          setMascotMessage(MASCOT_MESSAGES.selectLevel);
-          setMascotEmotion('happy');
+      if (defaultLevel) {
+        orchestrator.handleSelectLevel(defaultLevel);
+        const puzzle = getPuzzleById(defaultLevel.id);
+        if (puzzle) {
+          setCurrentPuzzle(puzzle);
         }
-      } catch {
-        // En cas d'erreur, sélectionner le niveau 1
-        const level1 = levels[0];
-        if (level1) {
-          setSelectedLevel(level1);
-          const puzzle = getPuzzleById(level1.id);
-          if (puzzle) {
-            setCurrentPuzzle(puzzle);
-          }
-        }
+        orchestrator.setMascotMessage(MASCOT_MESSAGES.selectLevel);
+        orchestrator.setMascotEmotion('happy');
       }
     }
-  }, [levels, selectedLevel]);
+  }, [levels, orchestrator]);
 
   // ============================================
   // EFFECTS - Feedback jeu (victoire)
   // ============================================
 
   useEffect(() => {
-    if (gameIsVictory && !isVictory) {
-      setIsVictory(true);
+    if (gameIsVictory && !orchestrator.isVictory) {
+      orchestrator.setIsVictory(true);
       playBalance();
-      setMascotMessage(MASCOT_MESSAGES.success);
-      setMascotEmotion('celebratory');
+      orchestrator.setMascotMessage(MASCOT_MESSAGES.success);
+      orchestrator.setMascotEmotion('excited');
     }
-  }, [gameIsVictory, isVictory, playBalance]);
+  }, [gameIsVictory, orchestrator, playBalance]);
 
   // ============================================
-  // HANDLERS
+  // HANDLERS SPÉCIFIQUES
   // ============================================
 
-  const handleSelectLevel = useCallback((level: LevelConfig) => {
-    setSelectedLevel(level);
+  const handlePhaseChange = useCallback(
+    (phase: Phase) => {
+      setSelectedPhase(phase);
+      setCurrentPuzzle(null);
+      const phaseInfo = PHASE_INFO[phase];
+      orchestrator.setMascotMessage(`${phaseInfo.name} (${phaseInfo.ageGroup} ans) !`);
+      orchestrator.setMascotEmotion('happy');
+    },
+    [orchestrator]
+  );
 
-    // Trouver le puzzle correspondant
-    const puzzle = getPuzzleById(level.id);
-    if (puzzle) {
-      setCurrentPuzzle(puzzle);
-      const phaseInfo = PHASE_INFO[puzzle.phase];
-      setMascotMessage(`Phase ${puzzle.phase} : ${phaseInfo.name} !`);
-      setMascotEmotion('happy');
-    }
-  }, []);
+  const handleSelectFreeMode = useCallback(() => {
+    router.push('/(games)/04-balance/sandbox' as const);
+  }, [router]);
+
+  const handleSelectLevel = useCallback(
+    (level: LevelConfig) => {
+      // Cas spécial : niveau 0 = Mode Libre
+      if (level.number === 0 || level.config?.isFreeMode) {
+        handleSelectFreeMode();
+        return;
+      }
+
+      orchestrator.handleSelectLevel(level);
+
+      // Trouver le puzzle correspondant
+      const puzzle = getPuzzleById(level.id);
+      if (puzzle) {
+        setCurrentPuzzle(puzzle);
+        orchestrator.setMascotMessage(`Niveau ${level.number} : ${puzzle.name}`);
+        orchestrator.setMascotEmotion('happy');
+      }
+    },
+    [orchestrator, handleSelectFreeMode]
+  );
 
   const handleStartPlaying = useCallback(() => {
-    if (!selectedLevel) return;
-    transitionToPlayMode();
-    setMascotMessage(MASCOT_MESSAGES.startPlaying);
-    setMascotEmotion('excited');
+    if (!orchestrator.selectedLevel) return;
+    orchestrator.handleStartPlaying();
     setHintsUsed(0);
-  }, [selectedLevel, transitionToPlayMode]);
+  }, [orchestrator]);
 
   const handleBack = useCallback(() => {
-    if (isPlaying) {
-      transitionToSelectionMode();
-      setMascotMessage(MASCOT_MESSAGES.backToSelection);
-      setMascotEmotion('encouraging');
+    if (orchestrator.isPlaying) {
+      orchestrator.transitionToSelectionMode();
+      orchestrator.setMascotMessage(MASCOT_MESSAGES.backToSelection);
+      orchestrator.setMascotEmotion('encouraging');
       resetGame();
+      orchestrator.setIsVictory(false);
     } else {
-      // Retour à l'accueil depuis la sélection des niveaux
       router.replace('/');
     }
-  }, [isPlaying, router, transitionToSelectionMode, resetGame]);
-
-  const handleParentPress = useCallback(() => {
-    setShowParentDrawer(true);
-  }, []);
-
-  const handleHelpPress = useCallback(() => {
-    setMascotMessage(MASCOT_MESSAGES.hint);
-    setMascotEmotion('thinking');
-  }, []);
+  }, [orchestrator, router, resetGame]);
 
   const handleReset = useCallback(() => {
     resetGame();
-    setIsVictory(false);
-    setMascotMessage("Nouvelle expérience ! Observe bien...");
-    setMascotEmotion('neutral');
-  }, [resetGame]);
+    orchestrator.setIsVictory(false);
+    orchestrator.setMascotMessage('Nouvelle expérience ! Observe bien...');
+    orchestrator.setMascotEmotion('neutral');
+  }, [resetGame, orchestrator]);
 
   const handleHint = useCallback(() => {
     if (hintsUsed < MAX_HINTS) {
       requestHint();
       playHint();
-      setHintsUsed(prev => prev + 1);
-      setMascotMessage(currentHint || MASCOT_MESSAGES.hint);
-      setMascotEmotion('thinking');
+      setHintsUsed((prev) => prev + 1);
+      orchestrator.setMascotMessage(currentHint || MASCOT_MESSAGES.hint);
+      orchestrator.setMascotEmotion('thinking');
     }
-  }, [hintsUsed, requestHint, playHint, currentHint]);
+  }, [hintsUsed, requestHint, playHint, currentHint, orchestrator]);
 
-  const handlePlaceObject = useCallback((object: WeightObjectType, side: 'left' | 'right') => {
-    placeObject(object, side);
-    playPlace();
+  const handlePlaceObject = useCallback(
+    (object: WeightObjectType, side: 'left' | 'right') => {
+      placeObject(object, side);
+      playPlace();
 
-    // Vérifier si proche de l'équilibre
-    const newAngle = Math.abs(balanceState.angle);
-    if (newAngle < 5 && newAngle > 0) {
-      setMascotMessage(MASCOT_MESSAGES.closeBalance);
-      setMascotEmotion('excited');
-    }
-  }, [placeObject, playPlace, balanceState.angle]);
+      // Vérifier si proche de l'équilibre
+      const newAngle = Math.abs(balanceState.angle);
+      if (newAngle < 5 && newAngle > 0) {
+        orchestrator.setMascotMessage(MASCOT_MESSAGES.closeBalance);
+        orchestrator.setMascotEmotion('excited');
+      }
+    },
+    [placeObject, playPlace, balanceState.angle, orchestrator]
+  );
 
-  const handleRemoveObject = useCallback((objectId: string, side: 'left' | 'right') => {
-    removeObject(objectId, side);
-    playRemove();
-  }, [removeObject, playRemove]);
+  const handleRemoveObject = useCallback(
+    (objectId: string, side: 'left' | 'right') => {
+      removeObject(objectId, side);
+      playRemove();
+    },
+    [removeObject, playRemove]
+  );
 
   const handleNextLevel = useCallback(() => {
     if (!currentPuzzle) return;
 
-    // Trouver le prochain puzzle
-    const currentIndex = allPuzzles.findIndex(p => p.id === currentPuzzle.id);
+    const currentIndex = allPuzzles.findIndex((p) => p.id === currentPuzzle.id);
     if (currentIndex < allPuzzles.length - 1) {
       const nextPuzzle = allPuzzles[currentIndex + 1];
       setCurrentPuzzle(nextPuzzle);
 
-      // Mettre à jour le niveau sélectionné
-      const nextLevel = levels.find(l => l.id === nextPuzzle.id);
+      const nextLevel = levels.find((l) => l.id === nextPuzzle.id);
       if (nextLevel) {
-        setSelectedLevel(nextLevel);
+        orchestrator.handleSelectLevel(nextLevel);
       }
 
       resetGame();
-      setIsVictory(false);
+      orchestrator.setIsVictory(false);
       setHintsUsed(0);
 
       const phaseInfo = PHASE_INFO[nextPuzzle.phase];
-      setMascotMessage(`Niveau ${nextPuzzle.level} ! ${phaseInfo.name}`);
-      setMascotEmotion('happy');
+      orchestrator.setMascotMessage(`Niveau ${nextPuzzle.level} ! ${phaseInfo.name}`);
+      orchestrator.setMascotEmotion('happy');
     } else {
-      // Tous les puzzles complétés, retour à la sélection
-      transitionToSelectionMode();
-      setMascotMessage("Bravo ! Tu as terminé tous les niveaux !");
-      setMascotEmotion('celebratory');
+      orchestrator.transitionToSelectionMode();
+      orchestrator.setMascotMessage('Bravo ! Tu as terminé tous les niveaux !');
+      orchestrator.setMascotEmotion('excited');
     }
-  }, [currentPuzzle, allPuzzles, levels, resetGame, transitionToSelectionMode]);
-
-  const handlePuzzleComplete = useCallback((_stats: {
-    puzzleId: string;
-    completed: boolean;
-    attempts: number;
-    hintsUsed: number;
-    timeSpent: number;
-    equivalenciesDiscovered: string[];
-  }) => {
-    // Le store sera mis à jour ici quand implémenté
-  }, []);
+  }, [currentPuzzle, allPuzzles, levels, resetGame, orchestrator]);
 
   const handleGoToSandbox = useCallback(() => {
     router.push('/(games)/04-balance/sandbox' as const);
@@ -483,27 +443,32 @@ export function useBalanceIntro(): UseBalanceIntroReturn {
   // ============================================
 
   return {
-    // Niveaux
+    // Phase / Tranche d'âge
+    selectedPhase,
+    handlePhaseChange,
+
+    // Depuis orchestrator
     levels,
-    selectedLevel,
+    selectedLevel: orchestrator.selectedLevel,
     handleSelectLevel,
+    handleSelectFreeMode,
 
     // État jeu
-    isPlaying,
-    isVictory,
+    isPlaying: orchestrator.isPlaying,
+    isVictory: orchestrator.isVictory,
     currentPuzzle,
 
     // Parent drawer
-    showParentDrawer,
-    setShowParentDrawer,
+    showParentDrawer: orchestrator.showParentDrawer,
+    setShowParentDrawer: orchestrator.setShowParentDrawer,
 
     // Animations
-    selectorStyle,
-    progressPanelStyle,
+    selectorStyle: orchestrator.selectorStyle,
+    progressPanelStyle: orchestrator.progressPanelStyle,
 
     // Mascot
-    mascotMessage,
-    mascotEmotion,
+    mascotMessage: orchestrator.mascotMessage,
+    mascotEmotion: orchestrator.mascotEmotion,
 
     // Balance
     balanceState,
@@ -522,8 +487,8 @@ export function useBalanceIntro(): UseBalanceIntroReturn {
     // Handlers
     handleBack,
     handleStartPlaying,
-    handleParentPress,
-    handleHelpPress,
+    handleParentPress: orchestrator.handleParentPress,
+    handleHelpPress: orchestrator.handleHelpPress,
     handleReset,
     handleHint,
     handlePlaceObject,

@@ -25,6 +25,49 @@ Créer ou modifier une mascotte de jeu éducatif, incluant le composant visuel a
 
 ---
 
+## Protocole 3 étapes (OBLIGATOIRE)
+
+> Référence : `docs/00-INDEX.md#protocole-claude-code-3-étapes`
+
+### Étape A : Confirmer la lecture
+
+```text
+✅ J'ai lu MASCOTTES_GUIDELINES.md.
+✅ Principes retenus :
+   - Ton bienveillant, jamais punitif
+   - Phrases simples adaptées à l'âge
+   - 4 émotions : neutral, happy, thinking, encouraging
+   - Ne jamais donner la réponse directement
+✅ Mascottes existantes : Piou, Pixel, Scout, Dr. Hibou, etc.
+```
+
+### Étape B : Poser 2-3 questions de clarification
+
+**Pour une création :**
+
+- Quel animal/personnage ?
+- Quels traits de personnalité ? (3 max)
+- Quel ton de voix ? (enjoué / calme / curieux / sage)
+
+**Pour une modification :**
+
+- Quel aspect modifier ? (visuel / dialogues / animations)
+- Pourquoi ce changement ?
+
+### Étape C : Présenter le plan d'action
+
+```text
+📋 PLAN DE CRÉATION :
+1. Créer le composant {Nom}Mascot.tsx avec 4 émotions
+2. Implémenter les animations idle (bounce léger)
+3. Créer les scripts assistantScripts.ts par tranche d'âge
+4. Intégrer avec MascotBubble dans l'écran de jeu
+
+→ ATTENDRE VALIDATION avant de commencer.
+```
+
+---
+
 ## Étape 1 : Clarifier le besoin
 
 ### Pour une création

@@ -1,44 +1,28 @@
 /**
  * useEmbouteillageIntro - Hook orchestrateur pour Embouteillage
  *
- * Encapsule toute la logique métier de l'écran d'introduction :
- * - Progression store (lecture/écriture)
- * - Paramètres URL
- * - Génération des niveaux
- * - Messages mascotte
- * - Sons
- * - Animations de transition
- * - Navigation
+ * VERSION MIGRÉE (Janvier 2026)
+ * Utilise useGameIntroOrchestrator pour la logique commune.
+ * Ce fichier ne contient plus que la logique spécifique au jeu.
  *
  * @see docs/GAME_ARCHITECTURE.md pour le pattern complet
  */
 
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
-import { useRouter, useLocalSearchParams } from 'expo-router';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-  withDelay,
-  withSpring,
-  Easing,
-} from 'react-native-reanimated';
 
-import {
-  generateDefaultLevels,
-  type LevelConfig,
-} from '../../../components/common';
+import { useGameIntroOrchestrator, type EmotionType } from '../../../hooks';
+import type { LevelConfig } from '../../../components/common';
 import { useEmbouteillageGame } from './useEmbouteillageGame';
 import { useEmbouteillageSound } from './useEmbouteillageSound';
-import { useActiveProfile, useGameProgress, useStore } from '../../../store/useStore';
 import { TRAFFIC_MESSAGES } from '../data/assistantScripts';
 import type { Vehicle } from '../types';
+
+// Re-export EmotionType for backward compatibility
+export type { EmotionType } from '../../../hooks';
 
 // ============================================
 // TYPES
 // ============================================
-
-export type EmotionType = 'neutral' | 'happy' | 'thinking' | 'excited' | 'encouraging';
 
 export interface UseEmbouteillageIntroReturn {
   // Niveaux
@@ -55,8 +39,8 @@ export interface UseEmbouteillageIntroReturn {
   setShowParentDrawer: (show: boolean) => void;
 
   // Animations (styles animés)
-  selectorStyle: ReturnType<typeof useAnimatedStyle>;
-  progressPanelStyle: ReturnType<typeof useAnimatedStyle>;
+  selectorStyle: ReturnType<typeof useGameIntroOrchestrator>['selectorStyle'];
+  progressPanelStyle: ReturnType<typeof useGameIntroOrchestrator>['progressPanelStyle'];
 
   // Mascot
   mascotMessage: string;
@@ -102,15 +86,6 @@ export interface UseEmbouteillageIntroReturn {
 // CONSTANTS
 // ============================================
 
-const ANIMATION_CONFIG = {
-  selectorSlideDuration: 400,
-  selectorFadeDuration: 300,
-  progressDelayDuration: 200,
-  selectorSlideDistance: -150,
-  springDamping: 15,
-  springStiffness: 150,
-};
-
 const TOTAL_PUZZLES = 8;
 
 // ============================================
@@ -118,42 +93,26 @@ const TOTAL_PUZZLES = 8;
 // ============================================
 
 export function useEmbouteillageIntro(): UseEmbouteillageIntroReturn {
-  const router = useRouter();
-  const params = useLocalSearchParams<{ level?: string }>();
-  const profile = useActiveProfile();
+  // ============================================
+  // ORCHESTRATOR (logique commune factorisée)
+  // ============================================
+  const orchestrator = useGameIntroOrchestrator({
+    gameId: 'embouteillage',
+    mascotMessages: {
+      welcome: 'Salut ! Je suis Caro le Castor. Libérons la voiture rouge !',
+      startPlaying: "C'est parti ! Libère la voiture rouge !",
+      backToSelection: 'On recommence ? Choisis un niveau !',
+      help: 'Regarde quel véhicule bloque la voiture rouge...',
+    },
+  });
 
-  // Store - progression
-  const gameProgress = useGameProgress('embouteillage');
-  const initGameProgress = useStore((state) => state.initGameProgress);
-
-  // Initialiser le progress si nécessaire
-  useEffect(() => {
-    initGameProgress('embouteillage');
-  }, [initGameProgress]);
-
-  // État local
-  const [selectedLevel, setSelectedLevel] = useState<LevelConfig | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isVictory, setIsVictory] = useState(false);
-  const [mascotMessage, setMascotMessage] = useState("Salut ! Je suis Caro le Castor. Libérons la voiture rouge !");
+  // ============================================
+  // LOCAL STATE (spécifique à Embouteillage)
+  // ============================================
   const [mascotEmotion, setMascotEmotion] = useState<EmotionType>('neutral');
-  const [showParentDrawer, setShowParentDrawer] = useState(false);
-
-  // Extraire les IDs des niveaux complétés depuis le store
-  const completedLevelIds = useMemo(() => {
-    if (!gameProgress?.completedLevels) return [];
-    return Object.keys(gameProgress.completedLevels).map(
-      (levelId) => `embouteillage_${levelId}`
-    );
-  }, [gameProgress?.completedLevels]);
-
-  // Générer les niveaux basés sur l'âge de l'enfant et les niveaux complétés
-  const levels = useMemo(() => {
-    return generateDefaultLevels('embouteillage', profile?.birthDate, completedLevelIds);
-  }, [profile?.birthDate, completedLevelIds]);
 
   // Hook du jeu
-  const currentLevelNumber = selectedLevel?.number || 1;
+  const currentLevelNumber = orchestrator.selectedLevel?.number || 1;
   const gameHook = useEmbouteillageGame({
     initialLevel: currentLevelNumber,
   });
@@ -180,135 +139,65 @@ export function useEmbouteillageIntro(): UseEmbouteillageIntroReturn {
   const lastLevelParamRef = useRef<string | undefined>(undefined);
 
   // ============================================
-  // ANIMATIONS
-  // ============================================
-
-  const selectorY = useSharedValue(0);
-  const selectorOpacity = useSharedValue(1);
-  const progressPanelOpacity = useSharedValue(0);
-
-  const selectorStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: selectorY.value }],
-    opacity: selectorOpacity.value,
-  }));
-
-  const progressPanelStyle = useAnimatedStyle(() => ({
-    opacity: progressPanelOpacity.value,
-  }));
-
-  // ============================================
-  // TRANSITIONS
-  // ============================================
-
-  const transitionToPlayMode = useCallback(() => {
-    if (isPlaying) return;
-
-    selectorY.value = withTiming(ANIMATION_CONFIG.selectorSlideDistance, {
-      duration: ANIMATION_CONFIG.selectorSlideDuration,
-      easing: Easing.out(Easing.quad),
-    });
-    selectorOpacity.value = withTiming(0, {
-      duration: ANIMATION_CONFIG.selectorFadeDuration,
-    });
-
-    progressPanelOpacity.value = withDelay(
-      ANIMATION_CONFIG.progressDelayDuration,
-      withTiming(1, { duration: ANIMATION_CONFIG.selectorFadeDuration })
-    );
-
-    setTimeout(() => {
-      setIsPlaying(true);
-    }, 300);
-  }, [isPlaying, selectorY, selectorOpacity, progressPanelOpacity]);
-
-  const transitionToSelectionMode = useCallback(() => {
-    selectorY.value = withSpring(0, {
-      damping: ANIMATION_CONFIG.springDamping,
-      stiffness: ANIMATION_CONFIG.springStiffness,
-    });
-    selectorOpacity.value = withTiming(1, {
-      duration: ANIMATION_CONFIG.selectorFadeDuration,
-    });
-
-    progressPanelOpacity.value = withTiming(0, { duration: 200 });
-
-    setIsPlaying(false);
-  }, [selectorY, selectorOpacity, progressPanelOpacity]);
-
-  // ============================================
   // EFFECTS - Sélection automatique niveau
   // ============================================
-
   useEffect(() => {
-    const levelParamChanged = params.level !== lastLevelParamRef.current;
+    const levelParamChanged = orchestrator.params.level !== lastLevelParamRef.current;
     if (levelParamChanged) {
-      lastLevelParamRef.current = params.level;
+      lastLevelParamRef.current = orchestrator.params.level;
     }
 
-    if (levels.length > 0 && (!selectedLevel || levelParamChanged)) {
-      try {
-        let defaultLevel: LevelConfig | undefined;
+    if (orchestrator.levels.length > 0 && (!orchestrator.selectedLevel || levelParamChanged)) {
+      let defaultLevel: LevelConfig | undefined;
 
-        if (params.level) {
-          const levelNumber = parseInt(params.level, 10);
-          defaultLevel = levels.find((l) => l.number === levelNumber && l.isUnlocked);
-        }
+      if (orchestrator.params.level) {
+        const levelNumber = parseInt(orchestrator.params.level, 10);
+        defaultLevel = orchestrator.levels.find((l) => l.number === levelNumber && l.isUnlocked);
+      }
 
-        if (!defaultLevel) {
-          const firstIncompleteLevel = levels.find(
-            (level) => level.isUnlocked && !level.isCompleted
-          );
+      if (!defaultLevel) {
+        const firstIncompleteLevel = orchestrator.levels.find(
+          (level) => level.isUnlocked && !level.isCompleted
+        );
+        defaultLevel =
+          firstIncompleteLevel ||
+          orchestrator.levels.filter((l) => l.isUnlocked).pop() ||
+          orchestrator.levels[0];
+      }
 
-          defaultLevel = firstIncompleteLevel ||
-            levels.filter(l => l.isUnlocked).pop() ||
-            levels[0];
-        }
-
-        if (defaultLevel) {
-          setSelectedLevel(defaultLevel);
-          loadLevel(defaultLevel.number);
-          setMascotMessage(
-            `Niveau ${defaultLevel.number} ! ${
-              defaultLevel.difficulty === 'easy'
-                ? 'Parfait pour commencer !'
-                : defaultLevel.difficulty === 'hard'
+      if (defaultLevel) {
+        orchestrator.handleSelectLevel(defaultLevel);
+        loadLevel(defaultLevel.number);
+        orchestrator.setMascotMessage(
+          `Niveau ${defaultLevel.number} ! ${
+            defaultLevel.difficulty === 'easy'
+              ? 'Parfait pour commencer !'
+              : defaultLevel.difficulty === 'hard'
                 ? 'Un vrai défi !'
                 : 'Bonne difficulté !'
-            }`
-          );
-          setMascotEmotion('happy');
-        }
-      } catch {
-        const level1 = levels[0];
-        if (level1) {
-          setSelectedLevel(level1);
-          loadLevel(1);
-          setMascotMessage("Niveau 1 ! Parfait pour commencer !");
-          setMascotEmotion('happy');
-        }
+          }`
+        );
+        setMascotEmotion('happy');
       }
     }
-  }, [levels, selectedLevel, params.level, loadLevel]);
+  }, [orchestrator.levels, orchestrator.selectedLevel, orchestrator.params.level, orchestrator, loadLevel]);
 
   // ============================================
   // EFFECTS - Feedback jeu
   // ============================================
-
   useEffect(() => {
     if (gameState.status === 'victory') {
       playVictory();
       const messages = TRAFFIC_MESSAGES.success;
-      setMascotMessage(messages[Math.floor(Math.random() * messages.length)]);
+      orchestrator.setMascotMessage(messages[Math.floor(Math.random() * messages.length)]);
       setMascotEmotion('excited');
-      setIsVictory(true);
+      orchestrator.setIsVictory(true);
 
       // Navigation vers victory après délai
       const timer = setTimeout(() => {
-        const totalTimeMs = gameState.startTime
-          ? Date.now() - gameState.startTime
-          : 0;
+        const totalTimeMs = gameState.startTime ? Date.now() - gameState.startTime : 0;
 
-        router.push({
+        orchestrator.router.push({
           pathname: '/(games)/13-embouteillage/victory',
           params: {
             moves: gameState.moveCount.toString(),
@@ -324,106 +213,106 @@ export function useEmbouteillageIntro(): UseEmbouteillageIntroReturn {
     } else if (gameState.status === 'error') {
       playBlocked();
       const messages = TRAFFIC_MESSAGES.error;
-      setMascotMessage(messages[Math.floor(Math.random() * messages.length)]);
+      orchestrator.setMascotMessage(messages[Math.floor(Math.random() * messages.length)]);
       setMascotEmotion('encouraging');
     }
-  }, [gameState.status, playVictory, playBlocked, router, currentLevelNumber, currentLevel, gameState]);
+  }, [gameState.status, playVictory, playBlocked, orchestrator, currentLevelNumber, currentLevel, gameState]);
 
   // ============================================
-  // HANDLERS
+  // HANDLERS SPÉCIFIQUES
   // ============================================
 
-  const handleSelectLevel = useCallback((level: LevelConfig) => {
-    setSelectedLevel(level);
-    loadLevel(level.number);
-    setMascotMessage(
-      `Niveau ${level.number} ! ${
-        level.difficulty === 'easy'
-          ? 'Parfait pour commencer !'
-          : level.difficulty === 'hard'
-          ? 'Un vrai défi !'
-          : 'Bonne difficulté !'
-      }`
-    );
-    setMascotEmotion('happy');
-  }, [loadLevel]);
+  const handleSelectLevel = useCallback(
+    (level: LevelConfig) => {
+      orchestrator.handleSelectLevel(level);
+      loadLevel(level.number);
+      orchestrator.setMascotMessage(
+        `Niveau ${level.number} ! ${
+          level.difficulty === 'easy'
+            ? 'Parfait pour commencer !'
+            : level.difficulty === 'hard'
+              ? 'Un vrai défi !'
+              : 'Bonne difficulté !'
+        }`
+      );
+      setMascotEmotion('happy');
+    },
+    [orchestrator, loadLevel]
+  );
 
   const handleStartPlaying = useCallback(() => {
-    if (!selectedLevel) return;
-    transitionToPlayMode();
-    setMascotMessage("C'est parti ! Libère la voiture rouge !");
+    if (!orchestrator.selectedLevel) return;
+    orchestrator.handleStartPlaying();
+    orchestrator.setMascotMessage("C'est parti ! Libère la voiture rouge !");
     setMascotEmotion('excited');
-  }, [selectedLevel, transitionToPlayMode]);
+  }, [orchestrator]);
 
   const handleBack = useCallback(() => {
-    if (isPlaying) {
-      transitionToSelectionMode();
-      setMascotMessage("On recommence ? Choisis un niveau !");
+    if (orchestrator.isPlaying) {
+      orchestrator.transitionToSelectionMode();
+      orchestrator.setMascotMessage('On recommence ? Choisis un niveau !');
       setMascotEmotion('encouraging');
+      orchestrator.setIsVictory(false);
     } else {
-      router.replace('/');
+      orchestrator.router.replace('/');
     }
-  }, [isPlaying, router, transitionToSelectionMode]);
-
-  const handleParentPress = useCallback(() => {
-    setShowParentDrawer(true);
-  }, []);
+  }, [orchestrator]);
 
   const handleHelpPress = useCallback(() => {
-    setMascotMessage("Regarde quel véhicule bloque la voiture rouge...");
+    orchestrator.setMascotMessage('Regarde quel véhicule bloque la voiture rouge...');
     setMascotEmotion('thinking');
-  }, []);
+  }, [orchestrator]);
 
   const handleReset = useCallback(() => {
     resetPuzzle();
-    setMascotMessage("On recommence ! Observe bien le parking...");
+    orchestrator.setMascotMessage('On recommence ! Observe bien le parking...');
     setMascotEmotion('neutral');
-  }, [resetPuzzle]);
+  }, [resetPuzzle, orchestrator]);
 
   const handleUndo = useCallback(() => {
     undoLastMove();
-    setMascotMessage("Coup annulé !");
+    orchestrator.setMascotMessage('Coup annulé !');
     setMascotEmotion('neutral');
-  }, [undoLastMove]);
+  }, [undoLastMove, orchestrator]);
 
   const handleHint = useCallback(() => {
     requestHint();
-    setMascotMessage(TRAFFIC_MESSAGES.hint1);
+    orchestrator.setMascotMessage(TRAFFIC_MESSAGES.hint1);
     setMascotEmotion('thinking');
-  }, [requestHint]);
+  }, [requestHint, orchestrator]);
 
-  const handleMoveVehicle = useCallback((
-    vehicleId: string,
-    direction: 'up' | 'down' | 'left' | 'right',
-    distance?: number
-  ) => {
-    if (!isPlaying) {
-      transitionToPlayMode();
-    }
-    playMove();
-    const success = moveVehicle(vehicleId, direction, distance);
-    if (success) {
-      setMascotMessage("Bien joué !");
-      setMascotEmotion('happy');
-    }
-    return success;
-  }, [isPlaying, transitionToPlayMode, playMove, moveVehicle]);
+  const handleMoveVehicle = useCallback(
+    (vehicleId: string, direction: 'up' | 'down' | 'left' | 'right', distance?: number) => {
+      if (!orchestrator.isPlaying) {
+        orchestrator.transitionToPlayMode();
+      }
+      playMove();
+      const success = moveVehicle(vehicleId, direction, distance);
+      if (success) {
+        orchestrator.setMascotMessage('Bien joué !');
+        setMascotEmotion('happy');
+      }
+      return success;
+    },
+    [orchestrator, playMove, moveVehicle]
+  );
 
-  const handleSelectVehicle = useCallback((vehicle: Vehicle | null) => {
-    if (vehicle) {
-      playSelect();
-      setMascotMessage(`${vehicle.isTarget ? 'Voiture rouge' : 'Véhicule'} sélectionné !`);
-    }
-    selectVehicle(vehicle);
-  }, [selectVehicle, playSelect]);
+  const handleSelectVehicle = useCallback(
+    (vehicle: Vehicle | null) => {
+      if (vehicle) {
+        playSelect();
+        orchestrator.setMascotMessage(`${vehicle.isTarget ? 'Voiture rouge' : 'Véhicule'} sélectionné !`);
+      }
+      selectVehicle(vehicle);
+    },
+    [selectVehicle, playSelect, orchestrator]
+  );
 
   const handleForceComplete = useCallback(() => {
-    setIsVictory(true);
-    const totalTimeMs = gameState.startTime
-      ? Date.now() - gameState.startTime
-      : 0;
+    orchestrator.setIsVictory(true);
+    const totalTimeMs = gameState.startTime ? Date.now() - gameState.startTime : 0;
 
-    router.push({
+    orchestrator.router.push({
       pathname: '/(games)/13-embouteillage/victory',
       params: {
         moves: '1',
@@ -433,32 +322,32 @@ export function useEmbouteillageIntro(): UseEmbouteillageIntroReturn {
         level: currentLevelNumber.toString(),
       },
     });
-  }, [router, gameState.startTime, currentLevel, currentLevelNumber]);
+  }, [orchestrator, gameState.startTime, currentLevel, currentLevelNumber]);
 
   // ============================================
   // RETURN
   // ============================================
 
   return {
-    // Niveaux
-    levels,
-    selectedLevel,
+    // Depuis orchestrator
+    levels: orchestrator.levels,
+    selectedLevel: orchestrator.selectedLevel,
     handleSelectLevel,
 
     // État jeu
-    isPlaying,
-    isVictory,
+    isPlaying: orchestrator.isPlaying,
+    isVictory: orchestrator.isVictory,
 
     // Parent drawer
-    showParentDrawer,
-    setShowParentDrawer,
+    showParentDrawer: orchestrator.showParentDrawer,
+    setShowParentDrawer: orchestrator.setShowParentDrawer,
 
     // Animations
-    selectorStyle,
-    progressPanelStyle,
+    selectorStyle: orchestrator.selectorStyle,
+    progressPanelStyle: orchestrator.progressPanelStyle,
 
     // Mascot
-    mascotMessage,
+    mascotMessage: orchestrator.mascotMessage,
     mascotEmotion,
 
     // Game state
@@ -484,7 +373,7 @@ export function useEmbouteillageIntro(): UseEmbouteillageIntroReturn {
     handleHint,
     handleBack,
     handleStartPlaying,
-    handleParentPress,
+    handleParentPress: orchestrator.handleParentPress,
     handleHelpPress,
     handleForceComplete,
 
@@ -494,7 +383,7 @@ export function useEmbouteillageIntro(): UseEmbouteillageIntroReturn {
 
     // Hints
     hintsRemaining,
-    canPlayAudio: isPlaying,
+    canPlayAudio: orchestrator.isPlaying,
   };
 }
 

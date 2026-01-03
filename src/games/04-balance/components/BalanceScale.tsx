@@ -41,12 +41,13 @@ interface BalanceScaleProps {
 // CONSTANTS
 // ============================================
 
-const BEAM_WIDTH = 420;
-const BEAM_HEIGHT = 18;
-const PLATE_SIZE = 150;
-const SUPPORT_HEIGHT = 100;
-const ROPE_HEIGHT = 70;
-const FULCRUM_SIZE = 50;
+// Dimensions agrandies de 50% pour meilleure visibilité sur iPad
+const BEAM_WIDTH = 630;
+const BEAM_HEIGHT = 27;
+const PLATE_SIZE = 225;
+const SUPPORT_HEIGHT = 150;
+const ROPE_HEIGHT = 105;
+const FULCRUM_SIZE = 75;
 
 // Balance color palette
 const BALANCE_COLORS = {
@@ -291,14 +292,14 @@ const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
     justifyContent: 'center',
-    height: 380,
+    height: 570,
     position: 'relative',
   },
 
   // Support/Stand
   supportContainer: {
     position: 'absolute',
-    bottom: 40,
+    bottom: 60,
     alignItems: 'center',
     zIndex: 0,
   },
@@ -352,9 +353,9 @@ const styles = StyleSheet.create({
     width: BEAM_WIDTH,
     height: BEAM_HEIGHT,
     backgroundColor: BALANCE_COLORS.beam.primary,
-    borderRadius: 9,
+    borderRadius: 14,
     position: 'absolute',
-    top: 100,
+    top: 150,
     zIndex: 2,
     boxShadow: '0px 4px 5px rgba(0, 0, 0, 0.3)',
     elevation: 6,
@@ -395,7 +396,7 @@ const styles = StyleSheet.create({
   // Plates container
   platesContainer: {
     position: 'absolute',
-    top: 100,
+    top: 150,
     width: BEAM_WIDTH,
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -461,8 +462,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     flexDirection: 'row',
     flexWrap: 'wrap',
-    padding: spacing[2],
-    gap: spacing[1],
+    padding: spacing[4],
+    gap: spacing[2],
+    overflow: 'hidden',
+    borderRadius: PLATE_SIZE / 2 - 10,
   },
 
   // Weight indicator

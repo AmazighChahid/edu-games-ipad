@@ -26,6 +26,41 @@ Rédiger les 4 fichiers de documentation pédagogique d'un jeu, en respectant la
 
 ---
 
+## Protocole 3 étapes (OBLIGATOIRE)
+
+> Référence : `docs/00-INDEX.md#protocole-claude-code-3-étapes`
+
+### Étape A : Confirmer la lecture
+
+```text
+✅ J'ai lu INSTRUCTIONS_PROJET.md et MASCOTTES_GUIDELINES.md.
+✅ Philosophie retenue : "Apprendre à penser, pas à répondre"
+✅ Principe mascotte : bienveillant, jamais punitif, phrases simples
+✅ Structure attendue : 4 fichiers (FICHE_ACTIVITE, FICHE_PARENT, DIALOGUES_IA, SPECS_TECHNIQUES)
+```
+
+### Étape B : Poser 2-3 questions de clarification
+
+- Quelle tranche d'âge principale ? (6-7 / 7-8 / 8-9 / 9-10 ans)
+- Quelle méthode de raisonnement enseigner ?
+- Quelles compétences cognitives cibler ? (3-5 parmi les 22)
+- La mascotte est-elle déjà définie ?
+
+### Étape C : Présenter le plan d'action
+
+```text
+📋 PLAN DE RÉDACTION :
+1. Créer le dossier Fiches Educatives/{XX-NomJeu}/
+2. Rédiger FICHE_ACTIVITE.md (objectifs, règles, déroulement)
+3. Rédiger FICHE_PARENT.md (accompagnement, transfert)
+4. Rédiger DIALOGUES_IA.md (scripts mascotte par âge)
+5. Rédiger SPECS_TECHNIQUES.md (architecture, composants)
+
+→ ATTENDRE VALIDATION avant de commencer la rédaction.
+```
+
+---
+
 ## Étape 1 : Clarifier le besoin
 
 1. **Tranche d'âge cible principale** ?

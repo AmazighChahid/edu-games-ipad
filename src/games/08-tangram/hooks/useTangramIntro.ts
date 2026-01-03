@@ -1,25 +1,18 @@
 /**
  * useTangramIntro - Hook orchestrateur pour Tangram
  *
- * Encapsule toute la logique métier de l'écran d'introduction :
- * - Progression store (lecture/écriture)
- * - Génération des niveaux
- * - Messages mascotte (Géo le Renard)
- * - Navigation
- * - Coordination avec useTangramGame
+ * VERSION MIGRÉE (Janvier 2026)
+ * Utilise useGameIntroOrchestrator pour la logique commune.
+ * Ce fichier ne contient plus que la logique spécifique au jeu.
  *
  * @see docs/GAME_ARCHITECTURE.md pour le pattern complet
  */
 
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
-import { useRouter, useLocalSearchParams } from 'expo-router';
 
-import {
-  generateDefaultLevels,
-  type LevelConfig,
-} from '../../../components/common';
+import { useGameIntroOrchestrator, type EmotionType } from '../../../hooks';
+import type { LevelConfig } from '../../../components/common';
 import { useTangramGame } from './useTangramGame';
-import { useActiveProfile, useGameProgress, useStore } from '../../../store/useStore';
 import { getAllPuzzles, createLevelFromPuzzle } from '../data/puzzles';
 import type { TangramPuzzle } from '../types';
 
@@ -27,7 +20,7 @@ import type { TangramPuzzle } from '../types';
 // TYPES
 // ============================================================================
 
-export type GeoEmotionType = 'neutral' | 'happy' | 'thinking' | 'excited' | 'encouraging';
+export type GeoEmotionType = EmotionType;
 
 export interface UseTangramIntroReturn {
   // Niveaux
@@ -42,6 +35,10 @@ export interface UseTangramIntroReturn {
   // Parent drawer
   showParentDrawer: boolean;
   setShowParentDrawer: (show: boolean) => void;
+
+  // Animations (styles animés)
+  selectorStyle: ReturnType<typeof useGameIntroOrchestrator>['selectorStyle'];
+  progressPanelStyle: ReturnType<typeof useGameIntroOrchestrator>['progressPanelStyle'];
 
   // Mascot
   mascotMessage: string;
@@ -87,48 +84,38 @@ export interface UseTangramIntroReturn {
 
 const GEO_MESSAGES = {
   welcome: [
-    "Bonjour ! Je suis Géo le renard. Choisis un puzzle !",
+    'Bonjour ! Je suis Géo le renard. Choisis un puzzle !',
     "Les formes t'attendent ! Quel puzzle veux-tu résoudre ?",
-    "Bienvenue dans le monde du Tangram !",
+    'Bienvenue dans le monde du Tangram !',
   ],
   levelSelect: {
     easy: "Un puzzle facile ! Parfait pour s'échauffer !",
-    medium: "Ce puzzle demande de la réflexion. Tu es prêt ?",
-    hard: "Un vrai défi ! Montre-moi ce que tu sais faire !",
+    medium: 'Ce puzzle demande de la réflexion. Tu es prêt ?',
+    hard: 'Un vrai défi ! Montre-moi ce que tu sais faire !',
   },
   start: [
     "C'est parti ! Place les 7 pièces pour former la silhouette !",
     "Observe bien la forme grise, c'est ton guide !",
-    "Tu peux tourner et retourner les pièces. Amuse-toi !",
+    'Tu peux tourner et retourner les pièces. Amuse-toi !',
   ],
   hint: [
     "Regarde la zone qui clignote, c'est là que va une pièce !",
     "Parfois, il faut tourner la pièce pour qu'elle rentre.",
-    "Le parallélogramme peut se retourner, essaie !",
+    'Le parallélogramme peut se retourner, essaie !',
   ],
   error: [
-    "Pas tout à fait... Essaie de tourner la pièce !",
-    "Cette pièce ne rentre pas ici. Cherche ailleurs !",
-    "Hmm, observe mieux la silhouette.",
+    'Pas tout à fait... Essaie de tourner la pièce !',
+    'Cette pièce ne rentre pas ici. Cherche ailleurs !',
+    'Hmm, observe mieux la silhouette.',
   ],
-  progress: [
-    "Super ! Continue comme ça !",
-    "Une pièce de plus ! Tu avances bien !",
-    "Bravo, tu y es presque !",
-  ],
+  progress: ['Super ! Continue comme ça !', 'Une pièce de plus ! Tu avances bien !', 'Bravo, tu y es presque !'],
   victory: [
-    "BRAVO ! Tu as reconstitué la forme ! 🎉",
-    "Magnifique ! Tu es un vrai artiste géomètre !",
-    "Incroyable ! Le puzzle est complet !",
+    'BRAVO ! Tu as reconstitué la forme ! 🎉',
+    'Magnifique ! Tu es un vrai artiste géomètre !',
+    'Incroyable ! Le puzzle est complet !',
   ],
-  reset: [
-    "On recommence ? Les pièces sont prêtes !",
-    "Nouvelle tentative ! Tu vas y arriver !",
-  ],
-  back: [
-    "Tu veux choisir un autre puzzle ?",
-    "Pas de souci, on peut changer de niveau !",
-  ],
+  reset: ['On recommence ? Les pièces sont prêtes !', 'Nouvelle tentative ! Tu vas y arriver !'],
+  back: ['Tu veux choisir un autre puzzle ?', 'Pas de souci, on peut changer de niveau !'],
 };
 
 // ============================================================================
@@ -144,26 +131,23 @@ function getRandomMessage(messages: string[]): string {
 // ============================================================================
 
 export function useTangramIntro(): UseTangramIntroReturn {
-  const router = useRouter();
-  const params = useLocalSearchParams<{ level?: string; puzzle?: string }>();
-  const profile = useActiveProfile();
+  // ============================================================================
+  // ORCHESTRATOR (logique commune factorisée)
+  // ============================================================================
+  const orchestrator = useGameIntroOrchestrator({
+    gameId: 'tangram',
+    mascotMessages: {
+      welcome: getRandomMessage(GEO_MESSAGES.welcome),
+      startPlaying: getRandomMessage(GEO_MESSAGES.start),
+      backToSelection: getRandomMessage(GEO_MESSAGES.back),
+      help: "Observe la silhouette grise, c'est ton guide ! Tu peux tourner et retourner les pièces.",
+    },
+  });
 
-  // Store - progression
-  const gameProgress = useGameProgress('tangram');
-  const initGameProgress = useStore((state) => state.initGameProgress);
-
-  // Initialiser le progress si nécessaire
-  useEffect(() => {
-    initGameProgress('tangram');
-  }, [initGameProgress]);
-
-  // État local
-  const [selectedLevel, setSelectedLevel] = useState<LevelConfig | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isVictory, setIsVictory] = useState(false);
-  const [mascotMessage, setMascotMessage] = useState(getRandomMessage(GEO_MESSAGES.welcome));
+  // ============================================================================
+  // LOCAL STATE (spécifique à Tangram)
+  // ============================================================================
   const [mascotEmotion, setMascotEmotion] = useState<GeoEmotionType>('neutral');
-  const [showParentDrawer, setShowParentDrawer] = useState(false);
 
   // Ref pour le puzzle sélectionné
   const selectedPuzzleRef = useRef<TangramPuzzle | null>(null);
@@ -186,25 +170,15 @@ export function useTangramIntro(): UseTangramIntroReturn {
     requestHint,
   } = tangramGame;
 
-  // ============================================
-  // GÉNÉRATION DES NIVEAUX
-  // ============================================
-
-  // Extraire les IDs des niveaux complétés depuis le store
-  const completedLevelIds = useMemo(() => {
-    if (!gameProgress?.completedLevels) return [];
-    return Object.keys(gameProgress.completedLevels).map(
-      (levelId) => `tangram_${levelId}`
-    );
-  }, [gameProgress?.completedLevels]);
-
-  // Générer les niveaux basés sur les puzzles disponibles
+  // ============================================================================
+  // GÉNÉRATION DES NIVEAUX (spécifique - basé sur puzzles)
+  // ============================================================================
   const levels: LevelConfig[] = useMemo(() => {
     const puzzles = getAllPuzzles();
 
     return puzzles.map((puzzle, index) => {
       const levelNumber = index + 1;
-      const isCompleted = completedLevelIds.includes(`tangram_${puzzle.id}`);
+      const isCompleted = orchestrator.completedLevelIds.includes(`tangram_${puzzle.id}`);
 
       // Mapping de difficulté
       let difficulty: LevelConfig['difficulty'] = 'easy';
@@ -212,7 +186,8 @@ export function useTangramIntro(): UseTangramIntroReturn {
       else if (puzzle.difficulty === 'hard') difficulty = 'hard';
 
       // Déblocage : les 3 premiers sont toujours débloqués
-      const isUnlocked = levelNumber <= 3 || (levelNumber > 3 && completedLevelIds.length >= levelNumber - 3);
+      const isUnlocked =
+        levelNumber <= 3 || (levelNumber > 3 && orchestrator.completedLevelIds.length >= levelNumber - 3);
 
       return {
         id: `tangram_${puzzle.id}`,
@@ -220,65 +195,69 @@ export function useTangramIntro(): UseTangramIntroReturn {
         difficulty,
         isCompleted,
         isUnlocked,
-        stars: isCompleted ? (gameProgress?.completedLevels?.[puzzle.id]?.stars || 0) : 0,
+        stars: isCompleted ? (orchestrator.gameProgress?.completedLevels?.[puzzle.id]?.stars || 0) : 0,
         data: puzzle, // Stocker le puzzle pour usage ultérieur
       };
     });
-  }, [completedLevelIds, gameProgress?.completedLevels]);
+  }, [orchestrator.completedLevelIds, orchestrator.gameProgress?.completedLevels]);
 
-  // ============================================
+  // Ref pour tracker les paramètres URL
+  const lastLevelParamRef = useRef<string | undefined>(undefined);
+
+  // ============================================================================
   // EFFECTS - Sélection automatique niveau
-  // ============================================
-
+  // ============================================================================
   useEffect(() => {
-    if (levels.length > 0 && !selectedLevel) {
+    const levelParamChanged = orchestrator.params.puzzle !== lastLevelParamRef.current;
+    if (levelParamChanged) {
+      lastLevelParamRef.current = orchestrator.params.puzzle;
+    }
+
+    if (levels.length > 0 && (!orchestrator.selectedLevel || levelParamChanged)) {
+      let defaultLevel: LevelConfig | undefined;
+
       // Si un puzzle est passé en paramètre URL
-      if (params.puzzle) {
-        const targetLevel = levels.find((l) => l.id === `tangram_${params.puzzle}`);
-        if (targetLevel && targetLevel.isUnlocked) {
-          setSelectedLevel(targetLevel);
-          return;
-        }
+      if (orchestrator.params.puzzle) {
+        defaultLevel = levels.find(
+          (l) => l.id === `tangram_${orchestrator.params.puzzle}` && l.isUnlocked
+        );
       }
 
-      // Trouver le premier niveau débloqué mais non complété
-      const firstIncompleteLevel = levels.find(
-        (level) => level.isUnlocked && !level.isCompleted
-      );
-
-      const defaultLevel = firstIncompleteLevel ||
-        levels.filter(l => l.isUnlocked).pop() ||
-        levels[0];
+      // Sinon, trouver le premier niveau débloqué mais non complété
+      if (!defaultLevel) {
+        const firstIncompleteLevel = levels.find((level) => level.isUnlocked && !level.isCompleted);
+        defaultLevel =
+          firstIncompleteLevel || levels.filter((l) => l.isUnlocked).pop() || levels[0];
+      }
 
       if (defaultLevel) {
-        setSelectedLevel(defaultLevel);
+        orchestrator.handleSelectLevel(defaultLevel);
       }
     }
-  }, [levels, selectedLevel, params.puzzle]);
+  }, [levels, orchestrator.selectedLevel, orchestrator.params.puzzle, orchestrator]);
 
   // Démarrer le jeu quand un niveau est sélectionné
   useEffect(() => {
-    if (selectedLevel && selectedLevel.data) {
-      const puzzle = selectedLevel.data as TangramPuzzle;
+    if (orchestrator.selectedLevel && orchestrator.selectedLevel.data) {
+      const puzzle = orchestrator.selectedLevel.data as TangramPuzzle;
       selectedPuzzleRef.current = puzzle;
       const tangramLevel = createLevelFromPuzzle(puzzle);
       startGame(tangramLevel);
     }
-  }, [selectedLevel, startGame]);
+  }, [orchestrator.selectedLevel, startGame]);
 
-  // ============================================
+  // ============================================================================
   // EFFECTS - Détection victoire
-  // ============================================
-
+  // ============================================================================
   useEffect(() => {
-    if (gameState?.phase === 'victory' && result && !isVictory) {
-      setIsVictory(true);
-      setMascotMessage(getRandomMessage(GEO_MESSAGES.victory));
+    if (gameState?.phase === 'victory' && result && !orchestrator.isVictory) {
+      orchestrator.setIsVictory(true);
+      orchestrator.setMascotMessage(getRandomMessage(GEO_MESSAGES.victory));
       setMascotEmotion('excited');
 
       // Navigation vers victory après délai
       const timer = setTimeout(() => {
-        router.push({
+        orchestrator.router.push({
           pathname: '/(games)/08-tangram/victory',
           params: {
             puzzleId: selectedPuzzleRef.current?.id || '',
@@ -287,19 +266,18 @@ export function useTangramIntro(): UseTangramIntroReturn {
             moveCount: result.moveCount.toString(),
             hintsUsed: result.hintsUsed.toString(),
             stars: result.stars.toString(),
-            level: selectedLevel?.number.toString() || '1',
+            level: orchestrator.selectedLevel?.number.toString() || '1',
           },
         });
       }, 1500);
 
       return () => clearTimeout(timer);
     }
-  }, [gameState?.phase, result, isVictory, router, selectedLevel]);
+  }, [gameState?.phase, result, orchestrator]);
 
-  // ============================================
+  // ============================================================================
   // PROGRESS DATA
-  // ============================================
-
+  // ============================================================================
   const progressData = useMemo(() => {
     if (!gameState) {
       return {
@@ -311,7 +289,7 @@ export function useTangramIntro(): UseTangramIntroReturn {
       };
     }
 
-    const piecesPlaced = gameState.pieces.filter(p => p.isPlaced).length;
+    const piecesPlaced = gameState.pieces.filter((p) => p.isPlaced).length;
 
     return {
       piecesPlaced,
@@ -322,80 +300,95 @@ export function useTangramIntro(): UseTangramIntroReturn {
     };
   }, [gameState]);
 
-  // ============================================
-  // HANDLERS
-  // ============================================
+  // ============================================================================
+  // HANDLERS SPÉCIFIQUES
+  // ============================================================================
 
-  const handleSelectLevel = useCallback((level: LevelConfig) => {
-    setSelectedLevel(level);
-    setIsVictory(false);
+  const handleSelectLevel = useCallback(
+    (level: LevelConfig) => {
+      orchestrator.handleSelectLevel(level);
+      orchestrator.setIsVictory(false);
 
-    const difficultyMessage = GEO_MESSAGES.levelSelect[level.difficulty as keyof typeof GEO_MESSAGES.levelSelect]
-      || GEO_MESSAGES.levelSelect.easy;
-    setMascotMessage(difficultyMessage);
-    setMascotEmotion('happy');
-  }, []);
+      const difficultyMessage =
+        GEO_MESSAGES.levelSelect[level.difficulty as keyof typeof GEO_MESSAGES.levelSelect] ||
+        GEO_MESSAGES.levelSelect.easy;
+      orchestrator.setMascotMessage(difficultyMessage);
+      setMascotEmotion('happy');
+    },
+    [orchestrator]
+  );
 
   const handleStartPlaying = useCallback(() => {
-    if (!selectedLevel) return;
-    setIsPlaying(true);
-    setMascotMessage(getRandomMessage(GEO_MESSAGES.start));
+    if (!orchestrator.selectedLevel) return;
+    orchestrator.handleStartPlaying();
+    orchestrator.setMascotMessage(getRandomMessage(GEO_MESSAGES.start));
     setMascotEmotion('excited');
-  }, [selectedLevel]);
+  }, [orchestrator]);
 
   const handleBack = useCallback(() => {
-    if (isPlaying) {
-      setIsPlaying(false);
-      setMascotMessage(getRandomMessage(GEO_MESSAGES.back));
+    if (orchestrator.isPlaying) {
+      orchestrator.transitionToSelectionMode();
+      orchestrator.setMascotMessage(getRandomMessage(GEO_MESSAGES.back));
       setMascotEmotion('neutral');
+      orchestrator.setIsVictory(false);
     } else {
-      router.replace('/');
+      orchestrator.router.replace('/');
     }
-  }, [isPlaying, router]);
-
-  const handleParentPress = useCallback(() => {
-    setShowParentDrawer(true);
-  }, []);
+  }, [orchestrator]);
 
   const handleHelpPress = useCallback(() => {
-    setMascotMessage("Observe la silhouette grise, c'est ton guide ! Tu peux tourner et retourner les pièces.");
+    orchestrator.setMascotMessage(
+      "Observe la silhouette grise, c'est ton guide ! Tu peux tourner et retourner les pièces."
+    );
     setMascotEmotion('thinking');
-  }, []);
+  }, [orchestrator]);
 
   const handleReset = useCallback(() => {
     restartLevel();
-    setIsVictory(false);
-    setMascotMessage(getRandomMessage(GEO_MESSAGES.reset));
+    orchestrator.setIsVictory(false);
+    orchestrator.setMascotMessage(getRandomMessage(GEO_MESSAGES.reset));
     setMascotEmotion('encouraging');
-  }, [restartLevel]);
+  }, [restartLevel, orchestrator]);
 
   const handleHintPress = useCallback(() => {
     requestHint();
-    setMascotMessage(getRandomMessage(GEO_MESSAGES.hint));
+    orchestrator.setMascotMessage(getRandomMessage(GEO_MESSAGES.hint));
     setMascotEmotion('thinking');
-  }, [requestHint]);
+  }, [requestHint, orchestrator]);
 
-  const handleMovePiece = useCallback((pieceId: string, deltaX: number, deltaY: number) => {
-    // Passer automatiquement en mode jeu au premier mouvement
-    if (!isPlaying) {
-      setIsPlaying(true);
-      setMascotMessage(getRandomMessage(GEO_MESSAGES.start));
-      setMascotEmotion('happy');
-    }
-    handleMove(pieceId, deltaX, deltaY);
-  }, [isPlaying, handleMove]);
+  const handleMovePiece = useCallback(
+    (pieceId: string, deltaX: number, deltaY: number) => {
+      // Passer automatiquement en mode jeu au premier mouvement
+      if (!orchestrator.isPlaying) {
+        orchestrator.transitionToPlayMode();
+        orchestrator.setMascotMessage(getRandomMessage(GEO_MESSAGES.start));
+        setMascotEmotion('happy');
+      }
+      handleMove(pieceId, deltaX, deltaY);
+    },
+    [orchestrator, handleMove]
+  );
 
-  const handleRotatePiece = useCallback((pieceId: string, clockwise: boolean = true) => {
-    handleRotate(pieceId, clockwise);
-  }, [handleRotate]);
+  const handleRotatePiece = useCallback(
+    (pieceId: string, clockwise: boolean = true) => {
+      handleRotate(pieceId, clockwise);
+    },
+    [handleRotate]
+  );
 
-  const handleFlipPiece = useCallback((pieceId: string) => {
-    handleFlip(pieceId);
-  }, [handleFlip]);
+  const handleFlipPiece = useCallback(
+    (pieceId: string) => {
+      handleFlip(pieceId);
+    },
+    [handleFlip]
+  );
 
-  const handleSelectPiece = useCallback((pieceId: string | null) => {
-    handleSelect(pieceId);
-  }, [handleSelect]);
+  const handleSelectPiece = useCallback(
+    (pieceId: string | null) => {
+      handleSelect(pieceId);
+    },
+    [handleSelect]
+  );
 
   const handlePause = useCallback(() => {
     pauseGame();
@@ -407,8 +400,8 @@ export function useTangramIntro(): UseTangramIntroReturn {
 
   // DEV: Force complete level (for testing)
   const handleForceComplete = useCallback(() => {
-    setIsVictory(true);
-    router.push({
+    orchestrator.setIsVictory(true);
+    orchestrator.router.push({
       pathname: '/(games)/08-tangram/victory',
       params: {
         puzzleId: selectedPuzzleRef.current?.id || 'test',
@@ -417,15 +410,14 @@ export function useTangramIntro(): UseTangramIntroReturn {
         moveCount: '20',
         hintsUsed: '0',
         stars: '3',
-        level: selectedLevel?.number.toString() || '1',
+        level: orchestrator.selectedLevel?.number.toString() || '1',
       },
     });
-  }, [router, selectedLevel]);
+  }, [orchestrator]);
 
-  // ============================================
+  // ============================================================================
   // HINTS COMPUTATION
-  // ============================================
-
+  // ============================================================================
   const hintsRemaining = useMemo(() => {
     if (!gameState) return 3;
     return gameState.level.hintsAvailable - gameState.hintsUsed;
@@ -433,26 +425,30 @@ export function useTangramIntro(): UseTangramIntroReturn {
 
   const hintsDisabled = hintsRemaining <= 0;
 
-  // ============================================
+  // ============================================================================
   // RETURN
-  // ============================================
+  // ============================================================================
 
   return {
-    // Niveaux
+    // Niveaux (custom pour tangram)
     levels,
-    selectedLevel,
+    selectedLevel: orchestrator.selectedLevel,
     handleSelectLevel,
 
     // État jeu
-    isPlaying,
-    isVictory,
+    isPlaying: orchestrator.isPlaying,
+    isVictory: orchestrator.isVictory,
 
     // Parent drawer
-    showParentDrawer,
-    setShowParentDrawer,
+    showParentDrawer: orchestrator.showParentDrawer,
+    setShowParentDrawer: orchestrator.setShowParentDrawer,
+
+    // Animations
+    selectorStyle: orchestrator.selectorStyle,
+    progressPanelStyle: orchestrator.progressPanelStyle,
 
     // Mascot
-    mascotMessage,
+    mascotMessage: orchestrator.mascotMessage,
     mascotEmotion,
 
     // Game state
@@ -472,7 +468,7 @@ export function useTangramIntro(): UseTangramIntroReturn {
     handleHint: handleHintPress,
     handleBack,
     handleStartPlaying,
-    handleParentPress,
+    handleParentPress: orchestrator.handleParentPress,
     handleHelpPress,
     handleForceComplete,
     handlePause,

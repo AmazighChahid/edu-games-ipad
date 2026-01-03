@@ -1,45 +1,29 @@
 /**
  * useMatricesIntro - Hook orchestrateur pour Matrices Magiques
  *
- * Encapsule toute la logique métier de l'écran d'introduction :
- * - Progression store (lecture/écriture)
- * - Paramètres URL
- * - Génération des niveaux par monde
- * - Messages mascotte (Pixel)
- * - Sons
- * - Animations de transition
- * - Navigation
+ * VERSION MIGRÉE (Janvier 2026)
+ * Utilise useGameIntroOrchestrator pour la logique commune.
+ * Ce fichier ne contient plus que la logique spécifique au jeu.
  *
  * @see docs/GAME_ARCHITECTURE.md pour le pattern complet
  */
 
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
-import { useRouter, useLocalSearchParams } from 'expo-router';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-  withDelay,
-  withSpring,
-  Easing,
-} from 'react-native-reanimated';
 
-import {
-  generateDefaultLevels,
-  type LevelConfig,
-} from '../../../components/common';
+import { useGameIntroOrchestrator, type EmotionType } from '../../../hooks';
+import type { LevelConfig } from '../../../components/common';
 import { useMatricesGame } from './useMatricesGame';
 import { useMatricesSound } from './useMatricesSound';
-import { useActiveProfile, useGameProgress, useStore } from '../../../store/useStore';
 import { WORLDS_ARRAY, getWorldById } from '../data/worlds';
 import { MATRICES_LEVELS } from '../data/levels';
 import type { WorldConfig, WorldTheme } from '../types';
 
+// Re-export EmotionType for backward compatibility
+export type { EmotionType } from '../../../hooks';
+
 // ============================================
 // TYPES
 // ============================================
-
-export type EmotionType = 'neutral' | 'happy' | 'thinking' | 'excited' | 'encouraging';
 
 export interface UseMatricesIntroReturn {
   // Mondes
@@ -61,8 +45,8 @@ export interface UseMatricesIntroReturn {
   setShowParentDrawer: (show: boolean) => void;
 
   // Animations (styles animés)
-  selectorStyle: ReturnType<typeof useAnimatedStyle>;
-  progressPanelStyle: ReturnType<typeof useAnimatedStyle>;
+  selectorStyle: ReturnType<typeof useGameIntroOrchestrator>['selectorStyle'];
+  progressPanelStyle: ReturnType<typeof useGameIntroOrchestrator>['progressPanelStyle'];
 
   // Mascot (Pixel)
   pixelMessage: string;
@@ -98,84 +82,45 @@ export interface UseMatricesIntroReturn {
 // CONSTANTS
 // ============================================
 
-const ANIMATION_CONFIG = {
-  selectorSlideDuration: 400,
-  selectorFadeDuration: 300,
-  progressDelayDuration: 200,
-  selectorSlideDistance: -150,
-  springDamping: 15,
-  springStiffness: 150,
+const PIXEL_MESSAGES = {
+  welcome: 'Bienvenue dans les Matrices Magiques ! Choisis un monde !',
+  worldSelect: ['Quel monde veux-tu explorer ?', 'Chaque monde a ses mystères...', 'Choisis ton aventure !'],
+  levelSelect: ['Prêt pour ce niveau ?', "Les puzzles t'attendent !"],
+  thinking: ['Observe bien les patterns...', 'Regarde ligne par ligne...', "Qu'est-ce qui change ?"],
+  correct: ['Bravo ! C\'est ça !', 'Excellent ! Tu as trouvé !', 'Super logique !'],
+  error: ['Pas tout à fait... Réessaie !', 'Presque ! Regarde encore.', 'Hmm, observe mieux !'],
+  hint: 'Je te donne un indice...',
+  victory: 'Félicitations ! Tu as réussi !',
 };
 
-const PIXEL_MESSAGES = {
-  welcome: "Bienvenue dans les Matrices Magiques ! Choisis un monde !",
-  worldSelect: [
-    "Quel monde veux-tu explorer ?",
-    "Chaque monde a ses mystères...",
-    "Choisis ton aventure !",
-  ],
-  levelSelect: [
-    "Prêt pour ce niveau ?",
-    "Les puzzles t'attendent !",
-  ],
-  thinking: [
-    "Observe bien les patterns...",
-    "Regarde ligne par ligne...",
-    "Qu'est-ce qui change ?",
-  ],
-  correct: [
-    "Bravo ! C'est ça !",
-    "Excellent ! Tu as trouvé !",
-    "Super logique !",
-  ],
-  error: [
-    "Pas tout à fait... Réessaie !",
-    "Presque ! Regarde encore.",
-    "Hmm, observe mieux !",
-  ],
-  hint: "Je te donne un indice...",
-  victory: "Félicitations ! Tu as réussi !",
-};
+// Helper pour message aléatoire
+function randomMessage(messages: string[]): string {
+  return messages[Math.floor(Math.random() * messages.length)];
+}
 
 // ============================================
 // HOOK
 // ============================================
 
 export function useMatricesIntro(): UseMatricesIntroReturn {
-  const router = useRouter();
-  const params = useLocalSearchParams<{ level?: string; world?: string }>();
-  const profile = useActiveProfile();
+  // ============================================
+  // ORCHESTRATOR (logique commune factorisée)
+  // ============================================
+  const orchestrator = useGameIntroOrchestrator({
+    gameId: 'matrices-magiques',
+    mascotMessages: {
+      welcome: PIXEL_MESSAGES.welcome,
+      startPlaying: randomMessage(PIXEL_MESSAGES.thinking),
+      backToSelection: PIXEL_MESSAGES.welcome,
+      help: randomMessage(PIXEL_MESSAGES.thinking),
+    },
+  });
 
-  // Store - progression
-  const gameProgress = useGameProgress('matrices-magiques');
-  const initGameProgress = useStore((state) => state.initGameProgress);
-
-  // Initialiser le progress si nécessaire
-  useEffect(() => {
-    initGameProgress('matrices-magiques');
-  }, [initGameProgress]);
-
-  // État local
+  // ============================================
+  // LOCAL STATE (spécifique à Matrices)
+  // ============================================
   const [selectedWorld, setSelectedWorld] = useState<WorldConfig | null>(null);
-  const [selectedLevel, setSelectedLevel] = useState<LevelConfig | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isVictory, setIsVictory] = useState(false);
-  const [pixelMessage, setPixelMessage] = useState(PIXEL_MESSAGES.welcome);
   const [pixelEmotion, setPixelEmotion] = useState<EmotionType>('neutral');
-  const [showParentDrawer, setShowParentDrawer] = useState(false);
-
-  // Extraire les IDs des niveaux complétés depuis le store
-  const completedLevelIds = useMemo(() => {
-    if (!gameProgress?.completedLevels) return [];
-    return Object.keys(gameProgress.completedLevels).map(
-      (levelId) => `matrices-magiques_${levelId}`
-    );
-  }, [gameProgress?.completedLevels]);
-
-  // Générer les niveaux basés sur l'âge de l'enfant et les niveaux complétés
-  const levels = useMemo(() => {
-    return generateDefaultLevels('matrices-magiques', profile?.birthDate, completedLevelIds);
-  }, [profile?.birthDate, completedLevelIds]);
 
   // Hook du jeu
   const gameHook = useMatricesGame();
@@ -199,186 +144,137 @@ export function useMatricesIntro(): UseMatricesIntroReturn {
   // Sons
   const { playSelect, playCorrect, playError, playHint, playLevelUp } = useMatricesSound();
 
-  // Ref pour tracker l'initialisation
-  const hasInitializedRef = useRef(false);
+  // Ref pour tracker les paramètres URL
+  const lastWorldParamRef = useRef<string | undefined>(undefined);
 
   // ============================================
-  // ANIMATIONS
+  // EFFECTS - Sélection automatique monde
   // ============================================
-
-  const selectorY = useSharedValue(0);
-  const selectorOpacity = useSharedValue(1);
-  const progressPanelOpacity = useSharedValue(0);
-
-  const selectorStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: selectorY.value }],
-    opacity: selectorOpacity.value,
-  }));
-
-  const progressPanelStyle = useAnimatedStyle(() => ({
-    opacity: progressPanelOpacity.value,
-  }));
-
-  // ============================================
-  // TRANSITIONS
-  // ============================================
-
-  const transitionToPlayMode = useCallback(() => {
-    if (isPlaying) return;
-
-    selectorY.value = withTiming(ANIMATION_CONFIG.selectorSlideDistance, {
-      duration: ANIMATION_CONFIG.selectorSlideDuration,
-      easing: Easing.out(Easing.quad),
-    });
-    selectorOpacity.value = withTiming(0, {
-      duration: ANIMATION_CONFIG.selectorFadeDuration,
-    });
-
-    progressPanelOpacity.value = withDelay(
-      ANIMATION_CONFIG.progressDelayDuration,
-      withTiming(1, { duration: ANIMATION_CONFIG.selectorFadeDuration })
-    );
-
-    setTimeout(() => {
-      setIsPlaying(true);
-    }, 300);
-  }, [isPlaying, selectorY, selectorOpacity, progressPanelOpacity]);
-
-  const transitionToSelectionMode = useCallback(() => {
-    selectorY.value = withSpring(0, {
-      damping: ANIMATION_CONFIG.springDamping,
-      stiffness: ANIMATION_CONFIG.springStiffness,
-    });
-    selectorOpacity.value = withTiming(1, {
-      duration: ANIMATION_CONFIG.selectorFadeDuration,
-    });
-
-    progressPanelOpacity.value = withTiming(0, { duration: 200 });
-
-    setIsPlaying(false);
-  }, [selectorY, selectorOpacity, progressPanelOpacity]);
-
-  // ============================================
-  // EFFECTS - Sélection automatique
-  // ============================================
-
   useEffect(() => {
     // Sélectionner le premier monde par défaut
     if (WORLDS_ARRAY.length > 0 && !selectedWorld) {
-      const worldId = (params.world || 'forest') as WorldTheme;
+      const worldId = (orchestrator.params.world || 'forest') as WorldTheme;
       const world = getWorldById(worldId) || WORLDS_ARRAY[0];
       setSelectedWorld(world);
     }
-  }, [selectedWorld, params.world]);
+  }, [selectedWorld, orchestrator.params.world]);
 
+  // ============================================
+  // EFFECTS - Sélection automatique niveau
+  // ============================================
   useEffect(() => {
-    if (levels.length > 0 && !selectedLevel && selectedWorld) {
-      const worldLevels = levels.filter(l => {
-        const matricesLevel = MATRICES_LEVELS.find(ml => ml.number === l.number);
+    if (orchestrator.levels.length > 0 && !orchestrator.selectedLevel && selectedWorld) {
+      const worldLevels = orchestrator.levels.filter((l) => {
+        const matricesLevel = MATRICES_LEVELS.find((ml) => ml.number === l.number);
         return matricesLevel?.worldId === selectedWorld.id;
       });
 
       if (worldLevels.length > 0) {
-        const firstUnlocked = worldLevels.find(l => l.isUnlocked && !l.isCompleted)
-          || worldLevels.find(l => l.isUnlocked)
-          || worldLevels[0];
-        setSelectedLevel(firstUnlocked);
+        const firstUnlocked =
+          worldLevels.find((l) => l.isUnlocked && !l.isCompleted) ||
+          worldLevels.find((l) => l.isUnlocked) ||
+          worldLevels[0];
+        orchestrator.handleSelectLevel(firstUnlocked);
       }
     }
-  }, [levels, selectedLevel, selectedWorld]);
+  }, [orchestrator.levels, orchestrator.selectedLevel, selectedWorld, orchestrator]);
 
   // ============================================
-  // HANDLERS
+  // EFFECTS - Feedback jeu
   // ============================================
-
-  const handleSelectWorld = useCallback((worldId: string) => {
-    const world = getWorldById(worldId as WorldTheme);
-    if (world) {
-      setSelectedWorld(world);
-      setSelectedLevel(null);
-      const messages = PIXEL_MESSAGES.worldSelect;
-      setPixelMessage(messages[Math.floor(Math.random() * messages.length)]);
-      setPixelEmotion('happy');
-    }
-  }, []);
-
-  const handleSelectLevel = useCallback((level: LevelConfig) => {
-    setSelectedLevel(level);
-    const messages = PIXEL_MESSAGES.levelSelect;
-    setPixelMessage(messages[Math.floor(Math.random() * messages.length)]);
-    setPixelEmotion('happy');
-  }, []);
-
-  const handleStartPlaying = useCallback(() => {
-    if (!selectedLevel || !selectedWorld) return;
-    transitionToPlayMode();
-    startGame(selectedWorld.id as WorldTheme, selectedLevel.number);
-    const messages = PIXEL_MESSAGES.thinking;
-    setPixelMessage(messages[Math.floor(Math.random() * messages.length)]);
-    setPixelEmotion('thinking');
-  }, [selectedLevel, selectedWorld, transitionToPlayMode, startGame]);
-
-  const handleBack = useCallback(() => {
-    if (isPlaying) {
-      transitionToSelectionMode();
-      setPixelMessage(PIXEL_MESSAGES.welcome);
-      setPixelEmotion('encouraging');
-    } else {
-      router.replace('/');
-    }
-  }, [isPlaying, router, transitionToSelectionMode]);
-
-  const handleParentPress = useCallback(() => {
-    setShowParentDrawer(true);
-  }, []);
-
-  const handleHelpPress = useCallback(() => {
-    const messages = PIXEL_MESSAGES.thinking;
-    setPixelMessage(messages[Math.floor(Math.random() * messages.length)]);
-    setPixelEmotion('thinking');
-  }, []);
-
-  const handleSelectChoice = useCallback((choiceIndex: number) => {
-    playSelect();
-    selectChoice(choiceIndex);
-  }, [selectChoice, playSelect]);
-
-  const handleValidate = useCallback(() => {
-    submitAnswer();
-    // Feedback is handled by gameState changes
+  useEffect(() => {
     if (gameState === 'correct') {
       playCorrect();
-      const messages = PIXEL_MESSAGES.correct;
-      setPixelMessage(messages[Math.floor(Math.random() * messages.length)]);
+      orchestrator.setMascotMessage(randomMessage(PIXEL_MESSAGES.correct));
       setPixelEmotion('excited');
     } else if (gameState === 'incorrect') {
       playError();
-      const messages = PIXEL_MESSAGES.error;
-      setPixelMessage(messages[Math.floor(Math.random() * messages.length)]);
+      orchestrator.setMascotMessage(randomMessage(PIXEL_MESSAGES.error));
       setPixelEmotion('encouraging');
     }
-  }, [submitAnswer, gameState, playCorrect, playError]);
+  }, [gameState, playCorrect, playError, orchestrator]);
+
+  // ============================================
+  // HANDLERS SPÉCIFIQUES
+  // ============================================
+
+  const handleSelectWorld = useCallback(
+    (worldId: string) => {
+      const world = getWorldById(worldId as WorldTheme);
+      if (world) {
+        setSelectedWorld(world);
+        orchestrator.handleSelectLevel(null as unknown as LevelConfig);
+        orchestrator.setMascotMessage(randomMessage(PIXEL_MESSAGES.worldSelect));
+        setPixelEmotion('happy');
+      }
+    },
+    [orchestrator]
+  );
+
+  const handleSelectLevel = useCallback(
+    (level: LevelConfig) => {
+      orchestrator.handleSelectLevel(level);
+      orchestrator.setMascotMessage(randomMessage(PIXEL_MESSAGES.levelSelect));
+      setPixelEmotion('happy');
+    },
+    [orchestrator]
+  );
+
+  const handleStartPlaying = useCallback(() => {
+    if (!orchestrator.selectedLevel || !selectedWorld) return;
+    orchestrator.handleStartPlaying();
+    startGame(selectedWorld.id as WorldTheme, orchestrator.selectedLevel.number);
+    orchestrator.setMascotMessage(randomMessage(PIXEL_MESSAGES.thinking));
+    setPixelEmotion('thinking');
+  }, [orchestrator, selectedWorld, startGame]);
+
+  const handleBack = useCallback(() => {
+    if (orchestrator.isPlaying) {
+      orchestrator.transitionToSelectionMode();
+      orchestrator.setMascotMessage(PIXEL_MESSAGES.welcome);
+      setPixelEmotion('encouraging');
+      orchestrator.setIsVictory(false);
+    } else {
+      orchestrator.router.replace('/');
+    }
+  }, [orchestrator]);
+
+  const handleHelpPress = useCallback(() => {
+    orchestrator.setMascotMessage(randomMessage(PIXEL_MESSAGES.thinking));
+    setPixelEmotion('thinking');
+  }, [orchestrator]);
+
+  const handleSelectChoice = useCallback(
+    (choiceIndex: number) => {
+      playSelect();
+      selectChoice(choiceIndex);
+    },
+    [selectChoice, playSelect]
+  );
+
+  const handleValidate = useCallback(() => {
+    submitAnswer();
+  }, [submitAnswer]);
 
   const handleRequestHint = useCallback(() => {
     playHint();
     requestHint();
-    setPixelMessage(PIXEL_MESSAGES.hint);
+    orchestrator.setMascotMessage(PIXEL_MESSAGES.hint);
     setPixelEmotion('thinking');
-  }, [requestHint, playHint]);
+  }, [requestHint, playHint, orchestrator]);
 
   const handleNextPuzzle = useCallback(() => {
     nextPuzzle();
-    const messages = PIXEL_MESSAGES.thinking;
-    setPixelMessage(messages[Math.floor(Math.random() * messages.length)]);
+    orchestrator.setMascotMessage(randomMessage(PIXEL_MESSAGES.thinking));
     setPixelEmotion('neutral');
-  }, [nextPuzzle]);
+  }, [nextPuzzle, orchestrator]);
 
   const handleRestartLevel = useCallback(() => {
     resetPuzzle();
-    setIsVictory(false);
-    setPixelMessage(PIXEL_MESSAGES.welcome);
+    orchestrator.setIsVictory(false);
+    orchestrator.setMascotMessage(PIXEL_MESSAGES.welcome);
     setPixelEmotion('neutral');
-  }, [resetPuzzle]);
+  }, [resetPuzzle, orchestrator]);
 
   // ============================================
   // RETURN
@@ -390,25 +286,25 @@ export function useMatricesIntro(): UseMatricesIntroReturn {
     selectedWorld,
     handleSelectWorld,
 
-    // Niveaux
-    levels,
-    selectedLevel,
+    // Depuis orchestrator
+    levels: orchestrator.levels,
+    selectedLevel: orchestrator.selectedLevel,
     handleSelectLevel,
 
     // État jeu
-    isPlaying,
-    isVictory,
+    isPlaying: orchestrator.isPlaying,
+    isVictory: orchestrator.isVictory,
 
     // Parent drawer
-    showParentDrawer,
-    setShowParentDrawer,
+    showParentDrawer: orchestrator.showParentDrawer,
+    setShowParentDrawer: orchestrator.setShowParentDrawer,
 
     // Animations
-    selectorStyle,
-    progressPanelStyle,
+    selectorStyle: orchestrator.selectorStyle,
+    progressPanelStyle: orchestrator.progressPanelStyle,
 
     // Mascot
-    pixelMessage,
+    pixelMessage: orchestrator.mascotMessage,
     pixelEmotion,
 
     // Game state
@@ -431,7 +327,7 @@ export function useMatricesIntro(): UseMatricesIntroReturn {
     handleRequestHint,
     handleBack,
     handleStartPlaying,
-    handleParentPress,
+    handleParentPress: orchestrator.handleParentPress,
     handleHelpPress,
     handleNextPuzzle,
     handleRestartLevel,

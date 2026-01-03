@@ -1,68 +1,48 @@
 /**
  * useSuitesIntro - Hook orchestrateur pour Suites Logiques
  *
- * Encapsule toute la logique métier de l'écran d'introduction :
- * - Progression store (lecture/écriture)
- * - Paramètres URL
- * - Génération des niveaux
- * - Messages mascotte
- * - Sons
- * - Animations de transition
- * - Navigation
+ * VERSION MIGRÉE (Janvier 2026)
+ * Utilise useGameIntroOrchestrator pour la logique commune.
+ * Ce fichier ne contient plus que la logique spécifique au jeu.
  *
  * @see docs/GAME_ARCHITECTURE.md pour le pattern complet
  */
 
-import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
-import { useRouter, useLocalSearchParams } from 'expo-router';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-  withDelay,
-  withSpring,
-  Easing,
-} from 'react-native-reanimated';
+import { useCallback, useEffect, useRef } from 'react';
 
-import {
-  generateDefaultLevels,
-  type LevelConfig,
-} from '../../../components/common';
+import { useGameIntroOrchestrator, type EmotionType } from '../../../hooks';
+import type { LevelConfig } from '../../../components/common';
 import { useSuitesGame } from './useSuitesGame';
 import { useSuitesSound } from './useSuitesSound';
-import { useActiveProfile, useGameProgress, useStore } from '../../../store/useStore';
 import { PIXEL_MESSAGES } from '../data/gameConfig';
 import type { SequenceElement } from '../types';
+
+// Re-export EmotionType for backward compatibility
+export type { EmotionType } from '../../../hooks';
 
 // ============================================
 // TYPES
 // ============================================
 
-export type EmotionType = 'neutral' | 'happy' | 'thinking' | 'excited' | 'encouraging';
-
 export interface UseSuitesIntroReturn {
-  // Niveaux
+  // Niveaux (depuis orchestrator)
   levels: LevelConfig[];
   selectedLevel: LevelConfig | null;
   handleSelectLevel: (level: LevelConfig) => void;
 
-  // État jeu
+  // État jeu (depuis orchestrator)
   isPlaying: boolean;
   isVictory: boolean;
 
-  // Parent drawer
+  // Parent drawer (depuis orchestrator)
   showParentDrawer: boolean;
   setShowParentDrawer: (show: boolean) => void;
 
-  // Animations (styles animés)
-  selectorStyle: ReturnType<typeof useAnimatedStyle>;
-  progressPanelStyle: ReturnType<typeof useAnimatedStyle>;
-
-  // Mascot
+  // Mascot (depuis orchestrator)
   mascotMessage: string;
   mascotEmotion: EmotionType;
 
-  // Game state (depuis useSuitesGame)
+  // Game state (spécifique)
   gameState: ReturnType<typeof useSuitesGame>['gameState'];
   sessionState: ReturnType<typeof useSuitesGame>['sessionState'];
   currentSequence: ReturnType<typeof useSuitesGame>['currentSequence'];
@@ -87,7 +67,7 @@ export interface UseSuitesIntroReturn {
   handleStartPlaying: () => void;
   handleParentPress: () => void;
   handleHelpPress: () => void;
-  handleForceComplete: () => void; // DEV: Force complete level
+  handleForceComplete: () => void;
 
   // Hints
   hintsRemaining: number;
@@ -98,15 +78,6 @@ export interface UseSuitesIntroReturn {
 // CONSTANTS
 // ============================================
 
-const ANIMATION_CONFIG = {
-  selectorSlideDuration: 400,
-  selectorFadeDuration: 300,
-  progressDelayDuration: 200,
-  selectorSlideDistance: -150,
-  springDamping: 15,
-  springStiffness: 150,
-};
-
 const TOTAL_SEQUENCES = 8;
 
 // ============================================
@@ -114,42 +85,23 @@ const TOTAL_SEQUENCES = 8;
 // ============================================
 
 export function useSuitesIntro(): UseSuitesIntroReturn {
-  const router = useRouter();
-  const params = useLocalSearchParams<{ level?: string }>();
-  const profile = useActiveProfile();
+  // ============================================
+  // ORCHESTRATOR (logique commune factorisée)
+  // ============================================
+  const orchestrator = useGameIntroOrchestrator({
+    gameId: 'suites-logiques',
+    mascotMessages: {
+      welcome: 'Bip bop ! Choisis un niveau pour commencer !',
+      startPlaying: "C'est parti ! Trouve ce qui vient après !",
+      backToSelection: 'On recommence ? Choisis un niveau !',
+      help: "Observe bien la suite ! Qu'est-ce qui se répète ?",
+    },
+  });
 
-  // Store - progression
-  const gameProgress = useGameProgress('suites-logiques');
-  const initGameProgress = useStore((state) => state.initGameProgress);
-
-  // Initialiser le progress si nécessaire
-  useEffect(() => {
-    initGameProgress('suites-logiques');
-  }, [initGameProgress]);
-
-  // État local
-  const [selectedLevel, setSelectedLevel] = useState<LevelConfig | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isVictory, setIsVictory] = useState(false);
-  const [mascotMessage, setMascotMessage] = useState("Bip bop ! Choisis un niveau pour commencer !");
-  const [mascotEmotion, setMascotEmotion] = useState<EmotionType>('neutral');
-  const [showParentDrawer, setShowParentDrawer] = useState(false);
-
-  // Extraire les IDs des niveaux complétés depuis le store
-  const completedLevelIds = useMemo(() => {
-    if (!gameProgress?.completedLevels) return [];
-    return Object.keys(gameProgress.completedLevels).map(
-      (levelId) => `suites-logiques_${levelId}`
-    );
-  }, [gameProgress?.completedLevels]);
-
-  // Générer les niveaux basés sur l'âge de l'enfant et les niveaux complétés
-  const levels = useMemo(() => {
-    return generateDefaultLevels('suites-logiques', profile?.birthDate, completedLevelIds);
-  }, [profile?.birthDate, completedLevelIds]);
-
-  // Hook du jeu
-  const currentLevel = selectedLevel?.number || 1;
+  // ============================================
+  // GAME HOOK (spécifique à Suites Logiques)
+  // ============================================
+  const currentLevel = orchestrator.selectedLevel?.number || 1;
   const gameHook = useSuitesGame({
     theme: 'shapes',
     initialLevel: currentLevel,
@@ -166,162 +118,44 @@ export function useSuitesIntro(): UseSuitesIntroReturn {
     isSessionComplete,
   } = gameHook;
 
-  // Sons
+  // ============================================
+  // SONS
+  // ============================================
   const { playSelect, playCorrect, playError } = useSuitesSound();
 
-  // Ref pour tracker l'initialisation et les paramètres URL
+  // ============================================
+  // REFS
+  // ============================================
   const hasInitializedRef = useRef(false);
-  const lastLevelParamRef = useRef<string | undefined>(undefined);
 
   // ============================================
-  // ANIMATIONS
+  // EFFECTS - Initialisation séquence
   // ============================================
-
-  const selectorY = useSharedValue(0);
-  const selectorOpacity = useSharedValue(1);
-  const progressPanelOpacity = useSharedValue(0);
-
-  const selectorStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: selectorY.value }],
-    opacity: selectorOpacity.value,
-  }));
-
-  const progressPanelStyle = useAnimatedStyle(() => ({
-    opacity: progressPanelOpacity.value,
-  }));
-
-  // ============================================
-  // TRANSITIONS
-  // ============================================
-
-  const transitionToPlayMode = useCallback(() => {
-    if (isPlaying) return;
-
-    // Vue 1 → Vue 2: Slide selector up and fade out
-    selectorY.value = withTiming(ANIMATION_CONFIG.selectorSlideDistance, {
-      duration: ANIMATION_CONFIG.selectorSlideDuration,
-      easing: Easing.out(Easing.quad),
-    });
-    selectorOpacity.value = withTiming(0, {
-      duration: ANIMATION_CONFIG.selectorFadeDuration,
-    });
-
-    // Fade in progress panel
-    progressPanelOpacity.value = withDelay(
-      ANIMATION_CONFIG.progressDelayDuration,
-      withTiming(1, { duration: ANIMATION_CONFIG.selectorFadeDuration })
-    );
-
-    // Start playing after animation
-    setTimeout(() => {
-      setIsPlaying(true);
-    }, 300);
-  }, [isPlaying, selectorY, selectorOpacity, progressPanelOpacity]);
-
-  const transitionToSelectionMode = useCallback(() => {
-    // Vue 2 → Vue 1: Show selector with spring animation
-    selectorY.value = withSpring(0, {
-      damping: ANIMATION_CONFIG.springDamping,
-      stiffness: ANIMATION_CONFIG.springStiffness,
-    });
-    selectorOpacity.value = withTiming(1, {
-      duration: ANIMATION_CONFIG.selectorFadeDuration,
-    });
-
-    // Hide progress panel
-    progressPanelOpacity.value = withTiming(0, { duration: 200 });
-
-    setIsPlaying(false);
-  }, [selectorY, selectorOpacity, progressPanelOpacity]);
-
-  // ============================================
-  // EFFECTS - Sélection automatique niveau
-  // ============================================
-
   useEffect(() => {
-    // Si le paramètre level a changé (depuis victory.tsx), forcer la mise à jour
-    const levelParamChanged = params.level !== lastLevelParamRef.current;
-    if (levelParamChanged) {
-      lastLevelParamRef.current = params.level;
-    }
-
-    if (levels.length > 0 && (!selectedLevel || levelParamChanged)) {
-      try {
-        let defaultLevel: LevelConfig | undefined;
-
-        // Si un niveau est passé en paramètre URL (depuis victory.tsx)
-        if (params.level) {
-          const levelNumber = parseInt(params.level, 10);
-          defaultLevel = levels.find((l) => l.number === levelNumber && l.isUnlocked);
-        }
-
-        // Sinon, trouver le premier niveau débloqué mais non complété
-        if (!defaultLevel) {
-          const firstIncompleteLevel = levels.find(
-            (level) => level.isUnlocked && !level.isCompleted
-          );
-
-          defaultLevel = firstIncompleteLevel ||
-            levels.filter(l => l.isUnlocked).pop() ||
-            levels[0];
-        }
-
-        if (defaultLevel) {
-          setSelectedLevel(defaultLevel);
-          setMascotMessage(
-            `Niveau ${defaultLevel.number} ! ${
-              defaultLevel.difficulty === 'easy'
-                ? 'Parfait pour commencer !'
-                : defaultLevel.difficulty === 'hard'
-                ? 'Un vrai défi !'
-                : 'Bonne difficulté !'
-            }`
-          );
-          setMascotEmotion('happy');
-        }
-      } catch {
-        // En cas d'erreur, sélectionner le niveau 1
-        const level1 = levels[0];
-        if (level1) {
-          setSelectedLevel(level1);
-          setMascotMessage("Niveau 1 ! Parfait pour commencer !");
-          setMascotEmotion('happy');
-        }
-      }
-    }
-  }, [levels, selectedLevel, params.level]);
-
-  // Générer une séquence au chargement initial
-  useEffect(() => {
-    if (selectedLevel && !hasInitializedRef.current) {
+    if (orchestrator.selectedLevel && !hasInitializedRef.current) {
       hasInitializedRef.current = true;
       const timer = setTimeout(() => {
-        // Passer le niveau explicitement pour éviter la race condition
-        nextSequence(selectedLevel.number);
+        nextSequence(orchestrator.selectedLevel?.number);
       }, 100);
       return () => clearTimeout(timer);
     }
-  }, [selectedLevel, nextSequence]);
+  }, [orchestrator.selectedLevel, nextSequence]);
 
   // ============================================
-  // EFFECTS - Feedback jeu
+  // EFFECTS - Feedback jeu (success/error)
   // ============================================
-
   useEffect(() => {
     if (gameState.status === 'success') {
       playCorrect();
       const messages = PIXEL_MESSAGES.success;
-      setMascotMessage(messages[Math.floor(Math.random() * messages.length)]);
-      setMascotEmotion('excited');
+      orchestrator.setMascotMessage(messages[Math.floor(Math.random() * messages.length)]);
+      orchestrator.setMascotEmotion('excited');
 
-      // Passer à la suite suivante après délai
       const timer = setTimeout(() => {
         if (isSessionComplete) {
-          setIsVictory(true);
-          // Calculer le temps total depuis le début de la session
+          orchestrator.setIsVictory(true);
           const totalTimeMs = Date.now() - sessionState.startTime.getTime();
-          // Navigation vers victory avec les stats
-          router.push({
+          orchestrator.router.push({
             pathname: '/(games)/02-suites-logiques/victory',
             params: {
               completed: sessionState.sequencesCompleted.toString(),
@@ -333,11 +167,10 @@ export function useSuitesIntro(): UseSuitesIntroReturn {
             },
           });
         } else {
-          // Passer le niveau sélectionné pour éviter de revenir au niveau 1
-          nextSequence(selectedLevel?.number);
+          nextSequence(orchestrator.selectedLevel?.number);
           const startMessages = PIXEL_MESSAGES.start;
-          setMascotMessage(startMessages[Math.floor(Math.random() * startMessages.length)]);
-          setMascotEmotion('neutral');
+          orchestrator.setMascotMessage(startMessages[Math.floor(Math.random() * startMessages.length)]);
+          orchestrator.setMascotEmotion('neutral');
         }
       }, 1200);
 
@@ -345,8 +178,8 @@ export function useSuitesIntro(): UseSuitesIntroReturn {
     } else if (gameState.status === 'error') {
       playError();
       const messages = PIXEL_MESSAGES.error;
-      setMascotMessage(messages[Math.floor(Math.random() * messages.length)]);
-      setMascotEmotion('encouraging');
+      orchestrator.setMascotMessage(messages[Math.floor(Math.random() * messages.length)]);
+      orchestrator.setMascotEmotion('encouraging');
     }
   }, [
     gameState.status,
@@ -354,92 +187,56 @@ export function useSuitesIntro(): UseSuitesIntroReturn {
     playError,
     isSessionComplete,
     nextSequence,
-    router,
     sessionState,
     currentLevel,
+    orchestrator,
   ]);
 
   // ============================================
-  // HANDLERS
+  // HANDLERS SPÉCIFIQUES
   // ============================================
 
-  const handleSelectLevel = useCallback((level: LevelConfig) => {
-    setSelectedLevel(level);
-    setMascotMessage(
-      `Niveau ${level.number} ! ${
-        level.difficulty === 'easy'
-          ? 'Parfait pour commencer !'
-          : level.difficulty === 'hard'
-          ? 'Un vrai défi !'
-          : 'Bonne difficulté !'
-      }`
-    );
-    setMascotEmotion('happy');
-    nextSequence(level.number);
-  }, [nextSequence]);
-
-  const handleStartPlaying = useCallback(() => {
-    if (!selectedLevel) return;
-    transitionToPlayMode();
-    setMascotMessage("C'est parti ! Trouve ce qui vient après !");
-    setMascotEmotion('excited');
-  }, [selectedLevel, transitionToPlayMode]);
-
-  const handleBack = useCallback(() => {
-    if (isPlaying) {
-      transitionToSelectionMode();
-      setMascotMessage("On recommence ? Choisis un niveau !");
-      setMascotEmotion('encouraging');
-    } else {
-      // Retour à l'accueil depuis la sélection des niveaux
-      router.replace('/');
-    }
-  }, [isPlaying, router, transitionToSelectionMode]);
-
-  const handleParentPress = useCallback(() => {
-    setShowParentDrawer(true);
-  }, []);
-
-  const handleHelpPress = useCallback(() => {
-    setMascotMessage("Observe bien la suite ! Qu'est-ce qui se répète ?");
-    setMascotEmotion('thinking');
-  }, []);
+  const handleSelectLevel = useCallback(
+    (level: LevelConfig) => {
+      orchestrator.handleSelectLevel(level);
+      nextSequence(level.number);
+    },
+    [orchestrator, nextSequence]
+  );
 
   const handleReset = useCallback(() => {
-    nextSequence(selectedLevel?.number);
-    setMascotMessage("Nouvelle suite ! Observe bien...");
-    setMascotEmotion('neutral');
-  }, [nextSequence, selectedLevel]);
+    nextSequence(orchestrator.selectedLevel?.number);
+    orchestrator.setMascotMessage('Nouvelle suite ! Observe bien...');
+    orchestrator.setMascotEmotion('neutral');
+  }, [nextSequence, orchestrator]);
 
   const handleHint = useCallback(() => {
     requestHint();
-    setMascotMessage(PIXEL_MESSAGES.hint1);
-    setMascotEmotion('thinking');
-  }, [requestHint]);
+    orchestrator.setMascotMessage(PIXEL_MESSAGES.hint1);
+    orchestrator.setMascotEmotion('thinking');
+  }, [requestHint, orchestrator]);
 
   const handleSelectAnswer = useCallback(
     (element: SequenceElement) => {
-      // Transition vers mode jeu si pas encore en train de jouer
-      if (!isPlaying) {
-        transitionToPlayMode();
+      if (!orchestrator.isPlaying) {
+        orchestrator.transitionToPlayMode();
       }
       playSelect();
       selectAnswer(element);
-      setMascotMessage("Bip ! Clique sur 'Valider' !");
-      setMascotEmotion('happy');
+      orchestrator.setMascotMessage("Bip ! Clique sur 'Valider' !");
+      orchestrator.setMascotEmotion('happy');
     },
-    [isPlaying, transitionToPlayMode, selectAnswer, playSelect]
+    [orchestrator, selectAnswer, playSelect]
   );
 
   const handleConfirm = useCallback(() => {
     confirmAnswer();
   }, [confirmAnswer]);
 
-  // DEV: Force complete level (for testing)
   const handleForceComplete = useCallback(() => {
-    setIsVictory(true);
+    orchestrator.setIsVictory(true);
     const totalTimeMs = Date.now() - sessionState.startTime.getTime();
-    router.push({
+    orchestrator.router.push({
       pathname: '/(games)/02-suites-logiques/victory',
       params: {
         completed: TOTAL_SEQUENCES.toString(),
@@ -450,35 +247,25 @@ export function useSuitesIntro(): UseSuitesIntroReturn {
         hintsUsed: '0',
       },
     });
-  }, [sessionState.startTime, currentLevel, router]);
+  }, [sessionState.startTime, currentLevel, orchestrator]);
 
   // ============================================
   // RETURN
   // ============================================
 
   return {
-    // Niveaux
-    levels,
-    selectedLevel,
+    // Depuis orchestrator
+    levels: orchestrator.levels,
+    selectedLevel: orchestrator.selectedLevel,
     handleSelectLevel,
+    isPlaying: orchestrator.isPlaying,
+    isVictory: orchestrator.isVictory,
+    showParentDrawer: orchestrator.showParentDrawer,
+    setShowParentDrawer: orchestrator.setShowParentDrawer,
+    mascotMessage: orchestrator.mascotMessage,
+    mascotEmotion: orchestrator.mascotEmotion,
 
-    // État jeu
-    isPlaying,
-    isVictory,
-
-    // Parent drawer
-    showParentDrawer,
-    setShowParentDrawer,
-
-    // Animations
-    selectorStyle,
-    progressPanelStyle,
-
-    // Mascot
-    mascotMessage,
-    mascotEmotion,
-
-    // Game state
+    // Spécifique au jeu
     gameState,
     sessionState,
     currentSequence,
@@ -499,14 +286,14 @@ export function useSuitesIntro(): UseSuitesIntroReturn {
     handleConfirm,
     handleReset,
     handleHint,
-    handleBack,
-    handleStartPlaying,
-    handleParentPress,
-    handleHelpPress,
+    handleBack: orchestrator.handleBack,
+    handleStartPlaying: orchestrator.handleStartPlaying,
+    handleParentPress: orchestrator.handleParentPress,
+    handleHelpPress: orchestrator.handleHelpPress,
     handleForceComplete,
 
     // Hints
     hintsRemaining: 4 - gameState.currentHintLevel,
-    canPlayAudio: isPlaying,
+    canPlayAudio: orchestrator.isPlaying,
   };
 }

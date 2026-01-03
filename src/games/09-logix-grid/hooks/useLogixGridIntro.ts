@@ -1,34 +1,25 @@
 /**
  * useLogixGridIntro - Hook orchestrateur pour Logix Grid
  *
- * Encapsule toute la logique métier de l'écran d'introduction :
- * - Progression store (lecture/écriture)
- * - Paramètres URL
- * - Génération des niveaux
- * - Messages mascotte Ada
- * - Sons
- * - Animations de transition
- * - Navigation
+ * VERSION MIGRÉE (Janvier 2026)
+ * Utilise useGameIntroOrchestrator pour la logique commune.
+ * Ce fichier ne contient plus que la logique spécifique au jeu.
  *
  * @see docs/GAME_ARCHITECTURE.md pour le pattern complet
  */
 
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
-import { useRouter, useLocalSearchParams } from 'expo-router';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-  withDelay,
-  withSpring,
-  Easing,
-} from 'react-native-reanimated';
 
-import { generateDefaultLevels, type LevelConfig } from '../../../components/common';
+import { useGameIntroOrchestrator } from '../../../hooks';
+import type { LevelConfig } from '../../../components/common';
 import { useLogixGridGame } from './useLogixGridGame';
 import { useLogixGridSound } from './useLogixGridSound';
-import { useActiveProfile, useGameProgress, useStore } from '../../../store/useStore';
-import { logixLevels, type LogixLevelConfig } from '../data/levels';
+import {
+  logixLevels,
+  type LogixLevelConfig,
+  getLevelsForAge,
+  calculateAgeFromBirthDate,
+} from '../data/levels';
 import type { AdaEmotionType } from '../components/AdaMascot';
 
 // ============================================
@@ -36,19 +27,23 @@ import type { AdaEmotionType } from '../components/AdaMascot';
 // ============================================
 
 export interface UseLogixGridIntroReturn {
-  // Niveaux
+  // Niveaux (depuis orchestrator)
   levels: LevelConfig[];
   selectedLevel: LevelConfig | null;
   selectedLogixLevel: LogixLevelConfig | null;
   handleSelectLevel: (level: LevelConfig) => void;
 
-  // État jeu
+  // État jeu (depuis orchestrator)
   isPlaying: boolean;
   isVictory: boolean;
 
-  // Animations (styles animés)
-  selectorStyle: ReturnType<typeof useAnimatedStyle>;
-  progressPanelStyle: ReturnType<typeof useAnimatedStyle>;
+  // Parent drawer (depuis orchestrator)
+  showParentDrawer: boolean;
+  setShowParentDrawer: (show: boolean) => void;
+
+  // Animations (depuis orchestrator)
+  selectorStyle: ReturnType<typeof useGameIntroOrchestrator>['selectorStyle'];
+  progressPanelStyle: ReturnType<typeof useGameIntroOrchestrator>['progressPanelStyle'];
 
   // Mascot
   mascotMessage: string;
@@ -78,6 +73,8 @@ export interface UseLogixGridIntroReturn {
   handleStartPlaying: () => void;
   handlePause: () => void;
   handleResume: () => void;
+  handleParentPress: () => void;
+  handleHelpPress: () => void;
   getCellStateValue: ReturnType<typeof useLogixGridGame>['getCellStateValue'];
 
   // Hints
@@ -87,15 +84,6 @@ export interface UseLogixGridIntroReturn {
 // ============================================
 // CONSTANTS
 // ============================================
-
-const ANIMATION_CONFIG = {
-  selectorSlideDuration: 400,
-  selectorFadeDuration: 300,
-  progressDelayDuration: 200,
-  selectorSlideDistance: -150,
-  springDamping: 15,
-  springStiffness: 150,
-};
 
 // Messages Ada la Fourmi
 const ADA_MESSAGES = {
@@ -150,47 +138,58 @@ function randomMessage(messages: string[]): string {
 // ============================================
 
 export function useLogixGridIntro(): UseLogixGridIntroReturn {
-  const router = useRouter();
-  const params = useLocalSearchParams<{ level?: string }>();
-  const profile = useActiveProfile();
+  // ============================================
+  // ORCHESTRATOR (logique commune factorisée)
+  // ============================================
+  const orchestrator = useGameIntroOrchestrator({
+    gameId: 'logix-grid',
+    mascotMessages: {
+      welcome: randomMessage(ADA_MESSAGES.welcome),
+      startPlaying: randomMessage(ADA_MESSAGES.start),
+      backToSelection: randomMessage(ADA_MESSAGES.back),
+      help: "Lis bien chaque indice ! Qu'est-ce qui est impossible ?",
+    },
+  });
 
-  // Store - progression
-  const gameProgress = useGameProgress('logix-grid');
-  const initGameProgress = useStore((state) => state.initGameProgress);
-
-  // Initialiser le progress si nécessaire
-  useEffect(() => {
-    initGameProgress('logix-grid');
-  }, [initGameProgress]);
-
-  // État local
-  const [selectedLevel, setSelectedLevel] = useState<LevelConfig | null>(null);
+  // ============================================
+  // LOCAL STATE (spécifique à Logix Grid)
+  // ============================================
   const [selectedLogixLevel, setSelectedLogixLevel] = useState<LogixLevelConfig | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isVictory, setIsVictory] = useState(false);
-  const [mascotMessage, setMascotMessage] = useState(randomMessage(ADA_MESSAGES.welcome));
   const [mascotEmotion, setMascotEmotion] = useState<AdaEmotionType>('happy');
 
-  // Extraire les IDs des niveaux complétés depuis le store
-  const completedLevelIds = useMemo(() => {
-    if (!gameProgress?.completedLevels) return [];
-    return Object.keys(gameProgress.completedLevels).map(
-      (levelId) => `logix-grid_${levelId}`
-    );
-  }, [gameProgress?.completedLevels]);
+  // Calculer l'âge de l'enfant
+  const childAge = useMemo(() => {
+    return calculateAgeFromBirthDate(orchestrator.profile?.birthDate);
+  }, [orchestrator.profile?.birthDate]);
 
-  // Générer les niveaux basés sur l'âge de l'enfant et les niveaux complétés
+  // ============================================
+  // LEVELS (spécifique - généré depuis logixLevels)
+  // ============================================
   const levels = useMemo(() => {
-    return generateDefaultLevels('logix-grid', profile?.birthDate, completedLevelIds);
-  }, [profile?.birthDate, completedLevelIds]);
+    const ageLevels = getLevelsForAge(childAge);
 
-  // Hook du jeu
+    return ageLevels.map((logixLevel) => {
+      const isCompleted = orchestrator.completedLevelIds.includes(logixLevel.id);
+      return {
+        id: logixLevel.id,
+        number: logixLevel.displayOrder,
+        label: `${logixLevel.displayOrder}`,
+        difficulty: logixLevel.difficulty as 'easy' | 'medium' | 'hard' | 'expert',
+        isUnlocked: true,
+        isCompleted,
+        stars: isCompleted ? 3 : undefined,
+      } as LevelConfig;
+    });
+  }, [childAge, orchestrator.completedLevelIds]);
+
+  // ============================================
+  // GAME HOOK
+  // ============================================
   const gameHook = useLogixGridGame();
   const {
     gameState,
     result,
     errors,
-    isLoading,
     startGame,
     initGame,
     handleCellToggle: cellToggle,
@@ -203,269 +202,213 @@ export function useLogixGridIntro(): UseLogixGridIntroReturn {
     getCellStateValue,
   } = gameHook;
 
-  // Sons
-  const { playSelect, playCorrect, playError, playHint, playVictory, playClue } = useLogixGridSound();
+  // ============================================
+  // SOUNDS
+  // ============================================
+  const { playSelect, playError, playHint, playVictory, playClue } = useLogixGridSound();
 
-  // Ref pour tracker l'initialisation et les paramètres URL
-  const hasInitializedRef = useRef(false);
+  // Ref pour tracker les paramètres URL
   const lastLevelParamRef = useRef<string | undefined>(undefined);
-
-  // ============================================
-  // ANIMATIONS
-  // ============================================
-
-  const selectorY = useSharedValue(0);
-  const selectorOpacity = useSharedValue(1);
-  const progressPanelOpacity = useSharedValue(0);
-
-  const selectorStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: selectorY.value }],
-    opacity: selectorOpacity.value,
-  }));
-
-  const progressPanelStyle = useAnimatedStyle(() => ({
-    opacity: progressPanelOpacity.value,
-  }));
-
-  // ============================================
-  // TRANSITIONS
-  // ============================================
-
-  const transitionToPlayMode = useCallback(() => {
-    if (isPlaying) return;
-
-    // Vue 1 → Vue 2: Slide selector up and fade out
-    selectorY.value = withTiming(ANIMATION_CONFIG.selectorSlideDistance, {
-      duration: ANIMATION_CONFIG.selectorSlideDuration,
-      easing: Easing.out(Easing.quad),
-    });
-    selectorOpacity.value = withTiming(0, {
-      duration: ANIMATION_CONFIG.selectorFadeDuration,
-    });
-
-    // Fade in progress panel
-    progressPanelOpacity.value = withDelay(
-      ANIMATION_CONFIG.progressDelayDuration,
-      withTiming(1, { duration: ANIMATION_CONFIG.selectorFadeDuration })
-    );
-
-    // Start playing after animation
-    setTimeout(() => {
-      setIsPlaying(true);
-    }, 300);
-  }, [isPlaying, selectorY, selectorOpacity, progressPanelOpacity]);
-
-  const transitionToSelectionMode = useCallback(() => {
-    // Vue 2 → Vue 1: Show selector with spring animation
-    selectorY.value = withSpring(0, {
-      damping: ANIMATION_CONFIG.springDamping,
-      stiffness: ANIMATION_CONFIG.springStiffness,
-    });
-    selectorOpacity.value = withTiming(1, {
-      duration: ANIMATION_CONFIG.selectorFadeDuration,
-    });
-
-    // Hide progress panel
-    progressPanelOpacity.value = withTiming(0, { duration: 200 });
-
-    setIsPlaying(false);
-  }, [selectorY, selectorOpacity, progressPanelOpacity]);
 
   // ============================================
   // EFFECTS - Sélection automatique niveau
   // ============================================
-
   useEffect(() => {
-    // Si le paramètre level a changé (depuis victory.tsx), forcer la mise à jour
-    const levelParamChanged = params.level !== lastLevelParamRef.current;
+    const levelParamChanged = orchestrator.params.level !== lastLevelParamRef.current;
     if (levelParamChanged) {
-      lastLevelParamRef.current = params.level;
+      lastLevelParamRef.current = orchestrator.params.level;
     }
 
-    if (levels.length > 0 && (!selectedLevel || levelParamChanged)) {
-      try {
-        let defaultLevel: LevelConfig | undefined;
+    if (levels.length > 0 && (!orchestrator.selectedLevel || levelParamChanged)) {
+      let defaultLevel: LevelConfig | undefined;
 
-        // Si un niveau est passé en paramètre URL
-        if (params.level) {
-          const levelNumber = parseInt(params.level, 10);
-          defaultLevel = levels.find((l) => l.number === levelNumber && l.isUnlocked);
-        }
+      if (orchestrator.params.level) {
+        const levelNumber = parseInt(orchestrator.params.level, 10);
+        defaultLevel = levels.find((l) => l.number === levelNumber && l.isUnlocked);
+      }
 
-        // Sinon, trouver le premier niveau débloqué mais non complété
-        if (!defaultLevel) {
-          const firstIncompleteLevel = levels.find(
-            (level) => level.isUnlocked && !level.isCompleted
-          );
+      if (!defaultLevel) {
+        const firstIncompleteLevel = levels.find(
+          (level) => level.isUnlocked && !level.isCompleted
+        );
+        defaultLevel =
+          firstIncompleteLevel || levels.filter((l) => l.isUnlocked).pop() || levels[0];
+      }
 
-          defaultLevel = firstIncompleteLevel ||
-            levels.filter(l => l.isUnlocked).pop() ||
-            levels[0];
-        }
+      if (defaultLevel) {
+        orchestrator.handleSelectLevel(defaultLevel);
+        const logixLevel = logixLevels.find((l) => l.displayOrder === defaultLevel!.number);
+        setSelectedLogixLevel(logixLevel || null);
 
-        if (defaultLevel) {
-          setSelectedLevel(defaultLevel);
-          const logixLevel = logixLevels[defaultLevel.number - 1];
-          setSelectedLogixLevel(logixLevel || null);
-
-          const diffKey = defaultLevel.difficulty as keyof typeof ADA_MESSAGES.levelSelect;
-          setMascotMessage(
-            `Niveau ${defaultLevel.number} ! ${ADA_MESSAGES.levelSelect[diffKey] || ''}`
-          );
-          setMascotEmotion('happy');
-        }
-      } catch {
-        // En cas d'erreur, sélectionner le niveau 1
-        const level1 = levels[0];
-        if (level1) {
-          setSelectedLevel(level1);
-          const logixLevel = logixLevels[0];
-          setSelectedLogixLevel(logixLevel || null);
-          setMascotMessage("Niveau 1 ! Parfait pour commencer !");
-          setMascotEmotion('happy');
-        }
+        const diffKey = defaultLevel.difficulty as keyof typeof ADA_MESSAGES.levelSelect;
+        orchestrator.setMascotMessage(
+          `Niveau ${defaultLevel.number} ! ${ADA_MESSAGES.levelSelect[diffKey] || ''}`
+        );
+        setMascotEmotion('happy');
       }
     }
-  }, [levels, selectedLevel, params.level]);
+  }, [levels, orchestrator]);
 
   // ============================================
-  // EFFECTS - Initialiser le jeu quand un niveau est sélectionné
+  // EFFECTS - Initialiser le jeu quand niveau sélectionné
   // ============================================
-
   useEffect(() => {
-    if (selectedLogixLevel && !isPlaying) {
-      // Initialiser le jeu pour afficher la grille en mode intro (sans timer)
+    if (selectedLogixLevel && !orchestrator.isPlaying) {
       initGame(selectedLogixLevel.puzzle);
     }
-  }, [selectedLogixLevel, isPlaying, initGame]);
+  }, [selectedLogixLevel, orchestrator.isPlaying, initGame]);
 
   // ============================================
   // EFFECTS - Feedback jeu
   // ============================================
-
-  // Détecter la victoire
   useEffect(() => {
-    if (gameState?.phase === 'victory' && !isVictory) {
-      setIsVictory(true);
+    if (gameState?.phase === 'victory' && !orchestrator.isVictory) {
+      orchestrator.setIsVictory(true);
       playVictory();
-      setMascotMessage(randomMessage(ADA_MESSAGES.victory));
+      orchestrator.setMascotMessage(randomMessage(ADA_MESSAGES.victory));
       setMascotEmotion('excited');
     }
-  }, [gameState?.phase, isVictory, playVictory]);
+  }, [gameState?.phase, orchestrator, playVictory]);
 
-  // Détecter les erreurs
   useEffect(() => {
     if (errors.length > 0) {
       playError();
-      setMascotMessage(randomMessage(ADA_MESSAGES.error));
+      orchestrator.setMascotMessage(randomMessage(ADA_MESSAGES.error));
       setMascotEmotion('encouraging');
     }
-  }, [errors.length, playError]);
+  }, [errors.length, playError, orchestrator]);
 
   // ============================================
-  // HANDLERS
+  // HANDLERS SPÉCIFIQUES
   // ============================================
 
-  const handleSelectLevel = useCallback((level: LevelConfig) => {
-    setSelectedLevel(level);
-    const logixLevel = logixLevels[level.number - 1];
-    setSelectedLogixLevel(logixLevel || null);
+  const handleSelectLevel = useCallback(
+    (level: LevelConfig) => {
+      orchestrator.handleSelectLevel(level);
+      const logixLevel = logixLevels.find((l) => l.displayOrder === level.number);
+      setSelectedLogixLevel(logixLevel || null);
 
-    playSelect();
+      playSelect();
 
-    const diffKey = level.difficulty as keyof typeof ADA_MESSAGES.levelSelect;
-    setMascotMessage(
-      `Niveau ${level.number} ! ${ADA_MESSAGES.levelSelect[diffKey] || ''}`
-    );
-    setMascotEmotion('happy');
-  }, [playSelect]);
+      const diffKey = level.difficulty as keyof typeof ADA_MESSAGES.levelSelect;
+      orchestrator.setMascotMessage(
+        `Niveau ${level.number} ! ${ADA_MESSAGES.levelSelect[diffKey] || ''}`
+      );
+      setMascotEmotion('happy');
+    },
+    [orchestrator, playSelect]
+  );
 
   const handleStartPlaying = useCallback(() => {
     if (!selectedLogixLevel) return;
 
-    transitionToPlayMode();
+    const puzzle = selectedLogixLevel.puzzle;
+    if (!puzzle?.solution || Object.keys(puzzle.solution).length === 0) {
+      orchestrator.setMascotMessage("Oups ! Ce niveau n'est pas encore prêt.");
+      setMascotEmotion('encouraging');
+      return;
+    }
+
+    orchestrator.handleStartPlaying();
     startGame(selectedLogixLevel.puzzle);
-    setMascotMessage(randomMessage(ADA_MESSAGES.start));
+    orchestrator.setMascotMessage(randomMessage(ADA_MESSAGES.start));
     setMascotEmotion('excited');
-  }, [selectedLogixLevel, transitionToPlayMode, startGame]);
+  }, [selectedLogixLevel, orchestrator, startGame]);
 
   const handleBack = useCallback(() => {
-    if (isPlaying) {
-      transitionToSelectionMode();
-      setMascotMessage(randomMessage(ADA_MESSAGES.back));
+    if (orchestrator.isPlaying) {
+      orchestrator.transitionToSelectionMode();
+      orchestrator.setMascotMessage(randomMessage(ADA_MESSAGES.back));
       setMascotEmotion('neutral');
-      setIsVictory(false);
+      orchestrator.setIsVictory(false);
     } else {
-      // Retour à l'accueil depuis la sélection des niveaux
-      router.replace('/');
+      orchestrator.router.replace('/');
     }
-  }, [isPlaying, router, transitionToSelectionMode]);
+  }, [orchestrator]);
 
   const handleReset = useCallback(() => {
     if (selectedLogixLevel) {
       restartLevel();
-      setIsVictory(false);
-      setMascotMessage(randomMessage(ADA_MESSAGES.start));
+      orchestrator.setIsVictory(false);
+      orchestrator.setMascotMessage(randomMessage(ADA_MESSAGES.start));
       setMascotEmotion('neutral');
     }
-  }, [selectedLogixLevel, restartLevel]);
+  }, [selectedLogixLevel, restartLevel, orchestrator]);
 
-  const handleCellToggle = useCallback((rowItemId: string, colItemId: string) => {
-    playSelect();
-    cellToggle(rowItemId, colItemId);
-  }, [playSelect, cellToggle]);
+  const handleCellToggle = useCallback(
+    (rowItemId: string, colItemId: string) => {
+      playSelect();
+      cellToggle(rowItemId, colItemId);
+    },
+    [playSelect, cellToggle]
+  );
 
-  const handleCellSelect = useCallback((rowItemId: string | null, colItemId: string | null) => {
-    cellSelect(rowItemId, colItemId);
-  }, [cellSelect]);
+  const handleCellSelect = useCallback(
+    (rowItemId: string | null, colItemId: string | null) => {
+      cellSelect(rowItemId, colItemId);
+    },
+    [cellSelect]
+  );
 
-  const handleClueUse = useCallback((clueId: string) => {
-    playClue();
-    clueUse(clueId);
-    setMascotMessage("Bon indice ! Réfléchis bien...");
-    setMascotEmotion('thinking');
-  }, [playClue, clueUse]);
+  const handleClueUse = useCallback(
+    (clueId: string) => {
+      playClue();
+      clueUse(clueId);
+      orchestrator.setMascotMessage('Bon indice ! Réfléchis bien...');
+      setMascotEmotion('thinking');
+    },
+    [playClue, clueUse, orchestrator]
+  );
 
   const handleHintRequest = useCallback(() => {
     playHint();
     hintRequest();
-    setMascotMessage(randomMessage(ADA_MESSAGES.hint));
+    orchestrator.setMascotMessage(randomMessage(ADA_MESSAGES.hint));
     setMascotEmotion('thinking');
-  }, [playHint, hintRequest]);
+  }, [playHint, hintRequest, orchestrator]);
 
   const handlePause = useCallback(() => {
     pauseGame();
-    setMascotMessage("Pause ! Prends ton temps pour réfléchir...");
+    orchestrator.setMascotMessage('Pause ! Prends ton temps pour réfléchir...');
     setMascotEmotion('neutral');
-  }, [pauseGame]);
+  }, [pauseGame, orchestrator]);
 
   const handleResume = useCallback(() => {
     resumeGame();
-    setMascotMessage("C'est reparti !");
+    orchestrator.setMascotMessage("C'est reparti !");
     setMascotEmotion('happy');
-  }, [resumeGame]);
+  }, [resumeGame, orchestrator]);
+
+  const handleHelpPress = useCallback(() => {
+    orchestrator.setMascotMessage("Lis bien chaque indice ! Qu'est-ce qui est impossible ?");
+    setMascotEmotion('thinking');
+  }, [orchestrator]);
 
   // ============================================
   // RETURN
   // ============================================
 
   return {
-    // Niveaux
+    // Depuis orchestrator
     levels,
-    selectedLevel,
+    selectedLevel: orchestrator.selectedLevel,
     selectedLogixLevel,
     handleSelectLevel,
 
     // État jeu
-    isPlaying,
-    isVictory,
+    isPlaying: orchestrator.isPlaying,
+    isVictory: orchestrator.isVictory,
+
+    // Parent drawer
+    showParentDrawer: orchestrator.showParentDrawer,
+    setShowParentDrawer: orchestrator.setShowParentDrawer,
 
     // Animations
-    selectorStyle,
-    progressPanelStyle,
+    selectorStyle: orchestrator.selectorStyle,
+    progressPanelStyle: orchestrator.progressPanelStyle,
 
     // Mascot
-    mascotMessage,
+    mascotMessage: orchestrator.mascotMessage,
     mascotEmotion,
 
     // Game state
@@ -492,6 +435,8 @@ export function useLogixGridIntro(): UseLogixGridIntroReturn {
     handleStartPlaying,
     handlePause,
     handleResume,
+    handleParentPress: orchestrator.handleParentPress,
+    handleHelpPress,
     getCellStateValue,
 
     // Hints

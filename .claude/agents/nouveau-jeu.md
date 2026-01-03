@@ -27,6 +27,51 @@ Créer un nouveau jeu éducatif complet, de la conception pédagogique à l'impl
 
 ---
 
+## Protocole 3 étapes (OBLIGATOIRE)
+
+> Référence : `docs/00-INDEX.md#protocole-claude-code-3-étapes`
+
+### Étape A : Confirmer la lecture
+
+```text
+✅ J'ai lu GAME_ARCHITECTURE.md, DESIGN_SYSTEM.md, MASCOTTES_GUIDELINES.md.
+✅ Pattern retenu : Hook+Template (logique séparée de l'affichage)
+✅ Règles UI : imports @/theme, touch targets 64dp, texte 18pt
+✅ Philosophie : "Apprendre à penser, pas à répondre"
+✅ Structure de référence : src/games/02-suites-logiques/
+```
+
+### Étape B : Poser 2-3 questions de clarification
+
+- Quelle tranche d'âge cible ? (6-7 / 7-8 / 8-9 / 9-10 ans)
+- Quelle catégorie ? (logic / memory / spatial / math / language)
+- Quelle méthode de raisonnement enseigner ?
+- Quelles compétences cognitives cibler ? (3-5 parmi les 22)
+
+### Étape C : Présenter le plan d'action
+
+```text
+📋 PLAN DE CRÉATION (4 phases) :
+
+Phase A : Fiches Éducatives
+- Créer Fiches Educatives/{XX-NomJeu}/ (4 fichiers)
+
+Phase B : Implémentation
+- Créer src/games/{XX-nomjeu}/ (structure Hook+Template)
+
+Phase C : Intégration
+- Ajouter dans registry.ts
+- Créer route app/(games)/{XX-nomjeu}/
+
+Phase D : Validation
+- Vérifier conformité UI/UX
+- Tester les niveaux
+
+→ ATTENDRE VALIDATION avant de démarrer Phase A.
+```
+
+---
+
 ## Étape 1 : Clarifier le besoin pédagogique
 
 1. **Tranche d'âge cible** : 6-7 / 7-8 / 8-9 / 9-10 ans ?

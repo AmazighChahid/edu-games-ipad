@@ -7,7 +7,7 @@
 import type {
   LogixPuzzle,
   LogixGameState,
-  GridCell,
+  GridCellData,
   CellState,
   LogixResult,
   ClueHint,
@@ -43,8 +43,8 @@ export function createGame(puzzle: LogixPuzzle): LogixGameState {
 /**
  * Crée une grille vide pour les catégories données
  */
-function createEmptyGrid(categories: Category[]): GridCell[] {
-  const grid: GridCell[] = [];
+function createEmptyGrid(categories: Category[]): GridCellData[] {
+  const grid: GridCellData[] = [];
 
   // Pour chaque paire de catégories différentes
   for (let i = 0; i < categories.length; i++) {
@@ -128,10 +128,10 @@ export function toggleCellState(
  * Trouve une cellule dans la grille
  */
 function findCell(
-  grid: GridCell[],
+  grid: GridCellData[],
   rowItemId: string,
   colItemId: string
-): GridCell | undefined {
+): GridCellData | undefined {
   return grid.find(
     (cell) =>
       (cell.rowItemId === rowItemId && cell.colItemId === colItemId) ||
@@ -258,6 +258,24 @@ export function tickTime(state: LogixGameState): LogixGameState {
 export function isPuzzleSolved(state: LogixGameState): boolean {
   const { grid, puzzle } = state;
 
+  // Protection: si la solution est vide ou invalide, le puzzle n'est pas résolu
+  if (!puzzle.solution || Object.keys(puzzle.solution).length === 0) {
+    return false;
+  }
+
+  // Compter le nombre attendu de "oui" d'abord (pour protection contre les puzzles vides)
+  let expectedYesCount = 0;
+  for (const associations of Object.values(puzzle.solution)) {
+    for (const associatedItems of Object.values(associations)) {
+      expectedYesCount += associatedItems.length;
+    }
+  }
+
+  // Protection: si aucune association attendue, le puzzle n'est pas valide
+  if (expectedYesCount === 0) {
+    return false;
+  }
+
   // Vérifier chaque association dans la solution
   for (const [catId, associations] of Object.entries(puzzle.solution)) {
     for (const [itemId, associatedItems] of Object.entries(associations)) {
@@ -273,14 +291,6 @@ export function isPuzzleSolved(state: LogixGameState): boolean {
 
   // Vérifier qu'il n'y a pas de "oui" en trop
   const yesCells = grid.filter((cell) => cell.state === 'yes');
-
-  // Compter le nombre attendu de "oui"
-  let expectedYesCount = 0;
-  for (const associations of Object.values(puzzle.solution)) {
-    for (const associatedItems of Object.values(associations)) {
-      expectedYesCount += associatedItems.length;
-    }
-  }
 
   return yesCells.length === expectedYesCount;
 }
@@ -390,10 +400,10 @@ export function applyAutoExclusion(state: LogixGameState): LogixGameState {
  * Groupe les cellules par item
  */
 function groupCellsByItem(
-  grid: GridCell[],
+  grid: GridCellData[],
   categories: Category[]
-): Record<string, GridCell[]> {
-  const groups: Record<string, GridCell[]> = {};
+): Record<string, GridCellData[]> {
+  const groups: Record<string, GridCellData[]> = {};
 
   for (const category of categories) {
     for (const item of category.items) {
@@ -467,7 +477,7 @@ export function calculateResult(state: LogixGameState): LogixResult {
  * Obtient l'état d'une cellule
  */
 export function getCellState(
-  grid: GridCell[],
+  grid: GridCellData[],
   rowItemId: string,
   colItemId: string
 ): CellState {
@@ -478,7 +488,7 @@ export function getCellState(
 /**
  * Compte les cellules d'un certain état
  */
-export function countCellsByState(grid: GridCell[], cellState: CellState): number {
+export function countCellsByState(grid: GridCellData[], cellState: CellState): number {
   return grid.filter((cell) => cell.state === cellState).length;
 }
 

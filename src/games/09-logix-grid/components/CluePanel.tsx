@@ -34,10 +34,24 @@ interface CluePanelProps {
 // ============================================================================
 
 const COLORS = {
-  clueUsedBg: '#E8F5E9',
+  clueUsedBg: 'rgba(232, 245, 233, 0.7)',
   checkmarkBg: '#4CAF50',
-  helpCardBg: '#FFF9E6',
+  helpCardBg: 'rgba(255, 249, 230, 0.7)',
 };
+
+/** Couleurs pour les numeros d'indices (cycle de 3) */
+const CLUE_NUMBER_COLORS = [
+  theme.colors.primary.main,      // Bleu pour indice 1
+  theme.colors.secondary.main,    // Orange pour indice 2
+  theme.colors.feedback.success,  // Vert pour indice 3
+];
+
+/** Couleurs de fond semi-transparentes pour les indices */
+const CLUE_BG_COLORS = [
+  'rgba(91, 141, 238, 0.15)',    // Bleu transparent pour indice 1
+  'rgba(255, 179, 71, 0.15)',    // Orange transparent pour indice 2
+  'rgba(123, 199, 77, 0.15)',    // Vert transparent pour indice 3
+];
 
 // ============================================================================
 // COMPONENT
@@ -62,6 +76,9 @@ export function CluePanel({
       {clues.map((clue, index) => {
         const isUsed = usedClueIds.includes(clue.id);
         const isActive = activeClueId === clue.id;
+        // Couleurs basees sur l'index (cycle de 3 couleurs)
+        const numberColor = CLUE_NUMBER_COLORS[index % CLUE_NUMBER_COLORS.length];
+        const bgColor = CLUE_BG_COLORS[index % CLUE_BG_COLORS.length];
 
         return (
           <Animated.View
@@ -75,6 +92,7 @@ export function CluePanel({
             <Pressable
               style={[
                 styles.clueCard,
+                { backgroundColor: bgColor },
                 isUsed && styles.clueCardUsed,
                 isActive && styles.clueCardActive,
               ]}
@@ -83,7 +101,7 @@ export function CluePanel({
               accessibilityLabel={`Indice ${index + 1}: ${clue.text}`}
               accessibilityState={{ selected: isUsed }}
             >
-              <View style={styles.clueNumber}>
+              <View style={[styles.clueNumber, { backgroundColor: numberColor }]}>
                 <Text style={styles.clueNumberText}>{index + 1}</Text>
               </View>
               <Text
@@ -122,62 +140,82 @@ export function CluePanel({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.colors.background.card,
-    borderRadius: theme.borderRadius.lg,
+    // Glass effect - iOS Liquid Glass Style
+    backgroundColor: 'rgba(255, 255, 255, 0.65)',
+    borderRadius: 28,
     margin: theme.spacing[2],
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.5)',
+    // Shadow for glass effect
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.1,
+    shadowRadius: 32,
+    elevation: 8,
   },
   scrollContent: {
-    padding: theme.spacing[3],
+    padding: theme.spacing[4],
   },
   title: {
-    fontSize: theme.fontSize.lg, // 20pt
+    fontSize: theme.fontSize.xl, // 24pt
     fontFamily: theme.fontFamily.displayBold,
-    fontWeight: '700',
+    fontWeight: '600',
     color: theme.colors.text.primary,
-    marginBottom: theme.spacing[3],
+    marginBottom: theme.spacing[4],
+    paddingBottom: theme.spacing[3],
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.5)',
   },
   clueCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: theme.colors.background.primary,
-    borderRadius: theme.borderRadius.md,
-    padding: theme.spacing[3],
-    marginBottom: theme.spacing[2],
-    minHeight: theme.touchTargets.child, // 64dp
-    ...theme.shadows.sm,
+    // backgroundColor is set dynamically based on index
+    borderRadius: 16,
+    padding: theme.spacing[4],
+    marginBottom: theme.spacing[3],
+    minHeight: theme.touchTargets.large, // 64dp
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
   },
   clueCardUsed: {
     backgroundColor: COLORS.clueUsedBg,
-    opacity: 0.8,
+    opacity: 0.85,
   },
   clueCardActive: {
     borderWidth: 2,
     borderColor: theme.colors.primary.main,
   },
   clueNumber: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: theme.colors.primary.main,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    // backgroundColor is set dynamically based on index
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: theme.spacing[2],
+    marginRight: theme.spacing[3],
+    // Shadow comme dans le HTML
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 4,
   },
   clueNumberText: {
-    fontSize: theme.fontSize.md, // 16pt pour badge plus grand
+    fontSize: theme.fontSize.lg, // 20pt
     fontFamily: theme.fontFamily.bold,
     fontWeight: '700',
-    color: '#FFF',
+    color: '#FFFFFF',
   },
   clueText: {
     flex: 1,
-    fontSize: theme.fontSize.lg, // 18pt minimum enfant
-    fontFamily: theme.fontFamily.regular,
+    fontSize: theme.fontSize.lg, // 20pt
+    fontFamily: theme.fontFamily.medium,
+    fontWeight: '500',
     color: theme.colors.text.primary,
-    lineHeight: 24,
+    lineHeight: 28,
   },
   clueTextUsed: {
-    color: theme.colors.text.tertiary,
+    color: theme.colors.text.muted,
   },
   checkmark: {
     width: 48,
@@ -189,7 +227,7 @@ const styles = StyleSheet.create({
     marginLeft: theme.spacing[2],
   },
   checkmarkText: {
-    fontSize: theme.fontSize.md, // 16pt pour badge plus grand
+    fontSize: theme.fontSize.base, // 16pt pour badge plus grand
     fontFamily: theme.fontFamily.bold,
     fontWeight: '700',
     color: '#FFF',

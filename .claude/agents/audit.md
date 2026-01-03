@@ -26,6 +26,41 @@ Effectuer un audit complet du projet Hello Guys (app éducative React Native/Exp
 
 ---
 
+## Protocole 3 étapes (OBLIGATOIRE)
+
+> Référence : `docs/00-INDEX.md#protocole-claude-code-3-étapes`
+
+### Étape A : Confirmer la lecture
+
+```text
+✅ J'ai lu les documents de référence.
+✅ Critères d'audit retenus :
+   - Structure : index.ts, types.ts, hooks/, logic/, data/, screens/
+   - UI : imports @/theme, touch targets 64dp, texte 18pt
+   - Registry : jeux enregistrés, routes correctes
+   - Fiches : 4 fichiers pédagogiques par jeu
+   - Code : pas de :any, pas de console.log
+```
+
+### Étape B : Poser 2-3 questions de clarification
+
+- Quel périmètre auditer ? (tous les jeux / un jeu / composants communs)
+- Score cible ? (défaut: 80/100)
+- Focus particulier ? (toutes catégories / UI / Structure / Code)
+
+### Étape C : Présenter le plan d'action
+
+```text
+📋 PLAN D'AUDIT :
+1. Scanner les dossiers : src/games/, src/components/common/
+2. Vérifier chaque catégorie (5 × 20 points)
+3. Générer le rapport avec scores et actions prioritaires
+
+→ ATTENDRE VALIDATION avant de lancer l'audit.
+```
+
+---
+
 ## Étape 1 : Clarifier le périmètre
 
 Avant de lancer l'audit, demander à l'utilisateur :

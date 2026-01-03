@@ -1,37 +1,23 @@
 /**
  * useSudokuIntro - Hook orchestrateur pour Sudoku
  *
- * Encapsule toute la logique métier de l'écran d'introduction :
- * - Gestion des 10 niveaux progressifs
- * - Mode entraînement (personnalisation thème/taille/difficulté)
- * - Progression store (lecture/écriture)
- * - Messages mascotte Félix
- * - Sons
- * - Animations de transition
- * - Navigation
+ * VERSION MIGRÉE (Janvier 2026)
+ * Utilise useGameIntroOrchestrator pour la logique commune.
+ * Ce fichier ne contient plus que la logique spécifique au jeu.
  *
  * @see docs/GAME_ARCHITECTURE.md pour le pattern complet
  */
 
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
-import { useRouter, useLocalSearchParams } from 'expo-router';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-  withDelay,
-  withSpring,
-  Easing,
-} from 'react-native-reanimated';
 
+import { useGameIntroOrchestrator } from '../../../hooks';
 import { useSudokuGame } from './useSudokuGame';
 import { useSudokuSound } from './useSudokuSound';
-import { useActiveProfile, useGameProgress, useStore } from '@/store';
+import { useStore } from '@/store';
 import {
   SUDOKU_LEVELS,
   DEFAULT_TRAINING_CONFIG,
   LEVEL_MESSAGES,
-  getLevelByNumber,
   getLevelDescription,
   isLevelUnlocked,
   calculateStars,
@@ -41,9 +27,6 @@ import type {
   SudokuLevelConfig,
   TrainingConfig,
   SudokuConfig,
-  SudokuSize,
-  SudokuTheme,
-  SudokuDifficulty,
   FelixEmotionType,
   GameStats,
 } from '../types';
@@ -69,7 +52,7 @@ export interface UseSudokuIntroReturn {
   handleStartTraining: () => void;
   setShowTrainingSelector: (show: boolean) => void;
 
-  // État jeu
+  // État jeu (depuis orchestrator)
   isPlaying: boolean;
   isVictory: boolean;
   gameConfig: SudokuConfig | null;
@@ -90,9 +73,9 @@ export interface UseSudokuIntroReturn {
   mascotMessage: string;
   mascotEmotion: EmotionType;
 
-  // Animations (styles animés)
-  selectorStyle: ReturnType<typeof useAnimatedStyle>;
-  progressPanelStyle: ReturnType<typeof useAnimatedStyle>;
+  // Animations (depuis orchestrator)
+  selectorStyle: ReturnType<typeof useGameIntroOrchestrator>['selectorStyle'];
+  progressPanelStyle: ReturnType<typeof useGameIntroOrchestrator>['progressPanelStyle'];
 
   // Progress data
   progressData: {
@@ -111,7 +94,7 @@ export interface UseSudokuIntroReturn {
   handleParentPress: () => void;
   handleHelpPress: () => void;
 
-  // Parent drawer
+  // Parent drawer (depuis orchestrator)
   showParentDrawer: boolean;
   setShowParentDrawer: (show: boolean) => void;
 
@@ -123,15 +106,6 @@ export interface UseSudokuIntroReturn {
 // CONSTANTS
 // ============================================
 
-const ANIMATION_CONFIG = {
-  selectorSlideDuration: 400,
-  selectorFadeDuration: 300,
-  progressDelayDuration: 200,
-  selectorSlideDistance: -150,
-  springDamping: 15,
-  springStiffness: 150,
-};
-
 const MAX_HINTS = 3;
 
 // ============================================
@@ -139,71 +113,55 @@ const MAX_HINTS = 3;
 // ============================================
 
 export function useSudokuIntro(): UseSudokuIntroReturn {
-  const router = useRouter();
-  const params = useLocalSearchParams<{ level?: string }>();
-  const profile = useActiveProfile();
+  // ============================================
+  // ORCHESTRATOR (logique commune factorisée)
+  // ============================================
+  const orchestrator = useGameIntroOrchestrator({
+    gameId: 'sudoku',
+    mascotMessages: {
+      welcome: "Salut ! Je suis Félix ! Choisis un niveau !",
+      startPlaying: LEVEL_MESSAGES.start[0],
+      backToSelection: "On recommence ? Choisis un niveau !",
+      help: "Chaque ligne, colonne et zone doit contenir tous les symboles une seule fois !",
+    },
+  });
 
-  // Store - progression
-  const gameProgress = useGameProgress('sudoku');
-  const initGameProgress = useStore((state) => state.initGameProgress);
+  // Store - save progress
   const saveGameProgress = useStore((state) => state.saveGameProgress);
 
-  // Initialiser le progress si nécessaire
-  useEffect(() => {
-    initGameProgress('sudoku');
-  }, [initGameProgress]);
-
   // ============================================
-  // STATE - Niveaux
+  // LOCAL STATE - Niveaux (spécifique Sudoku)
   // ============================================
-
   const [selectedLevel, setSelectedLevel] = useState<SudokuLevelConfig | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isVictory, setIsVictory] = useState(false);
+  const [mascotEmotion, setMascotEmotion] = useState<FelixEmotionType>('neutral');
 
   // ============================================
-  // STATE - Mode Entraînement
+  // LOCAL STATE - Mode Entraînement
   // ============================================
-
   const [isTrainingMode, setIsTrainingMode] = useState(false);
   const [showTrainingSelector, setShowTrainingSelector] = useState(false);
   const [trainingConfig, setTrainingConfig] = useState<TrainingConfig>(DEFAULT_TRAINING_CONFIG);
 
   // ============================================
-  // STATE - Mascotte
+  // LEVELS - avec progression (spécifique Sudoku)
   // ============================================
-
-  const [mascotMessage, setMascotMessage] = useState("Salut ! Je suis Félix ! Choisis un niveau !");
-  const [mascotEmotion, setMascotEmotion] = useState<EmotionType>('neutral');
-
-  // ============================================
-  // STATE - UI
-  // ============================================
-
-  const [showParentDrawer, setShowParentDrawer] = useState(false);
-
-  // ============================================
-  // DERIVED STATE - Niveaux avec progression
-  // ============================================
-
   const levels = useMemo(() => {
-    const completedLevelIds = gameProgress?.completedLevels
-      ? Object.keys(gameProgress.completedLevels)
+    const completedLevelIds = orchestrator.gameProgress?.completedLevels
+      ? Object.keys(orchestrator.gameProgress.completedLevels)
       : [];
 
     return SUDOKU_LEVELS.map((level) => ({
       ...level,
       isUnlocked: isLevelUnlocked(level.number, completedLevelIds),
       isCompleted: completedLevelIds.includes(level.id),
-      stars: gameProgress?.completedLevels?.[level.id]?.stars,
-      bestTime: gameProgress?.completedLevels?.[level.id]?.bestTime,
+      stars: orchestrator.gameProgress?.completedLevels?.[level.id]?.stars,
+      bestTime: orchestrator.gameProgress?.completedLevels?.[level.id]?.bestTime,
     }));
-  }, [gameProgress?.completedLevels]);
+  }, [orchestrator.gameProgress?.completedLevels]);
 
   // ============================================
-  // DERIVED STATE - Config de jeu
+  // GAME CONFIG
   // ============================================
-
   const gameConfig = useMemo<SudokuConfig | null>(() => {
     if (isTrainingMode) {
       return {
@@ -229,9 +187,53 @@ export function useSudokuIntro(): UseSudokuIntroReturn {
   }, [isTrainingMode, trainingConfig, selectedLevel]);
 
   // ============================================
+  // GAME COMPLETION HANDLER
+  // ============================================
+  const handleGameComplete = useCallback(
+    (stats: GameStats) => {
+      orchestrator.setIsVictory(true);
+      orchestrator.setMascotMessage(
+        LEVEL_MESSAGES.victory[Math.floor(Math.random() * LEVEL_MESSAGES.victory.length)]
+      );
+      setMascotEmotion('excited');
+
+      // Ne pas sauvegarder en mode entraînement
+      if (isTrainingMode || !selectedLevel) return;
+
+      const idealDuration = getIdealDuration(selectedLevel);
+      const stars = calculateStars(
+        stats.errorsCount,
+        stats.hintsUsed,
+        stats.duration,
+        idealDuration
+      );
+
+      saveGameProgress('sudoku', {
+        levelId: selectedLevel.id,
+        stars,
+        completed: true,
+        hintsUsed: stats.hintsUsed,
+        errors: stats.errorsCount,
+        duration: stats.duration,
+      });
+
+      orchestrator.router.push({
+        pathname: '/(games)/05-sudoku/victory',
+        params: {
+          level: selectedLevel.number.toString(),
+          stars: stars.toString(),
+          duration: stats.duration.toString(),
+          hintsUsed: stats.hintsUsed.toString(),
+          errorsCount: stats.errorsCount.toString(),
+        },
+      });
+    },
+    [isTrainingMode, selectedLevel, saveGameProgress, orchestrator]
+  );
+
+  // ============================================
   // GAME HOOK
   // ============================================
-
   const gameHook = useSudokuGame({
     config: gameConfig || {
       size: 4,
@@ -259,186 +261,68 @@ export function useSudokuIntro(): UseSudokuIntroReturn {
   // ============================================
   // SOUNDS
   // ============================================
+  const { playVictory, playHint } = useSudokuSound();
 
-  const { playSelect, playCorrect, playError, playVictory, playHint } = useSudokuSound();
-
-  // ============================================
-  // REFS
-  // ============================================
-
-  const hasInitializedRef = useRef(false);
+  // Ref pour tracker les paramètres URL
   const lastLevelParamRef = useRef<string | undefined>(undefined);
-
-  // ============================================
-  // ANIMATIONS
-  // ============================================
-
-  const selectorY = useSharedValue(0);
-  const selectorOpacity = useSharedValue(1);
-  const progressPanelOpacity = useSharedValue(0);
-
-  const selectorStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: selectorY.value }],
-    opacity: selectorOpacity.value,
-  }));
-
-  const progressPanelStyle = useAnimatedStyle(() => ({
-    opacity: progressPanelOpacity.value,
-  }));
-
-  // ============================================
-  // TRANSITIONS
-  // ============================================
-
-  const transitionToPlayMode = useCallback(() => {
-    if (isPlaying) return;
-
-    selectorY.value = withTiming(ANIMATION_CONFIG.selectorSlideDistance, {
-      duration: ANIMATION_CONFIG.selectorSlideDuration,
-      easing: Easing.out(Easing.quad),
-    });
-    selectorOpacity.value = withTiming(0, {
-      duration: ANIMATION_CONFIG.selectorFadeDuration,
-    });
-
-    progressPanelOpacity.value = withDelay(
-      ANIMATION_CONFIG.progressDelayDuration,
-      withTiming(1, { duration: ANIMATION_CONFIG.selectorFadeDuration })
-    );
-
-    setTimeout(() => {
-      setIsPlaying(true);
-    }, 300);
-  }, [isPlaying, selectorY, selectorOpacity, progressPanelOpacity]);
-
-  const transitionToSelectionMode = useCallback(() => {
-    selectorY.value = withSpring(0, {
-      damping: ANIMATION_CONFIG.springDamping,
-      stiffness: ANIMATION_CONFIG.springStiffness,
-    });
-    selectorOpacity.value = withTiming(1, {
-      duration: ANIMATION_CONFIG.selectorFadeDuration,
-    });
-
-    progressPanelOpacity.value = withTiming(0, { duration: 200 });
-
-    setIsPlaying(false);
-    setIsVictory(false);
-  }, [selectorY, selectorOpacity, progressPanelOpacity]);
-
-  // ============================================
-  // GAME COMPLETION HANDLER
-  // ============================================
-
-  function handleGameComplete(stats: GameStats) {
-    playVictory();
-    setIsVictory(true);
-    setMascotMessage(
-      LEVEL_MESSAGES.victory[Math.floor(Math.random() * LEVEL_MESSAGES.victory.length)]
-    );
-    setMascotEmotion('excited');
-
-    // Ne pas sauvegarder la progression en mode entraînement
-    if (isTrainingMode || !selectedLevel) return;
-
-    const idealDuration = getIdealDuration(selectedLevel);
-    const stars = calculateStars(
-      stats.errorsCount,
-      stats.hintsUsed,
-      stats.duration,
-      idealDuration
-    );
-
-    // Sauvegarder la progression
-    saveGameProgress('sudoku', {
-      levelId: selectedLevel.id,
-      stars,
-      completed: true,
-      hintsUsed: stats.hintsUsed,
-      errors: stats.errorsCount,
-      duration: stats.duration,
-    });
-
-    // Navigation vers victory
-    router.push({
-      pathname: '/(games)/05-sudoku/victory',
-      params: {
-        level: selectedLevel.number.toString(),
-        stars: stars.toString(),
-        duration: stats.duration.toString(),
-        hintsUsed: stats.hintsUsed.toString(),
-        errorsCount: stats.errorsCount.toString(),
-      },
-    });
-  }
 
   // ============================================
   // EFFECTS - Sélection automatique niveau
   // ============================================
-
   useEffect(() => {
-    const levelParamChanged = params.level !== lastLevelParamRef.current;
+    const levelParamChanged = orchestrator.params.level !== lastLevelParamRef.current;
     if (levelParamChanged) {
-      lastLevelParamRef.current = params.level;
+      lastLevelParamRef.current = orchestrator.params.level;
     }
 
     if (levels.length > 0 && (!selectedLevel || levelParamChanged)) {
       let defaultLevel: SudokuLevelConfig | undefined;
 
-      // Si un niveau est passé en paramètre URL
-      if (params.level) {
-        const levelNumber = parseInt(params.level, 10);
+      if (orchestrator.params.level) {
+        const levelNumber = parseInt(orchestrator.params.level, 10);
         defaultLevel = levels.find((l) => l.number === levelNumber && l.isUnlocked);
       }
 
-      // Sinon, trouver le premier niveau débloqué mais non complété
       if (!defaultLevel) {
         const firstIncompleteLevel = levels.find(
           (level) => level.isUnlocked && !level.isCompleted
         );
         defaultLevel =
-          firstIncompleteLevel ||
-          levels.filter((l) => l.isUnlocked).pop() ||
-          levels[0];
+          firstIncompleteLevel || levels.filter((l) => l.isUnlocked).pop() || levels[0];
       }
 
       if (defaultLevel) {
         setSelectedLevel(defaultLevel);
-        setMascotMessage(
+        orchestrator.setMascotMessage(
           `Niveau ${defaultLevel.number} ! ${getLevelDescription(defaultLevel)}`
         );
         setMascotEmotion('happy');
       }
     }
-  }, [levels, selectedLevel, params.level]);
+  }, [levels, selectedLevel, orchestrator]);
 
   // ============================================
   // EFFECTS - Feedback jeu
   // ============================================
-
   useEffect(() => {
-    // Mise à jour du message mascotte selon l'état du jeu
-    if (gameState.isComplete) {
-      // Géré par handleGameComplete
-      return;
-    }
+    if (gameState.isComplete) return;
 
-    // Vérifier les conflits pour feedback
     const hasConflicts = gameState.grid.cells.some((row) =>
       row.some((cell) => cell.hasConflict)
     );
 
     if (hasConflicts) {
       const errorMessages = LEVEL_MESSAGES.error;
-      setMascotMessage(errorMessages[Math.floor(Math.random() * errorMessages.length)]);
+      orchestrator.setMascotMessage(
+        errorMessages[Math.floor(Math.random() * errorMessages.length)]
+      );
       setMascotEmotion('encouraging');
     }
-  }, [gameState.isComplete, gameState.grid.cells]);
+  }, [gameState.isComplete, gameState.grid.cells, orchestrator]);
 
   // ============================================
   // PROGRESS DATA
   // ============================================
-
   const progressData = useMemo(() => {
     if (!gameState.grid) {
       return {
@@ -451,9 +335,9 @@ export function useSudokuIntro(): UseSudokuIntroReturn {
     }
 
     const totalCells = gameState.grid.size * gameState.grid.size;
-    const filledCells = gameState.grid.cells.flat().filter(
-      (cell) => cell.value !== null
-    ).length;
+    const filledCells = gameState.grid.cells
+      .flat()
+      .filter((cell) => cell.value !== null).length;
     const fixedCells = gameState.grid.cells.flat().filter((cell) => cell.isFixed).length;
     const totalEmptyCells = totalCells - fixedCells;
     const userFilledCells = filledCells - fixedCells;
@@ -464,39 +348,43 @@ export function useSudokuIntro(): UseSudokuIntroReturn {
       totalEmptyCells,
       hintsUsed: gameState.hintsUsed,
       errorsCount: errorCount,
-      progress: totalEmptyCells > 0 ? Math.round((userFilledCells / totalEmptyCells) * 100) : 0,
+      progress:
+        totalEmptyCells > 0 ? Math.round((userFilledCells / totalEmptyCells) * 100) : 0,
     };
   }, [gameState.grid, gameState.hintsUsed, errorCount]);
 
   // ============================================
-  // HANDLERS - Niveaux
+  // HANDLERS SPÉCIFIQUES
   // ============================================
 
-  const handleSelectLevel = useCallback((level: SudokuLevelConfig) => {
-    if (!level.isUnlocked) {
-      setMascotMessage("Ce niveau n'est pas encore débloqué ! Finis le précédent d'abord !");
-      setMascotEmotion('thinking');
-      return;
-    }
+  const handleSelectLevel = useCallback(
+    (level: SudokuLevelConfig) => {
+      if (!level.isUnlocked) {
+        orchestrator.setMascotMessage(
+          "Ce niveau n'est pas encore débloqué ! Finis le précédent d'abord !"
+        );
+        setMascotEmotion('thinking');
+        return;
+      }
 
-    setSelectedLevel(level);
-    setIsTrainingMode(false);
-    setMascotMessage(`Niveau ${level.number} ! ${getLevelDescription(level)}`);
-    setMascotEmotion('happy');
-  }, []);
+      setSelectedLevel(level);
+      setIsTrainingMode(false);
+      orchestrator.setMascotMessage(`Niveau ${level.number} ! ${getLevelDescription(level)}`);
+      setMascotEmotion('happy');
+    },
+    [orchestrator]
+  );
 
   const handleStartPlaying = useCallback(() => {
     if (!gameConfig) return;
 
-    transitionToPlayMode();
+    orchestrator.handleStartPlaying();
     const startMessages = LEVEL_MESSAGES.start;
-    setMascotMessage(startMessages[Math.floor(Math.random() * startMessages.length)]);
+    orchestrator.setMascotMessage(
+      startMessages[Math.floor(Math.random() * startMessages.length)]
+    );
     setMascotEmotion('excited');
-  }, [gameConfig, transitionToPlayMode]);
-
-  // ============================================
-  // HANDLERS - Mode Entraînement
-  // ============================================
+  }, [gameConfig, orchestrator]);
 
   const handleTrainingModeToggle = useCallback(() => {
     setShowTrainingSelector(true);
@@ -510,49 +398,38 @@ export function useSudokuIntro(): UseSudokuIntroReturn {
     setIsTrainingMode(true);
     setShowTrainingSelector(false);
     setSelectedLevel(null);
-    setMascotMessage("Mode entraînement ! Amuse-toi bien !");
+    orchestrator.setMascotMessage('Mode entraînement ! Amuse-toi bien !');
     setMascotEmotion('happy');
-    transitionToPlayMode();
-  }, [transitionToPlayMode]);
-
-  // ============================================
-  // HANDLERS - Navigation
-  // ============================================
+    orchestrator.transitionToPlayMode();
+  }, [orchestrator]);
 
   const handleBack = useCallback(() => {
-    if (isPlaying) {
-      transitionToSelectionMode();
-      setMascotMessage("On recommence ? Choisis un niveau !");
+    if (orchestrator.isPlaying) {
+      orchestrator.transitionToSelectionMode();
+      orchestrator.setMascotMessage('On recommence ? Choisis un niveau !');
       setMascotEmotion('encouraging');
+      orchestrator.setIsVictory(false);
     } else {
-      router.replace('/');
+      orchestrator.router.replace('/');
     }
-  }, [isPlaying, router, transitionToSelectionMode]);
-
-  const handleParentPress = useCallback(() => {
-    setShowParentDrawer(true);
-  }, []);
+  }, [orchestrator]);
 
   const handleHelpPress = useCallback(() => {
-    setMascotMessage(
-      "Chaque ligne, colonne et zone doit contenir tous les symboles une seule fois !"
+    orchestrator.setMascotMessage(
+      'Chaque ligne, colonne et zone doit contenir tous les symboles une seule fois !'
     );
     setMascotEmotion('thinking');
-  }, []);
-
-  // ============================================
-  // HANDLERS - Jeu
-  // ============================================
+  }, [orchestrator]);
 
   const handleReset = useCallback(() => {
     gameHandleReset();
-    setMascotMessage("Nouvelle grille ! Bonne chance !");
+    orchestrator.setMascotMessage('Nouvelle grille ! Bonne chance !');
     setMascotEmotion('neutral');
-  }, [gameHandleReset]);
+  }, [gameHandleReset, orchestrator]);
 
   const handleHint = useCallback(() => {
     if (gameState.hintsUsed >= MAX_HINTS) {
-      setMascotMessage("Tu as utilisé tous tes indices ! Essaie par toi-même !");
+      orchestrator.setMascotMessage('Tu as utilisé tous tes indices ! Essaie par toi-même !');
       setMascotEmotion('encouraging');
       return null;
     }
@@ -562,12 +439,14 @@ export function useSudokuIntro(): UseSudokuIntroReturn {
 
     if (result) {
       const hintMessages = LEVEL_MESSAGES.hint;
-      setMascotMessage(hintMessages[Math.floor(Math.random() * hintMessages.length)]);
+      orchestrator.setMascotMessage(
+        hintMessages[Math.floor(Math.random() * hintMessages.length)]
+      );
       setMascotEmotion('thinking');
     }
 
     return result;
-  }, [gameState.hintsUsed, playHint, gameHandleHint]);
+  }, [gameState.hintsUsed, playHint, gameHandleHint, orchestrator]);
 
   // ============================================
   // RETURN
@@ -589,8 +468,8 @@ export function useSudokuIntro(): UseSudokuIntroReturn {
     setShowTrainingSelector,
 
     // État jeu
-    isPlaying,
-    isVictory,
+    isPlaying: orchestrator.isPlaying,
+    isVictory: orchestrator.isVictory,
     gameConfig,
 
     // Game state
@@ -606,12 +485,12 @@ export function useSudokuIntro(): UseSudokuIntroReturn {
     handleDrop,
 
     // Mascot
-    mascotMessage,
+    mascotMessage: orchestrator.mascotMessage,
     mascotEmotion,
 
     // Animations
-    selectorStyle,
-    progressPanelStyle,
+    selectorStyle: orchestrator.selectorStyle,
+    progressPanelStyle: orchestrator.progressPanelStyle,
 
     // Progress data
     progressData,
@@ -621,12 +500,12 @@ export function useSudokuIntro(): UseSudokuIntroReturn {
     handleBack,
     handleReset,
     handleHint,
-    handleParentPress,
+    handleParentPress: orchestrator.handleParentPress,
     handleHelpPress,
 
     // Parent drawer
-    showParentDrawer,
-    setShowParentDrawer,
+    showParentDrawer: orchestrator.showParentDrawer,
+    setShowParentDrawer: orchestrator.setShowParentDrawer,
 
     // Hints
     hintsRemaining: MAX_HINTS - gameState.hintsUsed,

@@ -25,6 +25,44 @@ Créer un nouveau composant UI réutilisable dans `src/components/common/`, en r
 
 ---
 
+## Protocole 3 étapes (OBLIGATOIRE)
+
+> Référence : `docs/00-INDEX.md#protocole-claude-code-3-étapes`
+
+### Étape A : Confirmer la lecture
+
+```text
+✅ J'ai lu les documents de référence.
+✅ Règles à respecter :
+   - Imports : @/theme, @/constants/icons
+   - Touch targets >= 64dp, texte >= 18pt
+   - Accessibilité : accessibilityLabel, accessibilityRole
+✅ Composants existants vérifiés : [liste depuis UI_COMPONENTS_CATALOG]
+✅ Ce composant n'existe pas encore / nécessite une extension
+```
+
+### Étape B : Poser 2-3 questions de clarification
+
+- Quelles props obligatoires ?
+- Quelles props optionnelles ?
+- Quels variants visuels ?
+- Quels callbacks nécessaires ?
+
+### Étape C : Présenter le plan d'action
+
+```text
+📋 PLAN DE CRÉATION :
+1. Créer src/components/common/{NomComposant}.tsx
+2. Définir les types et props
+3. Implémenter avec tokens theme + animations Reanimated
+4. Ajouter l'export dans index.ts
+5. (Optionnel) Documenter dans UI_COMPONENTS_CATALOG.md
+
+→ ATTENDRE VALIDATION avant de créer.
+```
+
+---
+
 ## Étape 1 : Vérifier que le composant n'existe pas
 
 **AVANT de créer**, vérifier `src/components/common/` :

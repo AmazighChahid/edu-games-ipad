@@ -54,3 +54,54 @@ export type {
 // Petals Indicator (replaces stars)
 export { PetalsIndicator } from './PetalsIndicator';
 export type { PetalsIndicatorProps } from './PetalsIndicator';
+
+// Level Card (unified level selector card for all games)
+export { LevelCard } from './LevelCard';
+export type { LevelCardProps } from './LevelCard';
+
+// ============================================
+// JANUARY 2026 - Standardization Components
+// ============================================
+
+// Glass effect container
+export { GlassContainer } from './GlassContainer';
+export type { GlassContainerProps } from './GlassContainer';
+
+// Empty state placeholder
+export { EmptyState } from './EmptyState';
+export type { EmptyStateProps } from './EmptyState';
+
+// Validate button
+export { ValidateButton } from './ValidateButton';
+export type { ValidateButtonProps } from './ValidateButton';
+
+// Age group selector dropdown
+export { AgeGroupSelector } from './AgeGroupSelector';
+export type { AgeGroupSelectorProps, AgeGroup, AgeGroupOption } from './AgeGroupSelector';
+
+// Parent tips button (independent from ScreenHeader)
+export { ParentTipsButton } from './ParentTipsButton';
+export type { ParentTipsButtonProps } from './ParentTipsButton';
+
+// Help button (independent from ScreenHeader, different from HintButton)
+export { HelpButtonStandalone } from './HelpButtonStandalone';
+export type { HelpButtonStandaloneProps } from './HelpButtonStandalone';
+
+// Progress stats panel (replaces duplicated renderProgress)
+export {
+  ProgressStatsPanel,
+  createMovesStatConfig,
+  createObjectiveStatConfig,
+  createErrorsStatConfig,
+  createStreakStatConfig,
+  createTimerStatConfig,
+  createHintsStatConfig,
+  createSuccessStatConfig,
+  createLevelStatConfig,
+  getEncouragementMessage,
+} from './ProgressStatsPanel';
+export type {
+  StatConfig,
+  ProgressBarConfig,
+  ProgressStatsPanelProps,
+} from './ProgressStatsPanel.types';
